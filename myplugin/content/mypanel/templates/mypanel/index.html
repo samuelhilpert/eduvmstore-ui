@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "My plugin" %}{% endblock %}
+
+{% block page_header %}
+  {% include "horizon/common/_domain_page_header.html" with title=_("My Panel") %}
+{% endblock page_header %}
+
+{% block main %}
+  Hello world!
+{% endblock %}
