@@ -33,5 +33,6 @@ if is_service_enabled my-plugin; then
     fi
 
     if [[ "$1" == "clean"  ]]; then
+        :
     fi
 fi
