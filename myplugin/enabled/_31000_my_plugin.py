@@ -5,5 +5,4 @@ ADD_INSTALLED_APPS = ['myplugin']
 ADD_ANGULAR_MODULES = ['horizon.dashboard.identity.myplugin.mypanel']
 AUTO_DISCOVER_STATIC_FILES = True
 ADD_JS_FILES = []
-ADD_SCSS_FILES = ['dashboard/identity/myplugin/mypanel/mypanel.scss']
 ADD_HEADER_SECTIONS = ['myplugin.content.mypanel.views.HeaderView',]
