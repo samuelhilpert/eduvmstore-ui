@@ -8,7 +8,7 @@ function install_plugin {
 }
 
 function configure_plugin {
-    cp -a $PLUGIN_ENABLED_DIR $HORIZON_ENABLED_DIR
+    cp $PLUGIN_ENABLED_DIR/* $HORIZON_ENABLED_DIR
 }
 
 if is_service_enabled myplugin; then
