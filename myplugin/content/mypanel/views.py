@@ -8,7 +8,7 @@ class IndexView(generic.TemplateView):
     template_name = 'identity/mypanel/index.html'
 
 def testing(request):
-    template = loader.get_template('index.html')
+    template = loader.get_template('mypanel/index.html')
     context = {
         'firstname': 'Linus',
     }
