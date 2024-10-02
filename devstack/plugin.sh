@@ -13,7 +13,7 @@ function configure_plugin {
     cp -a $PLUGIN_ENABLED_DIR $HORIZON_ENABLED_DIR
 }
 
-if is_service_enabled my-plugin; then
+if is_service_enabled myplugin; then
 
     if [[ "$1" == "stack" && "$2" == "pre-install"  ]]; then
         :
