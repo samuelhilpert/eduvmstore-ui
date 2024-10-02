@@ -1,1 +1,11 @@
-<h1>Willkommen auf der zweiten Seite!</h1>
+{% block page_header %}
+    {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore") %}
+{% endblock page_header %}
+
+{% block main %}
+    {% with name="World" %}
+        Hello world from second site!
+
+    {% endwith %}
+{% endblock %}
+
