@@ -3,5 +3,5 @@ import horizon
 
 
 class MyPanel(horizon.Panel):
-    name = _("My Panel")
+    name = _("EduVMStore")
     slug = "mypanel"
