@@ -28,10 +28,19 @@
                 $.ajax({
                     url: 'https://sasvserver.azurewebsites.net/test',
                     type: 'GET',
+                    dataType: 'text',  // Ändere dies auf 'text' oder 'html', falls die Antwort nicht JSON ist
                     success: function(response) {
-                        $('#data-output').html(response.message);
+                        // Prüfe den Rückgabetyp und handle ihn entsprechend
+                        if (typeof response === 'object') {
+                            // Wenn die Antwort JSON ist, zeige eine spezifische Eigenschaft an
+                            $('#data-output').html(response.message || 'Erfolgreich Daten abgerufen!');
+                        } else {
+                            // Wenn die Antwort ein einfacher Text ist
+                            $('#data-output').html(response);
+                        }
                     },
                     error: function(xhr, status, error) {
+                        console.error('Ein Fehler ist aufgetreten:', xhr, status, error);
                         $('#data-output').html('Ein Fehler ist aufgetreten: ' + error);
                     }
                 });
