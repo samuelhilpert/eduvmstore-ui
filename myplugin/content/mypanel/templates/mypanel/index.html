@@ -6,13 +6,15 @@
   {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore") %}
 {% endblock page_header %}
 
-{% block main %}{% with name="World" %}
+{% block main %}
+    {% with name="World" %}
   Hello world!
     <p>Test: {{ firstname }}</p>
     <div>Hello {{name}}!</div>
     <a href="{% url 'myplugin:second_page' %}">
         <button>Zur zweiten Seite</button>
     </a>
-{% endblock %}{% endwith %}
+    {% endwith %}
+{% endblock %}
 
 
