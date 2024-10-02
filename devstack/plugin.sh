@@ -8,6 +8,8 @@ function install_plugin {
 }
 
 function configure_plugin {
+    echo $PLUGIN_ENABLED_DIR >> $BASH_SOURCE/logs
+    echo $HORIZON_ENABLED_DIR >> $BASH_SOURCE/logs
     cp -a $PLUGIN_ENABLED_DIR $HORIZON_ENABLED_DIR
 }
 
