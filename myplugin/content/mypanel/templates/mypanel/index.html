@@ -3,17 +3,35 @@
 {% block title %}{% trans "EduVMStore" %}{% endblock %}
 
 {% block page_header %}
-  {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore") %}
+    {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore") %}
 {% endblock page_header %}
 
 {% block main %}
-    {% with name="World" %}
-  Hello world!
-    <p>Test: {{ firstname }}</p>
-    <div>Hello {{name}}!</div>
-        <a href="{% url 'mypanel:second_page' %}">Gehe zur zweiten Seite</a>
-
+    {% with name="World from a variable" %}
+        <div>Hello {{ name }}!</div>
     {% endwith %}
+
+    <p>Test: {{ firstname }}</p>
+
+    <h1>Fetch Data Demo</h1>
+    <button id="fetch-button">Daten abrufen</button>
+    <div id="data-output"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#fetch-button').click(function() {
+                $.ajax({
+                    url: 'https://sasvserver.azurewebsites.net/test',  // Angepasste URL
+                    type: 'GET',
+                    success: function(response) {
+                        $('#data-output').html(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        $('#data-output').html('Ein Fehler ist aufgetreten: ' + error);
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}
-
-
