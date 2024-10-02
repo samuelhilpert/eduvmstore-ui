@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load static %}
 {% block title %}{% trans "EduVMStore" %}{% endblock %}
 
 {% block page_header %}
@@ -17,12 +18,15 @@
     <button id="fetch-button">Daten abrufen</button>
     <div id="data-output"></div>
 
+    <!-- Bild einfügen -->
+    <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#fetch-button').click(function() {
                 $.ajax({
-                    url: 'https://sasvserver.azurewebsites.net/test',  // Angepasste URL
+                    url: 'https://sasvserver.azurewebsites.net/test',
                     type: 'GET',
                     success: function(response) {
                         $('#data-output').html(response.message);
