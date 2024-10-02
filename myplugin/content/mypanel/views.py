@@ -8,8 +8,8 @@ class IndexView(generic.TemplateView):
     template_name = 'identity/mypanel/index.html'
 
 
-class SecondPageView(generic.TemplateView):
-    template_name = 'mypanel/second_page.html'
+def mylist(request):
+    return render(request, 'mypanel/second_page.html')
 
 
 def testing(request):
