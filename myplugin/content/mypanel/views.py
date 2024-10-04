@@ -18,7 +18,6 @@ class IndexView(generic.TemplateView):
 
         # Benutzerinformationen hinzufügen
         context['username'] = user.username
-        context['email'] = user.email
         context['auth_token'] = token_id  # Authentifizierungstoken hinzufügen
 
         return context
