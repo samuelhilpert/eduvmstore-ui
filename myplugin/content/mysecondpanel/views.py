@@ -5,13 +5,13 @@ from django.template import loader
 
 
 class IndexView(generic.TemplateView):
-    template_name = 'identity/mypanel/index.html'
+    template_name = 'identity/mysecondpanel/index.html'
 
 
 
 
 def testing(request):
-    template = loader.get_template('mypanel/index.html')
+    template = loader.get_template('mysecondpanel/index.html')
     context = {
         'firstname': 'Linus',
     }
