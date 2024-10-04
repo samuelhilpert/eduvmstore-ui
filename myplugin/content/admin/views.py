@@ -5,7 +5,7 @@ from django.template import loader
 
 
 class IndexView(generic.TemplateView):
-    template_name = 'identity/mysecondpanel/index.html'
+    template_name = 'identity/admin/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
