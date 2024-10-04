@@ -4,4 +4,4 @@ import horizon
 
 class MySecondPanel(horizon.Panel):
     name = _("Admin")
-    slug = "mypanel"
+    slug = "mysecondpanel"
