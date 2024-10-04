@@ -11,14 +11,17 @@
 
     {% if show_content %}
         <p>Das ist die Admin-Seite</p>
-        <p>{{ show_content }}</p>
         <p>Welcome, {{ username }}!</p>
         <p>Authentication Token: {{ auth_token }}</p>
         <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
         <button class="btn btn-primary">Admin Button</button>
     {% else %}
-        <p>{{ show_content }}</p>
-        <p>Zugriff verweigert. Der Account {{ username }} hat keine Berechtigung, diese Seite zu sehen.</p>
+        <div style="text-align: center; margin-top: 50px;">
+            <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">
+            <p style="font-size: 36px;">
+                Zugriff verweigert. Der Account {{ username }} hat keine Berechtigung, diese Seite zu sehen.</p>
+            <p style="font-size: 36px">Wende dich an einen Administrator, um eine Berechtigung anzufragen.</p>
+        </div>
     {% endif %}
 
 {% endblock %}
