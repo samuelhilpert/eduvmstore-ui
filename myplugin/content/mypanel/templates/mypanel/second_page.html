@@ -1,3 +1,8 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans "EduVMStore" %}{% endblock %}
+
 {% block page_header %}
     {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore") %}
 {% endblock page_header %}
@@ -16,7 +21,7 @@
 
 
     <!-- Bild einfügen -->
-    <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
+    <img src="{% static 'images/unscharf.jpg' %}" alt="Ein Beispielbild" width="400">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
