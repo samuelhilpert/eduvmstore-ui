@@ -18,7 +18,14 @@ class IndexView(generic.TemplateView):
 
         # Benutzerinformationen hinzufügen
         context['username'] = user.username
-        context['auth_token'] = token_id  # Authentifizierungstoken hinzufügen
+        context['auth_token'] = token_id
+        context['admin'] = user.is_superuser
+        context['show_content'] = False
+
+        if user.is_superuser:
+            context['show_content'] = True
+        else:
+            context['show_content'] = False
 
         return context
 

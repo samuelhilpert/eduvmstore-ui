@@ -9,15 +9,22 @@
 
 {% block main %}
 
-    <p>das ist die Admin seite</p>
-    <p>Welcome, {{ username }}!</p>
+    {% if show_content %}
+        <p>Das ist die Admin-Seite</p>
+        <p>Welcome, {{ username }}!</p>
 
+        <!-- Authentifizierungstoken anzeigen -->
+        <p>Authentication Token: {{ auth_token }}</p>
 
-    <!-- Authentifizierungstoken anzeigen -->
-    <p>Authentication Token: {{ auth_token }}</p>
+        <!-- Bild einfügen -->
+        <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
 
-    <!-- Bild einfügen -->
-    <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
+        <!-- Button -->
+        <button class="btn btn-primary">Admin Button</button>
 
+    {% else %}
+        <p>Zugriff verweigert. Der Account {{ username }} hat keine Berechtigung, diese Seite zu sehen.</p>
+
+    {% endif %}
 
 {% endblock %}
