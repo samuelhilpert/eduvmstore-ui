@@ -5,6 +5,6 @@ from myplugin.content.mypanel import views
 
 urlpatterns = [
     re_path(r'^$', views.IndexView.as_view(), name='index'),
-    path('second_page/', views.SecondPageView.as_view(), name='second_page'),
+    path('detail/', views.DetailPageView.as_view(), name='detail'),
 
 ]
