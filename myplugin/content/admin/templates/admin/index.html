@@ -11,11 +11,13 @@
 
     {% if show_content %}
         <p>Das ist die Admin-Seite</p>
+        <p>{{ show_content }}</p>
         <p>Welcome, {{ username }}!</p>
         <p>Authentication Token: {{ auth_token }}</p>
         <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
         <button class="btn btn-primary">Admin Button</button>
     {% else %}
+        <p>{{ show_content }}</p>
         <p>Zugriff verweigert. Der Account {{ username }} hat keine Berechtigung, diese Seite zu sehen.</p>
     {% endif %}
 
