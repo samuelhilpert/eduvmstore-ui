@@ -13,7 +13,11 @@
     {% endwith %}
     <a class="btn btn-primary" href="{% url 'horizon:identity:mypanel:second_page' %}">Go to the Second Page</a>
     <p>Test: {{ firstname }}</p>
-    <p>Welcome, {{ current_user.username }}!</p>
+    <p>Welcome, {{ username }}!</p>
+    <p>Email: {{ email }}</p>
+
+    <!-- Authentifizierungstoken anzeigen -->
+    <p>Authentication Token: {{ auth_token }}</p>
 
     <h1>Fetch Data Demo</h1>
     <button id="fetch-button">Daten abrufen</button>

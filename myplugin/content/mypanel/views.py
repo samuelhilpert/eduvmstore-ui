@@ -9,8 +9,18 @@ class IndexView(generic.TemplateView):
     template_name = 'identity/mypanel/index.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['panel_title'] = _("My Panel")
-        context['current_user'] = self.request.user  # Aktuell angemeldeten Benutzer hinzufügen
+        user = self.request.user
+        token_id = None
+
+        # Prüfe, ob der Benutzer authentifiziert ist und ein Token vorhanden ist
+        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
+            token_id = self.request.user.token.id
+
+        # Benutzerinformationen hinzufügen
+        context['username'] = user.username
+        context['email'] = user.email
+        context['auth_token'] = token_id  # Authentifizierungstoken hinzufügen
+
         return context
 
 
