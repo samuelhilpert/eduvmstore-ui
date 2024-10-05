@@ -8,10 +8,10 @@
 {% endblock page_header %}
 
 {% block main %}
-    <nav>
-        <ul>
-            <li><a href="{% url 'horizon:identity:eduvmstore:index' %}">Home</a></li>
-            <li><a href="{% url 'horizon:identity:eduvmstore:detail' %}">Second Page</a></li>
+    <nav style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+        <ul style="list-style-type: none; padding: 0; margin: 0; display: flex;">
+            <li style="margin-left: 20px;"><a href="{% url 'horizon:identity:eduvmstore:index' %}">Home</a></li>
+            <li style="margin-left: 20px;"><a href="{% url 'horizon:identity:eduvmstore:detail' %}">Second Page</a></li>
         </ul>
     </nav>
     {% with name="World from a variable" %}
