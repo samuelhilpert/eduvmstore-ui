@@ -19,8 +19,6 @@
     <div id="data-output"></div>
     <a class="btn btn-primary" href="{% url 'horizon:identity:eduvmstore:index' %}">Back to Main Page</a>
 
-
-    <!-- Bild einfügen -->
     <img src="{% static 'images/unscharf.jpg' %}" alt="Ein Beispielbild" width="400">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -30,14 +28,11 @@
                 $.ajax({
                     url: 'https://sasvserver.azurewebsites.net/test',
                     type: 'GET',
-                    dataType: 'text',  // Ändere dies auf 'text' oder 'html', falls die Antwort nicht JSON ist
+                    dataType: 'text',
                     success: function(response) {
-                        // Prüfe den Rückgabetyp und handle ihn entsprechend
                         if (typeof response === 'object') {
-                            // Wenn die Antwort JSON ist, zeige eine spezifische Eigenschaft an
                             $('#data-output').html(response.message || 'Erfolgreich Daten abgerufen!');
                         } else {
-                            // Wenn die Antwort ein einfacher Text ist
                             $('#data-output').html(response);
                         }
                     },
