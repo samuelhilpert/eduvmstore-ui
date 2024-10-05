@@ -19,7 +19,7 @@ class IndexView(generic.TemplateView):
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
-        # OpenStack API call to get user data
+
         keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
@@ -30,15 +30,15 @@ class IndexView(generic.TemplateView):
             response.raise_for_status()
             user_data = response.json()['user']
 
-            # Add user data to context
+
             context['username'] = user_data.get('name')
             context['mail'] = user_data.get('email')
         except requests.exceptions.RequestException as e:
             context['error'] = _("Could not retrieve user information: %s") % str(e)
 
-        # Retrieve projects for the current user
+
         if token_id:
-            # OpenStack Keystone Endpoint für die Projekte
+
             keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
             headers = {'X-Auth-Token': token_id}
 
@@ -67,7 +67,7 @@ class AccountPageView(generic.TemplateView):
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
-        # OpenStack API call to get user data
+
         keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
@@ -78,13 +78,13 @@ class AccountPageView(generic.TemplateView):
             response.raise_for_status()
             user_data = response.json()['user']
 
-            # Add user data to context
+
             context['username'] = user_data.get('name')
             context['mail'] = user_data.get('email')
         except requests.exceptions.RequestException as e:
             context['error'] = _("Could not retrieve user information: %s") % str(e)
 
-        # Retrieve projects for the current user
+
         if token_id:
 
             keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
