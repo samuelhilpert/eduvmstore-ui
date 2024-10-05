@@ -37,21 +37,24 @@ class IndexView(generic.TemplateView):
             context['error'] = _("Could not retrieve user information: %s") % str(e)
 
         # Retrieve projects for the current user
-        projects_url = f"http://192.168.64.16/identity/v3/projects"
-        params = {
-            'user_id': user.id,
-        }
+        if token_id:
+            # OpenStack Keystone Endpoint für die Projekte
+            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            headers = {'X-Auth-Token': token_id}
 
-        try:
-            response = requests.get(projects_url, headers=headers, params=params)
-            response.raise_for_status()
-            projects = response.json()['projects']
-            context['projects'] = projects
-        except requests.exceptions.RequestException as e:
-            context['error_projects'] = _("Could not retrieve projects: %s") % str(e)
+            try:
+                response = requests.get(keystone_url, headers=headers)
+
+                if response.status_code == 200:
+                    projects = response.json().get('projects', [])
+                    context['projects'] = projects if projects else None
+                else:
+                    context['error'] = f"Could not retrieve projects: {response.status_code} {response.text}"
+
+            except requests.RequestException as e:
+                context['error'] = f"Error contacting Keystone: {e}"
 
         return context
-
 
 class AccountPageView(generic.TemplateView):
     template_name = 'identity/eduvmstore/account.html'
@@ -82,18 +85,22 @@ class AccountPageView(generic.TemplateView):
             context['error'] = _("Could not retrieve user information: %s") % str(e)
 
         # Retrieve projects for the current user
-        projects_url = f"http://192.168.64.16/identity/v3/projects"
-        params = {
-            'user_id': user.id,
-        }
+        if token_id:
 
-        try:
-            response = requests.get(projects_url, headers=headers, params=params)
-            response.raise_for_status()
-            projects = response.json()['projects']
-            context['projects'] = projects
-        except requests.exceptions.RequestException as e:
-            context['error_projects'] = _("Could not retrieve projects: %s") % str(e)
+            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            headers = {'X-Auth-Token': token_id}
+
+            try:
+                response = requests.get(keystone_url, headers=headers)
+
+                if response.status_code == 200:
+                    projects = response.json().get('projects', [])
+                    context['projects'] = projects if projects else None
+                else:
+                    context['error'] = f"Could not retrieve projects: {response.status_code} {response.text}"
+
+            except requests.RequestException as e:
+                context['error'] = f"Error contacting Keystone: {e}"
 
         return context
 
