@@ -8,6 +8,7 @@
 {% endblock page_header %}
 
 {% block main %}
+    {% include 'eduvmstore/_menu.html' %}
     {% with name="World from a variable" %}
         <div>Hello {{ name }}!</div>
     {% endwith %}
