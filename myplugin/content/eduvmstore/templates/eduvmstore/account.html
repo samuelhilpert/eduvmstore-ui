@@ -30,6 +30,17 @@
     <button>Change Passwort</button>
 
     <p>Your projects</p>
+    {% if error_projects %}
+        <p style="color: red;">{{ error_projects }}</p>
+    {% else %}
+        <ul>
+            {% for project in projects %}
+                <li>{{ project.name }}</li>
+                {% empty %}
+                <li>No projects available.</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
 {% endblock %}
 
