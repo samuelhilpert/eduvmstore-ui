@@ -23,8 +23,8 @@ class IndexView(generic.TemplateView):
         return context
 
 
-class DetailPageView(generic.TemplateView):
-    template_name = 'identity/eduvmstore/detail.html'
+class AccountPageView(generic.TemplateView):
+    template_name = 'identity/eduvmstore/account.html'
 
 
 

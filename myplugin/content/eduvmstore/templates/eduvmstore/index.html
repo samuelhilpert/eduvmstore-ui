@@ -13,16 +13,18 @@
 
         <ul style="list-style-type: none; padding: 0; margin: 0; display: flex;">
             <li style="margin-left: 20px;"><a href="{% url 'horizon:identity:eduvmstore:index' %}" style="color: black; text-decoration: none;">Dashboard</a></li>
-            <li style="margin-left: 20px;"><a href="{% url 'horizon:identity:eduvmstore:detail' %}" style="color: black; text-decoration: none;">My Account</a></li>
+            <li style="margin-left: 20px;"><a href="{% url 'horizon:identity:eduvmstore:account' %}" style="color: black; text-decoration: none;">My Account</a></li>
         </ul>
     </nav>
     <hr style="border: 1px solid lightgray; margin: 5px 0;">
+
+    <h1>Dashboard</h1>
 
 
     {% with name="World from a variable" %}
         <div>Hello {{ name }}!</div>
     {% endwith %}
-    <a class="btn btn-primary" href="{% url 'horizon:identity:eduvmstore:detail' %}">Go to the Second Page</a>
+    <a class="btn btn-primary" href="{% url 'horizon:identity:eduvmstore:account' %}">Go to the Second Page</a>
     <p>Welcome, {{ username }}!</p>
 
     <p>Authentication Token: {{ auth_token }}</p>
