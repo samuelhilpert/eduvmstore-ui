@@ -19,6 +19,7 @@ class IndexView(generic.TemplateView):
 
         context['username'] = user.username
         context['auth_token'] = token_id
+        context['mail'] = user.email
 
         return context
 

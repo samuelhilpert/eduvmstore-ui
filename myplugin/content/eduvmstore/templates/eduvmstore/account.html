@@ -20,41 +20,16 @@
 
     <h1>My Account</h1>
 
-    {% with name="World" %}
-        Hello world from second site!
-        <div>Hello {{ name }}!</div>
+    <h2>Welcome, {{ username }}!</h2>
+    <p>Your personal data:</p>
+    <ul>
+        <li>Username: {{ username }}</li>
+        <li>Email: {{ mail }}</li>
+    </ul>
+    <button>Change Email</button>
+    <button>Change Passwort</button>
 
-    {% endwith %}
+    <p>Your projects</p>
 
-    h1>Fetch Data Demo</h1>
-    <button id="fetch-button">Daten abrufen</button>
-    <div id="data-output"></div>
-    <a class="btn btn-primary" href="{% url 'horizon:identity:eduvmstore:index' %}">Back to Main Page</a>
-
-    <img src="{% static 'images/unscharf.jpg' %}" alt="Ein Beispielbild" width="400">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#fetch-button').click(function() {
-                $.ajax({
-                    url: 'https://sasvserver.azurewebsites.net/test',
-                    type: 'GET',
-                    dataType: 'text',
-                    success: function(response) {
-                        if (typeof response === 'object') {
-                            $('#data-output').html(response.message || 'Erfolgreich Daten abgerufen!');
-                        } else {
-                            $('#data-output').html(response);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ein Fehler ist aufgetreten:', xhr, status, error);
-                        $('#data-output').html('Ein Fehler ist aufgetreten: ' + error);
-                    }
-                });
-            });
-        });
-    </script>
 {% endblock %}
 
