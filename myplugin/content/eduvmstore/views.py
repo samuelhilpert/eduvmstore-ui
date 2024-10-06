@@ -9,7 +9,7 @@ from django.conf import settings
 
 
 class IndexView(generic.TemplateView):
-    template_name = 'identity/eduvmstore/account.html'
+    template_name = 'identity/eduvmstore/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
