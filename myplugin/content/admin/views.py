@@ -1,7 +1,7 @@
-from django.shortcuts import render
+
 from django.views import generic
-from django.http import HttpResponse, JsonResponse
-from django.template import loader
+
+
 
 
 class IndexView(generic.TemplateView):
@@ -11,6 +11,7 @@ class IndexView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         token_id = None
+
 
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
@@ -24,6 +25,7 @@ class IndexView(generic.TemplateView):
             context['show_content'] = True
         else:
             context['show_content'] = False
+
 
         return context
 
