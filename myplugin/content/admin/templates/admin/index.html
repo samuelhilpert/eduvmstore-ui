@@ -9,15 +9,21 @@
 
 {% block main %}
 
-    <p>das ist die Admin seite</p>
-    <p>Welcome, {{ username }}!</p>
 
-
-    <!-- Authentifizierungstoken anzeigen -->
-    <p>Authentication Token: {{ auth_token }}</p>
-
-    <!-- Bild einfügen -->
-    <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
+    {% if show_content %}
+        <p>Das ist die Admin-Seite</p>
+        <p>Welcome, {{ username }}!</p>
+        <p>Authentication Token: {{ auth_token }}</p>
+        <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
+        <button class="btn btn-primary">Admin Button</button>
+    {% else %}
+        <div style="text-align: center; margin-top: 50px;">
+            <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">
+            <p style="font-size: 24px;">Access denied.</p>
+            <p style="font-size: 18px;">The account "{{ username }}" does not have permission to view this page.</p>
+            <p style="font-size: 18px;">Contact an administrator to request permission.</p>
+        </div>
+    {% endif %}
 
 
 {% endblock %}

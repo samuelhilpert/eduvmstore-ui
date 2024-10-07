@@ -1,4 +1,6 @@
+
 from django.views import generic
+
 
 
 
@@ -10,13 +12,20 @@ class IndexView(generic.TemplateView):
         user = self.request.user
         token_id = None
 
-        # Prüfe, ob der Benutzer authentifiziert ist und ein Token vorhanden ist
+
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
-        # Benutzerinformationen hinzufügen
         context['username'] = user.username
-        context['auth_token'] = token_id  # Authentifizierungstoken hinzufügen
+        context['auth_token'] = token_id
+        context['admin'] = user.is_superuser
+        context['show_content'] = False
+
+        if user.is_superuser:
+            context['show_content'] = True
+        else:
+            context['show_content'] = False
+
 
         return context
 
