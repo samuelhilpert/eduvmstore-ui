@@ -1,0 +1,10 @@
+groups:
+  - name: devs
+    reviewers: 1
+    usernames:
+      - samuelhilpert
+      - JaredHeinrich
+      - rickertmar
+      - val-cze
+      - emesercz 
+      - m0nika6

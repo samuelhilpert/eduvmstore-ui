@@ -1,7 +1,7 @@
-from django.shortcuts import render
+
 from django.views import generic
-from django.http import HttpResponse, JsonResponse
-from django.template import loader
+
+
 
 
 class IndexView(generic.TemplateView):
@@ -19,6 +19,14 @@ class IndexView(generic.TemplateView):
 
         context['username'] = user.username
         context['auth_token'] = token_id
+        context['admin'] = user.is_superuser
+        context['show_content'] = False
+
+        if user.is_superuser:
+            context['show_content'] = True
+        else:
+            context['show_content'] = False
+
 
         return context
 

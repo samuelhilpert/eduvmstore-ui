@@ -1,9 +1,7 @@
-from asyncio import timeout
-
 import requests
-
+from django.shortcuts import render
 from django.views import generic
-
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
@@ -28,7 +26,7 @@ class IndexView(generic.TemplateView):
         }
 
         try:
-            response = requests.get(keystone_url, headers=headers, timeout=10)
+            response = requests.get(keystone_url, headers=headers)
             response.raise_for_status()
             user_data = response.json()['user']
 
@@ -45,7 +43,7 @@ class IndexView(generic.TemplateView):
             headers = {'X-Auth-Token': token_id}
 
             try:
-                response = requests.get(keystone_url, headers=headers, timeout=10)
+                response = requests.get(keystone_url, headers=headers)
 
                 if response.status_code == 200:
                     projects = response.json().get('projects', [])
@@ -76,7 +74,7 @@ class AccountPageView(generic.TemplateView):
         }
 
         try:
-            response = requests.get(keystone_url, headers=headers, timeout=10)
+            response = requests.get(keystone_url, headers=headers)
             response.raise_for_status()
             user_data = response.json()['user']
 
@@ -93,7 +91,7 @@ class AccountPageView(generic.TemplateView):
             headers = {'X-Auth-Token': token_id}
 
             try:
-                response = requests.get(keystone_url, headers=headers, timeout=10)
+                response = requests.get(keystone_url, headers=headers)
 
                 if response.status_code == 200:
                     projects = response.json().get('projects', [])
