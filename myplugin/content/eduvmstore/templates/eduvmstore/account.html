@@ -8,16 +8,6 @@
 {% endblock page_header %}
 
 {% block main %}
-    <nav style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-        <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" style="height: 60px; margin-right: 10px;">
-
-        <ul style="list-style-type: none; padding: 0; margin: 0; display: flex;">
-            <li style="margin-left: 20px;"><a href="{% url 'horizon:identity:eduvmstore:index' %}" style="color: black; text-decoration: none;">Dashboard</a></li>
-            <li style="margin-left: 20px;"><a href="{% url 'horizon:identity:eduvmstore:account' %}" style="color: black; text-decoration: none;">My Account</a></li>
-        </ul>
-    </nav>
-    <hr style="border: 1px solid lightgray; margin: 5px 0;">
-
     <h1>My Account</h1>
 
     <h2>Welcome, {{ username }}!</h2>
