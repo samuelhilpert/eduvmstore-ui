@@ -16,6 +16,7 @@ class IndexView(generic.TemplateView):
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
+
         context['username'] = user.username
         context['auth_token'] = token_id
         context['admin'] = user.is_superuser
