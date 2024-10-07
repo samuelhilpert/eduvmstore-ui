@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans "Admin" %}{% endblock %}
+
+{% block page_header %}
+    {% include "horizon/common/_domain_page_header.html" with title=_("Admin") %}
+{% endblock page_header %}
+
+{% block main %}
+
+    <p>das ist die Admin seite</p>
+    <p>Welcome, {{ username }}!</p>
+
+
+    <!-- Authentifizierungstoken anzeigen -->
+    <p>Authentication Token: {{ auth_token }}</p>
+
+    <!-- Bild einfügen -->
+    <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
+
+
+{% endblock %}
