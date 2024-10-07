@@ -1,0 +1,16 @@
+name: Assigne Pull-Request Reviewer
+permissions:
+  contents: read
+  pull-requests: write
+on:
+  pull_request_target:
+    types: [opened, ready_for_review, reopened]
+
+jobs:
+  assign_reviews:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: uesteibar/reviewer-lottery@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
