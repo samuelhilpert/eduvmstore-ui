@@ -1,0 +1,53 @@
+name: Ruff Linting
+
+on:
+  # Linting wird bei jedem Pull Request und Push auf den "main"- und "dev"-Branch ausgelöst
+  pull_request:
+    branches:
+      - main
+      - dev
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Ruff Check
+        uses: chartboost/ruff-action@v1
+        with:
+          version: 0.6.7
+          src: '.'
+          args: 'check --config ruff.toml --fix'
+          changed-files: 'true'
+
+      - name: Run Ruff Format
+        uses: chartboost/ruff-action@v1
+        with:
+          version: 0.6.7
+          src: '.'
+          args: 'format --config ruff.toml'
+          changed-files: 'true'
+      # Set up Python environment
+#      - name: Set up Python
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: "3.x"
+
+      # Install Ruff
+#      - name: Install Ruff
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install ruff
+#
+ #     # Run Ruff Lint with the configuration file
+#      - name: Run Ruff
+#        run: |
+#          ruff check . --config pyproject.toml --fix
