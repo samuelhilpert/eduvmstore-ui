@@ -5,6 +5,6 @@ from myplugin.content.eduvmstore import views
 
 urlpatterns = [
     re_path(r'^$', views.IndexView.as_view(), name='index'),
-    path('account/', views.AccountPageView.as_view(), name='account'),
+    path('details/', views.AccountPageView.as_view(), name='details'),
 
 ]
