@@ -1,5 +1,5 @@
 PANEL = 'eduvmstore'
-PANEL_DASHBOARD = 'project'
+PANEL_DASHBOARD = 'edu_dashboard'
 ADD_PANEL = 'myplugin.content.eduvmstore.panel.MyPanel'
 ADD_INSTALLED_APPS = ['myplugin']
 ADD_ANGULAR_MODULES = ['horizon.dashboard.identity.myplugin.eduvmstore']
