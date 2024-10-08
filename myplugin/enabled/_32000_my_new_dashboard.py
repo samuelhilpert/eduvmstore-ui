@@ -2,8 +2,8 @@ import horizon
 
 # Neues Dashboard definieren
 class MyNewDashboard(horizon.Dashboard):
-    name = "My New Dashboard"
-    slug = "mynewdashboard"
+    name = "EduVMStore"
+    slug = "eduvmstore_dashboard"
     panels = ('admin', 'eduvmstore', )  # Die beiden existierenden Panels
     default_panel = 'eduvmstore'  # Standardmäßig das Admin-Panel anzeigen
 
