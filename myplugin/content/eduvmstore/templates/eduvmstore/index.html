@@ -14,7 +14,7 @@
     {% with name="World from a variable" %}
         <div>Hello {{ name }}!</div>
     {% endwith %}
-    <a class="btn btn-primary" href="{% url 'horizon:identity:eduvmstore:account' %}">Go to the Second Page</a>
+    <a class="btn btn-primary" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:account' %}">Go to the Second Page</a>
     <p>Welcome, {{ username }}!</p>
 
     <p>Authentication Token: {{ auth_token }}</p>

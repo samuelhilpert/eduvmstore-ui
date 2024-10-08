@@ -5,7 +5,7 @@ from django.views import generic
 
 
 class IndexView(generic.TemplateView):
-    template_name = 'identity/admin/index.html'
+    template_name = 'eduvmstore_dashboard/admin/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
