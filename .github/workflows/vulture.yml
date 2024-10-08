@@ -31,5 +31,5 @@ jobs:
 
       - name: Run Vulture
         run: |
-          vulture . --ignore-names "SECRET_KEY,DEBUG,ALLOWED_HOSTS,INSTALLED_APPS,MIDDLEWARE,ROOT_URLCONF,TEMPLATES,WSGI_APPLICATION,DATABASES,AUTH_PASSWORD_VALIDATORS,LANGUAGE_CODE,TIME_ZONE,USE_I18N,USE_TZ,STATIC_URL,DEFAULT_AUTO_FIELD,application,urlpatterns,name,slug,template_name,PANEL,PANEL_DASHBOARD,ADD_PANEL,ADD_INSTALLED_APPS,ADD_ANGULAR_MODULES,AUTO_DISCOVER_STATIC_FILES,ADD_JS_FILES,ADD_HEADER_SECTIONS" --exclude "myplugin/content/admin/panel.py,myplugin/content/eduvmstore/panel.py"
+          vulture . --ignore-names "SECRET_KEY,DEBUG,ALLOWED_HOSTS,INSTALLED_APPS,MIDDLEWARE,ROOT_URLCONF,TEMPLATES,WSGI_APPLICATION,DATABASES,AUTH_PASSWORD_VALIDATORS,LANGUAGE_CODE,TIME_ZONE,USE_I18N,USE_TZ,STATIC_URL,DEFAULT_AUTO_FIELD,application,urlpatterns,name,slug,template_name,PANEL,PANEL_DASHBOARD,ADD_PANEL,ADD_INSTALLED_APPS,ADD_ANGULAR_MODULES,AUTO_DISCOVER_STATIC_FILES,ADD_JS_FILES,ADD_HEADER_SECTIONS" --exclude "myplugin/content/admin/panel.py,myplugin/content/eduvmstore/panel.py,myplugin/content/tutorial/panel.py,myplugin/enabled/_32000_my_new_dashboard.py"
       
