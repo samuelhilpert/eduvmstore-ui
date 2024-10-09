@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
+    tab_group_class = edu_tabs.MypanelTabs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,7 +110,7 @@ class AccountPageView(generic.TemplateView):
 
 class TableView(tabs.TabbedTableView):
     tab_group_class = edu_tabs.MypanelTabs
-    template_name = 'mydashboard/mypanel/index.html'
+    template_name = 'eduvmstore_dashboard/eduvmstore/overview.html'
 
     def get_data(self, request, context, *args, **kwargs):
         # Add data to the context here...
