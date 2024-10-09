@@ -43,47 +43,36 @@ class ImageTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
     preload = False
 
-    def has_more_data(self, table):
-        return self._has_more
+def has_more_data(self, table):
+    return self._has_more
 
-    def get_images_data(self):
-        try:
-            # Marker for pagination
-            marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
+def get_images_data(self):
+    try:
+        marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
 
-            # Fetch both user-owned images and public images
-            search_opts = {
-                'visibility': 'public',  # Filter for public images
-                'paginate': True,
-                'marker': marker,
-            }
+        # Fetch the response from Glance API
+        response = api.glance.image_list_detailed(self.request, marker=marker, paginate=True)
 
-            # Fetch public images
-            public_images, has_more_public = glance.image_list_detailed(
-                self.request, search_opts=search_opts
-            )
+        # The response is a dictionary, so we extract the "images" key
+        images = response['images']
 
-            # Fetch user's own images
-            user_images, has_more_user = glance.image_list_detailed(
-                self.request, search_opts={'owner': self.request.user.id, 'paginate': True, 'marker': marker}
-            )
+        print(images)
 
-            # Combine user-owned images and public images
-            images = user_images + public_images
+        # If you need pagination, set _has_more manually or handle pagination logic
+        self._has_more = False  # Glance API pagination handling can be customized here
 
-            # Handle pagination for both sets of images
-            self._has_more = has_more_public or has_more_user
+        return images
 
-            return images
-
-        except Exception as e:
-            self._has_more = False
-            error_message = _('Unable to retrieve images.')
-            exceptions.handle(self.request, error_message)
-            return []
+    except Exception as e:
+        self._has_more = False
+        error_message = _('Unable to retrieve images: %s' % str(e))
+        exceptions.handle(self.request, error_message)
+        return []
 
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):
     slug = "mypanel_tabs"
-    tabs = (ImageTab,)  # Added the new ImageTab here
+    tabs = (ImageTab, )  # Added the new ImageTab here
     sticky = True
+
+
