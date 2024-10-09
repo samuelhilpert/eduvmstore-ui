@@ -119,7 +119,7 @@ class TableView(tabs.TabbedTableView):
             token_id = self.request.user.token.id
 
         if token_id:
-            glance_url = "http://192.168.64.16:9292/v2/images"
+            glance_url = "http://192.168.64.16/identity/v2/images"
             headers = {
                 'X-Auth-Token': token_id,
                 'Content-Type': 'application/json'
