@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 
 from horizon import exceptions
 from horizon import tabs
-
+import  logging
 from openstack_dashboard import api
 from openstack_dashboard.api import glance
 from myplugin.content.eduvmstore import tables
@@ -35,6 +35,8 @@ class InstanceTab(tabs.TableTab):
 
             return []
 
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 # New Tab for displaying images
 class ImageTab(tabs.TableTab):
@@ -60,7 +62,9 @@ class ImageTab(tabs.TableTab):
             else:
                 image_list = images
                 self._has_more = False  # Set false if no pagination info is available
-            print(image_list)
+
+            # Log the image list
+            logger.debug("Fetched image list: %s", image_list)
 
             return image_list
 
