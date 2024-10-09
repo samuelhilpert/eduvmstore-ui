@@ -7,25 +7,62 @@
     {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore Admin") %}
 {% endblock page_header %}
 
-{% block main %}
+<style>
+    .centered-table {
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse: separate;
+        border-spacing: 20px 10px;
+    }
+</style>
 
+{% if show_content %}
+    <h3>Welcome, {{ username }}!</h3>
+    <hr style="border: 1px solid lightgray; margin: 5px 0;">
+    <h2>Confirm new App-Templates</h2>
+    <table class="centered-table">
+        <tr>
+            <th>App-Template</th>
+            <th>Owner</th>
+            <th>Accept</th>
+            <th>Deny</th>
+        </tr>
 
-
-    {% if show_content %}
-        <p>Das ist die Admin-Seite</p>
-        <p>Welcome, {{ username }}!</p>
-        <p>Authentication Token: {{ auth_token }}</p>
-        <img src="{% static 'images/Unbenannt.png' %}" alt="Ein Beispielbild" width="400">
-        <button class="btn btn-primary">Admin Button</button>
-    {% else %}
-        <div style="text-align: center; margin-top: 50px;">
-            <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">
-            <p style="font-size: 24px;">Access denied.</p>
-            <p style="font-size: 18px;">The account "{{ username }}" does not have permission to view this page.</p>
-            <p style="font-size: 18px;">Contact an administrator to request permission.</p>
-        </div>
-    {% endif %}
+        <tr>
+            <td>SAP S5CZE</td>
+            <td>Valentin Czekalla</td>
+            <td><button>Accept</button></td>
+            <td><button>Deny</button>Deny</td>
+        </tr>
+    </table>
+    <hr style="border: 1px solid lightgray; margin: 5px 0;">
+    <h2>Edit User Roles</h2>
+    <p>Role model: 100 - User, 500 - Admin</p>
+    <table class="centered-table">
+        <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>New role level</th>
+            <th>Accept</th>
+        </tr>
+        <tr>
+            <td>Valentin Czekalla</td>
+            <td>100</td>
+            <td><input type="number" name="new_role_level" min="100" max="500" step="100" required></td>
+            <td><button>Accept</button></td>
+        </tr>
+    </table>
+{% else %}
+    <div style="text-align: center; margin-top: 50px;">
+        <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">
+        <p style="font-size: 24px;">Access denied.</p>
+        <p style="font-size: 18px;">The account "{{ username }}" does not have permission to view this page.</p>
+        <p style="font-size: 18px;">Contact an administrator to request permission.</p>
+    </div>
+{% endif %}
 
 
 
 {% endblock %}
+
+
