@@ -7,14 +7,6 @@
     {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore Admin") %}
 {% endblock page_header %}
 
-<style>
-    .centered-table {
-        margin-left: auto;
-        margin-right: auto;
-        border-collapse: separate;
-        border-spacing: 30px 15px; /* Increase the spacing between columns */
-    }
-</style>
 
 {% block main %}
 
@@ -22,7 +14,7 @@
     <h3>Welcome, {{ username }}!</h3>
     <hr style="border: 1px solid lightgray; margin: 5px 0;">
     <h2>Confirm new App-Templates</h2>
-    <table class="centered-table">
+    <table style="margin: 0 auto; border-spacing: 15px;">
         <tr>
             <th>App-Template</th>
             <th>Owner</th>
@@ -40,7 +32,7 @@
     <hr style="border: 1px solid lightgray; margin: 5px 0;">
     <h2>Edit User Roles</h2>
     <p>Role model: 100 - User, 500 - Admin</p>
-    <table class="centered-table">
+    <table style="margin: 0 auto; border-spacing: 15px;">
         <tr>
             <th>Username</th>
             <th>Role</th>
