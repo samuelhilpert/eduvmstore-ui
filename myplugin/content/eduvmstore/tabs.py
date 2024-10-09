@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 
 from horizon import exceptions
 from horizon import tabs
-import  logging
+import  requests
 from openstack_dashboard import api
 from openstack_dashboard.api import glance
 from myplugin.content.eduvmstore import tables
@@ -35,44 +35,40 @@ class InstanceTab(tabs.TableTab):
 
             return []
 
-# Get an instance of a logger
-logger = logging.getLogger(__name__)
 
 # New Tab for displaying images
 class ImageTab(tabs.TableTab):
     name = _("Images Tab")
     slug = "images_tab"
     table_classes = (tables.ImageTable,)
-    template_name = ("horizon/common/_detail_table.html")
+    template_name = "horizon/common/_detail_table.html"
     preload = False
 
     def has_more_data(self, table):
         return self._has_more
 
     def get_images_data(self):
+        """Fetch the images from the Glance API."""
         try:
-            marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
+            token_id = self.request.user.token.id
+            glance_url = "http://192.168.64.16:9292/v2/images"
+            headers = {
+                'X-Auth-Token': token_id,
+                'Content-Type': 'application/json'
+            }
 
-            # Fetch the detailed list of public images from Glance API
-            images = glance.image_list_detailed(self.request, visibility='public', marker=marker, paginate=True)
-
-            # Check if images response is a tuple (list of images, has_more) or just a list
-            if isinstance(images, tuple):
-                image_list, self._has_more = images
-            else:
-                image_list = images
-                self._has_more = False  # Set false if no pagination info is available
-
-            # Log the image list
-            logger.debug("Fetched image list: %s", image_list)
-
-            return image_list
-
-        except Exception as e:
+            response = requests.get(glance_url, headers=headers, timeout=10)
+            response.raise_for_status()
+            images = response.json().get('images', [])
+            self._has_more = bool(response.json().get('next', None))  # Check for pagination
+            return images
+        except Exception:
             self._has_more = False
-            error_message = _('Unable to retrieve images: %s' % str(e))
+            error_message = _('Unable to get images')
             exceptions.handle(self.request, error_message)
+
             return []
+
 
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):

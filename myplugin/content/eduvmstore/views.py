@@ -112,5 +112,25 @@ class TableView(tabs.TabbedTableView):
     template_name = 'eduvmstore_dashboard/eduvmstore/overview.html'
 
     def get_data(self, request, context, *args, **kwargs):
-        # Add data to the context here...
+        user = self.request.user
+        token_id = None
+
+        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
+            token_id = self.request.user.token.id
+
+        if token_id:
+            glance_url = "http://192.168.64.16:9292/v2/images"
+            headers = {
+                'X-Auth-Token': token_id,
+                'Content-Type': 'application/json'
+            }
+
+            try:
+                response = requests.get(glance_url, headers=headers, timeout=10)
+                response.raise_for_status()
+                images = response.json().get('images', [])
+                context['images'] = images if images else []
+            except requests.exceptions.RequestException as e:
+                context['error'] = _("Could not retrieve images: %s") % str(e)
+
         return context
