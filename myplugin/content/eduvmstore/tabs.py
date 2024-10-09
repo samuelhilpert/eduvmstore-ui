@@ -52,9 +52,17 @@ class ImageTab(tabs.TableTab):
             marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
 
             # Fetch the detailed list of public images from Glance API
-            images, self._has_more = glance.image_list_detailed(self.request, visibility='public', marker=marker, paginate=True)
+            images = glance.image_list_detailed(self.request, visibility='public', marker=marker, paginate=True)
 
-            return images
+            # Check if images response is a tuple (list of images, has_more) or just a list
+            if isinstance(images, tuple):
+                image_list, self._has_more = images
+            else:
+                image_list = images
+                self._has_more = False  # Set false if no pagination info is available
+            print(image_list)
+
+            return image_list
 
         except Exception as e:
             self._has_more = False
