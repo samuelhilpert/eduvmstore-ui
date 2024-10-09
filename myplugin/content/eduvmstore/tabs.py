@@ -35,6 +35,7 @@ class InstanceTab(tabs.TableTab):
 
             return []
 
+
 # New Tab for displaying images
 class ImageTab(tabs.TableTab):
     name = _("Images Tab")
@@ -43,31 +44,23 @@ class ImageTab(tabs.TableTab):
     template_name = ("horizon/common/_detail_table.html")
     preload = False
 
-def has_more_data(self, table):
-    return self._has_more
+    def has_more_data(self, table):
+        return self._has_more
 
-def get_images_data(self):
-    try:
-        marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
+    def get_images_data(self):
+        try:
+            marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
 
-        # Fetch the response from Glance API
-        response = api.glance.image_list_detailed(self.request, marker=marker, paginate=True)
+            # Fetch the detailed list of public images from Glance API
+            images, self._has_more = glance.image_list_detailed(self.request, visibility='public', marker=marker, paginate=True)
 
-        # The response is a dictionary, so we extract the "images" key
-        images = response['images']
+            return images
 
-        print(images)
-
-        # If you need pagination, set _has_more manually or handle pagination logic
-        self._has_more = False  # Glance API pagination handling can be customized here
-
-        return images
-
-    except Exception as e:
-        self._has_more = False
-        error_message = _('Unable to retrieve images: %s' % str(e))
-        exceptions.handle(self.request, error_message)
-        return []
+        except Exception as e:
+            self._has_more = False
+            error_message = _('Unable to retrieve images: %s' % str(e))
+            exceptions.handle(self.request, error_message)
+            return []
 
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):
