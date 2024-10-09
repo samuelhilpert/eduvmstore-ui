@@ -1,9 +1,10 @@
 
 
 import requests
+from horizon import tabs
 
 from django.views import generic
-
+from myplugin.content.eduvmstore import tabs as edu_tabs
 
 from django.utils.translation import gettext_lazy as _
 
@@ -106,4 +107,10 @@ class AccountPageView(generic.TemplateView):
         return context
 
 
+class TableView(tabs.TabbedTableView):
+    tab_group_class = edu_tabs.MypanelTabs
+    template_name = 'mydashboard/mypanel/index.html'
 
+    def get_data(self, request, context, *args, **kwargs):
+        # Add data to the context here...
+        return context
