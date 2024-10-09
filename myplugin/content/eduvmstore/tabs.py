@@ -4,6 +4,7 @@ from horizon import exceptions
 from horizon import tabs
 
 from openstack_dashboard import api
+from openstack_dashboard.api import glance
 from myplugin.content.eduvmstore import tables
 
 
@@ -47,15 +48,37 @@ class ImageTab(tabs.TableTab):
 
     def get_images_data(self):
         try:
+            # Marker for pagination
             marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
-            images, self._has_more = api.glance.image_list_detailed(
-                self.request,
-                marker=marker,
-                paginate=True)
+
+            # Fetch both user-owned images and public images
+            search_opts = {
+                'visibility': 'public',  # Filter for public images
+                'paginate': True,
+                'marker': marker,
+            }
+
+            # Fetch public images
+            public_images, has_more_public = glance.image_list_detailed(
+                self.request, search_opts=search_opts
+            )
+
+            # Fetch user's own images
+            user_images, has_more_user = glance.image_list_detailed(
+                self.request, search_opts={'owner': self.request.user.id, 'paginate': True, 'marker': marker}
+            )
+
+            # Combine user-owned images and public images
+            images = user_images + public_images
+
+            # Handle pagination for both sets of images
+            self._has_more = has_more_public or has_more_user
+
             return images
-        except Exception:
+
+        except Exception as e:
             self._has_more = False
-            error_message = _('Unable to get images')
+            error_message = _('Unable to retrieve images.')
             exceptions.handle(self.request, error_message)
             return []
 
