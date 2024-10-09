@@ -3,5 +3,5 @@ import horizon
 
 
 class MySecondPanel(horizon.Panel):
-    name = _("Admin")
+    name = _("EduVMStore Admin")
     slug = "admin"

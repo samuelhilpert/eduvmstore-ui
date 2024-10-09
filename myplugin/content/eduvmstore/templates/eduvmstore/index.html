@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
-{% block title %}{% trans "EduVMStore" %}{% endblock %}
+{% block title %}{% trans "Dashboard" %}{% endblock %}
 
 {% block page_header %}
-    {% include "horizon/common/_domain_page_header.html" with title=_("EduVMStore") %}
+    {% include "horizon/common/_domain_page_header.html" with title=_("Dashboard") %}
 {% endblock page_header %}
 
 {% block main %}
@@ -14,7 +14,7 @@
     {% with name="World from a variable" %}
         <div>Hello {{ name }}!</div>
     {% endwith %}
-    <a class="btn btn-primary" href="{% url 'horizon:identity:eduvmstore:account' %}">Go to the Second Page</a>
+    <a class="btn btn-primary" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' %}">Go to the Second Page</a>
     <p>Welcome, {{ username }}!</p>
 
     <p>Authentication Token: {{ auth_token }}</p>

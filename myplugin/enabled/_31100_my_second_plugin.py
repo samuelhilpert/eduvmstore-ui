@@ -1,5 +1,5 @@
 PANEL = 'admin'
-PANEL_DASHBOARD = 'identity'
+PANEL_DASHBOARD = 'eduvmstore_dashboard'
 ADD_PANEL = 'myplugin.content.admin.panel.MySecondPanel'
 ADD_ANGULAR_MODULES = ['horizon.dashboard.identity.myplugin.admin']
 AUTO_DISCOVER_STATIC_FILES = True
