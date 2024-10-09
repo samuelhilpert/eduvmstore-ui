@@ -12,7 +12,6 @@ from django.utils.translation import gettext_lazy as _
 
 class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
-    tab_group_class = edu_tabs.MypanelTabs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
