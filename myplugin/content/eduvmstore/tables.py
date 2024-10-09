@@ -26,9 +26,9 @@ class InstancesTable(tables.DataTable):
 # Image Table definition, same as you had but with small improvement on translations
 class ImageTable(tables.DataTable):
     name = tables.Column("name", verbose_name=_("Image Name"))
-    description = tables.Column("id", verbose_name=_("Image Id"))
+  #  description = tables.Column("id", verbose_name=_("Image Id"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
-    min_size = tables.Column("size", verbose_name=_("Min. Size (GB)"))
+    min_size = tables.Column("disk_format", verbose_name=_("Disk Format"))
     version = tables.Column("visibility", verbose_name=_("Visibility"))
 
     class Meta:
