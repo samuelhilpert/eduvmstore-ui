@@ -1,21 +1,40 @@
 
 
 import requests
+
+import socket
+
 from horizon import tabs
+
 
 from django.views import generic
 from myplugin.content.eduvmstore import tabs as edu_tabs
 
 from django.utils.translation import gettext_lazy as _
 
+def get_host_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    except Exception as e:
+        raise RuntimeError("Failed to retrieve host IP address") from e
+    finally:
+        s.close()
+    return ip
 
 
 class IndexView(tabs.TabbedTableView):
     tab_group_class = edu_tabs.MypanelTabs
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        host_ip = get_host_ip()
+        context['host_ip'] = host_ip
         user = self.request.user
         token_id = None
 
@@ -23,7 +42,10 @@ class IndexView(tabs.TabbedTableView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://10.0.2.15/identity/v3/users/{user.id}"
+
+        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
+
+
         headers = {
             "X-Auth-Token": token_id,
         }
@@ -33,7 +55,7 @@ class IndexView(tabs.TabbedTableView):
             response.raise_for_status()
             user_data = response.json()['user']
 
-
+            context['auth_token'] = token_id
             context['username'] = user_data.get('name')
             context['mail'] = user_data.get('email')
         except requests.exceptions.RequestException as e:
@@ -42,7 +64,11 @@ class IndexView(tabs.TabbedTableView):
 
         if token_id:
 
-            keystone_url = "http://10.0.2.15/identity/v3/auth/projects"
+
+            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
+
+            
+
             headers = {'X-Auth-Token': token_id}
 
             try:
@@ -77,7 +103,9 @@ class DetailsPageView(generic.TemplateView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://10.0.2.15/identity/v3/users/{user.id}"
+
+        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
+
         headers = {
             "X-Auth-Token": token_id,
         }
@@ -87,7 +115,7 @@ class DetailsPageView(generic.TemplateView):
             response.raise_for_status()
             user_data = response.json()['user']
 
-
+            context['auth_token'] = token_id
             context['username'] = user_data.get('name')
             context['mail'] = user_data.get('email')
         except requests.exceptions.RequestException as e:
@@ -96,7 +124,9 @@ class DetailsPageView(generic.TemplateView):
 
         if token_id:
 
-            keystone_url = "http://10.0.2.15/identity/v3/auth/projects"
+
+            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
+
             headers = {'X-Auth-Token': token_id}
 
             try:
