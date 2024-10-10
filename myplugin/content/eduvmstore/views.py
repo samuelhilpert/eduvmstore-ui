@@ -28,8 +28,7 @@ def get_host_ip():
 class IndexView(tabs.TabbedTableView):
     tab_group_class = edu_tabs.MypanelTabs
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
-    page_title = _("Dashboard")
-    breadcrumb = _("Dashboard")
+
 
 
 
@@ -95,8 +94,6 @@ class IndexView(tabs.TabbedTableView):
 
 class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
-    page_title = _("Detail View")
-    breadcrumb = _("Detail")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
