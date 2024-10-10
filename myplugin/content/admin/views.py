@@ -18,7 +18,7 @@ def get_images_via_rest(request):
     headers = {"X-Auth-Token": request.user.token.id}
 
     try:
-        response = requests.get(f"http://{get_host_ip()}/image/v2/images", headers=headers)
+        response = requests.get(f"http://{get_host_ip()}/image/v2/images", headers=headers, timeout=10)
         response.raise_for_status()  # Raise error if request fails
         return response.json().get("images", [])  # Return list of images or an empty list
     except requests.exceptions.HTTPError as err:
