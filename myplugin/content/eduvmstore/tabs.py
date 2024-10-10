@@ -48,27 +48,24 @@ class ImageTab(tabs.TableTab):
         return self._has_more
 
     def get_images_data(self):
-        """Fetch the images from the Glance API."""
+        """Fetch the images from the Glance API using the Horizon API."""
         try:
-            token_id = self.request.user.token.id
-            glance_url = "http://10.0.2.15/image/v2/images"
-            headers = {
-                'X-Auth-Token': token_id,
-                'Content-Type': 'application/json'
-            }
+            filters = {}  # Add any filters if needed
+            marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
 
-            response = requests.get(glance_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            images = response.json().get('images', [])
-            self._has_more = bool(response.json().get('next', None))  # Check for pagination
+            # Use glance.image_list_detailed from Horizon API
+            images, has_more_data, has_prev_data = glance.image_list_detailed(
+                self.request, filters=filters, marker=marker, paginate=True
+            )
+
+            # Return images and pagination details
+            self._has_more = has_more_data
             return images
-        except Exception:
+        except Exception as e:
             self._has_more = False
-            error_message = _('Unable to get images')
+            error_message = _('Unable to retrieve images: %s') % str(e)
             exceptions.handle(self.request, error_message)
-
             return []
-
 
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):
