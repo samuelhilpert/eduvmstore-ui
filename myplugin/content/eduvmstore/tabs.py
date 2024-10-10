@@ -5,6 +5,7 @@ from horizon import tabs
 import  requests
 from openstack_dashboard import api
 from openstack_dashboard.api import glance
+from openstack_dashboard.api import keystone
 from scss.extension.compass.helpers import headers
 
 from myplugin.content.eduvmstore import tables
@@ -59,6 +60,16 @@ class ImageTab(tabs.TableTab):
             images, has_more_data, has_prev_data = glance.image_list_detailed(
                 self.request, filters=filters, marker=marker, paginate=True
             )
+
+            for image in images:
+                try:
+                    owner_id = image.owner
+                    # Fetch user details based on owner ID
+                    user = keystone.user_get(self.request, owner_id)
+                    image.owner_name = user.name  # Add owner name to image object
+                except Exception:
+                    image.owner_name = _("Unknown")  # Handle errors gracefully
+
 
             # Return images and pagination details
             self._has_more = has_more_data
