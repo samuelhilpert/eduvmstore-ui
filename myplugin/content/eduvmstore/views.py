@@ -11,11 +11,11 @@ from django.utils.translation import gettext_lazy as _
 def get_host_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        # Verbindet sich zu einem externen Server, um die eigene IP herauszufinden (beliebige IP-Adresse)
+
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
-    except Exception:
-        ip = "127.0.0.1"  # Fallback zur lokalen IP-Adresse
+    except Exception as e:
+        raise RuntimeError("Failed to retrieve host IP address") from e
     finally:
         s.close()
     return ip
@@ -37,7 +37,7 @@ class IndexView(generic.TemplateView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
+        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
         }
