@@ -47,7 +47,7 @@ class IndexView(generic.TemplateView):
             response.raise_for_status()
             user_data = response.json()['user']
 
-
+            context['auth_token'] = token_id
             context['username'] = user_data.get('name')
             context['mail'] = user_data.get('email')
         except requests.exceptions.RequestException as e:
@@ -56,7 +56,7 @@ class IndexView(generic.TemplateView):
 
         if token_id:
 
-            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
             headers = {'X-Auth-Token': token_id}
 
             try:
@@ -85,7 +85,7 @@ class AccountPageView(generic.TemplateView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
+        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
         }
@@ -95,7 +95,7 @@ class AccountPageView(generic.TemplateView):
             response.raise_for_status()
             user_data = response.json()['user']
 
-
+            context['auth_token'] = token_id
             context['username'] = user_data.get('name')
             context['mail'] = user_data.get('email')
         except requests.exceptions.RequestException as e:
@@ -104,7 +104,7 @@ class AccountPageView(generic.TemplateView):
 
         if token_id:
 
-            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
             headers = {'X-Auth-Token': token_id}
 
             try:
