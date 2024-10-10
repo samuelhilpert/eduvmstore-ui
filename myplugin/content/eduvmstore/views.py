@@ -1,19 +1,35 @@
 
 
 import requests
+import socket
 
 from django.views import generic
 
 
 from django.utils.translation import gettext_lazy as _
 
+def get_host_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # Verbindet sich zu einem externen Server, um die eigene IP herauszufinden (beliebige IP-Adresse)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = "127.0.0.1"  # Fallback zur lokalen IP-Adresse
+    finally:
+        s.close()
+    return ip
 
 
 class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        host_ip = get_host_ip()
+        context['host_ip'] = host_ip
         user = self.request.user
         token_id = None
 
