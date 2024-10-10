@@ -109,7 +109,7 @@ class AccountPageView(generic.TemplateView):
 
 class TableView(tabs.TabbedTableView):
     tab_group_class = edu_tabs.MypanelTabs
-    template_name = 'eduvmstore_dashboard/eduvmstore/overview.html'
+    template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
     def get_data(self, request, context, *args, **kwargs):
 
@@ -117,7 +117,7 @@ class TableView(tabs.TabbedTableView):
 
 
 
-class CreateImageView(generic.CreateView):
+class CreateImageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/createimage.html'
 
     def get_data(self, request, context, *args, **kwargs):
