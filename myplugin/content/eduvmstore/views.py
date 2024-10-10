@@ -22,7 +22,7 @@ class IndexView(generic.TemplateView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
+        keystone_url = f"http://10.0.2.15/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
         }
@@ -41,7 +41,7 @@ class IndexView(generic.TemplateView):
 
         if token_id:
 
-            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            keystone_url = "http://10.0.2.15/identity/v3/auth/projects"
             headers = {'X-Auth-Token': token_id}
 
             try:
@@ -70,7 +70,7 @@ class AccountPageView(generic.TemplateView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
+        keystone_url = f"http://10.0.2.15/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
         }
@@ -89,7 +89,7 @@ class AccountPageView(generic.TemplateView):
 
         if token_id:
 
-            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            keystone_url = "http://10.0.2.15/identity/v3/auth/projects"
             headers = {'X-Auth-Token': token_id}
 
             try:
@@ -119,7 +119,7 @@ class TableView(tabs.TabbedTableView):
             token_id = self.request.user.token.id
 
         if token_id:
-            glance_url = "http://192.168.64.16/identity/v2/images"
+            glance_url = "http://10.0.2.15/v2/images"
             headers = {
                 'X-Auth-Token': token_id,
                 'Content-Type': 'application/json'

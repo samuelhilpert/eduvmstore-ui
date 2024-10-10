@@ -51,7 +51,7 @@ class ImageTab(tabs.TableTab):
         """Fetch the images from the Glance API."""
         try:
             token_id = self.request.user.token.id
-            glance_url = "http://192.168.64.16/identity/v2/images"
+            glance_url = "http://10.0.2.15/v2/images"
             headers = {
                 'X-Auth-Token': token_id,
                 'Content-Type': 'application/json'
