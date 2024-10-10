@@ -29,6 +29,8 @@ def get_images_via_rest(request):
 
 class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/admin/index.html'
+    page_title = _("Admin")
+    breadcrumb = _("Admin")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
