@@ -65,7 +65,7 @@ class IndexView(tabs.TabbedTableView):
 
         return context
 
-class AccountPageView(generic.TemplateView):
+class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
     def get_context_data(self, **kwargs):
@@ -123,10 +123,3 @@ class TableView(tabs.TabbedTableView):
             return context
 
 '''
-
-class CreateImageView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/eduvmstore/createimage.html'
-
-    def get_data(self, request, context, *args, **kwargs):
-
-            return context

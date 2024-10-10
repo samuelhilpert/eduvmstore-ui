@@ -5,6 +5,8 @@ from horizon import tabs
 import  requests
 from openstack_dashboard import api
 from openstack_dashboard.api import glance
+from scss.extension.compass.helpers import headers
+
 from myplugin.content.eduvmstore import tables
 
 
