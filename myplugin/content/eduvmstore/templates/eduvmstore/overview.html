@@ -5,11 +5,8 @@
 
 {% block page_header %}
     <div class="d-flex justify-content-between align-items-center">
-        <!-- Left-aligned title -->
-        <h1 class="mb-0">{% trans "App-Template Overview" %}</h1>
-
-        <!-- Right-aligned button -->
-       <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' %}" class="btn btn-primary ml-auto ">
+        {% include "horizon/common/_domain_page_header.html" with title=_("App-Template Overview") %}
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' %}" class="btn btn-primary">
             {% trans "Add App-Template" %}
         </a>
     </div>
@@ -24,4 +21,3 @@
 </div>
 
 {% endblock %}
-
