@@ -114,3 +114,12 @@ class TableView(tabs.TabbedTableView):
     def get_data(self, request, context, *args, **kwargs):
 
             return context
+
+
+
+class CreateImageView(generic.CreateView):
+    template_name = 'eduvmstore_dashboard/eduvmstore/createimage.html'
+
+    def get_data(self, request, context, *args, **kwargs):
+
+            return context

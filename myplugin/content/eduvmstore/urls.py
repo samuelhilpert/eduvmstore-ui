@@ -7,5 +7,6 @@ urlpatterns = [
    # re_path(r'^$', views.IndexView.as_view(), name='index'),
     re_path(r'^$', views.TableView.as_view(), name='overview'),
     path('details/', views.AccountPageView.as_view(), name='details'),
+    path('createImage/', views.CreateImageView.as_view(), name='createImage'),
 
 ]
