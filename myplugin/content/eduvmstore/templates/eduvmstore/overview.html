@@ -15,23 +15,4 @@
    </div>
 </div>
 
-    {% block content %}
-    <h2>Available Images</h2>
-    {% if images %}
-        <ul>
-            {% for image in images %}
-                <li>
-                    <strong>{{ image.name }}</strong> (ID: {{ image.id }})
-                    <br>
-                    Status: {{ image.status }}
-                    <br>
-                    <a href="{% url 'eduvmstore:image_detail' image.id %}">View Details</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No images found.</p>
-    {% endif %}
-{% endblock %}
-
 {% endblock %}

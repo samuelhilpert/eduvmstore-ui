@@ -21,6 +21,8 @@ class InstancesTable(tables.DataTable):
     class Meta:
         name = "instances"
         verbose_name = _("Instances")
+        table_actions = (MyFilterAction,)
+        multi_select = False  # Disable multi-select if not needed
 
 
 # Image Table definition, same as you had but with small improvement on translations
