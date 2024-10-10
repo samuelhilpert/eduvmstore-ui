@@ -10,7 +10,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 
-class IndexView(generic.TemplateView):
+class IndexView(tabs.TabbedTableView):
+    tab_group_class = edu_tabs.MypanelTabs
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
     def get_context_data(self, **kwargs):
@@ -55,6 +56,12 @@ class IndexView(generic.TemplateView):
 
             except requests.RequestException as e:
                 context['error'] = f"Error contacting Keystone: {e}"
+
+        return context
+
+
+
+    def get_data(self, request, context, *args, **kwargs):
 
         return context
 
@@ -106,7 +113,7 @@ class AccountPageView(generic.TemplateView):
 
         return context
 
-
+'''
 class TableView(tabs.TabbedTableView):
     tab_group_class = edu_tabs.MypanelTabs
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
@@ -115,7 +122,7 @@ class TableView(tabs.TabbedTableView):
 
             return context
 
-
+'''
 
 class CreateImageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/createimage.html'
