@@ -70,7 +70,7 @@ class ImageTab(tabs.TableTab):
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):
     slug = "mypanel_tabs"
-    tabs = (InstanceTab, ImageTab)  # Added the new ImageTab here
+    tabs = (ImageTab, InstanceTab)  # Added the new ImageTab here
     sticky = True
 
 
