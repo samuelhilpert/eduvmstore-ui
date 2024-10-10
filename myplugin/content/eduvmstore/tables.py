@@ -27,19 +27,6 @@ class InstancesTable(tables.DataTable):
         multi_select = False  # Disable multi-select if not needed
 
 
-class EditImage(tables.LinkAction):
-    name = "edit"
-    verbose_name = _("Edit App-Template")
-    classes = ("ajax-modal",)
-    icon = "pencil"
-
-class DeleteImage(tables.LinkAction):
-    name = "delete"
-    verbose_name = _("Delete App-Template")
-    classes = ("ajax-modal",)
-    icon = "pencil"
-
-
 # Image Table definition, same as you had but with small improvement on translations
 class ImageTable(tables.DataTable):
     name = tables.WrappingColumn( get_image_name,link="horizon:project:images:images:detail", verbose_name=_("App-Template Name"))
@@ -48,11 +35,10 @@ class ImageTable(tables.DataTable):
     size = tables.Column("size", verbose_name=_("Size (GB)"), transform=lambda x: "{:.2f} GB".format(x / (1024 ** 3)))
     visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     version = tables.Column("version", verbose_name=_("Version"))
-    action = tables.Action(multiple_func=(EditImage,DeleteImage), verbose_name="More" )
+  #  action = tables.Action(multiple_func=(EditImage,DeleteImage), verbose_name="More" )
 
     class Meta:
         name = "images"
         verbose_name = _("Images")
         table_actions = (MyFilterAction,)
         multi_select = False  # Disable multi-select if not needed
-        row_actions = (EditImage,DeleteImage )
