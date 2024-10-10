@@ -5,7 +5,13 @@
 
 {% block page_header %}
     <div class="d-flex justify-content-between align-items-center">
+        <!-- Logo Section -->
+        <div>
+            <img src="{% static 'myplugin/static/images/Unbenannt.png' %}" alt="Logo" style="height: 40px;"/>  <!-- Adjust height as needed -->
+        </div>
+        <!-- Title Section -->
         {% include "horizon/common/_domain_page_header.html" with title=_("App-Template Overview") %}
+        <!-- Button Section -->
         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' %}" class="btn btn-primary">
             {% trans "Add App-Template" %}
         </a>
@@ -13,13 +19,9 @@
 {% endblock page_header %}
 
 {% block main %}
-
 <div class="row">
    <div class="col-sm-12">
    {{ tab_group.render }}
    </div>
 </div>
-
-
 {% endblock %}
-

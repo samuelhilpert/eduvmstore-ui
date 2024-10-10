@@ -7,27 +7,7 @@ from openstack_dashboard.api import glance
 from scss.extension.compass.helpers import headers
 from myplugin.content.eduvmstore import tables
 
-
-# Dummy data to simulate the database content
-dummy_data = {
-    'image-1-id': {
-        'short_description': 'Ubuntu LTS Image',
-        'description': 'This is an official Ubuntu 20.04 LTS image.',
-        'version': 'v1.0.0'
-    },
-    'image-2-id': {
-        'short_description': 'CentOS Image',
-        'description': 'This is a CentOS 8 image for general purposes.',
-        'version': 'v2.3.1'
-    },
-    'image-3-id': {
-        'short_description': 'Fedora Image',
-        'description': 'Fedora 33 image with pre-configured development tools.',
-        'version': 'v3.5.2'
-    },
-    # Add more dummy entries as needed
-}
-
+'''
 class ImageTab(tabs.TableTab):
     name = _("Images Tab")
     slug = "images_tab"
@@ -78,7 +58,7 @@ class ImageTab(tabs.TableTab):
             exceptions.handle(self.request, error_message)
             return []
 
-
+'''
 # New Tab for displaying images
 class ImageTab(tabs.TableTab):
     name = _("Images Tab")
@@ -110,6 +90,8 @@ class ImageTab(tabs.TableTab):
             error_message = _('Unable to retrieve images: %s') % str(e)
             exceptions.handle(self.request, error_message)
             return []
+            
+
 
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):
