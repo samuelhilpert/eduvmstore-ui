@@ -1,15 +1,17 @@
 
 
 import requests
+from horizon import tabs
 
 from django.views import generic
-
+from myplugin.content.eduvmstore import tabs as edu_tabs
 
 from django.utils.translation import gettext_lazy as _
 
 
 
-class IndexView(generic.TemplateView):
+class IndexView(tabs.TabbedTableView):
+    tab_group_class = edu_tabs.MypanelTabs
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
     def get_context_data(self, **kwargs):
@@ -21,7 +23,7 @@ class IndexView(generic.TemplateView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
+        keystone_url = f"http://10.0.2.15/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
         }
@@ -40,7 +42,7 @@ class IndexView(generic.TemplateView):
 
         if token_id:
 
-            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            keystone_url = "http://10.0.2.15/identity/v3/auth/projects"
             headers = {'X-Auth-Token': token_id}
 
             try:
@@ -57,7 +59,13 @@ class IndexView(generic.TemplateView):
 
         return context
 
-class AccountPageView(generic.TemplateView):
+
+
+    def get_data(self, request, context, *args, **kwargs):
+
+        return context
+
+class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
     def get_context_data(self, **kwargs):
@@ -69,7 +77,7 @@ class AccountPageView(generic.TemplateView):
             token_id = self.request.user.token.id
 
 
-        keystone_url = f"http://192.168.64.16/identity/v3/users/{user.id}"
+        keystone_url = f"http://10.0.2.15/identity/v3/users/{user.id}"
         headers = {
             "X-Auth-Token": token_id,
         }
@@ -88,7 +96,7 @@ class AccountPageView(generic.TemplateView):
 
         if token_id:
 
-            keystone_url = "http://192.168.64.16/identity/v3/auth/projects"
+            keystone_url = "http://10.0.2.15/identity/v3/auth/projects"
             headers = {'X-Auth-Token': token_id}
 
             try:
@@ -105,5 +113,13 @@ class AccountPageView(generic.TemplateView):
 
         return context
 
+'''
+class TableView(tabs.TabbedTableView):
+    tab_group_class = edu_tabs.MypanelTabs
+    template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
+    def get_data(self, request, context, *args, **kwargs):
 
+            return context
+
+'''
