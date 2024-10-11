@@ -25,6 +25,7 @@ def get_host_ip():
     return ip
 
 
+
 class IndexView(tabs.TabbedTableView):
     tab_group_class = edu_tabs.MypanelTabs
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
@@ -142,6 +143,11 @@ class DetailsPageView(generic.TemplateView):
                 context['error'] = f"Error contacting Keystone: {e}"
 
         return context
+
+
+class CreateView(generic.TemplateView):
+    template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
+
 
 '''
 class TableView(tabs.TabbedTableView):
