@@ -6,7 +6,12 @@
     {% include "horizon/common/_domain_page_header.html" with title=_("Create Instances") %}
 {% endblock page_header %}
 
+{% block extrahead %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/create.css' %}">
+{% endblock %}
+
 {% block main %}
+    <h2>Create App-Template</h2>
     <form method="post">
 
         <h3>App-Template details</h3>
