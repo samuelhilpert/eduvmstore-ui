@@ -9,6 +9,7 @@ from horizon import tabs
 
 from django.views import generic
 from myplugin.content.eduvmstore import tabs as edu_tabs
+from myplugin.content.eduvmstore.forms import AppTemplateForm
 
 from django.utils.translation import gettext_lazy as _
 
@@ -147,6 +148,11 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = AppTemplateForm()  # Initialisiere das Formular
+        return context
 
 
 '''
