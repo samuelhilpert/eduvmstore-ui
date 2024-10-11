@@ -1,3 +1,5 @@
+from asyncio import timeout
+
 from django.views import generic
 from horizon import exceptions
 from openstack_dashboard.api import glance
@@ -29,7 +31,7 @@ class IndexView(generic.TemplateView):
 
             # Versuche, die ID als Benutzer-ID zu behandeln
             user_url = f"{keystone_url}/v3/users/{entity_id}"
-            user_response = requests.get(user_url, headers=headers)
+            user_response = requests.get(user_url, headers=headers, timeout=10)
 
             if user_response.status_code == 200:
                 user_data = user_response.json()
@@ -37,7 +39,7 @@ class IndexView(generic.TemplateView):
 
             # Versuche, die ID als Projekt-ID zu behandeln
             project_url = f"{keystone_url}/v3/projects/{entity_id}"
-            project_response = requests.get(project_url, headers=headers)
+            project_response = requests.get(project_url, headers=headers, timeout=10)
 
             if project_response.status_code == 200:
                 project_data = project_response.json()
@@ -59,7 +61,7 @@ class IndexView(generic.TemplateView):
                 try:
                     owner_name = get_keystone_entity_name(image.owner)
                 except exceptions.NotFound:
-                    owner_name = _("Unknown")
+                    owner_name = "Unknown"
 
                 image_data.append({
                     'id': image.id,
@@ -73,6 +75,6 @@ class IndexView(generic.TemplateView):
             context['images'] = image_data
 
         except Exception as e:
-            context['error_message'] = _('Unable to retrieve images: %s') % str(e)
+            context['error_message'] = 'Unable to retrieve images: %s' % str(e)
 
         return context
