@@ -51,7 +51,7 @@ class ImageTab(tabs.TableTab):
         return self._has_more
 
     def get_images_data(self):
-        """Fetch the images from the Glance API and convert owner ID to name."""
+        """Fetch the images from the Glance API using the Horizon API."""
         try:
             filters = {}  # Add any filters if needed
             marker = self.request.GET.get(tables.ImageTable._meta.pagination_param, None)
@@ -61,59 +61,17 @@ class ImageTab(tabs.TableTab):
                 self.request, filters=filters, marker=marker, paginate=True
             )
 
-            # Function to convert user or project ID to name
-            def get_keystone_entity_name(entity_id):
-                keystone_url = self.request.user.endpoint
-                headers = {
-                    'X-Auth-Token': self.request.user.token.id,
-                    'Content-Type': 'application/json'
-                }
 
-                # Try to treat the ID as a user ID
-                user_url = f"{keystone_url}/v3/users/{entity_id}"
-                user_response = requests.get(user_url, headers=headers)
 
-                if user_response.status_code == 200:
-                    user_data = user_response.json()
-                    return user_data['user']['name']
 
-                # Try to treat the ID as a project ID
-                project_url = f"{keystone_url}/v3/projects/{entity_id}"
-                project_response = requests.get(project_url, headers=headers)
-
-                if project_response.status_code == 200:
-                    project_data = project_response.json()
-                    return project_data['project']['name']
-
-                # Raise an error if neither a user nor a project is found
-                raise exceptions.NotFound(f"ID {entity_id} is neither a valid user nor a project.")
-
-            # Convert owner ID to name for each image
-            image_data = []
-            for image in images:
-                try:
-                    owner_name = get_keystone_entity_name(image.owner)
-                except exceptions.NotFound:
-                    owner_name = _("Unknown")
-
-                image_data.append({
-                    'id': image.id,
-                    'name': image.name,
-                    'owner_name': owner_name,
-                    'size': image.size,
-                    'status': image.status,
-                    'created_at': image.created_at,
-                })
-
+            # Return images and pagination details
             self._has_more = has_more_data
-            return image_data
-
+            return images
         except Exception as e:
             self._has_more = False
             error_message = _('Unable to retrieve images: %s') % str(e)
             exceptions.handle(self.request, error_message)
             return []
-
 
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):
