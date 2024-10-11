@@ -1,5 +1,3 @@
-
-
 import requests
 
 import socket
@@ -96,52 +94,31 @@ class DetailsPageView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        token_id = None
+        image_id = self.kwargs.get('image_id')  # Get image_id from the URL
 
+        # Make a request to OpenStack API to fetch image data
+        token_id = None
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
-
-
-        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
-
-        headers = {
-            "X-Auth-Token": token_id,
-        }
-
-        try:
-            response = requests.get(keystone_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            user_data = response.json()['user']
-
-            context['auth_token'] = token_id
-            context['username'] = user_data.get('name')
-            context['mail'] = user_data.get('email')
-        except requests.exceptions.RequestException as e:
-            context['error'] = _("Could not retrieve user information: %s") % str(e)
-
-
         if token_id:
+            # The URL for the OpenStack image API
+            image_url = f"http://{get_host_ip()}/v2/images/{image_id}"
 
-
-            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
-
-            headers = {'X-Auth-Token': token_id}
+            headers = {
+                "X-Auth-Token": token_id,
+            }
 
             try:
-                response = requests.get(keystone_url, headers=headers, timeout=10)
-
-                if response.status_code == 200:
-                    projects = response.json().get('projects', [])
-                    context['projects'] = projects if projects else None
-                else:
-                    context['error'] = f"Could not retrieve projects: {response.status_code} {response.text}"
-
-            except requests.RequestException as e:
-                context['error'] = f"Error contacting Keystone: {e}"
+                response = requests.get(image_url, headers=headers, timeout=10)
+                response.raise_for_status()
+                image_data = response.json()
+                context['image'] = image_data
+            except requests.exceptions.RequestException as e:
+                context['error'] = f"Could not retrieve image data: {e}"
 
         return context
+
 
 '''
 class TableView(tabs.TabbedTableView):
