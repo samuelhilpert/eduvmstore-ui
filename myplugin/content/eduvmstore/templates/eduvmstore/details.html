@@ -1,82 +1,196 @@
-{% load i18n sizeformat %}
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
 
-<div class="detail">
-  <dl class="dl-horizontal">
-    <dt>{% trans "Name" %}</dt>
-    <dd data-display="{{ image.name|default:image.id }}">{{ image.name|default:_("None") }}</dd>
+{% block title %}{% trans "Image Details" %}{% endblock %}
 
-    {% if image.properties.description %}
-      <dt>{% trans "Description" %}</dt>
-      <dd>{{ image.properties.description }}</dd>
-    {% endif %}
+{% block page_header %}
+    <style>
+        .content {
+            margin-left: 15px;
+        }
 
-    <dt>{% trans "ID" %}</dt>
-    <dd>{{ image.id|default:_("None") }}</dd>
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
 
-    <dt>{% trans "Owner" %}</dt>
-    <dd>{{ image.owner }}</dd>
+        .btn-launch {
 
-    <dt>{% trans "Status" %}</dt>
-    <dd>{{ image.status_label|default:_("Unknown")|title }}</dd>
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            background-color: white;
+            color: black;
+            margin-right: -1px;
+            height: 30px;
+        }
 
-    <dt>{% trans "Public" %}</dt>
-    <dd>{{ image.is_public|yesno|capfirst }}</dd>
+        .dropdown-toggle-split {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 0 4px 4px 0;
+            background-color: white;
+            color: black;
+            display: inline-flex;
+            align-items: center;
+            height: 30px;
+        }
+        .btn-launch:hover, .dropdown-toggle-split:hover {
+            background-color: #f0f0f0;
+            border-color: #aaa;
+        }
 
-    <dt>{% trans "Protected" %}</dt>
-    <dd>{{ image.protected|yesno|capfirst }}</dd>
+        .dropdown-menu {
+            border-radius: 4px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            min-width: 160px;
+        }
 
-    <dt>{% trans "Checksum" %}</dt>
-    <dd>{{ image.checksum }}</dd>
+        .dropdown-menu a {
+            color: #333;
+            padding: 8px 20px;
+        }
 
-    <dt>{% trans "Created" %}</dt>
-    {% if image.created_at %}
-      <dd>{{ image.created_at|parse_isotime }}</dd>
-    {% else %}
-      <dd>{% trans "Unknown" %}</dd>
-    {% endif %}
+        .dropdown-menu a:hover {
+            background-color: #f8f9fa;
+        }
 
-    <dt>{% trans "Updated" %}</dt>
-    {% if image.updated_at %}
-      <dd>{{ image.updated_at|parse_isotime }}</dd>
-    {% else %}
-      <dd>{% trans "Never updated" %}</dd>
-    {% endif %}
-  </dl>
+        .dropdown-menu .text-danger {
+            color: #dc3545;
+        }
 
-  <h4>{% trans "Specs" %}</h4>
-  <hr class="header_rule">
-  <dl class="dl-horizontal">
-    <dt>{% trans "Size" %}</dt>
-    <dd>{{ image.size|filesizeformat }}</dd>
+        .dropdown-menu .text-danger:hover {
+            background-color: #f8f9fa;
+                        color: #dc3545;
+        }
 
-    {% if image.virtual_size %}
-      <dt>{% trans "Virtual Size" %}</dt>
-      <dd>{{ image.virtual_size|filesizeformat }}</dd>
-    {% endif %}
+        ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
 
-    <dt>{% trans "Container Format" %}</dt>
-    <dd>{{ image.container_format|default:_("None")|upper }}</dd>
+        ul li {
+            display: flex;
+            justify-content: space-between;
+        }
 
-    <dt>{% trans "Disk Format" %}</dt>
-    <dd>{{ image.disk_format|default:_("None")|upper }}</dd>
+        ul li strong {
+            width: 150px;
+            text-align: right;
+            font-weight: bold;
+        }
 
-    {% if image.min_disk %}
-      <dt>{% trans "Min Disk" %}</dt>
-      <dd>{{ image.min_disk|diskgbformat }}</dd>
-    {% endif %}
+        ul li span {
+            margin-left: 30px;
+            flex-grow: 1;
+            text-align: left;
+        }
 
-    {% if image.min_ram %}
-      <dt>{% trans "Min RAM" %}</dt>
-      <dd>{{ image.min_ram|mb_float_format }}</dd>
-    {% endif %}
-  </dl>
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
 
-  <h4>{% trans "Custom Properties" %}</h4>
-  <hr class="header_rule">
-  <dl class="dl-horizontal">
-    {% for prop, title, val in image_props %}
-      <dt title="{{ prop }}">{{ title }}</dt>
-      <dd>{{ val }}</dd>
-    {% endfor %}
-  </dl>
-</div>
+        ul li:last-child {
+            border-bottom: none;
+        }
+
+        .col-md-6 {
+            margin-top: 10px;
+        }
+
+    </style>
+
+    <!-- Back button -->
+    <div class="back-button">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-secondary">
+            {% trans "Back" %}
+        </a>
+    </div>
+    <div class="content">
+    <div class="header-container">
+        <!-- Title -->
+        <h1>{% trans "Image Details" %}</h1>
+
+        <!-- Split Button Dropdown -->
+        <div class="btn-group">
+            <!-- Launch Button -->
+            <button type="button" class="btn btn-launch">
+                {% trans "Launch" %}
+            </button>
+
+            <!-- Dropdown button -->
+            <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li><a href="#">{% trans "Create Volume" %}</a></li>
+                <li><a href="#">{% trans "Edit Image" %}</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#" class="text-danger">{% trans "Delete Image" %}</a></li>
+            </ul>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+
+
+{% block main %}
+
+<div class="content">
+      <div class="row">
+        <!-- Image Details -->
+        <div class="col-md-6">
+            <h2>{% trans "Image" %}</h2>
+            <ul>
+                  <li><strong>{% trans "ID:" %}</strong> <span>{{ image.id }}</span></li>
+                <li><strong>{% trans "Name:" %}</strong> <span>{{ image.name }}</span></li>
+                <li><strong>{% trans "Type:" %}</strong> <span>{{ image.disk_format }}</span></li>
+                <li><strong>{% trans "Status:" %}</strong> <span>{{ image.status }}</span></li>
+                <li><strong>{% trans "Size:" %}</strong> <span>{{ image.size }} MB</span></li>
+                <li><strong>{% trans "Min. Disk:" %}</strong> <span>{{ image.min_disk }} GB</span></li>
+                <li><strong>{% trans "Min. RAM:" %}</strong> <span>{{ image.min_ram }} MB</span></li>
+                <li><strong>{% trans "Container Format:" %}</strong> <span>{{ image.container_format }}</span></li>
+                <li><strong>{% trans "Created At:" %}</strong> <span>{{ image.created_at }}</span></li>
+                <li><strong>{% trans "Updated At:" %}</strong> <span>{{ image.updated_at }}</span></li>
+            </ul>
+        </div>
+
+        <!-- Security Details -->
+        <div class="col-md-6">
+            <h2>{% trans "Security" %}</h2>
+            <ul>
+                <li><strong>{% trans "Owner:" %}</strong> <span>{{ image.owner }}</span></li>
+                <li><strong>{% trans "Visibility:" %}</strong> <span>{{ image.visibility }}</span></li>
+                <li><strong>{% trans "Protected:" %}</strong> <span>{{ image.protected|yesno:"Yes,No" }}</span></li>
+                <li><strong>{% trans "Checksum:" %}</strong> <span>{{ image.checksum }}</span></li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- Custom Properties Section -->
+    <div class="row">
+    <div class="col-md-6">
+        <h2>{% trans "Custom Properties" %}</h2>
+        <ul>
+             <li><strong>{% trans "Short Description:" %}</strong> <span>{{ image.owner }}</span></li>
+             <li><strong>{% trans "Description:" %}</strong> <span>{{ image.visibility }}</span></li>
+             <li><strong>{% trans "Instantiation Notice:" %}</strong> <span>{{ image.visibility }}</span></li>
+             <li><strong>{% trans "Min. Disk per User:" %}</strong> <span>{{ image.min_disk }} GB</span></li>
+             <li><strong>{% trans "Min. RAM per USer:" %}</strong> <span>{{ image.min_ram }} MB</span></li>
+        </ul>
+    </div>
+    </div>
+    </div>
+{% endblock %}
