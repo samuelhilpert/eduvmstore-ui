@@ -55,10 +55,5 @@
         </div>
     {% endif %}
 
-    {% for image in images %}
-        <li>{{ image.name }} - Status: {{ image.status }}</li>
-        {% empty %}
-        <li>No images found.</li>
-    {% endfor %}
 
 {% endblock %}
