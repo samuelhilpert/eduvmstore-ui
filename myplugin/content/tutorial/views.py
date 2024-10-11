@@ -33,7 +33,7 @@ class IndexView(generic.TemplateView):
 
             # Versuche, die ID als Benutzer-ID zu behandeln
             user_url = f"{keystone_url}/v3/users/{entity_id}"
-            user_response = requests.get(user_url, headers=headers, timeout=10)
+            user_response = requests.get(user_url, headers=headers)
 
             if user_response.status_code == 200:
                 user_data = user_response.json()
@@ -41,7 +41,7 @@ class IndexView(generic.TemplateView):
 
             # Versuche, die ID als Projekt-ID zu behandeln
             project_url = f"{keystone_url}/v3/projects/{entity_id}"
-            project_response = requests.get(project_url, headers=headers, timeout=10)
+            project_response = requests.get(project_url, headers=headers)
 
             if project_response.status_code == 200:
                 project_data = project_response.json()
