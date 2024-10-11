@@ -8,55 +8,13 @@
 {% endblock page_header %}
 
 {% block main %}
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 18px;
-            text-align: left;
-        }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-    </style>
+
 
 
 
     <p>Tutorial</p>
 
-    {% if images %}
-        <h3>Available Images</h3>
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Owner</th>
-                <th>Size</th>
-                <th>Status</th>
-                <th>Created At</th>
-            </tr>
-            {% for image in images %}
-                <tr>
-                    <td>{{ image.id }}</td>
-                    <td>{{ image.name }}</td>
-                    <td>{{ image.owner_name }}</td>
-                    <td>{{ image.size }}</td>
-                    <td>{{ image.status }}</td>
-                    <td>{{ image.created_at }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>No images available or unable to retrieve images.</p>
-    {% endif %}
+
 
 
 
