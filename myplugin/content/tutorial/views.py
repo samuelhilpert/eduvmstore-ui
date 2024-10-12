@@ -18,7 +18,7 @@ class IndexView(generic.TemplateView):
         try:
             response = requests.get("http://localhost:8000/api/app-templates")
             response.raise_for_status()
-            return response.json().get("images", [])
+            return response.json()
         except requests.exceptions.HTTPError as err:  # Fix the typo here
             print(f"Error fetching images: {err}")
             return []
