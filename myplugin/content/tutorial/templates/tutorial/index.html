@@ -29,10 +29,10 @@
         const templateName = document.getElementById('templateName').value;
 
         // Make the POST request
-         fetch("http://localhost:8000/api/app-templates", {  // Use
+         fetch("http://localhost:8000/api/app-templates/", {  // Use
             method: "POST",
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded', // Form data encoding
+                'Content-Type': 'application/json', // Form data encoding
             },
             body: new URLSearchParams({
                 'name': templateName  // Send the name as form data
