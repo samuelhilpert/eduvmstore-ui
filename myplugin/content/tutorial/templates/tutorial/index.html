@@ -9,10 +9,26 @@
 
 {% block main %}
 
-
-
-    <p>Tutorial</p>
-
+<table border="1">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Short Description</th>
+            <th>Version</th>
+            <th>Public</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for template in images %}
+        <tr>
+            <td>{{ template.name }}</td>
+            <td>{{ template.short_description }}</td>
+            <td>{{ template.version }}</td>
+            <td>{{ template.public }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 
 {% endblock %}

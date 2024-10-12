@@ -1,0 +1,4 @@
+__pycache__
+.idea/
+my_plugin.egg-info/
+myplugin/.idea/

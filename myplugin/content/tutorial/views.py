@@ -1,7 +1,8 @@
+from http.client import responses
 
 from django.views import generic
 
-
+import requests
 
 
 class IndexView(generic.TemplateView):
@@ -9,26 +10,22 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        token_id = None
-
-
-        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
-            token_id = self.request.user.token.id
-
-
-        context['username'] = user.username
-        context['auth_token'] = token_id
-        context['admin'] = user.is_superuser
-        context['show_content'] = False
-
-        if user.is_superuser:
-            context['show_content'] = True
-        else:
-            context['show_content'] = False
-
-
+        context['images'] = self.get_data_from_backend()  # Pass the fetched data to the template
         return context
+
+
+    def get_data_from_backend(self):
+        try:
+            response = requests.get("http://localhost:8000/api/app-templates")
+            response.raise_for_status()
+            return response.json().get("images", [])
+        except requests.exceptions.HTTPError as err:  # Fix the typo here
+            print(f"Error fetching images: {err}")
+            return []
+        except requests.exceptions.RequestException as e:  # Catch any other exceptions from requests
+            print(f"Request error: {e}")
+            return []
+
 
 
 
