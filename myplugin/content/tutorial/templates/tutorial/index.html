@@ -23,30 +23,35 @@
 <p id="responseMessage"></p>
 
 <script>
-    // Add event listener to the Post button
-    document.getElementById('postButton').addEventListener('click', function() {
-        // Get the value from the input field
-        const templateName = document.getElementById('templateName').value;
+document.getElementById('postButton').addEventListener('click', function() {
+    const templateName = document.getElementById('templateName').value;
 
-        // Make the POST request
-         fetch("http://localhost:8000/api/app-templates/", {  // Use
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json', // Form data encoding
-            },
-            body: new URLSearchParams({
-                'name': templateName  // Send the name as form data
-            })
+    // Make the POST request
+    fetch("http://localhost:8000/api/app-templates/", {  // Use the correct URL
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',  // Sending JSON
+        },
+        body: JSON.stringify({
+            'name': templateName  // Send the data as JSON
         })
-        .then(response => response.json())
-        .then(data => {
-            // Update the response message on the page
-            document.getElementById('responseMessage').innerText = data.message || data.error;
-        })
-        .catch(error => {
-            document.getElementById('responseMessage').innerText = 'Error: ' + error;
-        });
+    })
+    .then(response => {
+        // Check if the response is valid JSON or if it's empty
+        if (response.ok) {
+            return response.json();  // Attempt to parse JSON
+        } else {
+            throw new Error('Network response was not ok');
+        }
+    })
+    .then(data => {
+        // Update the page with the success or error message
+        document.getElementById('responseMessage').innerText = data.message || data.error;
+    })
+    .catch(error => {
+        document.getElementById('responseMessage').innerText = 'Error: ' + error;
     });
+});
 </script>
 
 
