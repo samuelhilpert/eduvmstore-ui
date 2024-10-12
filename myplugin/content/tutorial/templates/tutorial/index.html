@@ -8,11 +8,46 @@
 {% endblock page_header %}
 
 {% block main %}
-    <h1>App Templates</h1>
+<!-- List of app templates -->
 <ul>
     {% for image in images %}
-        <li>{{ image }}</li>  <!-- This will display each string from the images list -->
+        <li>{{ image }}</li>
     {% endfor %}
 </ul>
+
+<!-- Form for adding new template -->
+<h3>Add New Template</h3>
+    <label for="templateName"> Name</label><input type="text" id="templateName" placeholder="Enter template name" />
+<button id="postButton">Post</button>
+
+<p id="responseMessage"></p>
+
+<script>
+    // Add event listener to the Post button
+    document.getElementById('postButton').addEventListener('click', function() {
+        // Get the value from the input field
+        const templateName = document.getElementById('templateName').value;
+
+        // Make the POST request
+        fetch("{% url 'index' %}", {  // Adjust the URL if necessary
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded', // Form data encoding
+            },
+            body: new URLSearchParams({
+                'name': templateName  // Send the name as form data
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update the response message on the page
+            document.getElementById('responseMessage').innerText = data.message || data.error;
+        })
+        .catch(error => {
+            document.getElementById('responseMessage').innerText = 'Error: ' + error;
+        });
+    });
+</script>
+
 
 {% endblock %}

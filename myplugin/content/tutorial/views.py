@@ -1,8 +1,11 @@
 from http.client import responses
 
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import generic
 
 import requests
+from django.views.decorators.csrf import csrf_exempt
 
 
 class IndexView(generic.TemplateView):
@@ -26,6 +29,20 @@ class IndexView(generic.TemplateView):
             print(f"Request error: {e}")
             return []
 
+    @method_decorator(csrf_exempt)  # Disable CSRF for simplicity; not recommended for production without token
+    def post(self, request, *args, **kwargs):
+        try:
+            # Parse the JSON request body
+            data = request.POST.get('name')  # Get the "name" field from the form data
+            # Make a POST request to your backend API
+            response = requests.post(
+                "http://localhost:8000/api/app-templates",
+                json={"name": data}
+            )
+            response.raise_for_status()
+            return JsonResponse({'message': 'Template added successfully!'})
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=400)
 
 
 
