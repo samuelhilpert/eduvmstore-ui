@@ -31,6 +31,7 @@ document.getElementById('postButton').addEventListener('click', function() {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',  // Sending JSON
+            'X-CSRFToken': '{{ csrf_token }}',  // CSRF token for security
         },
         body: JSON.stringify({
             'name': templateName  // Send the data as JSON
@@ -41,7 +42,7 @@ document.getElementById('postButton').addEventListener('click', function() {
         if (response.ok) {
             return response.json();  // Attempt to parse JSON
         } else {
-            throw new Error('Network response was not ok');
+            return response.text().then(text => { throw new Error(text); }); // Improved error handling
         }
     })
     .then(data => {
@@ -49,9 +50,9 @@ document.getElementById('postButton').addEventListener('click', function() {
         document.getElementById('responseMessage').innerText = data.message || data.error;
     })
     .catch(error => {
-        document.getElementById('responseMessage').innerText = 'Error: ' + error;
+        document.getElementById('responseMessage').innerText = 'Error: ' + error.message; // Access error message properly
     });
-});
+    });
 </script>
 
 
