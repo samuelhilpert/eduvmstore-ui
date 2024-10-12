@@ -19,7 +19,7 @@ class IndexView(generic.TemplateView):
 
     def get_data_from_backend(self):
         try:
-            response = requests.get("http://localhost:8000/api/app-templates")
+            response = requests.get("http://localhost:8000/api/app-templates/")
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as err:  # Fix the typo here
@@ -36,7 +36,7 @@ class IndexView(generic.TemplateView):
             data = request.POST.get('name')  # Get the "name" field from the form data
             # Make a POST request to your backend API
             response = requests.post(
-                "http://localhost:8000/api/app-templates",
+                "http://localhost:8000/api/app-templates/",
                 json={"name": data}
             )
             response.raise_for_status()
