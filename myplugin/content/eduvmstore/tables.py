@@ -37,7 +37,7 @@ class ImageTable(tables.DataTable):
                                     kwargs={'image_id': record.id})
         # Correct URL with named arguments
     )
-   description = tables.Column("short_description", verbose_name=_("Short Description"))
+    description = tables.Column("short_description", verbose_name=_("Short Description"))
     min_size = tables.Column("size", verbose_name=_("Size"))
     visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
