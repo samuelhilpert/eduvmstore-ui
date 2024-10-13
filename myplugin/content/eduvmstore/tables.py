@@ -32,7 +32,8 @@ class ImageTable(tables.DataTable):
     name = tables.Column(
         "name",
         verbose_name=_("Image Name"),
-        link=lambda record: reverse('horizon:eduvmstore_dashboard:eduvmstore:details', kwargs={'image_id': record.id})
+        link=lambda record: reverse('horizon:eduvmstore_dashboard:eduvmstore:details',
+                                    kwargs={'image_id': record.id})
         # Correct URL with named arguments
     )
     description = tables.Column("id", verbose_name=_("Image Id"))

@@ -93,7 +93,8 @@ class IndexView(tabs.TabbedTableView):
 def get_image_details_via_rest(request, image_id):
     headers = {"X-Auth-Token": request.user.token.id}
     try:
-        response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}", headers=headers, timeout=10)
+        response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}",
+                                headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.HTTPError as err:
