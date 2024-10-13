@@ -106,7 +106,7 @@ def get_images_via_rest(request):
         return []
 
 
-class DetailsView(generic.TemplateView):
+class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/admin/details.html'
 
     def get_context_data(self, **kwargs):
