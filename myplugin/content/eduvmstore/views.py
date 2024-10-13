@@ -90,23 +90,25 @@ class IndexView(tabs.TabbedTableView):
         return context
 
 
-
 class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        token_id = None
 
-        image_id = '774498b7-a317-49e7-ae09-4460d92c3ac0'
+        target_image_name = 'my_image_name'
 
-        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
-            token_id = self.request.user.token.id
 
         try:
-            image = glance.image_get(self.request, image_id)
-            context['image'] = image
+            images, has_more_data = glance.image_list_detailed(self.request)
+
+            image = next((img for img in images if img.name == target_image_name), None)
+
+            if image:
+                context['image'] = image
+            else:
+                context['error'] = _("Image with name '%s' not found") % target_image_name
+
         except Exception as e:
             context['error'] = _("Could not retrieve image details: %s") % str(e)
 
