@@ -96,12 +96,17 @@ class DetailsPageView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        target_image_name = 'cirros-0.6.2-x86_64-disk'
+        # Define the image name you're looking for
+        target_image_name = 'my_image_name'  # Replace with your actual image name
 
-
+        # Fetch all images using Glance API
         try:
             images, has_more_data = glance.image_list_detailed(self.request)
 
+            # Debug: Ausgabe aller gefundenen Images
+            print("Found images:", [img.name for img in images])  # Temporäre Debug-Ausgabe
+
+            # Suche nach dem Bild mit dem Zielnamen
             image = next((img for img in images if img.name == target_image_name), None)
 
             if image:
