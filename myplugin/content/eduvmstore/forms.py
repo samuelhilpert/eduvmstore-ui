@@ -1,11 +1,10 @@
 from django import forms
 
 class AppTemplateForm(forms.Form):
-    image = forms.ChoiceField(
-        choices=[],  # Die Optionen sollten mit Glance-Bildern gefüllt werden
-        label="Choose Image",
+    image = forms.FileField(
+        label='Upload Image (ISO or other)',
         required=True,
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.ClearableFileInput(attrs={'accept': '.iso'})
     )
     name = forms.CharField(
         label="Name",
@@ -20,12 +19,12 @@ class AppTemplateForm(forms.Form):
     description = forms.CharField(
         label="Description",
         required=True,
-        widget=forms.Textarea(attrs={'rows': 3, 'style': 'height:60px;'}),
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     notice = forms.CharField(
         label="Notice",
         required=False,
-        widget=forms.Textarea(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     visibility = forms.ChoiceField(
         choices=[('public', 'Public'), ('private', 'Private')],
