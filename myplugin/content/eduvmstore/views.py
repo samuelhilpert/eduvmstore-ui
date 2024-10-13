@@ -90,44 +90,33 @@ class IndexView(tabs.TabbedTableView):
         return context
 
 
-def get_images_via_rest(request):
+def get_image_details_via_rest(request, image_id):
     headers = {"X-Auth-Token": request.user.token.id}
-
     try:
-        # Glance API aufrufen, um Images zu holen
-        response = requests.get(f"http://{get_host_ip()}/image/v2/images", headers=headers, timeout=10)
-        response.raise_for_status()  # Raise error if request fails
-        return response.json().get("images", [])  # Return list of images or an empty list
+        response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}", headers=headers, timeout=10)
+        response.raise_for_status()  # Fehler werfen, falls die Anfrage fehlschlägt
+        return response.json()  # JSON-Daten des Images zurückgeben
     except requests.exceptions.HTTPError as err:
-        print(f"Error fetching images: {err}")
-        return []
+        print(f"Error fetching image details: {err}")
+        return None
     except requests.exceptions.RequestException as e:
         print(f"Error contacting the Glance API: {e}")
-        return []
-
+        return None
 
 class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        token_id = None
+        image_id = self.request.GET.get('image_id')  # Image-ID aus den GET-Parametern abrufen
 
-        # Authentifizierungs-Token holen
-        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
-            token_id = self.request.user.token.id
-
-        # Images von der Glance API abrufen
-        images = get_images_via_rest(self.request)
-
-        # Bilder und Benutzerinformationen im Kontext speichern
-        context['images'] = images
-        context['username'] = user.username
-        context['auth_token'] = token_id
-        context['admin'] = user.is_superuser
-        context['show_content'] = user.is_superuser
-
+        if image_id:
+            # Wenn eine Image-ID übergeben wurde, rufe die Details von der API ab
+            image_details = get_image_details_via_rest(self.request, image_id)
+            if image_details:
+                context['image'] = image_details
+            else:
+                context['error'] = _("Could not retrieve image details.")
         return context
 
 
