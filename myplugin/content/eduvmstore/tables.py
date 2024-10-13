@@ -1,4 +1,4 @@
-from audioop import reverse
+from django.urls import reverse
 
 from django.utils.translation import gettext_lazy as _
 
@@ -32,7 +32,8 @@ class ImageTable(tables.DataTable):
     name = tables.Column(
         "name",
         verbose_name=_("Image Name"),
-        link=lambda record: reverse('horizon:eduvmstore_dashboard:eduvmstore:details', args=[record.id])
+        link=lambda record: reverse('horizon:eduvmstore_dashboard:eduvmstore:details', kwargs={'image_id': record.id})
+        # Correct URL with named arguments
     )
     description = tables.Column("id", verbose_name=_("Image Id"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
