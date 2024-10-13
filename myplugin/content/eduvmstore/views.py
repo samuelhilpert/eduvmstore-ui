@@ -96,7 +96,7 @@ class DetailsPageView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        target_image_name = 'my_image_name'
+        target_image_name = 'cirros-0.6.2-x86_64-disk'
 
 
         try:
