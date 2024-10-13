@@ -20,7 +20,7 @@ class AppTemplateForm(forms.Form):
     description = forms.CharField(
         label="Description",
         required=True,
-        widget=forms.Textarea(attrs={'class': 'form-control'})
+        widget=forms.Textarea(attrs={'rows': 3, 'style': 'height:60px;'}),
     )
     notice = forms.CharField(
         label="Notice",
