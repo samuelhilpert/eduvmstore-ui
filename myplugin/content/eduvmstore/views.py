@@ -108,10 +108,9 @@ class DetailsPageView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        image_id = self.request.GET.get('image_id')  # Image-ID aus den GET-Parametern abrufen
-
+        image_id = self.request.GET.get('image_id')
         if image_id:
-            # Wenn eine Image-ID übergeben wurde, rufe die Details von der API ab
+            
             image_details = get_image_details_via_rest(self.request, image_id)
             if image_details:
                 context['image'] = image_details
