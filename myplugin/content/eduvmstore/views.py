@@ -94,8 +94,8 @@ def get_image_details_via_rest(request, image_id):
     headers = {"X-Auth-Token": request.user.token.id}
     try:
         response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}", headers=headers, timeout=10)
-        response.raise_for_status()  # Fehler werfen, falls die Anfrage fehlschlägt
-        return response.json()  # JSON-Daten des Images zurückgeben
+        response.raise_for_status()
+        return response.json()
     except requests.exceptions.HTTPError as err:
         print(f"Error fetching image details: {err}")
         return None
@@ -103,19 +103,23 @@ def get_image_details_via_rest(request, image_id):
         print(f"Error contacting the Glance API: {e}")
         return None
 
+
 class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        image_id = self.request.GET.get('image_id')
+        image_id = self.kwargs.get('image_id')
+
         if image_id:
-            
             image_details = get_image_details_via_rest(self.request, image_id)
             if image_details:
                 context['image'] = image_details
             else:
                 context['error'] = _("Could not retrieve image details.")
+        else:
+            context['error'] = _("No image ID provided.")
+
         return context
 
 
