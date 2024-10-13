@@ -7,6 +7,7 @@ from horizon import tabs
 from openstack_dashboard.api import glance
 from django.views import generic
 from myplugin.content.eduvmstore import tabs as edu_tabs
+from myplugin.content.eduvmstore.forms import AppTemplateForm
 
 from django.utils.translation import gettext_lazy as _
 
@@ -21,6 +22,7 @@ def get_host_ip():
     finally:
         s.close()
     return ip
+
 
 
 class IndexView(tabs.TabbedTableView):
@@ -122,6 +124,17 @@ class DetailsPageView(generic.TemplateView):
             context['error'] = _("No image ID provided.")
 
         return context
+
+
+
+class CreateView(generic.TemplateView):
+    template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = AppTemplateForm()
+        return context
+
 
 
 '''
