@@ -1,12 +1,10 @@
-
-
 import requests
 
 import socket
-
+import logging
 from horizon import tabs
 
-
+from openstack_dashboard.api import glance
 from django.views import generic
 from myplugin.content.eduvmstore import tabs as edu_tabs
 from myplugin.content.eduvmstore.forms import AppTemplateForm
@@ -93,57 +91,40 @@ class IndexView(tabs.TabbedTableView):
 
         return context
 
+
+def get_image_details_via_rest(request, image_id):
+    headers = {"X-Auth-Token": request.user.token.id}
+    try:
+        response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}",
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.HTTPError as err:
+        print(f"Error fetching image details: {err}")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error contacting the Glance API: {e}")
+        return None
+
+
 class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        token_id = None
+        image_id = self.kwargs.get('image_id')
 
-        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
-            token_id = self.request.user.token.id
-
-
-
-        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
-
-        headers = {
-            "X-Auth-Token": token_id,
-        }
-
-        try:
-            response = requests.get(keystone_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            user_data = response.json()['user']
-
-            context['auth_token'] = token_id
-            context['username'] = user_data.get('name')
-            context['mail'] = user_data.get('email')
-        except requests.exceptions.RequestException as e:
-            context['error'] = _("Could not retrieve user information: %s") % str(e)
-
-
-        if token_id:
-
-
-            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
-
-            headers = {'X-Auth-Token': token_id}
-
-            try:
-                response = requests.get(keystone_url, headers=headers, timeout=10)
-
-                if response.status_code == 200:
-                    projects = response.json().get('projects', [])
-                    context['projects'] = projects if projects else None
-                else:
-                    context['error'] = f"Could not retrieve projects: {response.status_code} {response.text}"
-
-            except requests.RequestException as e:
-                context['error'] = f"Error contacting Keystone: {e}"
+        if image_id:
+            image_details = get_image_details_via_rest(self.request, image_id)
+            if image_details:
+                context['image'] = image_details
+            else:
+                context['error'] = _("Could not retrieve image details.")
+        else:
+            context['error'] = _("No image ID provided.")
 
         return context
+
 
 
 class CreateView(generic.TemplateView):
@@ -151,8 +132,9 @@ class CreateView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = AppTemplateForm()  # Initialisiere das Formular
+        context['form'] = AppTemplateForm()
         return context
+
 
 
 '''

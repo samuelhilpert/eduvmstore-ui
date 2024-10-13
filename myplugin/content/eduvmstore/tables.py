@@ -1,3 +1,5 @@
+from django.urls import reverse
+
 from django.utils.translation import gettext_lazy as _
 
 from horizon import tables
@@ -27,8 +29,14 @@ class InstancesTable(tables.DataTable):
 
 # Image Table definition, same as you had but with small improvement on translations
 class ImageTable(tables.DataTable):
-    name = tables.Column("name", verbose_name=_("Image Name"))
-  #  description = tables.Column("id", verbose_name=_("Image Id"))
+    name = tables.Column(
+        "name",
+        verbose_name=_("Image Name"),
+        link=lambda record: reverse('horizon:eduvmstore_dashboard:eduvmstore:details',
+                                    kwargs={'image_id': record.id})
+        # Correct URL with named arguments
+    )
+    description = tables.Column("id", verbose_name=_("Image Id"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
     min_size = tables.Column("disk_format", verbose_name=_("Disk Format"))
     version = tables.Column("visibility", verbose_name=_("Visibility"))
