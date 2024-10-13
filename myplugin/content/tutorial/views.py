@@ -13,7 +13,7 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['images'] = self.get_data_from_backend()  # Pass the fetched data to the template
+        context['images'] = self.get_data_from_backend() 
         return context
 
 
@@ -25,15 +25,15 @@ class IndexView(generic.TemplateView):
         except requests.exceptions.HTTPError as err:  # Fix the typo here
             print(f"Error fetching images: {err}")
             return []
-        except requests.exceptions.RequestException as e:  # Catch any other exceptions from requests
+        except requests.exceptions.RequestException as e:  
             print(f"Request error: {e}")
             return []
 
-    @method_decorator(csrf_exempt)  # Disable CSRF for simplicity; not recommended for production without token
+    @method_decorator(csrf_exempt) 
     def post(self, request, *args, **kwargs):
         try:
             # Parse the JSON request body
-            data = request.POST.get('name')  # Get the "name" field from the form data
+            data = request.POST.get('name') 
             # Make a POST request to your backend API
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
