@@ -90,30 +90,43 @@ class IndexView(tabs.TabbedTableView):
         return context
 
 
-from openstack_dashboard.api import glance
-from django.utils.translation import gettext_lazy as _
-from django.views import generic
+def get_images_via_rest(request):
+    headers = {"X-Auth-Token": request.user.token.id}
+
+    try:
+        # Glance API aufrufen, um Images zu holen
+        response = requests.get(f"http://{get_host_ip()}/image/v2/images", headers=headers, timeout=10)
+        response.raise_for_status()  # Raise error if request fails
+        return response.json().get("images", [])  # Return list of images or an empty list
+    except requests.exceptions.HTTPError as err:
+        print(f"Error fetching images: {err}")
+        return []
+    except requests.exceptions.RequestException as e:
+        print(f"Error contacting the Glance API: {e}")
+        return []
 
 
-class DetailsPageView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
+class IndexView(generic.TemplateView):
+    template_name = 'eduvmstore_dashboard/admin/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+        token_id = None
 
+        # Authentifizierungs-Token holen
+        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
+            token_id = self.request.user.token.id
 
-        try:
-            images, has_more_data = glance.image_list_detailed(self.request, paginate=False)
+        # Images von der Glance API abrufen
+        images = get_images_via_rest(self.request)
 
-
-            if images:
-                image = images[0]  
-                context['image'] = image
-            else:
-                context['error'] = _("No images found")
-
-        except Exception as e:
-            context['error'] = _("Could not retrieve image details: %s") % str(e)
+        # Bilder und Benutzerinformationen im Kontext speichern
+        context['images'] = images
+        context['username'] = user.username
+        context['auth_token'] = token_id
+        context['admin'] = user.is_superuser
+        context['show_content'] = user.is_superuser
 
         return context
 
