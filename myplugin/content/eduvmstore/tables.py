@@ -38,9 +38,10 @@ class ImageTable(tables.DataTable):
         # Correct URL with named arguments
     )
    description = tables.Column("short_description", verbose_name=_("Short Description"))
-   creator = tables.Column("owner", verbose_name=_("Creator"))
-   min_size = tables.Column("disk_format", verbose_name=_("Disk Format"))
-    version = tables.Column("visibility", verbose_name=_("Visibility"))
+    min_size = tables.Column("size", verbose_name=_("Size"))
+    visibility = tables.Column("visibility", verbose_name=_("Visibility"))
+    creator = tables.Column("owner", verbose_name=_("Creator"))
+    version = tables.Column("version", verbose_name=_("Version"))
 
 
     class Meta:
