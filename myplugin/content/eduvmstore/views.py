@@ -90,29 +90,27 @@ class IndexView(tabs.TabbedTableView):
         return context
 
 
+from openstack_dashboard.api import glance
+from django.utils.translation import gettext_lazy as _
+from django.views import generic
+
+
 class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Define the image name you're looking for
-        target_image_name = 'my_image_name'  # Replace with your actual image name
 
-        # Fetch all images using Glance API
         try:
-            images, has_more_data = glance.image_list_detailed(self.request)
+            images, has_more_data = glance.image_list_detailed(self.request, paginate=False)
 
-            # Debug: Ausgabe aller gefundenen Images
-            print("Found images:", [img.name for img in images])  # Temporäre Debug-Ausgabe
 
-            # Suche nach dem Bild mit dem Zielnamen
-            image = next((img for img in images if img.name == target_image_name), None)
-
-            if image:
+            if images:
+                image = images[0]  
                 context['image'] = image
             else:
-                context['error'] = _("Image with name '%s' not found") % target_image_name
+                context['error'] = _("No images found")
 
         except Exception as e:
             context['error'] = _("Could not retrieve image details: %s") % str(e)
