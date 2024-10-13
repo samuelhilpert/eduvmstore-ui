@@ -2,7 +2,7 @@ from django import forms
 
 class AppTemplateForm(forms.Form):
     image = forms.FileField(
-        label='Upload Image (ISO or other)',
+        label='Upload Image',
         required=True,
         widget=forms.ClearableFileInput(attrs={'accept': '.iso'})
     )
@@ -37,30 +37,36 @@ class AppTemplateForm(forms.Form):
     min_ram = forms.IntegerField(
         label="Minimum RAM (GB)",
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        min_value=0
     )
     min_disk = forms.IntegerField(
         label="Minimum Disk (GB)",
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        min_value=0
     )
     min_cores = forms.IntegerField(
         label="Minimum Cores",
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        min_value=0
     )
     res_per_user_ram = forms.IntegerField(
         label="Minimum RAM per User (GB)",
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        min_value=0
     )
     res_per_user_disk = forms.IntegerField(
         label="Minimum Disk per User (GB)",
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        min_value=0
     )
     res_per_user_cores = forms.IntegerField(
         label="Minimum Cores per User",
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        min_value=0
     )
