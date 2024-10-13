@@ -14,19 +14,6 @@ def get_host_ip():
         s.close()
     return ip
 
-def get_images_via_rest(request):
-    headers = {"X-Auth-Token": request.user.token.id}
-
-    try:
-        response = requests.get(f"http://{get_host_ip()}/image/v2/images", headers=headers, timeout=10)
-        response.raise_for_status()  # Raise error if request fails
-        return response.json().get("images", [])  # Return list of images or an empty list
-    except requests.exceptions.HTTPError as err:
-        print(f"Error fetching images: {err}")
-        return []
-
-
-
 class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/admin/index.html'
 
@@ -38,11 +25,6 @@ class IndexView(generic.TemplateView):
 
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
-
-        images = get_images_via_rest(self.request)
-        # Add images to the context to be displayed in the template
-        context['images'] = images
-
 
         context['username'] = user.username
         context['auth_token'] = token_id

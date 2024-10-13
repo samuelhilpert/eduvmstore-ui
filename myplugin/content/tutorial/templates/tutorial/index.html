@@ -34,7 +34,7 @@ document.getElementById('postButton').addEventListener('click', function() {
             'X-CSRFToken': '{{ csrf_token }}',  // CSRF token for security
         },
         body: JSON.stringify({
-            'name': templateName  // Send the data as JSON
+            "name": templateName  // Send the data as JSON
         })
     })
     .then(response => {
