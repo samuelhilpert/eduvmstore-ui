@@ -29,7 +29,7 @@
         </div>
         <div class="form-group">
             {{ form.description.label_tag }}
-            <textarea style="height: 60px;" name="description">{{ form.description.value }}</textarea>
+            {{ form.description|add_attr:"style=height:60px;" }}
         </div>
         <div class="form-group">
             {{ form.notice.label_tag }}
