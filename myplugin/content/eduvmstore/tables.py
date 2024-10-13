@@ -29,6 +29,7 @@ class InstancesTable(tables.DataTable):
 
 # Image Table definition, same as you had but with small improvement on translations
 class ImageTable(tables.DataTable):
+  
     name = tables.Column(
         "name",
         verbose_name=_("Image Name"),
@@ -36,10 +37,12 @@ class ImageTable(tables.DataTable):
                                     kwargs={'image_id': record.id})
         # Correct URL with named arguments
     )
-    description = tables.Column("id", verbose_name=_("Image Id"))
+    description = tables.Column("short_description", verbose_name=_("Short Description"))
+    min_size = tables.Column("size", verbose_name=_("Size"))
+    visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
-    min_size = tables.Column("disk_format", verbose_name=_("Disk Format"))
-    version = tables.Column("visibility", verbose_name=_("Visibility"))
+    version = tables.Column("version", verbose_name=_("Version"))
+
 
     class Meta:
         name = "images"

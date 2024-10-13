@@ -1,7 +1,11 @@
+from http.client import responses
 
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import generic
 
-
+import requests
+from django.views.decorators.csrf import csrf_exempt
 
 
 class IndexView(generic.TemplateView):
@@ -9,26 +13,36 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        token_id = None
-
-
-        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
-            token_id = self.request.user.token.id
-
-
-        context['username'] = user.username
-        context['auth_token'] = token_id
-        context['admin'] = user.is_superuser
-        context['show_content'] = False
-
-        if user.is_superuser:
-            context['show_content'] = True
-        else:
-            context['show_content'] = False
-
-
+        context['images'] = self.get_data_from_backend() 
         return context
+
+
+    def get_data_from_backend(self):
+        try:
+            response = requests.get("http://localhost:8000/api/app-templates/")
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as err:  # Fix the typo here
+            print(f"Error fetching images: {err}")
+            return []
+        except requests.exceptions.RequestException as e:  
+            print(f"Request error: {e}")
+            return []
+
+    @method_decorator(csrf_exempt) 
+    def post(self, request, *args, **kwargs):
+        try:
+            # Parse the JSON request body
+            data = request.POST.get('name') 
+            # Make a POST request to your backend API
+            response = requests.post(
+                "http://localhost:8000/api/app-templates/",
+                json={"name": data}
+            )
+            response.raise_for_status()
+            return JsonResponse({'message': 'Template added successfully!'})
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=400)
 
 
 

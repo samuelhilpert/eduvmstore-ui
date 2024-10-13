@@ -8,11 +8,52 @@
 {% endblock page_header %}
 
 {% block main %}
+<!-- List of app templates -->
+<ul>
+    {% for image in images %}
+        <li>{{ image }}</li>
+    {% endfor %}
+</ul>
 
+<!-- Form for adding new template -->
+<h3>Add New Template</h3>
+    <label for="templateName"> Name</label><input type="text" id="templateName" placeholder="Enter template name" />
+<button id="postButton">Post</button>
 
+<p id="responseMessage"></p>
 
-    <p>Tutorial</p>
+<script>
+document.getElementById('postButton').addEventListener('click', function() {
+    const templateName = document.getElementById('templateName').value;
 
+    // Make the POST request
+    fetch("http://localhost:8000/api/app-templates/", {  // Use the correct URL
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',  // Sending JSON
+            'X-CSRFToken': '{{ csrf_token }}',  // CSRF token for security
+        },
+        body: JSON.stringify({
+            "name": templateName  // Send the data as JSON
+        })
+    })
+    .then(response => {
+        // Check if the response is valid JSON or if it's empty
+        if (response.ok) {
+            return response.json();  // Attempt to parse JSON
+        } else {
+            return response.text().then(text => { throw new Error(text); }); // Improved error handling
+        }
+    })
+    .then(data => {
+        // Update the page with the success or error message
+        document.getElementById('responseMessage').innerText = data.message || data.error;
+    })
+    .catch(error => {
+        document.getElementById('responseMessage').innerText = 'Error: ' + error.message; // Access error message properly
+    });
+    });
+</script>
 
 
 {% endblock %}
