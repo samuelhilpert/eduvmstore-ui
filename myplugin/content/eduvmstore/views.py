@@ -99,47 +99,16 @@ class DetailsPageView(generic.TemplateView):
         user = self.request.user
         token_id = None
 
+        image_id = '774498b7-a317-49e7-ae09-4460d92c3ac0'
+
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
-
-
-        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
-
-        headers = {
-            "X-Auth-Token": token_id,
-        }
-
         try:
-            response = requests.get(keystone_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            user_data = response.json()['user']
-
-            context['auth_token'] = token_id
-            context['username'] = user_data.get('name')
-            context['mail'] = user_data.get('email')
-        except requests.exceptions.RequestException as e:
-            context['error'] = _("Could not retrieve user information: %s") % str(e)
-
-
-        if token_id:
-
-
-            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
-
-            headers = {'X-Auth-Token': token_id}
-
-            try:
-                response = requests.get(keystone_url, headers=headers, timeout=10)
-
-                if response.status_code == 200:
-                    projects = response.json().get('projects', [])
-                    context['projects'] = projects if projects else None
-                else:
-                    context['error'] = f"Could not retrieve projects: {response.status_code} {response.text}"
-
-            except requests.RequestException as e:
-                context['error'] = f"Error contacting Keystone: {e}"
+            image = glance.image_get(self.request, image_id)
+            context['image'] = image
+        except Exception as e:
+            context['error'] = _("Could not retrieve image details: %s") % str(e)
 
         return context
 
