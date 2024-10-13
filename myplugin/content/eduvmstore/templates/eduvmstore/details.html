@@ -155,11 +155,11 @@
     <div class="col-md-6">
         <h2>{% trans "Custom Properties" %}</h2>
         <ul>
-             <li><strong>{% trans "Short Description:" %}</strong> <span>{{ image.owner }}</span></li>
-             <li><strong>{% trans "Description:" %}</strong> <span>{{ image.visibility }}</span></li>
-             <li><strong>{% trans "Instantiation Notice:" %}</strong> <span>{{ image.visibility }}</span></li>
-             <li><strong>{% trans "Min. Disk per User:" %}</strong> <span>{{ image.min_disk }} GB</span></li>
-             <li><strong>{% trans "Min. RAM per User:" %}</strong> <span>{{ image.min_ram }} MB</span></li>
+             <li><strong>{% trans "Short Description:" %}</strong> <span>{{ image.short_decription}}</span></li>
+             <li><strong>{% trans "Description:" %}</strong> <span>{{ image.description }}</span></li>
+             <li><strong>{% trans "Instantiation Notice:" %}</strong> <span>{{ image.instantiation_notice }}</span></li>
+             <li><strong>{% trans "Min. Disk per User:" %}</strong> <span>{{ image.min_disk_user }} GB</span></li>
+             <li><strong>{% trans "Min. RAM per User:" %}</strong> <span>{{ image.min_ram_user }} MB</span></li>
         </ul>
     </div>
     </div>
