@@ -70,3 +70,69 @@ class AppTemplateForm(forms.Form):
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
+
+
+class InstanceForm(forms.Form):
+    instance_name = forms.CharField(
+        label='Instance Name',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+
+    add_user = forms.CharField(
+        label='Add User (<Username> [, <PW>])',
+        required=False,
+        widget=forms.TextInput(attrs={'placeholder': '<Username> [, <PW>]', 'class': 'form-control'})
+    )
+
+    file = forms.FileField(
+        label='Select File',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file', 'accept': '.iso,.img,.zip'})
+    )
+
+    no_additional_user = forms.BooleanField(
+        label='No Additional User',
+        required=False
+    )
+
+    select_flavor = forms.ChoiceField(
+        label='Select Flavor',
+        choices=[('small', 'Small'), ('medium', 'Medium'), ('large', 'Large')],
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    ram = forms.IntegerField(
+        label='RAM (GB)',
+        required=True,
+        min_value=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
+    disk = forms.IntegerField(
+        label='Disk (GB)',
+        required=True,
+        min_value=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
+    cores = forms.IntegerField(
+        label='Cores',
+        required=True,
+        min_value=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
+    root_disk = forms.IntegerField(
+        label='Root Disk (GB)',
+        required=True,
+        min_value=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
+    network = forms.CharField(
+        label='Network',
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )

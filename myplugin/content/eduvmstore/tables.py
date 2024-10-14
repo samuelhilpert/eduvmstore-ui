@@ -1,4 +1,5 @@
 from django.urls import reverse
+from django.utils.html import format_html
 
 from django.utils.translation import gettext_lazy as _
 
@@ -42,6 +43,18 @@ class ImageTable(tables.DataTable):
     visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
     version = tables.Column("version", verbose_name=_("Version"))
+    action = tables.Column(
+        accessor='id',  # Accessor for image ID
+        verbose_name=_("Action"),
+        empty_values=(),
+        orderable=False,  # Do not allow sorting by this column
+        link=False,
+        # Define the button HTML
+        output=lambda record: format_html(
+            '<a class="btn btn-primary" href="{}">Go to Instances</a>',
+            reverse('horizon:eduvmstore_dashboard:eduvmstore:instances', kwargs={'image_id': record.id})
+        )
+    )
 
 
     class Meta:

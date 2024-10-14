@@ -135,7 +135,23 @@ class CreateView(generic.TemplateView):
         context['form'] = AppTemplateForm()
         return context
 
+class InInstancesView(generic.TemplateView):
+    template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        image_id = self.kwargs.get('image_id')
+
+        if image_id:
+            image_details = get_image_details_via_rest(self.request, image_id)
+            if image_details:
+                context['image'] = image_details
+            else:
+                context['error'] = _("Could not retrieve image details.")
+        else:
+            context['error'] = _("No image ID provided.")
+
+        return context
 
 '''
 class TableView(tabs.TabbedTableView):
