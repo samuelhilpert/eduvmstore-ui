@@ -4,6 +4,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from horizon import tables
+import
 
 # Custom filter for instances
 class MyFilterAction(tables.FilterAction):
@@ -43,11 +44,22 @@ class ImageTable(tables.DataTable):
     visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
     version = tables.Column("version", verbose_name=_("Version"))
+    button = tables.Column("button", verbose_name=_("Button"))
+    action = tables.Column(
+        verbose_name=_("Action"),
+        accessor="id",
+        link=False,
+        sortable=False,
+        cell=lambda record: format_html(
+            '<button class="btn btn-primary">Action</button>'
+        )
+    )
 
 
 
 
-    class Meta:
+
+class Meta:
         name = "images"
         verbose_name = _("Images")
         table_actions = (MyFilterAction,)
