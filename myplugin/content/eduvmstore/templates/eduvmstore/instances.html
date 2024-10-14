@@ -9,10 +9,10 @@
 {% block main %}
     <h1>Image Details for Image ID: {{ image.id }}</h1>
 
-    <p><strong>Name:</strong> {{ image.name }}</p>
-    <p><strong>Size:</strong> {{ image.size }} GB</p>
-    <p><strong>Visibility:</strong> {{ image.visibility }}</p>
-    <p><strong>Creator:</strong> {{ image.owner }}</p>
+    <p> {{ image.name }}</p>
+    <p> {{ image.size }} GB</p>
+    <p>{{ image.visibility }}</p>
+    <p>{{ image.owner }}</p>
 
     {% if error %}
         <div class="alert alert-danger">{{ error }}</div>

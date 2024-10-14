@@ -135,7 +135,7 @@ class CreateView(generic.TemplateView):
         context['form'] = AppTemplateForm()
         return context
 
-class InInstancesView(generic.TemplateView):
+class InstancesView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
 
     def get_context_data(self, **kwargs):
