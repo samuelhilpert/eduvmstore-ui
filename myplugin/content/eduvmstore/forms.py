@@ -88,7 +88,7 @@ class InstanceForm(forms.Form):
     file = forms.FileField(
         label='Select File',
         required=False,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file', 'accept': '.iso,.img,.zip'})
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control-file', 'accept': '.csv, .txt'})
     )
 
     no_additional_user = forms.BooleanField(
