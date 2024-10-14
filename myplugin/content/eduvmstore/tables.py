@@ -43,16 +43,7 @@ class ImageTable(tables.DataTable):
     visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
     version = tables.Column("version", verbose_name=_("Version"))
-    action = tables.Column(
-        "id",  # Image ID is used in the link but not displayed
-        verbose_name=_("Action"),
-        link=lambda record: reverse('horizon:eduvmstore_dashboard:eduvmstore:instances',
-                                    kwargs={'image_id': record.id}),
-        # Use a static display name for the action
-        display=lambda record: _("Go to Instances"),  # Text displayed in the table for each row
-        attrs={'data-type': 'button'},  # Optional: for styling
 
-    )
 
 
 

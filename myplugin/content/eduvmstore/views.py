@@ -141,19 +141,7 @@ class InstancesView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = InstanceForm()
-        image_id = self.kwargs.get('image_id')
-
-        if image_id:
-            image_details = get_image_details_via_rest(self.request, image_id)
-            if image_details:
-                context['image'] = image_details
-            else:
-                context['error'] = _("Could not retrieve image details.")
-        else:
-            context['error'] = _("No image ID provided.")
-
         return context
-
 '''
 class TableView(tabs.TabbedTableView):
     tab_group_class = edu_tabs.MypanelTabs

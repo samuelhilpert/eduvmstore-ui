@@ -7,17 +7,6 @@
 {% endblock page_header %}
 
 {% block main %}
-    <h1>Image Details for Image ID: {{ image.id }}</h1>
-
-    <p> {{ image.name }}</p>
-    <p> {{ image.size }} GB</p>
-    <p>{{ image.visibility }}</p>
-    <p>{{ image.owner }}</p>
-
-    {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-
 
     <h2>Create Instance</h2>
     <form method="post" enctype="multipart/form-data">
