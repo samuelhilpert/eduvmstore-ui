@@ -7,7 +7,7 @@ from horizon import tabs
 from openstack_dashboard.api import glance
 from django.views import generic
 from myplugin.content.eduvmstore import tabs as edu_tabs
-from myplugin.content.eduvmstore.forms import AppTemplateForm
+from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 
 from django.utils.translation import gettext_lazy as _
 
@@ -140,6 +140,7 @@ class InstancesView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['form'] = InstanceForm()
         image_id = self.kwargs.get('image_id')
 
         if image_id:
