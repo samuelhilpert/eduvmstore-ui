@@ -17,13 +17,7 @@
    {{ tab_group.render }}
    </div>
 </div>
-    <button class="btn btn-primary" id="create-button">Create</button>
-
-    <script>
-        document.getElementById('create-button').addEventListener('click', function() {
-            window.location.href = "{% url 'create' %}";
-        });
-    </script>
+    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">Create</a>
 
 
 {% endblock %}
