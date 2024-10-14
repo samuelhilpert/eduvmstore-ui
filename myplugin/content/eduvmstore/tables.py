@@ -47,11 +47,7 @@ class ImageTable(tables.DataTable):
 
 
 
-
-
-
-
-class Meta:
+    class Meta:
         name = "images"
         verbose_name = _("Images")
         table_actions = (MyFilterAction,)
