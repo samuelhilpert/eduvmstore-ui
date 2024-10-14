@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Create App-Template{% endblock %}
+{% block title %}Create Instances{% endblock %}
 
 {% block page_header %}
-    {% include "horizon/common/_domain_page_header.html" with title=_("Create App-Template") %}
+    {% include "horizon/common/_domain_page_header.html" with title=_("Create Instance") %}
 {% endblock page_header %}
 
 {% block main %}
 
-    <h2>Create Instance</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
@@ -18,11 +17,20 @@
         </div>
 
         <div class="form-group">
-            {{ form.add_user.label_tag }}
-            {{ form.add_user }}
-            {{ form.file.label_tag }}
-            {{ form.file }}
-            {{ form.no_additional_user }}
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form.add_user.label_tag }}
+                    {{ form.add_user }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.file.label_tag }}
+                    {{ form.file }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.no_additional_user.label_tag }} <!-- Label für No Additional User -->
+                    {{ form.no_additional_user }}
+                </div>
+            </div>
         </div>
 
         <h3>Manage Sizing</h3>
