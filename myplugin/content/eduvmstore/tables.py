@@ -45,15 +45,7 @@ class ImageTable(tables.DataTable):
     creator = tables.Column("owner", verbose_name=_("Creator"))
     version = tables.Column("version", verbose_name=_("Version"))
     button = tables.Column("button", verbose_name=_("Button"))
-    action = tables.Column(
-        verbose_name=_("Action"),
-        accessor="id",
-        link=False,
-        sortable=False,
-        cell=lambda record: format_html(
-            '<button class="btn btn-primary">Action</button>'
-        )
-    )
+
 
 
 
