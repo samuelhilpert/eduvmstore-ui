@@ -44,7 +44,7 @@ class ImageTable(tables.DataTable):
     visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
     version = tables.Column("version", verbose_name=_("Version"))
-    button = tables.Column("button", verbose_name=_("Button"))
+
 
 
 
