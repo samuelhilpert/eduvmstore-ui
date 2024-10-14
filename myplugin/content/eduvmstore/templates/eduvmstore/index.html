@@ -17,6 +17,13 @@
    {{ tab_group.render }}
    </div>
 </div>
+    <button class="btn btn-primary" id="create-button">Create</button>
+
+    <script>
+        document.getElementById('create-button').addEventListener('click', function() {
+            window.location.href = "{% url 'create' %}";
+        });
+    </script>
 
 
 {% endblock %}
