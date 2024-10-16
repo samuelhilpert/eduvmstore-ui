@@ -1,4 +1,3 @@
-from asyncio import timeout
 from http.client import responses
 
 from django.http import JsonResponse
