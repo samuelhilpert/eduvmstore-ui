@@ -1,8 +1,10 @@
 from django.urls import reverse
+from django.utils.html import format_html
 
 from django.utils.translation import gettext_lazy as _
 
 from horizon import tables
+
 
 # Custom filter for instances
 class MyFilterAction(tables.FilterAction):
@@ -42,6 +44,7 @@ class ImageTable(tables.DataTable):
     visibility = tables.Column("visibility", verbose_name=_("Visibility"))
     creator = tables.Column("owner", verbose_name=_("Creator"))
     version = tables.Column("version", verbose_name=_("Version"))
+
 
 
     class Meta:

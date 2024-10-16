@@ -38,6 +38,7 @@ class IndexView(generic.TemplateView):
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
                 json={"name": data}
+
             )
             response.raise_for_status()
             return JsonResponse({'message': 'Template added successfully!'})

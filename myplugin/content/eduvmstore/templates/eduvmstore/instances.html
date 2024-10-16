@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Create Instances{% endblock %}
+
+{% block page_header %}
+    {% include "horizon/common/_domain_page_header.html" with title=_("Create Instance") %}
+     {% if image_id %}
+        <h4>ID: {{ image_id }}</h4>
+    {% endif %}
+{% endblock page_header %}
+
+{% block main %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            {{ form.instance_name.label_tag }}
+            {{ form.instance_name }}
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form.add_user.label_tag }}
+                    {{ form.add_user }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.file.label_tag }}
+                    {{ form.file }}
+                </div>
+                <div class="col-md-4">
+                    {{ form.no_additional_user.label_tag }} <!-- Label für No Additional User -->
+                    {{ form.no_additional_user }}
+                </div>
+            </div>
+        </div>
+
+        <h3>Manage Sizing</h3>
+        <div class="form-group">
+            {{ form.select_flavor.label_tag }}
+            {{ form.select_flavor }}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.ram.label_tag }}
+                    {{ form.ram }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.disk.label_tag }}
+                    {{ form.disk }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.cores.label_tag }}
+                    {{ form.cores }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.root_disk.label_tag }}
+                    {{ form.root_disk }}
+                </div>
+            </div>
+        </div>
+
+        <h3>Network</h3>
+        <div class="form-group">
+            {{ form.network.label_tag }}
+            {{ form.network }}
+        </div>
+
+        <button class="btn btn-primary">Create</button>
+        <button type="button" class="btn btn-secondary">Cancel</button>
+    </form>
+{% endblock %}
