@@ -4,6 +4,9 @@
 
 {% block page_header %}
     {% include "horizon/common/_domain_page_header.html" with title=_("Create Instance") %}
+     {% if image_id %}
+        <h4>ID: {{ image_id }}</h4>
+    {% endif %}
 {% endblock page_header %}
 
 {% block main %}

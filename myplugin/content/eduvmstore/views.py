@@ -141,6 +141,11 @@ class InstancesView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = InstanceForm()
+
+        image_id = self.request.GET.get('image_id')
+        if image_id:
+            context['image_id'] = image_id
+
         return context
 '''
 class TableView(tabs.TabbedTableView):
