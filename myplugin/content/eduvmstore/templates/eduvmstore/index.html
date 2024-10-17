@@ -12,12 +12,49 @@
 
 {% block main %}
 
-<div class="row">
-   <div class="col-sm-12">
-   {{ tab_group.render }}
-   </div>
-</div>
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">Create App-Template</a>
+    <!-- Custom table to display the combined data -->
+    <div class="row mt-4">
+        <div class="col-sm-12">
+            <h2>{% trans "App-Template Details" %}</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{% trans "Image Name" %}</th>
+                        <th>{% trans "Short Description" %}</th>
+                        <th>{% trans "Version" %}</th>
+                        <th>{% trans "Size" %}</th>
+                        <th>{% trans "Creator" %}</th>
+                        <th>{% trans "Visibility" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for image in images %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' image_id=image.id %}">
+                                    {{ image.name }}
+                                </a>
+                            </td>
+                            <td>{{ image.short_description }}</td>
+                            <td>{{ image.version }}</td>
+                            <td>{{ image.size|filesizeformat }}</td>
+                            <td>{{ image.owner }}</td>
+                            <td>{{ image.visibility }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <p>{% trans "No images available." %}</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">
+        Create App-Template
+    </a>
 
 {% endblock %}

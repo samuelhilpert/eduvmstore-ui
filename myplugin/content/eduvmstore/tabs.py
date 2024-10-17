@@ -22,17 +22,15 @@ class ImageTab(tabs.TableTab):
 
     # Extended function for fetching external API data
     def fetch_external_image_data(self):
-        """Fetch the image data from the external API."""
         try:
-            # Replace with your actual URL
             response = requests.get("http://localhost:8000/api/app-templates/")
-            if response.status_code == 200:
-                return response.json()  # Assuming the API returns a JSON response
-            else:
-                return []
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as err:  # Fix the typo here
+            print(f"Error fetching images: {err}")
+            return []
         except requests.exceptions.RequestException as e:
-            # Handle errors in the request
-            print(f"Error fetching external data: {e}")
+            print(f"Request error: {e}")
             return []
 
     def get_images_data(self):
@@ -46,11 +44,11 @@ class ImageTab(tabs.TableTab):
                 self.request, filters=filters, marker=marker, paginate=True
             )
 
-            # The images are in the 'images' key, adjust to handle this structure
-            glance_images = images.get('images', [])
+            # Glance returns a list directly, so we work with it as a list
+            glance_images = images  # No need to use `.get('images', [])` as it's already a list
 
             # Fetch external API data
-            external_images = fetch_external_image_data()
+            external_images = self.fetch_external_image_data()
 
             # Create a dictionary from external images based on image_id
             external_image_dict = {image['image_id']: image for image in external_images}
@@ -61,7 +59,7 @@ class ImageTab(tabs.TableTab):
                 image_id = image['id']
                 if image_id in external_image_dict:
                     external_data = external_image_dict[image_id]
-                    # Prioritize the external name
+                    # Prioritize fields from external API
                     image['name'] = external_data.get('name', image['name'])
                     image['short_description'] = external_data.get('short_description', 'No description')
                     image['version'] = external_data.get('version', 'N/A')
