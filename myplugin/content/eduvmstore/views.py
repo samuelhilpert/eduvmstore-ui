@@ -44,7 +44,7 @@ def get_glance_images(request, image_ids):
         logging.error(f"Error fetching Glance Images: {e}")
         return {}
 
-class IndexView(tabs.TabbedTableView):
+class IndexView(generic.TemplateView):
 
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
