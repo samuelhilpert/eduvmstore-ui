@@ -94,7 +94,7 @@ def get_image_details_via_rest(request, image_id):
 
 
 class DetailsPageView(generic.TemplateView):
-    template_name = 'app_template_dashboard/details.html'
+    template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
     page_title = "{{ app_template.name }}"
 
     def get_context_data(self, **kwargs):
