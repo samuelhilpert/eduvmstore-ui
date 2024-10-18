@@ -5,13 +5,11 @@
 
 {% block page_header %}
     <div class="d-flex justify-content-between align-items-center">
-        <!-- Combined Logo and Title -->
         <div class="d-flex align-items-center">
-            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 85px; margin-right: 15px;">
+            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px; margin-right: 15px;">
             <h1 class="m-0">{% trans "App-Template Overview" %}</h1>
         </div>
 
-        <!-- Create button -->
         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">
             Create App-Template
         </a>
