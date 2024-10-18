@@ -4,12 +4,15 @@
 {% block title %}{% trans "Dashboard" %}{% endblock %}
 
 {% block page_header %}
+
     <div class="d-flex justify-content-between align-items-center">
         <!-- Logo added here -->
         <div class="logo-header d-flex align-items-center">
-            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 75px; margin-right: 15px;">
+            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 85px; margin-right: 15px;">
         </div>
-              {% include "horizon/common/_domain_page_header.html" with title=_("App-Template Overview") %}
+          <div>
+          {% include "horizon/common/_domain_page_header.html" with title=_("App-Template Overview") %}
+         </div>
 
         <!-- Create button -->
         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">
