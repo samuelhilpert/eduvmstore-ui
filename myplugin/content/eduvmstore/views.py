@@ -111,7 +111,7 @@ class DetailsPageView(generic.TemplateView):
         """Fetch the app template from the external database."""
         try:
             app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
-            response = requests.get(f'http://external-database-endpoint.com/api/app_templates/{app_template_id}')
+            response = requests.get(f"http://localhost:8000/api/app-templates/{app_template_id}")
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
