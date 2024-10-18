@@ -15,29 +15,30 @@
                 {{ form.image.label_tag }}
                 {{ form.image }}
             </div>
-            <div class="col-md-6">
-                {{ form.script.label_tag }}
-                {{ form.script }}
-            </div>
-            <div class="col-md-6">
-
-                <!-- Button to open the modal -->
-                <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
-
-                <!-- Modal for script input -->
-                <div id="scriptModal" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <h5>Write Script</h5>
-                        <textarea id="scriptText" class="form-control" rows="10"></textarea>
-                        <button type="button" class="btn btn-primary" onclick="saveScript()">Save Script</button>
-                    </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="mr-2">
+                    {{ form.script.label_tag }}
+                    {{ form.script }}
                 </div>
-
-                <!-- Hidden input to store the script text -->
-                <input type="hidden" id="hiddenScriptField" name="script_text" />
+                <div>
+                    <!-- Button to open the modal -->
+                    <button type="button" class="btn btn-primary ml-2" onclick="openModal()">Write Script</button>
+                </div>
             </div>
         </div>
+
+        <!-- Modal for script input -->
+        <div id="scriptModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h5>Write Script</h5>
+                <textarea id="scriptText" class="form-control" rows="10"></textarea>
+                <button type="button" class="btn btn-primary" onclick="saveScript()">Save Script</button>
+            </div>
+        </div>
+
+        <!-- Hidden input to store the script text -->
+        <input type="hidden" id="hiddenScriptField" name="script_text" />
 
         <!-- Rest of the form -->
         <div class="form-group row">
