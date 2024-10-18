@@ -5,14 +5,12 @@
 
 {% block page_header %}
     <div class="d-flex justify-content-between align-items-center">
-        <!-- Logo and Title in the same row -->
+        <!-- Logo and Title in one row -->
         <div class="d-flex align-items-center">
             <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 85px; margin-right: 15px;">
-
-            <!-- Title next to the logo -->
-            <h1 class="page-title mb-0">
-                {% trans "App-Template Overview" %}
-            </h1>
+            <div>
+                {% include "horizon/common/_domain_page_header.html" with title=_("App-Template Overview") %}
+            </div>
         </div>
 
         <!-- Create button -->
