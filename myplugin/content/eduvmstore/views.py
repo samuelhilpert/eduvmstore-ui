@@ -4,7 +4,7 @@ import socket
 import logging
 
 from django.shortcuts import render
-from horizon import tabs
+from horizon import tabs, exceptions
 
 from openstack_dashboard.api import glance
 from django.views import generic
@@ -95,21 +95,37 @@ def get_image_details_via_rest(request, image_id):
 
 class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
+    page_title = "{{ app_template.name }}"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        image_id = self.kwargs.get('image_id')
+        context = super(DetailsPageView, self).get_context_data(**kwargs)
+        app_template = self.get_app_template()
+        image_data = self.get_image_data(app_template['image_id'])
 
-        if image_id:
-            image_details = get_image_details_via_rest(self.request, image_id)
-            if image_details:
-                context['image'] = image_details
-            else:
-                context['error'] = _("Could not retrieve image details.")
-        else:
-            context['error'] = _("No image ID provided.")
-
+        context['app_template'] = app_template
+        context['image_visibility'] = image_data.get('visibility', 'N/A')
+        context['image_owner'] = image_data.get('owner', 'N/A')
         return context
+
+    def get_app_template(self):
+        """Fetch the app template from the external database."""
+        try:
+            app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
+            response = requests.get(f"http://localhost:8000/api/app-templates/{app_template_id}")
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            exceptions.handle(self.request, _('Unable to retrieve app template details: %s') % str(e))
+            return {}
+
+    def get_image_data(self, image_id):
+        """Fetch image details from Glance based on the image_id."""
+        try:
+            image = glance.image_get(self.request, image_id)
+            return {'visibility': image.visibility, 'owner': image.owner}
+        except Exception as e:
+            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+            return {}
 
 
 class CreateView(generic.TemplateView):
