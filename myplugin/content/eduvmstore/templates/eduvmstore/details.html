@@ -4,101 +4,114 @@
 {% block title %}{% trans "Image Details" %}{% endblock %}
 
 {% block page_header %}
-<style>
-    .content {
-        margin-left: 15px;
-    }
-    .header-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 10px;
-    }
-    .btn-launch {
-        font-size: 14px;
-        border: 1px solid #ccc;
-        border-radius: 4px 0 0 4px;
-        background-color: white;
-        color: black;
-        margin-right: -1px;
-        height: 30px;
-    }
-    .dropdown-toggle-split {
-        padding: 8px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 0 4px 4px 0;
-        background-color: white;
-        color: black;
-        display: inline-flex;
-        align-items: center;
-        height: 30px;
-    }
-    .btn-launch:hover, .dropdown-toggle-split:hover {
-        background-color: #f0f0f0;
-        border-color: #aaa;
-    }
-    .dropdown-menu {
-        border-radius: 4px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        min-width: 160px;
-    }
-    .dropdown-menu a {
-        color: #333;
-        padding: 8px 20px;
-    }
-    .dropdown-menu a:hover {
-        background-color: #f8f9fa;
-    }
-    ul {
-        list-style-type: none;
-        padding-left: 10px;
-    }
-    ul li {
-        display: flex;
-        justify-content: space-between;
-    }
-    ul li strong {
-        width: 150px;
-        text-align: right;
-        font-weight: bold;
-    }
-    ul li span {
-        margin-left: 30px;
-        flex-grow: 1;
-        text-align: left;
-    }
-    h2 {
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 5px;
-        margin-bottom: 15px;
-    }
-    ul li:last-child {
-        border-bottom: none;
-    }
-    .col-md-6 {
-        margin-top: 10px;
-    }
-</style>
+    <style>
+        .content {
+            margin-left: 15px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .btn-launch {
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            background-color: white;
+            color: black;
+            margin-right: -1px;
+            height: 30px;
+        }
+        .dropdown-toggle-split {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 0 4px 4px 0;
+            background-color: white;
+            color: black;
+            display: inline-flex;
+            align-items: center;
+            height: 30px;
+        }
+        .btn-launch:hover, .dropdown-toggle-split:hover {
+            background-color: #f0f0f0;
+            border-color: #aaa;
+        }
+        .dropdown-menu {
+            border-radius: 4px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            min-width: 160px;
+        }
+        .dropdown-menu a {
+            color: #333;
+            padding: 8px 20px;
+        }
+        .dropdown-menu a:hover {
+            background-color: #f8f9fa;
+        }
+        .dropdown-menu .text-danger {
+            color: #dc3545;
+        }
+        .dropdown-menu .text-danger:hover {
+            background-color: #f8f9fa;
+                        color: #dc3545;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+        ul li {
+            display: flex;
+            justify-content: space-between;
+        }
+        ul li strong {
+            width: 150px;
+            text-align: right;
+            font-weight: bold;
+        }
+        ul li span {
+            margin-left: 30px;
+            flex-grow: 1;
+            text-align: left;
+        }
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        ul li:last-child {
+            border-bottom: none;
+        }
+        .col-md-6 {
+            margin-top: 10px;
+        }
+    </style>
 
-<div class="back-button">
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-secondary">
-        {% trans "Back" %}
-    </a>
-</div>
-<div class="content">
+    <div class="back-button">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-secondary">
+            {% trans "Back" %}
+        </a>
+    </div>
+    <div class="content">
     <div class="header-container">
         <h1>{% trans "App Template Details" %}</h1>
-        <h2></h2>
+
+
+
+
         <div class="btn-group">
-            <button type="button" class="btn btn-launch">
-                {% trans "Launch" %}
-            </button>
+           <button type="button" class="btn btn-launch" onclick="window.location.href='{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' image.id %}'">
+             {% trans "Launch" %}
+           </button>
+
+
             <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="caret"></span>
             </button>
+
             <ul class="dropdown-menu dropdown-menu-right">
                 <li><a href="#">{% trans "Create Volume" %}</a></li>
                 <li><a href="#">{% trans "Edit Image" %}</a></li>
@@ -107,45 +120,50 @@
             </ul>
         </div>
     </div>
-</div>
+    </div>
 {% endblock %}
 
 {% block main %}
 <div class="content">
-    <div class="row">
+      <div class="row">
         <div class="col-md-6">
-            <h2>{% trans "Image Details" %}</h2>
+            <h2>{% trans "Image" %}</h2>
             <ul>
                 <li><strong>{% trans "ID:" %}</strong> <span>{{ image.id }}</span></li>
                 <li><strong>{% trans "Name:" %}</strong> <span>{{ image.name }}</span></li>
                 <li><strong>{% trans "Type:" %}</strong> <span>{{ image.disk_format }}</span></li>
                 <li><strong>{% trans "Status:" %}</strong> <span>{{ image.status }}</span></li>
                 <li><strong>{% trans "Size:" %}</strong> <span>{{ image.size }} MB</span></li>
-                <li><strong>{% trans "Visibility:" %}</strong> <span>{{ image.visibility }}</span></li>
-                <li><strong>{% trans "Owner:" %}</strong> <span>{{ image.owner }}</span></li>
+                <li><strong>{% trans "Min. Disk:" %}</strong> <span>{{ image.min_disk }} GB</span></li>
+                <li><strong>{% trans "Min. RAM:" %}</strong> <span>{{ image.min_ram }} MB</span></li>
+                <li><strong>{% trans "Container Format:" %}</strong> <span>{{ image.container_format }}</span></li>
                 <li><strong>{% trans "Created At:" %}</strong> <span>{{ image.created_at }}</span></li>
                 <li><strong>{% trans "Updated At:" %}</strong> <span>{{ image.updated_at }}</span></li>
             </ul>
         </div>
-
         <div class="col-md-6">
-            <h2>{% trans "App Template Details" %}</h2>
-            {% if app_template %}
-                <ul>
-                    <li><strong>{% trans "ID:" %}</strong> <span>{{ app_template.id }}</span></li>
-                    <li><strong>{% trans "Name:" %}</strong> <span>{{ app_template.name }}</span></li>
-                    <li><strong>{% trans "Description:" %}</strong> <span>{{ app_template.description }}</span></li>
-                    <li><strong>{% trans "Short Description:" %}</strong> <span>{{ app_template.short_description }}</span></li>
-                    <li><strong>{% trans "Version:" %}</strong> <span>{{ app_template.version }}</span></li>
-                    <li><strong>{% trans "Creator ID:" %}</strong> <span>{{ creator_id }}</span></li>
-                    <li><strong>{% trans "Created At:" %}</strong> <span>{{ app_template.created_at }}</span></li>
-                    <li><strong>{% trans "Updated At:" %}</strong> <span>{{ app_template.updated_at }}</span></li>
-                    <li><strong>{% trans "Instantiation Notice:" %}</strong> <span>{{ app_template.instantiation_notice }}</span></li>
-                </ul>
-            {% else %}
-                <p>{{ error }}</p>
-            {% endif %}
+            <h2>{% trans "Security" %}</h2>
+            <ul>
+                <li><strong>{% trans "Owner:" %}</strong> <span>{{ image.owner }}</span></li>
+                <li><strong>{% trans "Visibility:" %}</strong> <span>{{ image.visibility }}</span></li>
+                <li><strong>{% trans "Protected:" %}</strong> <span>{{ image.protected|yesno:"Yes,No" }}</span></li>
+                <li><strong>{% trans "Checksum:" %}</strong> <span>{{ image.checksum }}</span></li>
+            </ul>
         </div>
+    </div>
+
+
+    <div class="row">
+    <div class="col-md-6">
+        <h2>{% trans "Custom Properties" %}</h2>
+        <ul>
+             <li><strong>{% trans "Short Description:" %}</strong> <span>{{ image.short_decription}}</span></li>
+             <li><strong>{% trans "Description:" %}</strong> <span>{{ image.description }}</span></li>
+             <li><strong>{% trans "Instantiation Notice:" %}</strong> <span>{{ image.instantiation_notice }}</span></li>
+             <li><strong>{% trans "Min. Disk per User:" %}</strong> <span>{{ image.min_disk_user }} GB</span></li>
+             <li><strong>{% trans "Min. RAM per User:" %}</strong> <span>{{ image.min_ram_user }} MB</span></li>
+        </ul>
+    </div>
     </div>
 </div>
 {% endblock %}
