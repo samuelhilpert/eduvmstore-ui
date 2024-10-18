@@ -13,44 +13,29 @@
 {% block main %}
 
     <!-- Custom table to display the combined data -->
-    <div class="row mt-4">
-        <div class="col-sm-12">
-            <h2>{% trans "App-Template Details" %}</h2>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>{% trans "Image Name" %}</th>
-                        <th>{% trans "Short Description" %}</th>
-                        <th>{% trans "Version" %}</th>
-                        <th>{% trans "Size" %}</th>
-                        <th>{% trans "Creator" %}</th>
-                        <th>{% trans "Visibility" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for image in images %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' image_id=image.id %}">
-                                    {{ image.name }}
-                                </a>
-                            </td>
-                            <td>{{ image.short_description }}</td>
-                            <td>{{ image.version }}</td>
-                            <td>{{ image.size|filesizeformat }}</td>
-                            <td>{{ image.owner }}</td>
-                            <td>{{ image.visibility }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6">
-                                <p>{% trans "No images available." %}</p>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+     <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{% trans "App Template Name" %}</th>
+                    <th>{% trans "Short Description" %}</th>
+                    <th>{% trans "Version" %}</th>
+                    <th>{% trans "Size" %}</th>
+                    <th>{% trans "Visibility" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in combined_data %}
+                <tr>
+                    <td>{{ data.name }}</td>
+                    <td>{{ data.short_description }}</td>
+                    <td>{{ data.version }}</td>
+                    <td>{{ data.size }} {% trans "MB" %}</td>
+                    <td>{{ data.visibility }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">

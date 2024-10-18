@@ -23,84 +23,61 @@ def get_host_ip():
         s.close()
     return ip
 
+def get_app_templates(request):
+    """Fetch the app templates from the external API."""
+    try:
+        response = requests.get('http://localhost:8000/api/app-templates/', timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching App Templates: {e}")
+        return []
 
+
+def get_glance_images(request, image_ids):
+    """Fetch specific images from Glance based on the list of image IDs."""
+    try:
+        filters = {'id': image_ids}
+        images, _, _ = glance.image_list_detailed(request, filters=filters, paginate=False)
+        return {image.id: image for image in images}
+    except Exception as e:
+        logging.error(f"Error fetching Glance Images: {e}")
+        return {}
 
 class IndexView(tabs.TabbedTableView):
-    tab_group_class = edu_tabs.MypanelTabs
+
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        host_ip = get_host_ip()
-        context['host_ip'] = host_ip
         return context
 
     def get_data(self, request, context, *args, **kwargs):
-        """Fetch data from Glance and external API, and combine results."""
-        # Fetch Glance images
-        glance_images = self.get_glance_images(request)
+        # Fetch App Templates from the external API
+        app_templates = get_app_templates(request)
 
-        # Fetch external database data
-        external_data = self.get_external_data()
+        # Extract all image IDs from the App Templates
+        image_ids = [template['image_id'] for template in app_templates]
 
-        # Combine the data based on the image ID
-        combined_images = self.combine_data(glance_images, external_data)
+        # Fetch corresponding Glance Images
+        glance_images = get_glance_images(request, image_ids)
 
-        context['images'] = combined_images
-        return context
-
-    def get_glance_images(self, request):
-        """Fetch images from Glance using Horizon API."""
-        try:
-            filters = {}
-            images, has_more_data, has_prev_data = glance.image_list_detailed(
-                request, filters=filters, paginate=False
-            )
-            return images
-        except Exception as e:
-            logging.error(f"Error fetching images from Glance: {e}")
-            return []
-
-    def get_external_data(self):
-        """Fetch data from the external API."""
-        try:
-            response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
-            response.raise_for_status()
-            return response.json()  # Assuming this returns a list of templates
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error fetching data from external API: {e}")
-            return []
-
-    def combine_data(self, glance_images, external_data):
-        """Merge data from Glance and the external API based on image_id."""
+        # Combine data from both sources
         combined_data = []
-        external_data_dict = {item['image_id']: item for item in external_data}
+        for template in app_templates:
+            image_id = template['image_id']
+            glance_image = glance_images.get(image_id)
+            if glance_image:
+                combined_data.append({
+                    'name': template['name'],
+                    'short_description': template['short_description'],
+                    'version': template['version'],
+                    'size': glance_image.size,
+                    'visibility': glance_image.visibility,
+                })
 
-        for glance_image in glance_images:
-            image_id = glance_image.id
-            if image_id in external_data_dict:
-                external_info = external_data_dict[image_id]
-                combined_data.append({
-                    'id': image_id,
-                    'name': external_info.get('name', glance_image.name),
-                    'short_description': external_info.get('short_description', ''),
-                    'version': external_info.get('version', ''),
-                    'size': glance_image.size,
-                    'owner': glance_image.owner,
-                    'visibility': glance_image.visibility,
-                })
-            else:
-                # If there's no matching external data, fall back to Glance data only
-                combined_data.append({
-                    'id': image_id,
-                    'name': glance_image.name,
-                    'short_description': '',
-                    'version': '',
-                    'size': glance_image.size,
-                    'owner': glance_image.owner,
-                    'visibility': glance_image.visibility,
-                })
-        return combined_data
+        context['combined_data'] = combined_data
+        return context
 
 def get_image_details_via_rest(request, image_id):
     headers = {"X-Auth-Token": request.user.token.id}
