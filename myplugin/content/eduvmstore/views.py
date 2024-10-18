@@ -102,20 +102,19 @@ class DetailsPageView(generic.TemplateView):
 
         if image_id:
             image_details = get_image_details_via_rest(self.request, image_id)
-            context['image'] = image_details
+            if image_details:
+                context['image'] = image_details
 
-            # Fetch app templates from external database
-            app_templates = fetch_app_templates()
+                # Fetch app template details based on image_id
+                app_templates = fetch_app_templates()
+                app_template = next((template for template in app_templates if template['image_id'] == image_id), None)
 
-            # Find the app template that corresponds to the image
-            for template in app_templates:
-                if template.get('image_id') == image_id:
-                    context['app_template'] = template
-                    break
+                if app_template:
+                    context['app_template'] = app_template
+                    context['creator_id'] = app_template.get('creator_id')
+                else:
+                    context['error'] = _("No app template found for this image.")
             else:
-                context['app_template'] = None  # No matching app template found
-
-            if not image_details:
                 context['error'] = _("Could not retrieve image details.")
         else:
             context['error'] = _("No image ID provided.")
