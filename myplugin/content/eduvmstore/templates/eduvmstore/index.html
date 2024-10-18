@@ -53,7 +53,12 @@
     <tbody>
         {% for template in app_templates %}
         <tr>
-            <td>{{ template.name }}</td>
+              <tr>
+                <td>
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:detail' template.id %}" class="template-link">
+                        {{ template.name }}
+                    </a>
+                </td>
             <td>{{ template.short_description }}</td>
             <td>{{ template.version }}</td>
             <td>{{ template.size }}</td>
