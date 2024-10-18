@@ -2,6 +2,8 @@ import requests
 
 import socket
 import logging
+
+from django.shortcuts import render
 from horizon import tabs
 
 from openstack_dashboard.api import glance
@@ -23,74 +25,58 @@ def get_host_ip():
         s.close()
     return ip
 
+def fetch_app_templates():
+    try:
+        response = requests.get("http://localhost:8000/api/app-templates/")
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to fetch app templates: {e}")
+        return []
 
 
-class IndexView(tabs.TabbedTableView):
-    tab_group_class = edu_tabs.MypanelTabs
+class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
+    def get_images_data(self):
+        """Fetch the images from the Glance API using the Horizon API."""
+        try:
+            filters = {}  # Add any filters if needed
+            marker = self.request.GET.get('marker', None)
 
+            # Use glance.image_list_detailed from Horizon API
+            images, has_more_data, has_prev_data = glance.image_list_detailed(
+                self.request, filters=filters, marker=marker, paginate=True
+            )
+
+            # Return images and pagination details
+            return {image.id: image for image in images}
+        except Exception as e:
+            logging.error(f"Unable to retrieve images: {e}")
+            return {}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        host_ip = get_host_ip()
-        context['host_ip'] = host_ip
-        user = self.request.user
-        token_id = None
 
-        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
-            token_id = self.request.user.token.id
+        # Fetch app templates from external database
+        app_templates = fetch_app_templates()
 
+        # Fetch image data from Glance
+        glance_images = self.get_images_data()
 
+        # Combine app template data with corresponding Glance image data
+        for template in app_templates:
+            image_id = template.get('image_id')
+            glance_image = glance_images.get(image_id)
+            if glance_image:
+                template['size'] = glance_image.size
+                template['visibility'] = glance_image.visibility
+            else:
+                template['size'] = _('Unknown')
+                template['visibility'] = _('Unknown')
 
-        keystone_url = f"http://{get_host_ip()}/identity/v3/users/{user.id}"
-
-
-        headers = {
-            "X-Auth-Token": token_id,
-        }
-
-        try:
-            response = requests.get(keystone_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            user_data = response.json()['user']
-
-            context['auth_token'] = token_id
-            context['username'] = user_data.get('name')
-            context['mail'] = user_data.get('email')
-        except requests.exceptions.RequestException as e:
-            context['error'] = _("Could not retrieve user information: %s") % str(e)
-
-
-        if token_id:
-
-
-            keystone_url = f"http://{get_host_ip()}/identity/v3/auth/projects"
-
-            
-
-            headers = {'X-Auth-Token': token_id}
-
-            try:
-                response = requests.get(keystone_url, headers=headers, timeout=10)
-
-                if response.status_code == 200:
-                    projects = response.json().get('projects', [])
-                    context['projects'] = projects if projects else None
-                else:
-                    context['error'] = f"Could not retrieve projects: {response.status_code} {response.text}"
-
-            except requests.RequestException as e:
-                context['error'] = f"Error contacting Keystone: {e}"
-
+        context['app_templates'] = app_templates
         return context
-
-
-
-    def get_data(self, request, context, *args, **kwargs):
-
-        return context
-
 
 def get_image_details_via_rest(request, image_id):
     headers = {"X-Auth-Token": request.user.token.id}
@@ -126,7 +112,6 @@ class DetailsPageView(generic.TemplateView):
         return context
 
 
-
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
 
@@ -147,13 +132,3 @@ class InstancesView(generic.TemplateView):
             context['image_id'] = image_id
 
         return context
-'''
-class TableView(tabs.TabbedTableView):
-    tab_group_class = edu_tabs.MypanelTabs
-    template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
-
-    def get_data(self, request, context, *args, **kwargs):
-
-            return context
-
-'''
