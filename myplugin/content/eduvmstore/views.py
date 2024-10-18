@@ -69,7 +69,7 @@ class IndexView(generic.TemplateView):
             image_id = template.get('image_id')
             glance_image = glance_images.get(image_id)
             if glance_image:
-                template['size'] = glance_image.size
+                template['size'] = glance_image.size / (1024 ** 3)
                 template['visibility'] = glance_image.visibility
             else:
                 template['size'] = _('Unknown')
