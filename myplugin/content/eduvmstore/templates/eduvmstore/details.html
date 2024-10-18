@@ -9,14 +9,15 @@
                  <h1 class="page-title mb-0">
                 {% trans "App-Template Details" %}
             </h1>
-            <h2> {{ app_template.name }}</h2>
         </div>
         <div>
             <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
         </div>
     </div>
 {% endblock %}
+
 {% block main %}
+    <h2> {{ app_template.name }}</h2>
     <!-- App-Template Details Section -->
      <div class="row">
         <div class="col-md-6">
