@@ -23,7 +23,7 @@ class ImageTab(tabs.TableTab):
     # Extended function for fetching external API data
     def fetch_external_image_data(self):
         try:
-            response = requests.get("http://localhost:8000/api/app-templates/")
+            response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as err:  # Fix the typo here
