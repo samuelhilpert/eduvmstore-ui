@@ -4,8 +4,15 @@
 {% block title %}{{ app_template.name }}{% endblock %}
 
 {% block page_header %}
-    <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px; margin-right: 15px;">
-    {% include "horizon/common/_domain_page_header.html" with title=_("App-Template: {{ app_template.name }}") %}
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="me-3">
+            {% include "horizon/common/_domain_page_header.html" with title=_("App-Template: {{ app_template.name }}") %}
+        </div>
+
+        <div>
+            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+        </div>
+    </div>
 {% endblock %}
 
 {% block main %}
