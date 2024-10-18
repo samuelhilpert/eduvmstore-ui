@@ -2,6 +2,8 @@ import requests
 
 import socket
 import logging
+
+from django.shortcuts import render
 from horizon import tabs
 
 from openstack_dashboard.api import glance
@@ -23,60 +25,57 @@ def get_host_ip():
         s.close()
     return ip
 
-def get_app_templates(request):
-    """Fetch the app templates from the external API."""
+def fetch_app_templates():
     try:
-        response = requests.get('http://localhost:8000/api/app-templates/', timeout=10)
+        response = requests.get("http://localhost:8000/api/app-templates/")
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching App Templates: {e}")
+        logging.error(f"Failed to fetch app templates: {e}")
         return []
 
 
-def get_glance_images(request, image_ids):
-    """Fetch specific images from Glance based on the list of image IDs."""
-    try:
-        filters = {'id': image_ids}
-        images, _, _ = glance.image_list_detailed(request, filters=filters, paginate=False)
-        return {image.id: image for image in images}
-    except Exception as e:
-        logging.error(f"Error fetching Glance Images: {e}")
-        return {}
-
 class IndexView(generic.TemplateView):
-
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
+
+    def get_images_data(self):
+        """Fetch the images from the Glance API using the Horizon API."""
+        try:
+            filters = {}  # Add any filters if needed
+            marker = self.request.GET.get('marker', None)
+
+            # Use glance.image_list_detailed from Horizon API
+            images, has_more_data, has_prev_data = glance.image_list_detailed(
+                self.request, filters=filters, marker=marker, paginate=True
+            )
+
+            # Return images and pagination details
+            return {image.id: image for image in images}
+        except Exception as e:
+            logging.error(f"Unable to retrieve images: {e}")
+            return {}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        return context
 
-    def get_data(self, request, context, *args, **kwargs):
-        # Fetch App Templates from the external API
-        app_templates = get_app_templates(request)
+        # Fetch app templates from external database
+        app_templates = fetch_app_templates()
 
-        # Extract all image IDs from the App Templates
-        image_ids = [template['image_id'] for template in app_templates]
+        # Fetch image data from Glance
+        glance_images = self.get_images_data()
 
-        # Fetch corresponding Glance Images
-        glance_images = get_glance_images(request, image_ids)
-
-        # Combine data from both sources
-        combined_data = []
+        # Combine app template data with corresponding Glance image data
         for template in app_templates:
-            image_id = template['image_id']
+            image_id = template.get('image_id')
             glance_image = glance_images.get(image_id)
             if glance_image:
-                combined_data.append({
-                    'name': template['name'],
-                    'short_description': template['short_description'],
-                    'version': template['version'],
-                    'size': glance_image.size,
-                    'visibility': glance_image.visibility,
-                })
+                template['size'] = glance_image.size
+                template['visibility'] = glance_image.visibility
+            else:
+                template['size'] = _('Unknown')
+                template['visibility'] = _('Unknown')
 
-        context['combined_data'] = combined_data
+        context['app_templates'] = app_templates
         return context
 
 def get_image_details_via_rest(request, image_id):
@@ -134,13 +133,3 @@ class InstancesView(generic.TemplateView):
             context['image_id'] = image_id
 
         return context
-'''
-class TableView(tabs.TabbedTableView):
-    tab_group_class = edu_tabs.MypanelTabs
-    template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
-
-    def get_data(self, request, context, *args, **kwargs):
-
-            return context
-
-'''

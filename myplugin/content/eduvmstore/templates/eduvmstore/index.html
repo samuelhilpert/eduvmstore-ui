@@ -12,31 +12,31 @@
 
 {% block main %}
 
-    <!-- Custom table to display the combined data -->
-     <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>{% trans "App Template Name" %}</th>
-                    <th>{% trans "Short Description" %}</th>
-                    <th>{% trans "Version" %}</th>
-                    <th>{% trans "Size" %}</th>
-                    <th>{% trans "Visibility" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for data in combined_data %}
-                <tr>
-                    <td>{{ data.name }}</td>
-                    <td>{{ data.short_description }}</td>
-                    <td>{{ data.version }}</td>
-                    <td>{{ data.size }} {% trans "MB" %}</td>
-                    <td>{{ data.visibility }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+   <h2>App Templates</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>App Template Name</th>
+            <th>Short Description</th>
+            <th>Version</th>
+            <th>Size (from Glance)</th>
+            <th>Visibility (from Glance)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for template in app_templates %}
+        <tr>
+            <td>{{ template.name }}</td>
+            <td>{{ template.short_description }}</td>
+            <td>{{ template.version }}</td>
+            <td>{{ template.size }}</td>
+            <td>{{ template.visibility }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 
     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">
         Create App-Template
