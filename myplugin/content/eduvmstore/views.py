@@ -27,7 +27,7 @@ def get_host_ip():
 
 def fetch_app_templates():
     try:
-        response = requests.get("http://localhost:8000/api/app-templates/")
+        response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -69,7 +69,7 @@ class IndexView(generic.TemplateView):
             image_id = template.get('image_id')
             glance_image = glance_images.get(image_id)
             if glance_image:
-                template['size'] = glance_image.size
+                template['size'] = glance_image.size / (1024 ** 3)
                 template['visibility'] = glance_image.visibility
             else:
                 template['size'] = _('Unknown')
@@ -111,7 +111,7 @@ class DetailsPageView(generic.TemplateView):
         """Fetch the app template from the external database."""
         try:
             app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
-            response = requests.get(f"http://localhost:8000/api/app-templates/{app_template_id}")
+            response = requests.get(f"http://localhost:8000/api/app-templates/{app_template_id}", timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:

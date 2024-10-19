@@ -6,16 +6,39 @@
     {% include "horizon/common/_domain_page_header.html" with title=_("Create App-Template") %}
 {% endblock page_header %}
 
-
-
 {% block main %}
     <form method="post">
 
         <h3>App-Template details</h3>
-        <div class="form-group">
-            {{ form.image.label_tag }}
-            {{ form.image }}
+        <div class="form-group row">
+            <div class="col-md-4">
+                {{ form.image.label_tag }}
+                {{ form.image }}
+            </div>
+            <div class="col-md-4">
+                {{ form.script.label_tag }}
+                {{ form.script }}
+            </div>
+            <div class="col-md-4 d-flex justify-content-end align-items-end">
+                <button type="button" class="btn btn-primary ms-auto" onclick="openModal()">Write Script</button>
+            </div>
         </div>
+
+
+        <!-- Modal for script input -->
+        <div id="scriptModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h5>Write Script</h5>
+                <textarea id="scriptText" class="form-control mb-5" rows="10"></textarea>
+                <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
+            </div>
+        </div>
+
+        <!-- Hidden input to store the script text -->
+        <input type="hidden" id="hiddenScriptField" name="script_text" />
+
+        <!-- Rest of the form -->
         <div class="form-group row">
             <div class="col-md-6">
                 {{ form.name.label_tag }}
@@ -77,6 +100,72 @@
 
     </form>
 
+    <!-- Custom CSS for Modal -->
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+
+    <!-- JavaScript to handle modal -->
+    <script>
+        function openModal() {
+            document.getElementById('scriptModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('scriptModal').style.display = 'none';
+        }
+
+        function saveScript() {
+            // Get the script text from the textarea
+            var scriptText = document.getElementById('scriptText').value;
+            // Store it in the hidden input field
+            document.getElementById('hiddenScriptField').value = scriptText;
+            // Close the modal
+            closeModal();
+        }
+
+        // Close the modal if the user clicks anywhere outside of it
+        window.onclick = function(event) {
+            var modal = document.getElementById('scriptModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 
 {% endblock %}
-

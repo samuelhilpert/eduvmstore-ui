@@ -4,7 +4,12 @@ class AppTemplateForm(forms.Form):
     image = forms.FileField(
         label='Upload Image',
         required=True,
-        widget=forms.ClearableFileInput(attrs={'accept': '.iso'})
+        widget=forms.ClearableFileInput(attrs={'accept': '.raw,.qcow2,.vhd,.vhdx,.vmdk,.iso,.vdi,.ova,.ami'})
+    )
+    script = forms.FileField(
+        label='Upload Script',
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'accept': '.sh,.yaml,.yml,.txt'})
     )
     name = forms.CharField(
         label="Name",
