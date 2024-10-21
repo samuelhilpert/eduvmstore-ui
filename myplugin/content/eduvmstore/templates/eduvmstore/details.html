@@ -23,7 +23,8 @@
         <div class="col-md-6">
             <div class="detail-group">
                 <strong>Image ID:</strong>
-                <p>{{ app_template.image_id }}</p>
+                    <a href="{% url 'horizon:project:images:detail' app_template.image_id %}" class="template-link">
+                       {{ app_template.image_id }} </a>
             </div>
         </div>
     </div>
