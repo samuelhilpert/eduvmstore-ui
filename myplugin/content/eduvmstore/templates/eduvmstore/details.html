@@ -17,50 +17,72 @@
 {% endblock %}
 
 {% block main %}
-    <h2> App-Template Details</h2>
-    <!-- App-Template Details Section -->
-     <div class="row">
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Image ID:</strong>
-                <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
-                    {{ app_template.image_id }}
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>App-Template Name:</strong>
-                <p>{{ app_template.name }}</p>
-            </div>
-        </div>
-         <div class="col-md-6">
-            <div class="detail-group">
-                <strong>App-Template ID:</strong>
-                <p>{{ app_template.id }}</p>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Short Description:</strong>
-                <p>{{ app_template.short_description }}</p>
-            </div>
-        </div>
-    </div>
+<style>
+    .detail-group {
+        margin-bottom: 20px;
+    }
+    .detail-group strong {
+        color: #495057;
+    }
+    .detail-group p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+    h2, h4 {
+        margin-top: 30px;
+        color: #343a40;
+    }
+    .system-requirements, .image-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    .row {
+        margin-bottom: 20px;
+    }
+</style>
 
-    <div class="detail-group">
-        <strong>Description:</strong>
-        <p>{{ app_template.description }}</p>
+<!-- App-Template Details Section -->
+<h2>App-Template Details</h2>
+<div class="row">
+    <div class="col-md-6">
+        <div class="detail-group">
+            <strong>App-Template Name:</strong>
+            <p>{{ app_template.name }}</p>
+        </div>
+        <div class="detail-group">
+            <strong>App-Template ID:</strong>
+            <p>{{ app_template.id }}</p>
+        </div>
     </div>
-
-    <div class="detail-group">
-        <strong>Instantiation Notice:</strong>
-        <p>{{ app_template.instantiation_notice }}</p>
+    <div class="col-md-6">
+        <div class="detail-group">
+            <strong>Image ID:</strong>
+            <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
+                {{ app_template.image_id }}
+            </a>
+        </div>
+        <div class="detail-group">
+            <strong>Short Description:</strong>
+            <p>{{ app_template.short_description }}</p>
+        </div>
     </div>
+</div>
 
-    <h4>System Requirements</h4>
+<div class="detail-group">
+    <strong>Description:</strong>
+    <p>{{ app_template.description }}</p>
+</div>
+
+<div class="detail-group">
+    <strong>Instantiation Notice:</strong>
+    <p>{{ app_template.instantiation_notice }}</p>
+</div>
+
+<!-- System Requirements Section -->
+<h4>System Requirements</h4>
+<div class="system-requirements">
     <div class="row">
         <div class="col-md-6">
             <h5>Fixed Resources</h5>
@@ -77,7 +99,6 @@
                 <p>{{ app_template.fixed_cores }}</p>
             </div>
         </div>
-
         <div class="col-md-6">
             <h5>Resources per User</h5>
             <div class="detail-group">
@@ -94,9 +115,11 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Image Information Section -->
-    <h4>Image Information</h4>
+<!-- Image Information Section -->
+<h4>Image Information</h4>
+<div class="image-info">
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
@@ -111,4 +134,6 @@
             </div>
         </div>
     </div>
+</div>
+
 {% endblock %}
