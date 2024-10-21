@@ -50,7 +50,7 @@
 
     .btn {
         padding: 10px 20px;
-        font-size: 20px;
+        font-size: 15px;
         font-weight: bold;
         border: none;
         cursor: pointer;
@@ -59,8 +59,12 @@
         color: black;
     }
 
+    .btn-launch {
+        background-color: #e0e0e0;
+        color: black;
+    }
     .btn:hover {
-        opacity: 0.7;
+        opacity: 0.9;
     }
 </style>
 
@@ -68,6 +72,7 @@
     <h4>App-Template Details</h4>
     <div class="btn-group">
         <!-- Link added to the Launch button -->
+        <a  href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}"href="/instances/{{ app_template.id }}/" class="btn btn-launch">
                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
             {% trans "Launch" %}
         </a>
