@@ -19,7 +19,7 @@ class IndexView(generic.TemplateView):
 
     def get_data_from_backend(self):
         try:
-            response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
+            response = requests.get("http://141.72.13.202:8000/api/app-templates/", timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as err:  # Fix the typo here
