@@ -52,10 +52,6 @@
         justify-content: flex-end; /* Aligns button to the right */
         margin: 10px; /* Margin for the button container */
     }
-       .btn-launch {
-        background-color: #e0e0e0;
-        color: black;
-    }
 
     </style>
 
@@ -91,25 +87,23 @@
             <td>{{ template.size }} </td>
             <td>{{ template.visibility }}</td>
               <td>
-                      <div class="btn-group">
-           <button type="button" class="btn btn-launch" >
-                     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" >
+    <div class="btn-group">
+        <!-- Link added to the Launch button -->
+                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
             {% trans "Launch" %}
         </a>
-           </button>
 
+        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+        </button>
 
-            <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="caret"></span>
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-right">
-                <li><a href="#">{% trans "Create Volume" %}</a></li>
-                <li><a href="#">{% trans "Edit Image" %}</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#" class="text-danger">{% trans "Delete Image" %}</a></li>
-            </ul>
-        </div>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="#">{% trans "Create Volume" %}</a></li>
+            <li><a href="#">{% trans "Edit Image" %}</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#" class="text-danger">{% trans "Delete Image" %}</a></li>
+        </ul>
+    </div>
               </td>
         </tr>
         {% endfor %}
