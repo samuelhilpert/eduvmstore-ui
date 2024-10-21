@@ -76,6 +76,23 @@
 
 <!-- App-Template Details Section -->
 <h4>App-Template Details</h4>
+    <div class="btn-group">
+           <button type="button" class="btn btn-launch" >
+             {% trans "Launch" %}
+           </button>
+
+
+            <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li><a href="#">{% trans "Create Volume" %}</a></li>
+                <li><a href="#">{% trans "Edit Image" %}</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#" class="text-danger">{% trans "Delete Image" %}</a></li>
+            </ul>
+        </div>
 <div class="row">
     <div class="col-md-6">
         <div class="detail-group">
