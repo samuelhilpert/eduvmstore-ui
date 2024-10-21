@@ -2,9 +2,17 @@
 {% load static %}
 {% block title %}Create App-Template{% endblock %}
 
+
 {% block page_header %}
-    {% include "horizon/common/_domain_page_header.html" with title=_("Create App-Template") %}
-{% endblock page_header %}
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
+        <div style="margin-right: 15px;">
+            <h1 class="page-title mb-0">Create App-Template</h1>
+        </div>
+        <div>
+            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+        </div>
+    </div>
+{% endblock %}
 
 {% block main %}
     <form method="post">
