@@ -53,7 +53,7 @@
 </style>
 
 <!-- App-Template Details Section -->
-<h2>Details</h2>
+<h4>Details</h4>
 <div class="row">
     <div class="col-md-6">
         <div class="detail-group">
@@ -64,13 +64,19 @@
             <strong>App-Template ID:</strong>
             <p>{{ app_template.id }}</p>
         </div>
+          <div class="detail-group">
+            <strong>Short Description:</strong>
+            <p>{{ app_template.short_description }}</p>
+        </div>
     </div>
     <div class="col-md-6">
         <div class="detail-group">
             <strong>Image ID:</strong>
+            <p>
             <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
                 {{ app_template.image_id }}
             </a>
+            </p>
         </div>
         <div class="detail-group">
             <strong>Short Description:</strong>
