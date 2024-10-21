@@ -36,7 +36,7 @@ class IndexView(generic.TemplateView):
             data = request.POST.get('name') 
             # Make a POST request to your backend API
             response = requests.post(
-                "http://localhost:8000/api/app-templates/",
+                "http://141.72.13.202:8000/api/app-templates/",
                 json={"name": data},
                 timeout=10
 

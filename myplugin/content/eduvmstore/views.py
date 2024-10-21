@@ -27,7 +27,7 @@ def get_host_ip():
 
 def fetch_app_templates():
     try:
-        response = requests.get("http://141.72.13.202/api/app-templates/", timeout=10)
+        response = requests.get("http://141.72.13.202:8000/api/app-templates/", timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
