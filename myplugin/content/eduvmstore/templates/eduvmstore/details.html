@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load static %}
+{% load i18n %}
 {% block title %}{{ app_template.name }}{% endblock %}
 
 {% block page_header %}
-    <div style="display: flex; align-items: center; justify-content: space-between;  border-bottom: 1px solid #e0e0e0;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
-                 <h1 class="page-title mb-0">
-               {{ app_template.name }}
-            </h1>
+            <h1 class="page-title mb-0">{{ app_template.name }}</h1>
         </div>
         <div>
             <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
@@ -17,48 +15,123 @@
 {% endblock %}
 
 {% block main %}
-    <h2> App-Template Details</h2>
-    <!-- App-Template Details Section -->
-     <div class="row">
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Image ID:</strong>
-                <p>{{ app_template.image_id }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>App-Template Name:</strong>
-                <p>{{ app_template.name }}</p>
-            </div>
-        </div>
-         <div class="col-md-6">
-            <div class="detail-group">
-                <strong>App-Template ID:</strong>
-                <p>{{ app_template.id }}</p>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Short Description:</strong>
-                <p>{{ app_template.short_description }}</p>
-            </div>
-        </div>
-    </div>
+<style>
+    .detail-group {
+        margin-bottom: 20px;
+    }
+    .detail-group strong {
+        color: #495057;
+    }
+    .detail-group p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+    h2, h4 {
+        margin-top: 30px;
+        margin-bottom: 20px;
+        color: #343a40;
+        font-weight: bold;
+    }
+    h5 {
+        font-size: medium;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #343a40;
+    }
+    .system-requirements, .image-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    .row {
+        margin-bottom: 20px;
+    }
 
-    <div class="detail-group">
-        <strong>Description:</strong>
-        <p>{{ app_template.description }}</p>
-    </div>
+    .btn {
+        padding: 10px 20px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        margin-left: 10px;
+        border-radius: 4px;
+        color: black;
+    }
 
-    <div class="detail-group">
-        <strong>Instantiation Notice:</strong>
-        <p>{{ app_template.instantiation_notice }}</p>
-    </div>
+    .btn-launch {
+        background-color: #E8E8E8;
+        color: black;
+    }
+    .btn:hover {
+        opacity: 0.9;
+    }
+     .dropdown-toggle {
+         background-color: #E8E8E8;
+   }
 
-    <h4>System Requirements</h4>
+</style>
+
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h4>App-Template Details</h4>
+    <div class="btn-group">
+        <!-- Link added to the Launch button -->
+                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
+            {% trans "Launch" %}
+        </a>
+
+        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="#">{% trans "Create Volume" %}</a></li>
+            <li><a href="#">{% trans "Edit Image" %}</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#" class="text-danger">{% trans "Delete Image" %}</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="detail-group">
+            <strong>App-Template Name:</strong>
+            <p>{{ app_template.name }}</p>
+        </div>
+        <div class="detail-group">
+            <strong>App-Template ID:</strong>
+            <p>{{ app_template.id }}</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="detail-group">
+            <strong>Image ID:</strong>
+            <p>
+                <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
+                    {{ app_template.image_id }}
+                </a>
+            </p>
+        </div>
+        <div class="detail-group">
+            <strong>Short Description:</strong>
+            <p>{{ app_template.short_description }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="detail-group">
+    <strong>Description:</strong>
+    <p>{{ app_template.description }}</p>
+</div>
+
+<div class="detail-group">
+    <strong>Instantiation Notice:</strong>
+    <p>{{ app_template.instantiation_notice }}</p>
+</div>
+
+<!-- System Requirements Section -->
+<h4>System Requirements</h4>
+<div class="system-requirements">
     <div class="row">
         <div class="col-md-6">
             <h5>Fixed Resources</h5>
@@ -75,7 +148,6 @@
                 <p>{{ app_template.fixed_cores }}</p>
             </div>
         </div>
-
         <div class="col-md-6">
             <h5>Resources per User</h5>
             <div class="detail-group">
@@ -92,9 +164,11 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Image Information Section -->
-    <h4>Image Information</h4>
+<!-- Image Information Section -->
+<h4>Image Information</h4>
+<div class="image-info">
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
@@ -109,4 +183,6 @@
             </div>
         </div>
     </div>
+</div>
+
 {% endblock %}
