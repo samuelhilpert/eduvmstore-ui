@@ -19,3 +19,4 @@ Installationsguide
    ``./stack.sh``
 
 6. Nach erfolgreicher Ausführung ist der EduVMStore in DevStack als neues Dashboard nach der Anmeldung sichtbar.
+7. Um auch das Backend auszuführen, bitte die Schritte aus dem Readme von https://github.com/samuelhilpert/eduvmstore.git ausführen
