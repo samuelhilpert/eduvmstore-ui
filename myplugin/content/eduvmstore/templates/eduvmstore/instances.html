@@ -82,7 +82,53 @@
             {{ form.network }}
         </div>
 
-        <button class="btn btn-primary">Create</button>
+        <button class="btn btn-primary" id="create-button">Create</button>
         <button type="button" class="btn btn-secondary">Cancel</button>
     </form>
 {% endblock %}
+
+<script>
+    document.getElementById('create-button').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get the app template ID from the form
+        const appTemplateId = "{{ image_id }}"; // Assuming image_id is the app template ID
+
+        // Get the flavor ID from the selected option
+        const flavorSelect = document.querySelector('select[name="select_flavor"]');
+        const flavorId = flavorSelect ? flavorSelect.value : "";
+
+        // Create the accounts array
+        const accounts = [
+            { username: "student1", password: "1234" },
+            { username: "student2", password: "5678" }
+        ];
+
+        // Create the request payload
+        const payload = {
+            app_template_id: appTemplateId,
+            flavor_id: flavorId,
+            accounts: accounts
+        };
+
+        console.log('Payload:', payload);
+
+        // Make the API call
+        fetch('http://localhost:8000/api/instances/launch/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // Handle the response data here
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // Handle the error here
+            });
+    });
+</script>
