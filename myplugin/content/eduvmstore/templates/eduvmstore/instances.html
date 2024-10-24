@@ -88,27 +88,24 @@
 
 {% endblock %}
 
-<script>
-    function createInstance() {
-        // Get the app template ID from the form
-        const appTemplateId = "{{ image_id }}"; // Assuming image_id is the app template ID
+{% block extra_js %}
+    <script>
+        function createInstance() {
+            const appTemplateId = "{{ image_id }}"; // Assuming image_id is the app template ID
+            const flavorId = document.querySelector('select[name="select_flavor"]').value;
 
-        // Get the flavor ID from the selected option
-        const flavorId = document.querySelector('select[name="select_flavor"]').value;
+            const accounts = [
+                { username: "student1", password: "1234" },
+                { username: "student2", password: "5678" }
+            ];
 
-        // Create the accounts array
-        const accounts = [
-            { username: "student1", password: "1234" },
-            { username: "student2", password: "5678" }
-        ];
+            const payload = {
+                app_template_id: appTemplateId,
+                flavor_id: flavorId,
+                accounts: accounts
+            };
 
-        // Create the request payload
-        const payload = {
-            app_template_id: appTemplateId,
-            flavor_id: flavorId,
-            accounts: accounts
-        };
-
-        console.log('Payload:', payload);
-    }
-</script>
+            console.log('Payload:', payload);
+        }
+    </script>
+{% endblock %}
