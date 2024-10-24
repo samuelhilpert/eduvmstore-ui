@@ -90,7 +90,7 @@
 
 <script>
     document.getElementById('create-button').addEventListener('click', function(event) {
-
+        event.preventDefault(); // Prevent the default form submission
 
         // Get the app template ID from the form
         const appTemplateId = "{{ image_id }}"; // Assuming image_id is the app template ID
