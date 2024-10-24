@@ -82,16 +82,14 @@
             {{ form.network }}
         </div>
 
-        <button class="btn btn-primary" id="create-button">Create</button>
+        <button type="button" class="btn btn-primary" onclick="createInstance()">Create</button>
         <button type="button" class="btn btn-secondary">Cancel</button>
     </div>
 
 {% endblock %}
 
 <script>
-    document.getElementById('create-button').addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent the default form submission
-
+    function createInstance() {
         // Get the app template ID from the form
         const appTemplateId = "{{ image_id }}"; // Assuming image_id is the app template ID
 
@@ -112,24 +110,5 @@
         };
 
         console.log('Payload:', payload);
-
-        // Make the API call
-        fetch('http://localhost:8000/api/instances/launch/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                // Handle the response data here
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                // Handle the error here
-            });
-    });
+    }
 </script>
