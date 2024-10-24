@@ -18,7 +18,7 @@
 
 {% block main %}
 
-    <form method="post" enctype="multipart/form-data">
+    <div>
         {% csrf_token %}
 
         <div class="form-group">
@@ -37,7 +37,7 @@
                     {{ form.file }}
                 </div>
                 <div class="col-md-4">
-                    {{ form.no_additional_user.label_tag }} <!-- Label für No Additional User -->
+                    {{ form.no_additional_user.label_tag }}
                     {{ form.no_additional_user }}
                 </div>
             </div>
@@ -82,9 +82,10 @@
             {{ form.network }}
         </div>
 
-        <button type="button" class="btn btn-primary" id="create-button">Create</button>
+        <button class="btn btn-primary" id="create-button">Create</button>
         <button type="button" class="btn btn-secondary">Cancel</button>
-    </form>
+    </div>
+
 {% endblock %}
 
 <script>
@@ -95,8 +96,7 @@
         const appTemplateId = "{{ image_id }}"; // Assuming image_id is the app template ID
 
         // Get the flavor ID from the selected option
-        const flavorSelect = document.querySelector('select[name="select_flavor"]');
-        const flavorId = flavorSelect ? flavorSelect.value : "";
+        const flavorId = document.querySelector('select[name="select_flavor"]').value;
 
         // Create the accounts array
         const accounts = [
@@ -117,7 +117,8 @@
         fetch('http://localhost:8000/api/instances/launch/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify(payload)
         })
