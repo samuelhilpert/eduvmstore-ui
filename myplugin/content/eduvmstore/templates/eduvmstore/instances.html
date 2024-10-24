@@ -103,6 +103,23 @@
                 accounts: accounts
             };
 
+            const test = {
+                name: "App Template Test Tesdfasdft",
+                description: "A VM template for AI development",
+                short_description: "AI Dev VM",
+                instantiation_notice: "AI VM will be ready soon",
+                image_id: "c8dad622-fdsafasefa-4906-af68-d7548c3f1535",
+                creator_id : "fc6ec5ad-a118-4df6-b4aa-8e01209ee350",
+                version: "2.0",
+                public: true,
+                fixed_ram_gb: 8.0,
+                fixed_disk_gb: 100.0,
+                fixed_cores: 4,
+                per_user_ram_gb: 2.0,
+                per_user_disk_gb: 20.0,
+                per_user_cores: 1
+            }
+
             console.log('Payload:', payload);
 
             fetch('http://localhost:8000/api/app-templates/', {
@@ -111,7 +128,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(test)
             })
                 .then(response => response.json())
                 .then(data => {
