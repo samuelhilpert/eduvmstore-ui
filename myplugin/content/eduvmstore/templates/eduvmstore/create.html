@@ -4,12 +4,14 @@
 <h1>Create New App Template</h1>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+
     <div class="form-group">
         {{ form.image.label }}
         {{ form.image }}
         {{ form.image.errors }}
     </div>
-       <div class="form-group">
+
+    <div class="form-group">
         {{ form.image_id.label }}
         {{ form.image_id }}
         {{ form.image_id.errors }}
@@ -49,6 +51,44 @@
         {{ form.visibility.label }}
         {{ form.visibility }}
         {{ form.visibility.errors }}
+    </div>
+
+    <h4>System Requirements</h4>
+
+    <div class="form-group">
+        {{ form.min_ram.label }}
+        {{ form.min_ram }}
+        {{ form.min_ram.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.min_disk.label }}
+        {{ form.min_disk }}
+        {{ form.min_disk.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.min_cores.label }}
+        {{ form.min_cores }}
+        {{ form.min_cores.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.res_per_user_ram.label }}
+        {{ form.res_per_user_ram }}
+        {{ form.res_per_user_ram.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.res_per_user_disk.label }}
+        {{ form.res_per_user_disk }}
+        {{ form.res_per_user_disk.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.res_per_user_cores.label }}
+        {{ form.res_per_user_cores }}
+        {{ form.res_per_user_cores.errors }}
     </div>
 
     <button type="submit" class="btn btn-primary">Create App Template</button>
