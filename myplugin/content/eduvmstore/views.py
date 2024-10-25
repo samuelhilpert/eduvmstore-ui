@@ -142,8 +142,7 @@ class CreateView(generic.TemplateView):
 
     def get_images_data(self):
         try:
-            images, _, _ = glance.image_list_detailed(self.request,
-                                                      filters={'visibility': 'public', 'owner': self.request.user.id})
+            images, _, _ = glance.image_list_detailed(self.request)
             return images
         except Exception as e:
             logging.error(f"Error fetching images: {e}")
