@@ -8,7 +8,11 @@ class AppTemplateForm(forms.Form):
     )
     image_id = forms.ChoiceField(
         choices=[],
-        required=True)
+        required=True,
+        label = "Choose existing Images",
+        widget = forms.Select(attrs={'class': 'form-control'})
+    )
+
 
     script = forms.FileField(
         label='Upload Script',
