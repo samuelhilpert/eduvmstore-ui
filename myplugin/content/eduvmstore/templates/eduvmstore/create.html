@@ -21,11 +21,6 @@
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <div class="form-group">
-        {{ form.image.label }}
-        {{ form.image }}
-        {{ form.image.errors }}
-    </div>
 
 <div class="form-group">
     {{ form.image_id.label }}
