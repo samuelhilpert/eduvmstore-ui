@@ -13,6 +13,7 @@ from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 
 from django.utils.translation import gettext_lazy as _
 
+# Retrieve the host IP address
 def get_host_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -25,6 +26,7 @@ def get_host_ip():
         s.close()
     return ip
 
+# Fetch app templates from database
 def fetch_app_templates():
     try:
         response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
@@ -78,6 +80,7 @@ class IndexView(generic.TemplateView):
         context['app_templates'] = app_templates
         return context
 
+# Fetch image details from Glance using REST API
 def get_image_details_via_rest(request, image_id):
     headers = {"X-Auth-Token": request.user.token.id}
     try:
@@ -97,6 +100,7 @@ class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
     page_title = "{{ app_template.name }}"
 
+    # Fetch the app template and image details
     def get_context_data(self, **kwargs):
         context = super(DetailsPageView, self).get_context_data(**kwargs)
         app_template = self.get_app_template()
@@ -108,7 +112,7 @@ class DetailsPageView(generic.TemplateView):
         return context
 
     def get_app_template(self):
-        """Fetch the app template from the external database."""
+        # Fetch the app template from the  database
         try:
             app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
             response = requests.get(f"http://localhost:8000/api/app-templates/{app_template_id}", timeout=10)
@@ -119,7 +123,8 @@ class DetailsPageView(generic.TemplateView):
             return {}
 
     def get_image_data(self, image_id):
-        """Fetch image details from Glance based on the image_id."""
+
+        # Fetch image details from Glance based on the image_id
         try:
             image = glance.image_get(self.request, image_id)
             return {'visibility': image.visibility, 'owner': image.owner}
@@ -131,6 +136,7 @@ class DetailsPageView(generic.TemplateView):
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
 
+    # Add the form to the context
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = AppTemplateForm()
@@ -139,6 +145,7 @@ class CreateView(generic.TemplateView):
 class InstancesView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
 
+    # Add the form to the context
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = InstanceForm()

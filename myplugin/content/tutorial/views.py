@@ -11,12 +11,13 @@ from django.views.decorators.csrf import csrf_exempt
 class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/tutorial/index.html'
 
+    # Fetch app templates from  database
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['images'] = self.get_data_from_backend() 
         return context
 
-
+    # Fetch app templates from the backend/database
     def get_data_from_backend(self):
         try:
             response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
@@ -29,7 +30,8 @@ class IndexView(generic.TemplateView):
             print(f"Request error: {e}")
             return []
 
-    @method_decorator(csrf_exempt) 
+
+    @method_decorator(csrf_exempt)
     def post(self, request, *args, **kwargs):
         try:
             data = request.POST.get('name')
