@@ -15,18 +15,22 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post">
+    <form method="post" action="{% url 'http://localhost:8000/api/app-templates/' %}">
 
         <h3>App-Template details</h3>
-        <div class="form-group row">
-            <div class="col-md-4">
-                {{ form.image.label_tag }}
-                {{ form.image }}
-            </div>
-            <div class="col-md-4">
-                {{ form.script.label_tag }}
-                {{ form.script }}
-            </div>
+<div class="form-group row">
+    <div class="col-md-4">
+        <label for="imageSelect">Select Image:</label>
+        <select id="imageSelect" name="image" class="form-control">
+            {% for image in images %}
+                <option value="{{ image.id }}">{{ image.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        {{ form.script.label_tag }}
+        {{ form.script }}
+    </div>
             <div class="col-md-4 d-flex justify-content-end align-items-end">
                 <button type="button" class="btn btn-primary ms-auto" onclick="openModal()">Write Script</button>
             </div>

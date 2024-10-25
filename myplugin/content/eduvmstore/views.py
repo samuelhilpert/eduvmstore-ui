@@ -3,7 +3,9 @@ import requests
 import socket
 import logging
 
-from django.shortcuts import render
+from django.db.models.fields import json
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 
 from openstack_dashboard.api import glance
@@ -130,11 +132,65 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
+    success_url = reverse_lazy('success_page')  # Adjust to your success URL
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = AppTemplateForm()
+        context['images'] = self.get_images_data()  # Pass images to the template
         return context
+
+    def get_images_data(self):
+        try:
+            images, _, _ = glance.image_list_detailed(self.request,
+                                                      filters={'visibility': 'public', 'owner': self.request.user.id})
+            return images
+        except Exception as e:
+            logging.error(f"Error fetching images: {e}")
+            return []
+
+    def post(self, request, *args, **kwargs):
+        # Bind form data
+        form = AppTemplateForm(request.POST)
+        if form.is_valid():
+            # Build JSON payload from form data
+            payload = {
+                "creator_id": "12b3dfec-1cf0-4c8f-b136-7906b0f5dab5",  # Adjust to retrieve actual user ID
+                "image_id": form.cleaned_data['image'],
+                "name": form.cleaned_data['name'],
+                "description": form.cleaned_data['description'],
+                "short_description": form.cleaned_data['short_description'],
+                "instantiation_notice": form.cleaned_data['notice'],
+                "version": form.cleaned_data['version'],
+                "public": form.cleaned_data['visibility'] == 'public',
+                "approved": False,  # Default to false
+                "fixed_ram_gb": form.cleaned_data['min_ram'],
+                "fixed_disk_gb": form.cleaned_data['min_disk'],
+                "fixed_cores": form.cleaned_data['min_cores'],
+                "per_user_ram_gb": form.cleaned_data['res_per_user_ram'],
+                "per_user_disk_gb": form.cleaned_data['res_per_user_disk'],
+                "per_user_cores": form.cleaned_data['res_per_user_cores'],
+            }
+
+            # Send the POST request to the backend
+            headers = {'Content-Type': 'application/json'}
+            try:
+                response = requests.post(
+                    "http://localhost:8000/api/app-templates/",
+                    headers=headers,
+                    data=json.dumps(payload),
+                    timeout=10
+                )
+                response.raise_for_status()  # Raise error if request fails
+
+                return redirect(self.success_url)  # Redirect on success
+            except requests.exceptions.RequestException as e:
+                # Handle error (log or notify user)
+                logging.error(f"Failed to send app template data: {e}")
+                return render(request, self.template_name, {'form': form, 'error': _("Failed to create app template")})
+
+        # Render form with error messages if not valid
+        return render(request, self.template_name, {'form': form})
 
 class InstancesView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
