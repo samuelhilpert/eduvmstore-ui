@@ -108,32 +108,24 @@ class InstanceForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    ram = forms.IntegerField(
+    ram = forms.CharField(
         label='RAM (GB)',
-        required=True,
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'})
     )
 
-    disk = forms.IntegerField(
+    disk = forms.CharField(
         label='Disk (GB)',
-        required=True,
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'})
     )
 
-    cores = forms.IntegerField(
+    cores = forms.CharField(
         label='Cores',
-        required=True,
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'})
     )
 
-    root_disk = forms.IntegerField(
+    root_disk = forms.CharField(
         label='Root Disk (GB)',
-        required=True,
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'})
     )
 
     network = forms.CharField(
