@@ -1,118 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Create App Template</h2>
-
-{% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-{% endif %}
-
-<form method="post" id="app-template-form">
+<h1>Create New App Template</h1>
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+    <div class="form-group">
+        {{ form.image.label }}
+        {{ form.image }}
+        {{ form.image.errors }}
+    </div>
+       <div class="form-group">
+        {{ form.image_id.label }}
+        {{ form.image_id }}
+        {{ form.image_id.errors }}
+    </div>
 
     <div class="form-group">
-        <label for="name">Name:</label>
+        {{ form.script.label }}
+        {{ form.script }}
+        {{ form.script.errors }}
+    </div>
+
+    <div class="form-group">
+        {{ form.name.label }}
         {{ form.name }}
-        {% if form.name.errors %}
-            <div class="text-danger">{{ form.name.errors }}</div>
-        {% endif %}
+        {{ form.name.errors }}
     </div>
 
     <div class="form-group">
-        <label for="short_description">Short Description:</label>
+        {{ form.short_description.label }}
         {{ form.short_description }}
-        {% if form.short_description.errors %}
-            <div class="text-danger">{{ form.short_description.errors }}</div>
-        {% endif %}
+        {{ form.short_description.errors }}
     </div>
 
     <div class="form-group">
-        <label for="description">Description:</label>
+        {{ form.description.label }}
         {{ form.description }}
-        {% if form.description.errors %}
-            <div class="text-danger">{{ form.description.errors }}</div>
-        {% endif %}
+        {{ form.description.errors }}
     </div>
 
     <div class="form-group">
-        <label for="image">Select Image:</label>
-        <select name="image" id="image" class="form-control">
-            {% for image in images %}
-                <option value="{{ image.id }}">{{ image.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="min_ram">Minimum RAM (GB):</label>
-        {{ form.min_ram }}
-        {% if form.min_ram.errors %}
-            <div class="text-danger">{{ form.min_ram.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="min_disk">Minimum Disk (GB):</label>
-        {{ form.min_disk }}
-        {% if form.min_disk.errors %}
-            <div class="text-danger">{{ form.min_disk.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="min_cores">Minimum Cores:</label>
-        {{ form.min_cores }}
-        {% if form.min_cores.errors %}
-            <div class="text-danger">{{ form.min_cores.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="res_per_user_ram">Resource Per User RAM (GB):</label>
-        {{ form.res_per_user_ram }}
-        {% if form.res_per_user_ram.errors %}
-            <div class="text-danger">{{ form.res_per_user_ram.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="res_per_user_disk">Resource Per User Disk (GB):</label>
-        {{ form.res_per_user_disk }}
-        {% if form.res_per_user_disk.errors %}
-            <div class="text-danger">{{ form.res_per_user_disk.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="res_per_user_cores">Resource Per User Cores:</label>
-        {{ form.res_per_user_cores }}
-        {% if form.res_per_user_cores.errors %}
-            <div class="text-danger">{{ form.res_per_user_cores.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="visibility">Visibility:</label>
-        {{ form.visibility }}
-        {% if form.visibility.errors %}
-            <div class="text-danger">{{ form.visibility.errors }}</div>
-        {% endif %}
-    </div>
-
-    <div class="form-group">
-        <label for="notice">Instantiation Notice:</label>
+        {{ form.notice.label }}
         {{ form.notice }}
-        {% if form.notice.errors %}
-            <div class="text-danger">{{ form.notice.errors }}</div>
-        {% endif %}
+        {{ form.notice.errors }}
     </div>
 
     <div class="form-group">
-        <label for="version">Version:</label>
-        {{ form.version }}
-        {% if form.version.errors %}
-            <div class="text-danger">{{ form.version.errors }}</div>
-        {% endif %}
+        {{ form.visibility.label }}
+        {{ form.visibility }}
+        {{ form.visibility.errors }}
     </div>
 
     <button type="submit" class="btn btn-primary">Create App Template</button>

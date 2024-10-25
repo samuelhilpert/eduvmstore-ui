@@ -6,6 +6,10 @@ class AppTemplateForm(forms.Form):
         required=True,
         widget=forms.ClearableFileInput(attrs={'accept': '.raw,.qcow2,.vhd,.vhdx,.vmdk,.iso,.vdi,.ova,.ami'})
     )
+    image_id = forms.ChoiceField(
+        choices=[],
+        required=True)
+
     script = forms.FileField(
         label='Upload Script',
         required=False,

@@ -130,66 +130,63 @@ class DetailsPageView(generic.TemplateView):
             return {}
 
 
-class CreateView(generic.TemplateView):
+class CreateView(generic.FormView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('success_page')  # Adjust to your success URL
+    form_class = AppTemplateForm
+    success_url = reverse_lazy('eduvmstore:index')  # Redirect after successful creation
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = AppTemplateForm()
-        context['images'] = self.get_images_data()  # Pass images to the template
+        context['images'] = self.get_images_data()  # Fetch images for the selection box
+        # Update the choices for the image_id field
+        self.form_class.base_fields['image_id'].choices = [(image.id, image.name) for image in
+                                                           context['images'].values()]
         return context
 
     def get_images_data(self):
+        """Fetch the images from the Glance API using the Horizon API."""
         try:
-            images, _, _ = glance.image_list_detailed(self.request)
-            return images
+            filters = {}
+            images, _, _ = glance.image_list_detailed(
+                self.request, filters=filters, paginate=True
+            )
+            return {image.id: image for image in images}  # Return images for selection
         except Exception as e:
-            logging.error(f"Error fetching images: {e}")
-            return []
+            logging.error(f"Unable to retrieve images: {e}")
+            return {}
 
-    def post(self, request, *args, **kwargs):
-        # Bind form data
-        form = AppTemplateForm(request.POST)
-        if form.is_valid():
-            # Build JSON payload from form data
-            payload = {
-                "creator_id": "12b3dfec-1cf0-4c8f-b136-7906b0f5dab5",  # Adjust to retrieve actual user ID
-                "image_id": form.cleaned_data['image'],
-                "name": form.cleaned_data['name'],
-                "description": form.cleaned_data['description'],
-                "short_description": form.cleaned_data['short_description'],
-                "instantiation_notice": form.cleaned_data['notice'],
-                "version": form.cleaned_data['version'],
-                "public": form.cleaned_data['visibility'] == 'public',
-                "approved": False,  # Default to false
-                "fixed_ram_gb": form.cleaned_data['min_ram'],
-                "fixed_disk_gb": form.cleaned_data['min_disk'],
-                "fixed_cores": form.cleaned_data['min_cores'],
-                "per_user_ram_gb": form.cleaned_data['res_per_user_ram'],
-                "per_user_disk_gb": form.cleaned_data['res_per_user_disk'],
-                "per_user_cores": form.cleaned_data['res_per_user_cores'],
-            }
+    def form_valid(self, form):
+        """Handle valid form submission."""
+        data = {
+            'creator_id': "12b3dfec-1cf0-4c8f-b136-7906b0f5dab5",
+            'image_id': form.cleaned_data['image_id'],
+            'name': form.cleaned_data['name'],
+            'description': form.cleaned_data['description'],
+            'short_description': form.cleaned_data['short_description'],
+            'instantiation_notice': form.cleaned_data['instantiation_notice'],
+            'version': form.cleaned_data['version'],
+            'public': form.cleaned_data['public'],
+            'approved': form.cleaned_data['approved'],
+            'fixed_ram_gb': form.cleaned_data['fixed_ram_gb'],
+            'fixed_disk_gb': form.cleaned_data['fixed_disk_gb'],
+            'fixed_cores': form.cleaned_data['fixed_cores'],
+            'per_user_ram_gb': form.cleaned_data['per_user_ram_gb'],
+            'per_user_disk_gb': form.cleaned_data['per_user_disk_gb'],
+            'per_user_cores': form.cleaned_data['per_user_cores'],
+        }
 
-            # Send the POST request to the backend
-            headers = {'Content-Type': 'application/json'}
-            try:
-                response = requests.post(
-                    "http://localhost:8000/api/app-templates/",
-                    headers=headers,
-                    data=json.dumps(payload),
-                    timeout=10
-                )
-                response.raise_for_status()  # Raise error if request fails
-
-                return redirect(self.success_url)  # Redirect on success
-            except requests.exceptions.RequestException as e:
-                # Handle error (log or notify user)
-                logging.error(f"Failed to send app template data: {e}")
-                return render(request, self.template_name, {'form': form, 'error': _("Failed to create app template")})
-
-        # Render form with error messages if not valid
-        return render(request, self.template_name, {'form': form})
+        try:
+            response = requests.post(
+                "http://localhost:8000/api/app-templates/",
+                json=data,
+                timeout=10
+            )
+            response.raise_for_status()  # Raise an error for bad responses
+            return super().form_valid(form)  # Redirect to success URL
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Failed to create app template: {e}")
+            form.add_error(None, _("Failed to create app template. Please try again."))
+            return self.form_invalid(form)
 
 class InstancesView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
