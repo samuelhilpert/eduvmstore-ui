@@ -133,7 +133,7 @@ class DetailsPageView(generic.TemplateView):
 class CreateView(generic.FormView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
     form_class = AppTemplateForm
-    success_url = reverse_lazy('eduvmstore:index')  # Redirect after successful creation
+    success_url = reverse_lazy('horizon:eduvmstore_dashboard:eduvmstore:index')  # Redirect after successful creation
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

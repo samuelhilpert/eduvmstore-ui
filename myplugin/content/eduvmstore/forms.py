@@ -13,7 +13,6 @@ class AppTemplateForm(forms.Form):
         widget = forms.Select(attrs={'class': 'form-control'})
     )
 
-
     script = forms.FileField(
         label='Upload Script',
         required=False,
