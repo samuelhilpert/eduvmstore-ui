@@ -15,63 +15,48 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post" >
+  <form method="post" action="{% url 'app_template_create' %}">
+        {% csrf_token %}
 
-        <h3>App-Template details</h3>
-<div class="form-group row">
-    <div class="col-md-4">
-        <label for="imageSelect">Select Image:</label>
-        <select id="imageSelect" name="image" class="form-control">
-            {% for image in images %}
-                <option value="{{ image.id }}">{{ image.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-4">
-        {{ form.script.label_tag }}
-        {{ form.script }}
-    </div>
-            <div class="col-md-4 d-flex justify-content-end align-items-end">
-                <button type="button" class="btn btn-primary ms-auto" onclick="openModal()">Write Script</button>
-            </div>
-        </div>
-
-
-        <!-- Modal for script input -->
-        <div id="scriptModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h5>Write Script</h5>
-                <textarea id="scriptText" class="form-control mb-5" rows="10"></textarea>
-                <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
-            </div>
-        </div>
-
-        <!-- Hidden input to store the script text -->
-        <input type="hidden" id="hiddenScriptField" name="script_text" />
-
-        <!-- Rest of the form -->
+        <h3>App-Template Details</h3>
         <div class="form-group row">
-            <div class="col-md-6">
-                {{ form.name.label_tag }}
-                {{ form.name }}
+            <div class="col-md-4">
+                <label for="imageSelect">Select Image:</label>
+                <select id="imageSelect" name="image_id" class="form-control">
+                    {% for image in images %}
+                        <option value="{{ image.id }}">{{ image.name }}</option>
+                    {% endfor %}
+                </select>
             </div>
-            <div class="col-md-6">
-                {{ form.short_description.label_tag }}
-                {{ form.short_description }}
+            <div class="col-md-4">
+                <label for="name">Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label for="short_description">Short Description</label>
+                <input type="text" name="short_description" class="form-control">
             </div>
         </div>
+
         <div class="form-group">
-            {{ form.description.label_tag }}
-            {{ form.description }}
+            <label for="description">Description</label>
+            <textarea name="description" class="form-control"></textarea>
         </div>
         <div class="form-group">
-            {{ form.notice.label_tag }}
-            {{ form.notice }}
+            <label for="instantiation_notice">Instantiation Notice</label>
+            <input type="text" name="instantiation_notice" class="form-control">
         </div>
         <div class="form-group">
-            {{ form.visibility.label_tag }}
-            {{ form.visibility }}
+            <label for="version">Version</label>
+            <input type="text" name="version" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="public">Public</label>
+            <input type="checkbox" name="public" value="true">
+        </div>
+        <div class="form-group">
+            <label for="approved">Approved</label>
+            <input type="checkbox" name="approved" value="false">
         </div>
 
         <h3>System Requirements</h3>
@@ -79,37 +64,36 @@
             <div class="col-md-6">
                 <h4>Minimum Resources</h4>
                 <div class="form-group">
-                    {{ form.min_ram.label_tag }}
-                    {{ form.min_ram }}
+                    <label for="fixed_ram_gb">Fixed RAM (GB)</label>
+                    <input type="number" name="fixed_ram_gb" class="form-control">
                 </div>
                 <div class="form-group">
-                    {{ form.min_disk.label_tag }}
-                    {{ form.min_disk }}
+                    <label for="fixed_disk_gb">Fixed Disk (GB)</label>
+                    <input type="number" name="fixed_disk_gb" class="form-control">
                 </div>
                 <div class="form-group">
-                    {{ form.min_cores.label_tag }}
-                    {{ form.min_cores }}
+                    <label for="fixed_cores">Fixed Cores</label>
+                    <input type="number" name="fixed_cores" class="form-control">
                 </div>
             </div>
             <div class="col-md-6">
                 <h4>Resources per User</h4>
                 <div class="form-group">
-                    {{ form.res_per_user_ram.label_tag }}
-                    {{ form.res_per_user_ram }}
+                    <label for="per_user_ram_gb">Per User RAM (GB)</label>
+                    <input type="number" name="per_user_ram_gb" class="form-control">
                 </div>
                 <div class="form-group">
-                    {{ form.res_per_user_disk.label_tag }}
-                    {{ form.res_per_user_disk }}
+                    <label for="per_user_disk_gb">Per User Disk (GB)</label>
+                    <input type="number" name="per_user_disk_gb" class="form-control">
                 </div>
                 <div class="form-group">
-                    {{ form.res_per_user_cores.label_tag }}
-                    {{ form.res_per_user_cores }}
+                    <label for="per_user_cores">Per User Cores</label>
+                    <input type="number" name="per_user_cores" class="form-control">
                 </div>
             </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Create</button>
-
     </form>
 
     <!-- Custom CSS for Modal -->
