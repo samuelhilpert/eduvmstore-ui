@@ -133,7 +133,7 @@ class DetailsPageView(generic.TemplateView):
 class CreateView(generic.FormView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
     form_class = AppTemplateForm
-    success_url = reverse_lazy('horizon:eduvmstore_dashboard:eduvmstore:index')  # Redirect after successful creation
+    success_url = reverse_lazy('index')  # Redirect after successful creation
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -168,9 +168,9 @@ class CreateView(generic.FormView):
             'description': form.cleaned_data['description'],
             'short_description': form.cleaned_data['short_description'],
             'instantiation_notice': form.cleaned_data['instantiation_notice'],
-            'version': form.cleaned_data['version'],
+            "version": "1.0",  # Set default version
             'public': form.cleaned_data['public'],
-            'approved': form.cleaned_data['approved'],
+            'approved': False,  # Default to false
             'fixed_ram_gb': form.cleaned_data['fixed_ram_gb'],
             'fixed_disk_gb': form.cleaned_data['fixed_disk_gb'],
             'fixed_cores': form.cleaned_data['fixed_cores'],
