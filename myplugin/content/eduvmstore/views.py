@@ -137,23 +137,27 @@ class CreateView(generic.FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['images'] = self.get_images_data()  # Fetch images for the selection box
-        # Update the choices for the image_id field
-        self.form_class.base_fields['image_id'].choices = [image.name for image in
-                                                           context['images'].values()]
+        form = self.form_class()
+
+        # Fetch the available images
+        glance_images = self.get_images_data()
+
+        # Populate the image_id choices
+        form.fields['image_id'].choices = [(image.id, image.name) for image in glance_images]
+
+        context['form'] = form
         return context
 
     def get_images_data(self):
         """Fetch the images from the Glance API using the Horizon API."""
         try:
             filters = {}
-            images, _, _ = glance.image_list_detailed(
-                self.request, filters=filters, paginate=True
-            )
-            return {image.id: image for image in images}  # Return images for selection
+            images, has_more_data, has_prev_data = glance.image_list_detailed(self.request, filters=filters,
+                                                                              paginate=True)
+            return images  # Return the list of images
         except Exception as e:
             logging.error(f"Unable to retrieve images: {e}")
-            return {}
+            return []
 
     def form_valid(self, form):
         """Handle valid form submission."""

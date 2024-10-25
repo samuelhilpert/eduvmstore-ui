@@ -27,15 +27,11 @@
         {{ form.image.errors }}
     </div>
 
- <div class="form-group">
-        <label for="image">Select Image:</label>
-        <select name="image" id="image" class="form-control">
-            {% for image in images %}
-                <option value="{{ image.id }}">{{ image.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
+<div class="form-group">
+    {{ form.image_id.label }}
+    {{ form.image_id }}
+    {{ form.image_id.errors }}
+</div>
     <div class="form-group">
         {{ form.script.label }}
         {{ form.script }}
