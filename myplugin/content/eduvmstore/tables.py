@@ -6,12 +6,10 @@ from django.utils.translation import gettext_lazy as _
 from horizon import tables
 
 
-# Custom filter for instances
 class MyFilterAction(tables.FilterAction):
     name = "myfilter"
 
 
-# Image Table definition, same as you had but with small improvement on translations
 class ImageTable(tables.DataTable):
     name = tables.Column(
         "name",
@@ -31,4 +29,4 @@ class ImageTable(tables.DataTable):
         name = "images"
         verbose_name = _("Images")
         table_actions = (MyFilterAction,)
-        multi_select = False  # Disable multi-select if not needed
+        multi_select = False

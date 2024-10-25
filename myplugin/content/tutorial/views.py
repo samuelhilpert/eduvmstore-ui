@@ -22,7 +22,7 @@ class IndexView(generic.TemplateView):
             response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.HTTPError as err:  # Fix the typo here
+        except requests.exceptions.HTTPError as err:
             print(f"Error fetching images: {err}")
             return []
         except requests.exceptions.RequestException as e:  
@@ -32,9 +32,7 @@ class IndexView(generic.TemplateView):
     @method_decorator(csrf_exempt) 
     def post(self, request, *args, **kwargs):
         try:
-            # Parse the JSON request body
-            data = request.POST.get('name') 
-            # Make a POST request to your backend API
+            data = request.POST.get('name')
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
                 json={"name": data},
