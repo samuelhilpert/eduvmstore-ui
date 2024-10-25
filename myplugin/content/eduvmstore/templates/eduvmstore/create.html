@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block title %}Create App-Template{% endblock %}
+
 
 {% block page_header %}
-    <div style="display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
-            <h1 class="page-title mb-0">Create Instance</h1>
-               {% if image_id %}
-        <h4>ID: {{ image_id }}</h4>
-    {% endif %}
+            <h1 class="page-title mb-0">Create App-Template</h1>
         </div>
         <div>
             <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
@@ -15,6 +14,168 @@
     </div>
 {% endblock %}
 
+{% block main %}
+    <form method="post">
+
+        <h3>App-Template details</h3>
+        <<div class="form-group">
+                {{ form.image_id.label }}
+                {{ form.image_id }}
+                </div>
+            <div class="col-md-4">
+                {{ form.script.label_tag }}
+                {{ form.script }}
+            </div>
+            <div class="col-md-4 d-flex justify-content-end align-items-end">
+                <button type="button" class="btn btn-primary ms-auto" onclick="openModal()">Write Script</button>
+            </div>
+
+
+
+        <!-- Modal for script input -->
+        <div id="scriptModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h5>Write Script</h5>
+                <textarea id="scriptText" class="form-control mb-5" rows="10"></textarea>
+                <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
+            </div>
+        </div>
+
+        <!-- Hidden input to store the script text -->
+        <input type="hidden" id="hiddenScriptField" name="script_text" />
+
+        <!-- Rest of the form -->
+        <div class="form-group row">
+            <div class="col-md-6">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+            </div>
+            <div class="col-md-6">
+                {{ form.short_description.label_tag }}
+                {{ form.short_description }}
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+        <div class="form-group">
+            {{ form.notice.label_tag }}
+            {{ form.notice }}
+        </div>
+        <div class="form-group">
+            {{ form.visibility.label_tag }}
+            {{ form.visibility }}
+        </div>
+
+        <h3>System Requirements</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Minimum Resources</h4>
+                <div class="form-group">
+                    {{ form.min_ram.label_tag }}
+                    {{ form.min_ram }}
+                </div>
+                <div class="form-group">
+                    {{ form.min_disk.label_tag }}
+                    {{ form.min_disk }}
+                </div>
+                <div class="form-group">
+                    {{ form.min_cores.label_tag }}
+                    {{ form.min_cores }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4>Resources per User</h4>
+                <div class="form-group">
+                    {{ form.res_per_user_ram.label_tag }}
+                    {{ form.res_per_user_ram }}
+                </div>
+                <div class="form-group">
+                    {{ form.res_per_user_disk.label_tag }}
+                    {{ form.res_per_user_disk }}
+                </div>
+                <div class="form-group">
+                    {{ form.res_per_user_cores.label_tag }}
+                    {{ form.res_per_user_cores }}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+
+    </form>
+
+    <!-- Custom CSS for Modal -->
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+
+    <!-- JavaScript to handle modal -->
+    <script>
+        function openModal() {
+            document.getElementById('scriptModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('scriptModal').style.display = 'none';
+        }
+
+        function saveScript() {
+            // Get the script text from the textarea
+            var scriptText = document.getElementById('scriptText').value;
+            // Store it in the hidden input field
+            document.getElementById('hiddenScriptField').value = scriptText;
+            // Close the modal
+            closeModal();
+        }
+
+        // Close the modal if the user clicks anywhere outside of it
+        window.onclick = function(event) {
+            var modal = document.getElementById('scriptModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+
+{% endblock %}
 
 {% block main %}
 <h1>Create New App Template</h1>
