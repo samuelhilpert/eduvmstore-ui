@@ -139,7 +139,7 @@ class CreateView(generic.FormView):
         context = super().get_context_data(**kwargs)
         context['images'] = self.get_images_data()  # Fetch images for the selection box
         # Update the choices for the image_id field
-        self.form_class.base_fields['image_id'].choices = [(image.id, image.name) for image in
+        self.form_class.base_fields['image_id'].choices = [image.name for image in
                                                            context['images'].values()]
         return context
 
