@@ -1,20 +1,13 @@
 from xml.sax.handler import version
-
 import requests
-
 import socket
 import logging
-
-from django.db.models.fields import json
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
-
 from openstack_dashboard.api import glance
 from django.views import generic
-from myplugin.content.eduvmstore import tabs as edu_tabs
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
-
 from django.utils.translation import gettext_lazy as _
 
 def get_host_ip():
@@ -164,7 +157,7 @@ class CreateView(generic.TemplateView):
             'short_description': short_description,
             'instantiation_notice': instantiation_notice,
             'public': public,
-            'version' : "1.0",
+            'version' : version,
             'approved': False,
             'fixed_ram_gb': fixed_ram_gb,
             'fixed_disk_gb': fixed_disk_gb,
