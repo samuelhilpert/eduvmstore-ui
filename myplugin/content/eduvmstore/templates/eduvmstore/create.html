@@ -16,7 +16,7 @@
 
 {% block main %}
     <form method="post">
-
+        {% csrf_token %}
         <h3>App-Template details</h3>
         <div class="form-group">
                 {{ form.image_id.label }}
