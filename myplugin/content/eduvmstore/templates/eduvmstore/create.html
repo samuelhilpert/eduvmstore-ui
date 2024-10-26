@@ -15,97 +15,71 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post"  action="{% url 'create' %}" >
-        {% csrf_token %}
-        <h3>App-Template details</h3>
-        <div class="form-group">
-                {{ form.image_id.label }}
-                {{ form.image_id }}
-                </div>
-            <div class="col-md-4">
-                {{ form.script.label_tag }}
-                {{ form.script }}
-            </div>
-            <div class="col-md-4 d-flex justify-content-end align-items-end">
-                <button type="button" class="btn btn-primary ms-auto" onclick="openModal()">Write Script</button>
-            </div>
-
-
-
-        <!-- Modal for script input -->
-        <div id="scriptModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h5>Write Script</h5>
-                <textarea id="scriptText" class="form-control mb-5" rows="10"></textarea>
-                <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
-            </div>
-        </div>
-
-        <!-- Hidden input to store the script text -->
-        <input type="hidden" id="hiddenScriptField" name="script_text" />
-
-        <!-- Rest of the form -->
-        <div class="form-group row">
-            <div class="col-md-6">
-                {{ form.name.label_tag }}
-                {{ form.name }}
-            </div>
-            <div class="col-md-6">
-                {{ form.short_description.label_tag }}
-                {{ form.short_description }}
-            </div>
-        </div>
-        <div class="form-group">
-            {{ form.description.label_tag }}
-            {{ form.description }}
-        </div>
-        <div class="form-group">
-            {{ form.instantiation_notice.label_tag }}
-            {{ form.instantiation_notice }}
-        </div>
-        <div class="form-group">
-            {{ form.public.label_tag }}
-            {{ form.public }}
-        </div>
-
-        <h3>System Requirements</h3>
-        <div class="row">
-            <div class="col-md-6">
-                <h4>Minimum Resources</h4>
-                <div class="form-group">
-                    {{ form.fixed_ram_gb.label_tag }}
-                    {{ form.fixed_ram_gb }}
-                </div>
-                <div class="form-group">
-                    {{ form.fixed_disk_gb.label_tag }}
-                    {{ form.fixed_disk_gb }}
-                </div>
-                <div class="form-group">
-                    {{ form.fixed_cores.label_tag }}
-                    {{ form.fixed_cores }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <h4>Resources per User</h4>
-                <div class="form-group">
-                    {{ form.per_user_ram_gb.label_tag }}
-                    {{ form.per_user_ram_gb }}
-                </div>
-                <div class="form-group">
-                    {{ form.per_user_disk_gb.label_tag }}
-                    {{ form.per_user_disk_gb }}
-                </div>
-                <div class="form-group">
-                    {{ form.per_user_cores.label_tag }}
-                    {{ form.per_user_cores }}
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Create</button>
-
-    </form>
+     <h2>Create App Template</h2>
+  <form id="app-template-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.image_id.label_tag }}
+      {{ form.image_id }}
+      {{ form.image_id.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.short_description.label_tag }}
+      {{ form.short_description }}
+      {{ form.short_description.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.instantiation_notice.label_tag }}
+      {{ form.instantiation_notice }}
+      {{ form.instantiation_notice.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.public.label_tag }}
+      {{ form.public }}
+      {{ form.public.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.fixed_ram_gb.label_tag }}
+      {{ form.fixed_ram_gb }}
+      {{ form.fixed_ram_gb.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.fixed_disk_gb.label_tag }}
+      {{ form.fixed_disk_gb }}
+      {{ form.fixed_disk_gb.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.fixed_cores.label_tag }}
+      {{ form.fixed_cores }}
+      {{ form.fixed_cores.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.per_user_ram_gb.label_tag }}
+      {{ form.per_user_ram_gb }}
+      {{ form.per_user_ram_gb.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.per_user_disk_gb.label_tag }}
+      {{ form.per_user_disk_gb }}
+      {{ form.per_user_disk_gb.errors }}
+    </div>
+    <div class="form-group">
+      {{ form.per_user_cores.label_tag }}
+      {{ form.per_user_cores }}
+      {{ form.per_user_cores.errors }}
+    </div>
+    <button type="submit" class="btn btn-primary">Create App Template</button>
+  </form>
 
     <!-- Custom CSS for Modal -->
     <style>
