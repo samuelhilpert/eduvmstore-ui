@@ -26,10 +26,13 @@ def get_host_ip():
         s.close()
     return ip
 
+
 # Fetch app templates from database
-def fetch_app_templates():
+def fetch_app_templates(token_id):
+    headers = {"X-Auth-Token": token_id}
+
     try:
-        response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
+        response = requests.get("http://192.168.64.1:8000/api/app-templates/", headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -59,9 +62,14 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+        token_id = None
+
+        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
+            token_id = self.request.user.token.id
 
         # Fetch app templates from external database
-        app_templates = fetch_app_templates()
+        app_templates = fetch_app_templates(token_id)
 
         # Fetch image data from Glance
         glance_images = self.get_images_data()
