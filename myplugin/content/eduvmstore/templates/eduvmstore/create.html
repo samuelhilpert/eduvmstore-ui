@@ -164,14 +164,17 @@
        <div class="form-group row">
             <div class="col-md-4">
                 <label for="version">Version:</label>
-                 <input type="number" id="version" name="version" class="form-control">
+                 <input type="text" id="version" name="version" class="form-control">
             </div>
-            <div class="col-md-4">
-            <label for="public">Public:</label>
-            <input type="checkbox" id="public" name="public" value="True" class="form-check-input">
-        </div>
+        <div class="col-md-4">
+            <label for="public">Visibility:</label>
+            <select name="public" id="public" class="form-control select-box" required>
+                <option value="True">Public</option>
+                <option value="False">Private</option>
+            </select>
         </div>
 
+        </div>
 
         <h3>System Requirements</h3>
         <div class="row">
