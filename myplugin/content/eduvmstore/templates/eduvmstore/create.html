@@ -14,30 +14,28 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}">
+    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="form-container">
         {% csrf_token %}
 
-        <h3>App-Template details</h3>
-        <div class="form-group row">
-            <div class="col-md-4">
-                <label for="image_id">Select Image:</label>
-                <select name="image_id" id="image_id" required>
-                    {% for image in images %}
-                        <option value="{{ image.0 }}">{{ image.1 }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label for="script">Script:</label>
-                <input type="text" id="script" name="script">
-            </div>
-            <div class="col-md-4 d-flex justify-content-end align-items-end">
-                <button type="button" class="btn btn-primary ms-auto" onclick="openModal()">Write Script</button>
-            </div>
+        <h3>App-Template Details</h3>
+        <div class="form-group">
+            <label for="image_id">Select Image:</label>
+            <select name="image_id" id="image_id" class="form-control select-box" required>
+                {% for image in images %}
+                    <option value="{{ image.0 }}">{{ image.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="script">Script:</label>
+            <input type="text" id="script" name="script" class="form-control">
+        </div>
+        <div class="form-group d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
         </div>
 
         <!-- Modal for script input -->
-        <div id="scriptModal" class="modal" style="display: none;">
+        <div id="scriptModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">×</span>
                 <h5>Write Script</h5>
@@ -50,27 +48,25 @@
         <input type="hidden" id="hiddenScriptField" name="script_text" />
 
         <!-- Rest of the form -->
-        <div class="form-group row">
-            <div class="col-md-6">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div class="col-md-6">
-                <label for="short_description">Short Description:</label>
-                <input type="text" id="short_description" name="short_description" required>
-            </div>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="short_description">Short Description:</label>
+            <input type="text" id="short_description" name="short_description" class="form-control" required>
         </div>
         <div class="form-group">
             <label for="description">Description:</label>
-            <textarea id="description" name="description" required></textarea>
+            <textarea id="description" name="description" class="form-control" required></textarea>
         </div>
         <div class="form-group">
             <label for="instantiation_notice">Instantiation Notice:</label>
-            <textarea id="instantiation_notice" name="instantiation_notice" required></textarea>
+            <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required></textarea>
         </div>
         <div class="form-group">
             <label for="public">Public:</label>
-            <input type="checkbox" id="public" name="public" value="True">
+            <input type="checkbox" id="public" name="public" value="True" class="form-check-input">
         </div>
 
         <h3>System Requirements</h3>
@@ -79,30 +75,30 @@
                 <h4>Minimum Resources</h4>
                 <div class="form-group">
                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
-                    <input type="number" id="fixed_ram_gb" name="fixed_ram_gb" required>
+                    <input type="number" id="fixed_ram_gb" name="fixed_ram_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="fixed_disk_gb">Fixed Disk (GB):</label>
-                    <input type="number" id="fixed_disk_gb" name="fixed_disk_gb" required>
+                    <input type="number" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="fixed_cores">Fixed Cores:</label>
-                    <input type="number" id="fixed_cores" name="fixed_cores" required>
+                    <input type="number" id="fixed_cores" name="fixed_cores" class="form-control" required>
                 </div>
             </div>
             <div class="col-md-6">
                 <h4>Resources per User</h4>
                 <div class="form-group">
                     <label for="per_user_ram_gb">Per User RAM (GB):</label>
-                    <input type="number" id="per_user_ram_gb" name="per_user_ram_gb" required>
+                    <input type="number" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="per_user_disk_gb">Per User Disk (GB):</label>
-                    <input type="number" id="per_user_disk_gb" name="per_user_disk_gb" required>
+                    <input type="number" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="per_user_cores">Per User Cores:</label>
-                    <input type="number" id="per_user_cores" name="per_user_cores" required>
+                    <input type="number" id="per_user_cores" name="per_user_cores" class="form-control" required>
                 </div>
             </div>
         </div>
@@ -110,8 +106,66 @@
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
 
-    <!-- Custom CSS for Modal -->
+    <!-- Custom CSS for Modal and Form -->
     <style>
+        .form-container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .select-box {
+            appearance: none;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .select-box:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
         /* Modal styles */
         .modal {
             display: none;
