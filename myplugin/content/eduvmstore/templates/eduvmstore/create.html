@@ -14,7 +14,88 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="form-container">
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #495057;
+    }
+    .form-control, .select-box {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        color: #333;
+    }
+    .select-box {
+        appearance: none;
+        background-color: #fff;
+    }
+    .select-box:focus, .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    .btn {
+        padding: 10px 20px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        color: white;
+    }
+    .btn-primary {
+        background-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+
+<div class="form-container">
+    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}">
         {% csrf_token %}
 
         <h3>App-Template Details</h3>
@@ -72,7 +153,7 @@
         <h3>System Requirements</h3>
         <div class="row">
             <div class="col-md-6">
-                <h4>Minimum Resources</h4>
+                <h4>Fixed Resources</h4>
                 <div class="form-group">
                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
                     <input type="number" id="fixed_ram_gb" name="fixed_ram_gb" class="form-control" required>
@@ -105,130 +186,33 @@
 
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
+</div>
 
-    <!-- Custom CSS for Modal and Form -->
-    <style>
-        .form-container {
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+<!-- JavaScript to handle modal -->
+<script>
+    function openModal() {
+        document.getElementById('scriptModal').style.display = 'block';
+    }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+    function closeModal() {
+        document.getElementById('scriptModal').style.display = 'none';
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+    function saveScript() {
+        // Get the script text from the textarea
+        var scriptText = document.getElementById('scriptText').value;
+        // Store it in the hidden input field
+        document.getElementById('hiddenScriptField').value = scriptText;
+        // Close the modal
+        closeModal();
+    }
 
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+    // Close the modal if the user clicks anywhere outside of it
+    window.onclick = function(event) {
+        var modal = document.getElementById('scriptModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
         }
-
-        .select-box {
-            appearance: none;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 10px;
-            width: 100%;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .select-box:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    </style>
-
-    <!-- JavaScript to handle modal -->
-    <script>
-        function openModal() {
-            document.getElementById('scriptModal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('scriptModal').style.display = 'none';
-        }
-
-        function saveScript() {
-            // Get the script text from the textarea
-            var scriptText = document.getElementById('scriptText').value;
-            // Store it in the hidden input field
-            document.getElementById('hiddenScriptField').value = scriptText;
-            // Close the modal
-            closeModal();
-        }
-
-        // Close the modal if the user clicks anywhere outside of it
-        window.onclick = function(event) {
-            var modal = document.getElementById('scriptModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
+    }
+</script>
 {% endblock %}
