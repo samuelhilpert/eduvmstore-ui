@@ -33,12 +33,12 @@ class AppTemplateForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    notice = forms.CharField(
+    instantiation_notice = forms.CharField(
         label="Notice",
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    visibility = forms.ChoiceField(
+    public = forms.ChoiceField(
         choices=[('public', 'Public'), ('private', 'Private')],
         label="Visibility",
         required=True,
@@ -46,37 +46,37 @@ class AppTemplateForm(forms.Form):
     )
 
     # System Requirements
-    min_ram = forms.IntegerField(
+    fixed_ram_gb = forms.IntegerField(
         label="Minimum RAM (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    min_disk = forms.IntegerField(
+    fixed_disk_gb = forms.IntegerField(
         label="Minimum Disk (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    min_cores = forms.IntegerField(
+    fixed_cores = forms.IntegerField(
         label="Minimum Cores",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    res_per_user_ram = forms.IntegerField(
+    per_user_ram_gb = forms.IntegerField(
         label="Minimum RAM per User (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    res_per_user_disk = forms.IntegerField(
+    per_user_disk_gb = forms.IntegerField(
         label="Minimum Disk per User (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    res_per_user_cores = forms.IntegerField(
+    per_user_cores = forms.IntegerField(
         label="Minimum Cores per User",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),

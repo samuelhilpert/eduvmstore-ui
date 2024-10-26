@@ -61,12 +61,12 @@
             {{ form.description }}
         </div>
         <div class="form-group">
-            {{ form.notice.label_tag }}
-            {{ form.notice }}
+            {{ form.instantiation_notice.label_tag }}
+            {{ form.instantiation_notice }}
         </div>
         <div class="form-group">
-            {{ form.visibility.label_tag }}
-            {{ form.visibility }}
+            {{ form.public.label_tag }}
+            {{ form.public }}
         </div>
 
         <h3>System Requirements</h3>
@@ -74,31 +74,31 @@
             <div class="col-md-6">
                 <h4>Minimum Resources</h4>
                 <div class="form-group">
-                    {{ form.min_ram.label_tag }}
-                    {{ form.min_ram }}
+                    {{ form.fixed_ram_gb.label_tag }}
+                    {{ form.fixed_ram_gb }}
                 </div>
                 <div class="form-group">
-                    {{ form.min_disk.label_tag }}
-                    {{ form.min_disk }}
+                    {{ form.fixed_disk_gb.label_tag }}
+                    {{ form.fixed_disk_gb }}
                 </div>
                 <div class="form-group">
-                    {{ form.min_cores.label_tag }}
-                    {{ form.min_cores }}
+                    {{ form.fixed_cores.label_tag }}
+                    {{ form.fixed_cores }}
                 </div>
             </div>
             <div class="col-md-6">
                 <h4>Resources per User</h4>
                 <div class="form-group">
-                    {{ form.res_per_user_ram.label_tag }}
-                    {{ form.res_per_user_ram }}
+                    {{ form.per_user_ram_gb.label_tag }}
+                    {{ form.per_user_ram_gb }}
                 </div>
                 <div class="form-group">
-                    {{ form.res_per_user_disk.label_tag }}
-                    {{ form.res_per_user_disk }}
+                    {{ form.per_user_disk_gb.label_tag }}
+                    {{ form.per_user_disk_gb }}
                 </div>
                 <div class="form-group">
-                    {{ form.res_per_user_cores.label_tag }}
-                    {{ form.res_per_user_cores }}
+                    {{ form.per_user_cores.label_tag }}
+                    {{ form.per_user_cores }}
                 </div>
             </div>
         </div>
