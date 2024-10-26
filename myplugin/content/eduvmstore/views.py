@@ -1,3 +1,5 @@
+from xml.sax.handler import version
+
 import requests
 
 import socket
@@ -130,67 +132,81 @@ class DetailsPageView(generic.TemplateView):
             return {}
 
 
-class CreateView(generic.FormView):
+class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    form_class = AppTemplateForm
     success_url = reverse_lazy('index')  # Redirect after successful creation
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        form = self.form_class()
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return render(request, self.template_name, context)
 
-        # Fetch the available images
-        glance_images = self.get_images_data()
+    def post(self, request, *args, **kwargs):
+        # Retrieve data from the request
+        image_id = request.POST.get('image_id')
+        name = request.POST.get('name')
+        short_description = request.POST.get('short_description')
+        description = request.POST.get('description')
+        instantiation_notice = request.POST.get('instantiation_notice')
+        public = request.POST.get('public')
+        fixed_ram_gb = request.POST.get('fixed_ram_gb')
+        fixed_disk_gb = request.POST.get('fixed_disk_gb')
+        fixed_cores = request.POST.get('fixed_cores')
+        per_user_ram_gb = request.POST.get('per_user_ram_gb')
+        per_user_disk_gb = request.POST.get('per_user_disk_gb')
+        per_user_cores = request.POST.get('per_user_cores')
 
-        # Populate the image_id choices
-        form.fields['image_id'].choices = [(image.id, image.name) for image in glance_images]
-
-        context['form'] = form
-        return context
-
-    def get_images_data(self):
-        """Fetch the images from the Glance API using the Horizon API."""
-        try:
-            filters = {}
-            images, has_more_data, has_prev_data = glance.image_list_detailed(self.request, filters=filters,
-                                                                              paginate=True)
-            return images  # Return the list of images
-        except Exception as e:
-            logging.error(f"Unable to retrieve images: {e}")
-            return []
-
-    def form_valid(self, form):
-        """Handle valid form submission."""
+        # Prepare the data to be sent to the API
         data = {
-            'creator_id': "12b3dfec-1cf0-4c8f-b136-7906b0f5dab5",
-            'image_id': form.cleaned_data['image_id'],
-            'name': form.cleaned_data['name'],
-            'description': form.cleaned_data['description'],
-            'short_description': form.cleaned_data['short_description'],
-            'instantiation_notice': form.cleaned_data['instantiation_notice'],
-            "version": "1.0",  # Set default version
-            'public': form.cleaned_data['public'],
-            'approved': False,  # Default to false
-            'fixed_ram_gb': form.cleaned_data['fixed_ram_gb'],
-            'fixed_disk_gb': form.cleaned_data['fixed_disk_gb'],
-            'fixed_cores': form.cleaned_data['fixed_cores'],
-            'per_user_ram_gb': form.cleaned_data['per_user_ram_gb'],
-            'per_user_disk_gb': form.cleaned_data['per_user_disk_gb'],
-            'per_user_cores': form.cleaned_data['per_user_cores'],
+            'creator_id': "12b3dfec-1cf0-4c8f-b136-7906b0f5dab5",  # Example creator ID
+            'image_id': image_id,
+            'name': name,
+            'description': description,
+            'short_description': short_description,
+            'instantiation_notice': instantiation_notice,
+            'public': public,
+            'version' : "1.0",
+            'approved': False,
+            'fixed_ram_gb': fixed_ram_gb,
+            'fixed_disk_gb': fixed_disk_gb,
+            'fixed_cores': fixed_cores,
+            'per_user_ram_gb': per_user_ram_gb,
+            'per_user_disk_gb': per_user_disk_gb,
+            'per_user_cores': per_user_cores,
         }
 
         try:
+            # Send the data to the API
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
                 json=data,
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
-            return super().form_valid(form)  # Redirect to success URL
+            return redirect(self.success_url)  # Redirect to success URL
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
-            form.add_error(None, _("Failed to create app template. Please try again."))
-            return self.form_invalid(form)
+            context = self.get_context_data()
+            context['error'] = _("Failed to create app template. Please try again.")
+            return render(request, self.template_name, context)
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        # Fetch the available images
+        glance_images = self.get_images_data()
+
+        # Populate the image choices
+        context['images'] = [(image.id, image.name) for image in glance_images]
+        return context
+
+    def get_images_data(self):
+        """Fetch the images from the Glance API using the Horizon API."""
+        try:
+            filters = {}
+            images, has_more_data, has_prev_data = glance.image_list_detailed(self.request, filters=filters, paginate=True)
+            return images  # Return the list of images
+        except Exception as e:
+            logging.error(f"Unable to retrieve images: {e}")
+            return []
 
 class InstancesView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'

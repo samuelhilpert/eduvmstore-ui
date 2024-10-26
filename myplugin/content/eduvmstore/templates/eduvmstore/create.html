@@ -15,72 +15,56 @@
 {% endblock %}
 
 {% block main %}
-     <h2>Create App Template</h2>
-  <form id="app-template-form" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="form-group">
-      {{ form.image_id.label_tag }}
-      {{ form.image_id }}
-      {{ form.image_id.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.name.label_tag }}
-      {{ form.name }}
-      {{ form.name.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.short_description.label_tag }}
-      {{ form.short_description }}
-      {{ form.short_description.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.description.label_tag }}
-      {{ form.description }}
-      {{ form.description.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.instantiation_notice.label_tag }}
-      {{ form.instantiation_notice }}
-      {{ form.instantiation_notice.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.public.label_tag }}
-      {{ form.public }}
-      {{ form.public.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.fixed_ram_gb.label_tag }}
-      {{ form.fixed_ram_gb }}
-      {{ form.fixed_ram_gb.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.fixed_disk_gb.label_tag }}
-      {{ form.fixed_disk_gb }}
-      {{ form.fixed_disk_gb.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.fixed_cores.label_tag }}
-      {{ form.fixed_cores }}
-      {{ form.fixed_cores.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.per_user_ram_gb.label_tag }}
-      {{ form.per_user_ram_gb }}
-      {{ form.per_user_ram_gb.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.per_user_disk_gb.label_tag }}
-      {{ form.per_user_disk_gb }}
-      {{ form.per_user_disk_gb.errors }}
-    </div>
-    <div class="form-group">
-      {{ form.per_user_cores.label_tag }}
-      {{ form.per_user_cores }}
-      {{ form.per_user_cores.errors }}
-    </div>
-    <button type="submit" class="btn btn-primary">Create App Template</button>
-  </form>
-
+     <form method="post" action="{% url 'create' %}">
+        {% csrf_token %}
+        <label for="image_id">Select Image:</label>
+        <select name="image_id" id="image_id" required>
+            {% for image in images %}
+                <option value="{{ image.0 }}">{{ image.1 }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br><br>
+        <label for="short_description">Short Description:</label>
+        <input type="text" id="short_description" name="short_description" required>
+        <br><br>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+        <br><br>
+        <label for="instantiation_notice">Instantiation Notice:</label>
+        <textarea id="instantiation_notice" name="instantiation_notice" required></textarea>
+        <br><br>
+        <label for="public">Public:</label>
+        <input type="checkbox" id="public" name="public" value="True">
+        <br><br>
+        <label for="version">Version:</label>
+        <input type="text" id="version" name="version" value="1.0" required>
+        <br><br>
+        <label for="approved">Approved:</label>
+        <input type="checkbox" id="approved" name="approved" value="True">
+        <br><br>
+        <label for="fixed_ram_gb">Fixed RAM (GB):</label>
+        <input type="number" id="fixed_ram_gb" name="fixed_ram_gb" required>
+        <br><br>
+        <label for="fixed_disk_gb">Fixed Disk (GB):</label>
+        <input type="number" id="fixed_disk_gb" name="fixed_disk_gb" required>
+        <br><br>
+        <label for="fixed_cores">Fixed Cores:</label>
+        <input type="number" id="fixed_cores" name="fixed_cores" required>
+        <br><br>
+        <label for="per_user_ram_gb">Per User RAM (GB):</label>
+        <input type="number" id="per_user_ram_gb" name="per_user_ram_gb" required>
+        <br><br>
+        <label for="per_user_disk_gb">Per User Disk (GB):</label>
+        <input type="number" id="per_user_disk_gb" name="per_user_disk_gb" required>
+        <br><br>
+        <label for="per_user_cores">Per User Cores:</label>
+        <input type="number" id="per_user_cores" name="per_user_cores" required>
+        <br><br>
+        <button type="submit">Create</button>
+    </form>
     <!-- Custom CSS for Modal -->
     <style>
         /* Modal styles */
