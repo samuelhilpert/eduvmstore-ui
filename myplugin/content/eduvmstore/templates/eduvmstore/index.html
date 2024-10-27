@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
-{% load i18n %}
 {% load static %}
-{% block title %}{% trans "Dashboard" %}{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block page_header %}
     <div style="display: flex; align-items: center; justify-content: space-between;  border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
                  <h1 class="page-title mb-0">
-                {% trans "App-Template Overview" %}
+                App-Template Overview
             </h1>
         </div>
         <div>
@@ -112,9 +111,8 @@
             </td>
               <td>
     <div class="btn-group">
-        <!-- Link added to the Launch button -->
                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
-            {% trans "Launch" %}
+            Launch
         </a>
 
         <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -122,10 +120,10 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="#">{% trans "Create Volume" %}</a></li>
-            <li><a href="#">{% trans "Edit Image" %}</a></li>
+            <li><a href="#">Create Volume</a></li>
+            <li><a href="#">Edit Image</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="#" class="text-danger">{% trans "Delete Image" %}</a></li>
+            <li><a href="#" class="text-danger">Delete Image</a></li>
         </ul>
     </div>
               </td>

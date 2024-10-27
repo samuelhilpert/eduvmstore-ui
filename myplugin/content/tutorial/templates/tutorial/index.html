@@ -1,21 +1,20 @@
 {% extends 'base.html' %}
-{% load i18n %}
 {% load static %}
-{% block title %}{% trans "Tutorial" %}{% endblock %}
+{% block title %}Tutorial{% endblock %}
 
 {% block page_header %}
     {% include "horizon/common/_domain_page_header.html" with title=_("Tutorial") %}
 {% endblock page_header %}
 
 {% block main %}
-<!-- List of app templates -->
+
 <ul>
     {% for image in images %}
         <li>{{ image }}</li>
     {% endfor %}
 </ul>
 
-<!-- Form for adding new template -->
+
 <h3>Add New Template</h3>
     <label for="templateName"> Name</label><input type="text" id="templateName" placeholder="Enter template name" />
 <button id="postButton">Post</button>
@@ -26,31 +25,29 @@
 document.getElementById('postButton').addEventListener('click', function() {
     const templateName = document.getElementById('templateName').value;
 
-    // Make the POST request
-    fetch("http://localhost:8000/api/app-templates/", {  // Use the correct URL
+
+    fetch("http://localhost:8000/api/app-templates/", {
         method: "POST",
         headers: {
-            'Content-Type': 'application/json',  // Sending JSON
-            'X-CSRFToken': '{{ csrf_token }}',  // CSRF token for security
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
         },
         body: JSON.stringify({
-            "name": templateName  // Send the data as JSON
+            "name": templateName
         })
     })
     .then(response => {
-        // Check if the response is valid JSON or if it's empty
         if (response.ok) {
-            return response.json();  // Attempt to parse JSON
+            return response.json();
         } else {
-            return response.text().then(text => { throw new Error(text); }); // Improved error handling
+            return response.text().then(text => { throw new Error(text); });
         }
     })
     .then(data => {
-        // Update the page with the success or error message
         document.getElementById('responseMessage').innerText = data.message || data.error;
     })
     .catch(error => {
-        document.getElementById('responseMessage').innerText = 'Error: ' + error.message; // Access error message properly
+        document.getElementById('responseMessage').innerText = 'Error: ' + error.message;
     });
     });
 </script>

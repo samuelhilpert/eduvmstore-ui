@@ -2,6 +2,7 @@ import requests
 import socket
 from django.views import generic
 
+ # Retrieve the host IP address
 def get_host_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -16,6 +17,8 @@ def get_host_ip():
 
 class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/admin/index.html'
+
+    # Add user details and admin status to the context.
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
