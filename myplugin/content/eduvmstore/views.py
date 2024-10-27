@@ -138,7 +138,7 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('index')  # Specify a success URL
+    success_url = reverse_lazy('')  # Specify a success URL
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
