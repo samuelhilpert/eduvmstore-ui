@@ -19,23 +19,30 @@
 {% block main %}
 
         {% csrf_token %}
-<div class="container">
-        <h1>Create Instance</h1>
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}">
-    {% csrf_token %}
-    <h1>{{ app_template.id }}</h1>
-    <label for="name">Instance Name:</label>
-    <input type="text" name="name" id="name" required><br><br>
+<  <form method="post" action="">
+        {% csrf_token %}
 
-    <label for="flavor_id">Select Flavor:</label>
-    <select name="flavor_id" id="flavor_id" required>
-        {% for flavor in flavors %}
-            <option value="{{ flavor.id }}">{{ flavor.name }}</option>
-        {% endfor %}
-    </select><br><br>
+        <div class="form-group">
+            <label for="app_template_id">{{ _("App Template ID") }}</label>
+            <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
+        </div>
 
-    <input type="hidden" name="app_template_id" value="{{ app_template.id }}">
+        <div class="form-group">
+            <label for="flavor_id">{{ _("Select Flavor") }}</label>
+            <select class="form-control" id="flavor_id" name="flavor_id" required>
+                <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+                {% for flavor_id, flavor_name in flavors.items %}
+                    <option value="{{ flavor_id }}">{{ flavor_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <button type="submit">Launch</button>
-</form>
+        <div class="form-group">
+            <label for="name">{{ _("Instance Name") }}</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('Enter instance name') }}" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">{{ _("Launch Instance") }}</button>
+        <a href="{% url 'index' %}" class="btn btn-secondary">{{ _("Cancel") }}</a>
+    </form>
 {% endblock %}

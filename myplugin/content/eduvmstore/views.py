@@ -4,6 +4,7 @@ import logging
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
+from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
@@ -137,21 +138,21 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('')  # Specify a success URL
+    success_url = reverse_lazy('/')  # Specify a success URL
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        token_id = request.GET.get('token_id')  # Retrieve token_id from POST data
-        if not token_id:
-            logging.error("Token ID is required but missing in the POST request.")
-            context = self.get_context_data()
-            context['error'] = _("Token ID is required but missing.")
-            return render(request, self.template_name, context)
+    #    token_id = request.GET.get('token_id')  # Retrieve token_id from POST data
+     #   if not token_id:
+     #       logging.error("Token ID is required but missing in the POST request.")
+     #       context = self.get_context_data()
+     #       context['error'] = _("Token ID is required but missing.")
+     #       return render(request, self.template_name, context)
 
-        headers = {"X-Auth-Token": token_id}
+     #   headers = {"X-Auth-Token": token_id}
 
         # Retrieve data from the request
         data = {
@@ -176,7 +177,7 @@ class CreateView(generic.TemplateView):
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
                 json=data,
-                headers=headers,
+           #     headers=headers,
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
@@ -210,65 +211,66 @@ class CreateView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return []
 
-class InstancesView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
+class InstanceView(generic.TemplateView):
+    template_name = 'eduvmstore_dashboard/eduvmstore/instance.html'
+    success_url = reverse_lazy('index')  # Redirect to the index page upon success
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        image_id = self.request.GET.get('image_id')
-        app_template_id = self.request.GET.get('app_template_id')
-
-        # Fetch available flavors
-        flavors = self.get_flavors()
-
-        # Populate the context with the form data, image, and app template IDs
-        context['form'] = InstanceForm()
-        context['image_id'] = image_id
-        context['app_template_id'] = app_template_id
-        context['flavors'] = [(flavor.id, flavor.name) for flavor in flavors]
-
-        return context
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+        token_id = request.GET.get('token_id')
+        app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
         flavor_id = request.POST.get('flavor_id')
-        app_template_id = request.POST.get('app_template_id')
-        token_id = request.GET.get('token_id')  # Ensure token ID is provided
+        instance_name = request.POST.get('name')
 
-        if not token_id:
-            logging.error("Token ID is missing in the request.")
-            return render(request, self.template_name, {'error': _("Token ID is required.")})
+        if not token_id or not app_template_id or not flavor_id:
+            logging.error("Token ID, App Template ID, and Flavor ID are required.")
+            context = self.get_context_data()
+            context['error'] = _("All fields are required.")
+            return render(request, self.template_name, context)
 
-        headers = {"X-Auth-Token": token_id}
-
-        # Corrected payload for instance creation
-        payload = {
+        # Prepare the payload for creating an instance
+        data = {
             'app_template_id': app_template_id,
-            'flavor_id': flavor_id
+            'flavor_id': flavor_id,
+            'name': instance_name,
         }
 
         try:
-            # Send POST request to backend API for instance creation
+            # Send the data to the backend to create an instance
             response = requests.post(
                 "http://localhost:8000/api/instances/launch/",
-                json=payload,
-                headers=headers,
+                json=data,
+                headers={"X-Auth-Token": token_id},
                 timeout=10
             )
-            response.raise_for_status()  # Ensure a successful response
-
-            # Redirect to the instances list or success page after creation
-            return redirect(reverse_lazy('instances_list'))
+            response.raise_for_status()  # Raise an error for bad responses
+            return redirect(self.success_url)  # Redirect to the success URL
         except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to create instance: {e}")
+            logging.error(f"Failed to launch instance: {e}")
             context = self.get_context_data()
-            context['error'] = _("Failed to create instance. Please try again.")
+            context['error'] = _("Failed to launch instance. Please try again.")
             return render(request, self.template_name, context)
 
-    def get_flavors(self):
-        """Fetch the flavors from OpenStack."""
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        token_id = self.request.GET.get('token_id')
+        app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
+
+        # Fetch available flavors from Nova
+        context['flavors'] = self.get_flavors()
+
+        # Include the app_template_id in the context
+        context['app_template_id'] = app_template_id
+        return context
+
+    def get_flavors(self, ):
+        """Fetch flavors from Nova to correlate instances."""
         try:
-            flavors, has_more_data = nova.flavor_list(self.request)
-            return flavors
-        except Exception as e:
-            logging.error(f"Unable to retrieve flavors: {e}")
-            return []
+            flavors = api.nova.flavor_list(self.request)
+            return {str(flavor.id): flavor.name for flavor in flavors}
+        except Exception:
+            exceptions.handle(self.request, ignore=True)
+            return {}
