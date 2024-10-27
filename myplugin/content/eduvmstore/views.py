@@ -127,7 +127,7 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('/')  # Redirect after successful creation
+    success_url = reverse_lazy('')  # Redirect after successful creation
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
@@ -150,7 +150,7 @@ class CreateView(generic.TemplateView):
 
         # Prepare the data to be sent to the API
         data = {
-            'creator_id': "12b3dfec-1cf0-4c8f-b136-7906b0f5dab5",  # Example creator ID
+            'creator_id': "d110ce1c-800a-484e-b973-4da16d62dcca",  # Example creator ID
             'image_id': image_id,
             'name': name,
             'description': description,
