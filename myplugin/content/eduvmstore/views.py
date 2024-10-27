@@ -212,7 +212,7 @@ class CreateView(generic.TemplateView):
             return []
 
 class InstancesView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/eduvmstore/instance.html'
+    template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
     success_url = reverse_lazy('index')  # Redirect to the index page upon success
 
     def get(self, request, *args, **kwargs):
