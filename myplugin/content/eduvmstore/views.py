@@ -55,9 +55,10 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        token_id = self.request.GET.get('token_id')
 
         # Fetch app templates from external database
-        app_templates = fetch_app_templates()
+        app_templates = fetch_app_templates(token_id)
 
         # Fetch image data from Glance
         glance_images = self.get_images_data()
@@ -98,8 +99,10 @@ class DetailsPageView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailsPageView, self).get_context_data(**kwargs)
-        app_template = self.get_app_template()
+        token_id = self.request.GET.get('token_id')
+        app_template = self.get_app_template(token_id)
         image_data = self.get_image_data(app_template['image_id'])
+
 
         context['app_template'] = app_template
         context['image_visibility'] = image_data.get('visibility', 'N/A')
