@@ -103,7 +103,13 @@
             <td>{{ template.short_description }}</td>
             <td>{{ template.version }}</td>
             <td>{{ template.size }} </td>
-            <td>{{ template.visibility }}</td>
+           <td>
+                {% if template.visibility %}
+                    Public
+                {% else %}
+                    Private
+                {% endif %}
+            </td>
               <td>
     <div class="btn-group">
         <!-- Link added to the Launch button -->
