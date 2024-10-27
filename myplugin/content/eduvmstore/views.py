@@ -145,6 +145,11 @@ class CreateView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request,token_id, *args, **kwargs):
+        token_id = request.GET.get('token_id') or request.POST.get('token_id')
+
+        if not token_id:
+             return render(request, self.template_name, {"error": _("Token ID is required.")})
+
         headers = {"X-Auth-Token": token_id}
 
         # Retrieve data from the request
