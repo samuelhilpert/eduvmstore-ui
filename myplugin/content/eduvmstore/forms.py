@@ -1,8 +1,9 @@
+# NOTE: AppTemplateForm in this file is not in use at the moment.
 from django import forms
 
 class AppTemplateForm(forms.Form):
     """
-        Form for creating an app template.
+        Form for creating an app template, but is not in use at the moment.
 
         :fields:
             - image: Upload field for an image file with specific accepted formats.
