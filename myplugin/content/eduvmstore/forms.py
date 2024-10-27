@@ -1,5 +1,7 @@
 from django import forms
 
+# Form for creating an app template in create.html
+
 class AppTemplateForm(forms.Form):
     image = forms.FileField(
         label='Upload Image',
@@ -38,7 +40,6 @@ class AppTemplateForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    # System Requirements
     min_ram = forms.IntegerField(
         label="Minimum RAM (GB)",
         required=False,
@@ -76,6 +77,7 @@ class AppTemplateForm(forms.Form):
         min_value=0
     )
 
+# Form for creating an instance in instances.html
 
 class InstanceForm(forms.Form):
     instance_name = forms.CharField(
