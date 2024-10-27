@@ -76,6 +76,7 @@
             </div>
         </div>
 
+        <!-- Comment because not really needed  -->
         <!--
         <h3>Network</h3>
         <div class="form-group">
@@ -90,8 +91,9 @@
 
 
     <script>
+    <!-- Function to Launch a Instance -->
         function createInstance() {
-            const appTemplateId = "{{ image_id }}"; // Assuming image_id is the app template ID
+            const appTemplateId = "{{ image_id }}";
             const flavorId = document.querySelector('select[name="select_flavor"]').value;
 
             const accounts = [
@@ -104,8 +106,6 @@
                 flavor_id: flavorId,
                 accounts: accounts
             };
-
-
 
             console.log('Payload:', payload);
 
@@ -120,11 +120,9 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log('Success:', data);
-                    // Handle the response data here
                 })
                 .catch((error) => {
                     console.error('Error:', error);
-                    // Handle the error here
                 });
 
 
@@ -146,7 +144,6 @@
             document.querySelector('input[name="root_disk"]').value = specs.root_disk;
         });
 
-        // Trigger change event on page load to set initial values
         document.querySelector('select[name="select_flavor"]').dispatchEvent(new Event('change'));
     </script>
 {% endblock %}

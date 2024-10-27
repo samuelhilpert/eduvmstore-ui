@@ -9,7 +9,7 @@ from scss.extension.compass.helpers import headers
 
 from myplugin.content.eduvmstore import tables
 
-# New Tab for displaying images
+
 class ImageTab(tabs.TableTab):
     name = _("Images Tab")
     slug = "images_tab"
@@ -20,13 +20,12 @@ class ImageTab(tabs.TableTab):
     def has_more_data(self, table):
         return self._has_more
 
-    # Extended function for fetching external API data
     def fetch_external_image_data(self):
         try:
             response = requests.get("http://localhost:8000/api/app-templates/", timeout=10)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.HTTPError as err:  # Fix the typo here
+        except requests.exceptions.HTTPError as err:
             print(f"Error fetching images: {err}")
             return []
         except requests.exceptions.RequestException as e:
@@ -82,7 +81,7 @@ class ImageTab(tabs.TableTab):
 # Tab group that includes both Instances and Images
 class MypanelTabs(tabs.TabGroup):
     slug = "mypanel_tabs"
-    tabs = (ImageTab, )  # Added the new ImageTab here
+    tabs = (ImageTab, )
     sticky = True
 
 

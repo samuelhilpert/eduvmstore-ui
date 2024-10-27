@@ -1,22 +1,26 @@
 EduVMStore
 ==========
 
-Dieses Repo beinhaltet das UI für den EduVMStore, welcher unter folgendem Link gefunden werden kann:
+This repo contains the UI for the EduVMStore, which can be found under the following link:
 https://github.com/samuelhilpert/eduvmstore.git
 
-Installationsguide
+Installation Guide
 ------------------
 
-1. Installiere DevStack.
-2. Gehe in den Ordner ``Devstack``.
-3. Öffne die Datei ``local.conf``.
-4. Füge folgende Zeile als erste Zeile hinzu:
+1. Install DevStack.
+
+2. Go to the ``Devstack`` folder.
+
+3. Open the file ``local.conf``.
+
+4. Add the following line as the first line:
    
    ``ENABLE_PLUGIN eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui main``
    
-5. Führe im Ordner ``Devstack`` den Befehl aus:
+5. Run the command in the ``Devstack`` folder:
 
    ``./stack.sh``
 
-6. Nach erfolgreicher Ausführung ist der EduVMStore in DevStack als neues Dashboard nach der Anmeldung sichtbar.
-7. Um auch das Backend auszuführen, bitte die Schritte aus dem Readme von https://github.com/samuelhilpert/eduvmstore.git ausführen
+6. After successful execution, the EduVMStore is visible in DevStack as a new dashboard after registration.
+
+7. To also run the backend, please follow the steps from the readme of https://github.com/samuelhilpert/eduvmstore.git

@@ -10,6 +10,7 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 
+# Retrieve the host IP address
 def get_host_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -22,10 +23,13 @@ def get_host_ip():
         s.close()
     return ip
 
-def fetch_app_templates(request):
-    headers = {"X-Auth-Token": request.user.token.id}
+
+# Fetch app templates from database
+def fetch_app_templates(token_id):
+    headers = {"X-Auth-Token": token_id}
+
     try:
-        response = requests.get("http://localhost:8000/api/app-templates/", headers=headers, timeout=10)
+        response = requests.get("http://192.168.64.1:8000/api/app-templates/", headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -55,9 +59,14 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
+        token_id = None
+
+        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
+            token_id = self.request.user.token.id
 
         # Fetch app templates from external database
-        app_templates = fetch_app_templates()
+        app_templates = fetch_app_templates(token_id)
 
         # Fetch image data from Glance
         glance_images = self.get_images_data()
@@ -76,6 +85,7 @@ class IndexView(generic.TemplateView):
         context['app_templates'] = app_templates
         return context
 
+# Fetch image details from Glance using REST API
 def get_image_details_via_rest(request, image_id):
     headers = {"X-Auth-Token": request.user.token.id}
     try:
@@ -95,6 +105,7 @@ class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
     page_title = "{{ app_template.name }}"
 
+    # Fetch the app template and image details
     def get_context_data(self, **kwargs):
         context = super(DetailsPageView, self).get_context_data(**kwargs)
         app_template = self.get_app_template()
@@ -122,7 +133,8 @@ class DetailsPageView(generic.TemplateView):
             return {}
 
     def get_image_data(self, image_id):
-        """Fetch image details from Glance based on the image_id."""
+
+        # Fetch image details from Glance based on the image_id
         try:
             image = glance.image_get(self.request, image_id)
             return {'visibility': image.visibility, 'owner': image.owner}
@@ -190,6 +202,7 @@ class CreateView(generic.TemplateView):
             context['error'] = _("Failed to create app template. Please try again.")
             return render(request, self.template_name, context)
 
+    # Add the form to the context
     def get_context_data(self, **kwargs):
         context = {}
         # Fetch the available images
@@ -212,6 +225,7 @@ class CreateView(generic.TemplateView):
 class InstancesView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
 
+    # Add the form to the context
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = InstanceForm()
