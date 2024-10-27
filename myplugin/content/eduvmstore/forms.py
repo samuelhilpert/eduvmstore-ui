@@ -25,6 +25,13 @@ class AppTemplateForm(forms.Form):
         required=True,
         widget=forms.ClearableFileInput(attrs={'accept': '.raw,.qcow2,.vhd,.vhdx,.vmdk,.iso,.vdi,.ova,.ami'})
     )
+    image_id = forms.ChoiceField(
+        choices=[],
+        required=True,
+        label = "Choose existing Images",
+        widget = forms.Select(attrs={'class': 'form-control'})
+    )
+
     script = forms.FileField(
         label='Upload Script',
         required=False,
@@ -45,49 +52,51 @@ class AppTemplateForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    notice = forms.CharField(
+    instantiation_notice = forms.CharField(
         label="Notice",
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    visibility = forms.ChoiceField(
+    public = forms.ChoiceField(
         choices=[('public', 'Public'), ('private', 'Private')],
         label="Visibility",
         required=True,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    min_ram = forms.IntegerField(
+
+    # System Requirements
+    fixed_ram_gb = forms.IntegerField(
         label="Minimum RAM (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    min_disk = forms.IntegerField(
+    fixed_disk_gb = forms.IntegerField(
         label="Minimum Disk (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    min_cores = forms.IntegerField(
+    fixed_cores = forms.IntegerField(
         label="Minimum Cores",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    res_per_user_ram = forms.IntegerField(
+    per_user_ram_gb = forms.IntegerField(
         label="Minimum RAM per User (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    res_per_user_disk = forms.IntegerField(
+    per_user_disk_gb = forms.IntegerField(
         label="Minimum Disk per User (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         min_value=0
     )
-    res_per_user_cores = forms.IntegerField(
+    per_user_cores = forms.IntegerField(
         label="Minimum Cores per User",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),

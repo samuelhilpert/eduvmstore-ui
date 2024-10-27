@@ -2,7 +2,6 @@
 {% load static %}
 {% block title %}Create App-Template{% endblock %}
 
-
 {% block page_header %}
     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
@@ -15,30 +14,127 @@
 {% endblock %}
 
 {% block main %}
-    <form method="post">
+<style>
+    .form-container {
+        margin: auto;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #495057;
+        font-size: small;
+    }
+    .form-control, .select-box {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #333;
+    }
+.select-box {
+        appearance: none;
+        background-color: #fff;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px 16px;
+        height: 35px;
+        line-height: 1.5;
+        padding-right: 25px;
+        text-align: start;
+        -ms-text-justify: auto;
+    }
+    .select-box:focus, .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    .btn {
+        padding: 10px 20px;
+        font-size: 12px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        color: white;
+    }
+    .btn-primary {
+        background-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+    .form-check-input {
+        margin-left: 10px;
+    }
+</style>
 
-        <h3>App-Template details</h3>
+<div class="form-container">
+    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}">
+        {% csrf_token %}
+
+        <h3>App-Template Details</h3>
         <div class="form-group row">
             <div class="col-md-4">
-                {{ form.image.label_tag }}
-                {{ form.image }}
+                <label for="image_id">Select Image:</label>
+                <select name="image_id" id="image_id" class="form-control select-box" required>
+                    {% for image in images %}
+                        <option value="{{ image.0 }}">{{ image.1 }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="col-md-4">
-                {{ form.script.label_tag }}
-                {{ form.script }}
+                <label for="script">Script:</label>
+                <input type="text" id="script" name="script" class="form-control">
             </div>
-            <div class="col-md-4 d-flex justify-content-end align-items-end">
-                <button type="button" class="btn btn-primary ms-auto" onclick="openModal()">Write Script</button>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
             </div>
         </div>
 
-
         <!-- Modal for script input -->
-        <div id="scriptModal" class="modal" style="display: none;">
+        <div id="scriptModal" class="modal mt-5">
             <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" onclick="closeModal()">×</span>
                 <h5>Write Script</h5>
-                <textarea id="scriptText" class="form-control mb-5" rows="10"></textarea>
+                <textarea id="scriptText" class="form-control " rows="10"></textarea>
                 <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
             </div>
         </div>
@@ -46,134 +142,104 @@
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="script_text" />
 
-        <!-- Rest of the form -->
         <div class="form-group row">
             <div class="col-md-6">
-                {{ form.name.label_tag }}
-                {{ form.name }}
+                <label for="name">App-Template Name:</label>
+                <input type="text" id="name" name="name" class="form-control" required>
             </div>
             <div class="col-md-6">
-                {{ form.short_description.label_tag }}
-                {{ form.short_description }}
+                <label for="short_description">Short Description:</label>
+                <input type="text" id="short_description" name="short_description" class="form-control" required>
             </div>
         </div>
         <div class="form-group">
-            {{ form.description.label_tag }}
-            {{ form.description }}
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control" required></textarea>
         </div>
         <div class="form-group">
-            {{ form.notice.label_tag }}
-            {{ form.notice }}
+            <label for="instantiation_notice">Instantiation Notice:</label>
+            <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required></textarea>
         </div>
-        <div class="form-group">
-            {{ form.visibility.label_tag }}
-            {{ form.visibility }}
+
+
+       <div class="form-group row">
+            <div class="col-md-4">
+                <label for="version">Version:</label>
+                 <input type="text" id="version" name="version" class="form-control">
+            </div>
+        <div class="col-md-4">
+            <label for="public">Visibility:</label>
+            <select name="public" id="public" class="form-control select-box" required>
+                <option value="True">Public</option>
+                <option value="False">Private</option>
+            </select>
+        </div>
+
         </div>
 
         <h3>System Requirements</h3>
         <div class="row">
             <div class="col-md-6">
-                <h4>Minimum Resources</h4>
-                <div class="form-group">
-                    {{ form.min_ram.label_tag }}
-                    {{ form.min_ram }}
+                <h4>Fixed Resources</h4>
+                <div class="form-group mt-5">
+                    <label for="fixed_ram_gb">Fixed RAM (GB):</label>
+                    <input type="number" id="fixed_ram_gb" name="fixed_ram_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    {{ form.min_disk.label_tag }}
-                    {{ form.min_disk }}
+                    <label for="fixed_disk_gb">Fixed Disk (GB):</label>
+                    <input type="number" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    {{ form.min_cores.label_tag }}
-                    {{ form.min_cores }}
+                    <label for="fixed_cores">Fixed Cores:</label>
+                    <input type="number" id="fixed_cores" name="fixed_cores" class="form-control" required>
                 </div>
             </div>
             <div class="col-md-6">
                 <h4>Resources per User</h4>
-                <div class="form-group">
-                    {{ form.res_per_user_ram.label_tag }}
-                    {{ form.res_per_user_ram }}
+                <div class="form-group mt-5">
+                    <label for="per_user_ram_gb">Per User RAM (GB):</label>
+                    <input type="number" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    {{ form.res_per_user_disk.label_tag }}
-                    {{ form.res_per_user_disk }}
+                    <label for="per_user_disk_gb">Per User Disk (GB):</label>
+                    <input type="number" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    {{ form.res_per_user_cores.label_tag }}
-                    {{ form.res_per_user_cores }}
+                    <label for="per_user_cores">Per User Cores:</label>
+                    <input type="number" id="per_user_cores" name="per_user_cores" class="form-control" required>
                 </div>
             </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Create</button>
-
     </form>
+</div>
 
-    <!-- Custom CSS for Modal -->
-    <style>
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
+<!-- JavaScript to handle modal -->
+<script>
+    function openModal() {
+        document.getElementById('scriptModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('scriptModal').style.display = 'none';
+    }
+
+    function saveScript() {
+        // Get the script text from the textarea
+        var scriptText = document.getElementById('scriptText').value;
+        // Store it in the hidden input field
+        document.getElementById('hiddenScriptField').value = scriptText;
+        // Close the modal
+        closeModal();
+    }
+
+    // Close the modal if the user clicks anywhere outside of it
+    window.onclick = function(event) {
+        var modal = document.getElementById('scriptModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
         }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    </style>
-
-    <!-- JavaScript to handle modal -->
-    <script>
-        function openModal() {
-            document.getElementById('scriptModal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('scriptModal').style.display = 'none';
-        }
-
-        function saveScript() {
-            // Get the script text from the textarea
-            var scriptText = document.getElementById('scriptText').value;
-            // Store it in the hidden input field
-            document.getElementById('hiddenScriptField').value = scriptText;
-            // Close the modal
-            closeModal();
-        }
-
-        // Close the modal if the user clicks anywhere outside of it
-        window.onclick = function(event) {
-            var modal = document.getElementById('scriptModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
-
+    }
+</script>
 {% endblock %}

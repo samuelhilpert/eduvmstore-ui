@@ -102,7 +102,13 @@
             <td>{{ template.short_description }}</td>
             <td>{{ template.version }}</td>
             <td>{{ template.size }} </td>
-            <td>{{ template.visibility }}</td>
+           <td>
+                {% if template.visibility %}
+                    Public
+                {% else %}
+                    Private
+                {% endif %}
+            </td>
               <td>
     <div class="btn-group">
                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
