@@ -61,7 +61,8 @@ class ImageTab(tabs.TableTab):
         """
         Retrieve and merge images from the Glance API with data from the external API.
 
-        :return: A list of merged image data dictionaries, including details from both Glance and the database.
+        :return: A list of merged image data dictionaries, including details
+                 from both Glance and the database.
         :rtype: list[dict]
         """
         try:

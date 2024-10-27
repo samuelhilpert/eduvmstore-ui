@@ -30,7 +30,8 @@ class IndexView(generic.TemplateView):
         """
             Fetch app templates from the backend API.
 
-            :return: A list of app template data dictionaries if the request is successful, otherwise an empty list.
+            :return: A list of app template data dictionaries if the request is successful,
+                     otherwise an empty list.
             :rtype: list[dict]
         """
         try:
@@ -53,7 +54,8 @@ class IndexView(generic.TemplateView):
             :param HttpRequest request: The incoming HTTP POST request.
             :param args: Additional positional arguments.
             :param kwargs: Additional keyword arguments.
-            :return: JsonResponse with success message if successful, or an error message if a request error occurs.
+            :return: JsonResponse with success message if successful, or an error message
+                    if a request error occurs.
             :rtype: Json
         """
         try:
