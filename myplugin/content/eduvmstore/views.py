@@ -156,7 +156,7 @@ class CreateView(generic.TemplateView):
 
         # Retrieve data from the request
         data = {
-            'creator_id': "d110ce1c-800a-484e-b973-4da16d62dcca",  # Example creator ID
+            'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",  # Example creator ID
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
