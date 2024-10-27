@@ -18,132 +18,34 @@
 
 {% block main %}
 
-    <div>
         {% csrf_token %}
+<div class="container">
+        <h1>Create Instance</h1>
+        <form method="POST" action="">
+            {% csrf_token %}
 
-        <div class="form-group">
-            {{ form.instance_name.label_tag }}
-            {{ form.instance_name }}
-        </div>
+            <!-- Hidden fields for image and app template IDs -->
+            <input type="hidden" name="image_id" value="{{ image_id }}">
+            <input type="hidden" name="app_template_id" value="{{ app_template_id }}">
 
-        <div class="form-group">
-            <div class="row">
-                <div class="col-md-4">
-                    {{ form.add_user.label_tag }}
-                    {{ form.add_user }}
-                </div>
-                <div class="col-md-4">
-                    {{ form.file.label_tag }}
-                    {{ form.file }}
-                </div>
-                <div class="col-md-4">
-                    {{ form.no_additional_user.label_tag }}
-                    {{ form.no_additional_user }}
-                </div>
+            <!-- Input for instance name -->
+            <div class="form-group">
+                <label for="name">Instance Name</label>
+                <input type="text" name="name" id="name" class="form-control" required>
             </div>
-        </div>
 
-        <h3>Manage Sizing</h3>
-        <div class="form-group">
-            {{ form.select_flavor.label_tag }}
-            {{ form.select_flavor }}
-        </div>
+            <!-- Dropdown for selecting a flavor -->
+            <div class="form-group">
+                <label for="flavor_id">Flavor</label>
+                <select name="flavor_id" id="flavor_id" class="form-control" required>
+                    <option value="">Select a flavor</option>
+                    {% for flavor in flavors %}
+                        <option value="{{ flavor.0 }}">{{ flavor.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form.ram.label_tag }}
-                    {{ form.ram }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form.disk.label_tag }}
-                    {{ form.disk }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form.cores.label_tag }}
-                    {{ form.cores }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form.root_disk.label_tag }}
-                    {{ form.root_disk }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Comment because not really needed  -->
-        <!--
-        <h3>Network</h3>
-        <div class="form-group">
-            {{ form.network.label_tag }}
-            {{ form.network }}
-        </div>
-        -->
-
-        <button type="button" class="btn btn-primary" onclick="createInstance()">Create</button>
-        <button type="button" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">Launch Instance</button>
+        </form>
     </div>
-
-
-    <script>
-    <!-- Function to Launch a Instance -->
-        function createInstance() {
-            const appTemplateId = "{{ image_id }}";
-            const flavorId = document.querySelector('select[name="select_flavor"]').value;
-
-            const accounts = [
-                { username: "student1", password: "1234" },
-                { username: "student2", password: "5678" }
-            ];
-
-            const payload = {
-                app_template_id: appTemplateId,
-                flavor_id: flavorId,
-                accounts: accounts
-            };
-
-            console.log('Payload:', payload);
-
-            fetch('http://localhost:8000/api/instances/launch/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify(payload)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-
-
-        }
-
-        const flavorSpecs = {
-            'small': { ram: '2', disk: '20', cores: '2', root_disk: '10' },
-            'medium': { ram: '4', disk: '40', cores: '4', root_disk: '20' },
-            'large': { ram: '8', disk: '80', cores: '8', root_disk: '40' }
-        };
-
-        document.querySelector('select[name="select_flavor"]').addEventListener('change', function() {
-            const selectedFlavor = this.value;
-            const specs = flavorSpecs[selectedFlavor];
-
-            document.querySelector('input[name="ram"]').value = specs.ram;
-            document.querySelector('input[name="disk"]').value = specs.disk;
-            document.querySelector('input[name="cores"]').value = specs.cores;
-            document.querySelector('input[name="root_disk"]').value = specs.root_disk;
-        });
-
-        document.querySelector('select[name="select_flavor"]').dispatchEvent(new Event('change'));
-    </script>
 {% endblock %}

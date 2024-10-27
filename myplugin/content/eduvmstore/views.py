@@ -4,7 +4,7 @@ import logging
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
-from openstack_dashboard.api import glance
+from openstack_dashboard.api import glance, nova
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -215,11 +215,60 @@ class InstancesView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = InstanceForm()
-
         image_id = self.request.GET.get('image_id')
-        if image_id:
-            context['image_id'] = image_id
+        app_template_id = self.request.GET.get('app_template_id')
+
+        # Fetch available flavors
+        flavors = self.get_flavors()
+
+        # Populate the context with the form data, image, and app template IDs
+        context['form'] = InstanceForm()
+        context['image_id'] = image_id
+        context['app_template_id'] = app_template_id
+        context['flavors'] = [(flavor.id, flavor.name) for flavor in flavors]
 
         return context
 
+    def post(self, request, *args, **kwargs):
+        flavor_id = request.POST.get('flavor_id')
+        app_template_id = request.POST.get('app_template_id')
+        token_id = request.GET.get('token_id')  # Ensure token ID is provided
+
+        if not token_id:
+            logging.error("Token ID is missing in the request.")
+            return render(request, self.template_name, {'error': _("Token ID is required.")})
+
+        headers = {"X-Auth-Token": token_id}
+
+        # Corrected payload for instance creation
+        payload = {
+            'app_template_id': app_template_id,
+            'flavor_id': flavor_id
+        }
+
+        try:
+            # Send POST request to backend API for instance creation
+            response = requests.post(
+                "http://localhost:8000/api/instances/launch/",
+                json=payload,
+                headers=headers,
+                timeout=10
+            )
+            response.raise_for_status()  # Ensure a successful response
+
+            # Redirect to the instances list or success page after creation
+            return redirect(reverse_lazy('instances_list'))
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Failed to create instance: {e}")
+            context = self.get_context_data()
+            context['error'] = _("Failed to create instance. Please try again.")
+            return render(request, self.template_name, context)
+
+    def get_flavors(self):
+        """Fetch the flavors from OpenStack."""
+        try:
+            flavors, has_more_data = nova.flavor_list(self.request)
+            return flavors
+        except Exception as e:
+            logging.error(f"Unable to retrieve flavors: {e}")
+            return []
