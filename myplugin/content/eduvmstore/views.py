@@ -211,7 +211,7 @@ class CreateView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return []
 
-class InstanceView(generic.TemplateView):
+class InstancesView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/instance.html'
     success_url = reverse_lazy('index')  # Redirect to the index page upon success
 
