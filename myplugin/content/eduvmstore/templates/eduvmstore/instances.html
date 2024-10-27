@@ -21,31 +21,20 @@
         {% csrf_token %}
 <div class="container">
         <h1>Create Instance</h1>
-        <form method="POST" action="">
-            {% csrf_token %}
+    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' %}">
+    {% csrf_token %}
+    <label for="name">Instance Name:</label>
+    <input type="text" name="name" id="name" required><br><br>
 
-            <!-- Hidden fields for image and app template IDs -->
-            <input type="hidden" name="image_id" value="{{ image_id }}">
-            <input type="hidden" name="app_template_id" value="{{ app_template_id }}">
+    <label for="flavor_id">Select Flavor:</label>
+    <select name="flavor_id" id="flavor_id" required>
+        {% for flavor in flavors %}
+            <option value="{{ flavor.id }}">{{ flavor.name }}</option>
+        {% endfor %}
+    </select><br><br>
 
-            <!-- Input for instance name -->
-            <div class="form-group">
-                <label for="name">Instance Name</label>
-                <input type="text" name="name" id="name" class="form-control" required>
-            </div>
+    <input type="hidden" name="app_template_id" value="{{ app_template_id }}">
 
-            <!-- Dropdown for selecting a flavor -->
-            <div class="form-group">
-                <label for="flavor_id">Flavor</label>
-                <select name="flavor_id" id="flavor_id" class="form-control" required>
-                    <option value="">Select a flavor</option>
-                    {% for flavor in flavors %}
-                        <option value="{{ flavor.0 }}">{{ flavor.1 }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Launch Instance</button>
-        </form>
-    </div>
+    <button type="submit">Launch</button>
+</form>
 {% endblock %}
