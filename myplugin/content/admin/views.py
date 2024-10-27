@@ -4,6 +4,12 @@ from django.views import generic
 
  # Retrieve the host IP address
 def get_host_ip():
+    """
+        Retrieve the IP address of the host.
+
+        :return: The IP address of the host.
+        :rtype: str
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
 
@@ -16,11 +22,19 @@ def get_host_ip():
     return ip
 
 class IndexView(generic.TemplateView):
+    """
+        View for displaying the admin index page with user details and admin status.
+    """
     template_name = 'eduvmstore_dashboard/admin/index.html'
 
-    # Add user details and admin status to the context.
-
     def get_context_data(self, **kwargs):
+        """
+            Add user details, authentication token, and admin status to the context.
+
+            :param kwargs: Additional context parameters.
+            :return: Context dictionary with user-specific details and content visibility.
+            :rtype: dict
+        """
         context = super().get_context_data(**kwargs)
         user = self.request.user
         token_id = None

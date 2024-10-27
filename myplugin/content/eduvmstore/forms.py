@@ -1,8 +1,25 @@
+# NOTE: AppTemplateForm in this file is not in use at the moment.
 from django import forms
 
-# Form for creating an app template in create.html
-
 class AppTemplateForm(forms.Form):
+    """
+        Form for creating an app template, but is not in use at the moment.
+
+        :fields:
+            - image: Upload field for an image file with specific accepted formats.
+            - script: Optional upload field for a script file with accepted formats.
+            - name: Text input for the template name.
+            - short_description: Text input for a short description of the template.
+            - description: Text input for a detailed description of the template.
+            - notice: Optional text input for additional notices.
+            - visibility: Dropdown for setting template visibility (public or private).
+            - min_ram: Optional number input for specifying minimum RAM in GB.
+            - min_disk: Optional number input for specifying minimum disk space in GB.
+            - min_cores: Optional number input for specifying minimum CPU cores.
+            - res_per_user_ram: Optional number input for RAM allocated per user.
+            - res_per_user_disk: Optional number input for disk space allocated per user.
+            - res_per_user_cores: Optional number input for CPU cores allocated per user.
+    """
     image = forms.FileField(
         label='Upload Image',
         required=True,
@@ -86,9 +103,23 @@ class AppTemplateForm(forms.Form):
         min_value=0
     )
 
-# Form for creating an instance in instances.html
 
 class InstanceForm(forms.Form):
+    """
+        Form for creating an instance.
+
+        :fields:
+            - instance_name: Required text input for the instance name.
+            - add_user: Optional text input for adding a user with an optional password.
+            - file: Optional file upload field accepting CSV and text files.
+            - no_additional_user: Checkbox to indicate no additional user should be added.
+            - select_flavor: Dropdown for selecting instance size (flavor).
+            - ram: Display-only text field showing RAM allocation.
+            - disk: Display-only text field showing disk allocation.
+            - cores: Display-only text field showing CPU cores allocation.
+            - root_disk: Display-only text field showing root disk size.
+            - network: Required text input for specifying the network.
+    """
     instance_name = forms.CharField(
         label='Instance Name',
         required=True,
