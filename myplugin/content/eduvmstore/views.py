@@ -145,14 +145,14 @@ class CreateView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        token_id = request.GET.get('token_id')  # Retrieve token_id from POST data
-        if not token_id:
-            logging.error("Token ID is required but missing in the POST request.")
-            context = self.get_context_data()
-            context['error'] = _("Token ID is required but missing.")
-            return render(request, self.template_name, context)
+       # token_id = request.GET.get('token_id')  # Retrieve token_id from POST data
+      #  if not token_id:
+      #      logging.error("Token ID is required but missing in the POST request.")
+      #      context = self.get_context_data()
+      #      context['error'] = _("Token ID is required but missing.")
+      #      return render(request, self.template_name, context)
 
-        headers = {"X-Auth-Token": token_id}
+       # headers = {"X-Auth-Token": token_id}
 
         # Retrieve data from the request
         data = {
@@ -177,7 +177,7 @@ class CreateView(generic.TemplateView):
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
                 json=data,
-                headers=headers,
+              #  headers=headers,
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
