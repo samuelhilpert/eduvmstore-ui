@@ -1,11 +1,9 @@
 import requests
-
 import socket
 import logging
 
 from django.shortcuts import render
 from horizon import tabs, exceptions
-
 from openstack_dashboard.api import glance
 from django.views import generic
 from myplugin.content.eduvmstore import tabs as edu_tabs
@@ -13,11 +11,15 @@ from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 
 from django.utils.translation import gettext_lazy as _
 
-# Retrieve the host IP address
 def get_host_ip():
+    """
+    Retrieve the host IP address.
+
+    :return: The IP address of the host.
+    :rtype: str
+    """
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
     except Exception as e:
@@ -27,10 +29,15 @@ def get_host_ip():
     return ip
 
 
-# Fetch app templates from database
 def fetch_app_templates(token_id):
-    headers = {"X-Auth-Token": token_id}
+    """
+    Fetch app templates from database.
 
+    :param str token_id: The Keystone authentication token.
+    :return: A list of app templates.
+    :rtype: list[dict]
+    """
+    headers = {"X-Auth-Token": token_id}
     try:
         response = requests.get("http://192.168.64.1:8000/api/app-templates/", headers=headers, timeout=10)
         response.raise_for_status()
@@ -41,26 +48,37 @@ def fetch_app_templates(token_id):
 
 
 class IndexView(generic.TemplateView):
+    """
+    View to display the main dashboard index page.
+    """
+
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
     def get_images_data(self):
-        """Fetch the images from the Glance API using the Horizon API."""
-        try:
-            filters = {}  # Add any filters if needed
-            marker = self.request.GET.get('marker', None)
+        """
+        Retrieve images from the Glance service using the Horizon API.
 
-            # Use glance.image_list_detailed from Horizon API
+        :return: A dictionary of image data mapped by image ID.
+        :rtype: dict
+        """
+        try:
+            filters = {}
+            marker = self.request.GET.get('marker', None)
             images, has_more_data, has_prev_data = glance.image_list_detailed(
                 self.request, filters=filters, marker=marker, paginate=True
             )
-
-            # Return images and pagination details
             return {image.id: image for image in images}
         except Exception as e:
             logging.error(f"Unable to retrieve images: {e}")
             return {}
 
     def get_context_data(self, **kwargs):
+        """
+        Populate the context with app template and image data.
+
+        :return: Context dictionary with app templates and image details.
+        :rtype: dict
+        """
         context = super().get_context_data(**kwargs)
         user = self.request.user
         token_id = None
@@ -68,13 +86,10 @@ class IndexView(generic.TemplateView):
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
-        # Fetch app templates from external database
         app_templates = fetch_app_templates(token_id)
 
-        # Fetch image data from Glance
         glance_images = self.get_images_data()
 
-        # Combine app template data with corresponding Glance image data
         for template in app_templates:
             image_id = template.get('image_id')
             glance_image = glance_images.get(image_id)
@@ -88,8 +103,15 @@ class IndexView(generic.TemplateView):
         context['app_templates'] = app_templates
         return context
 
-# Fetch image details from Glance using REST API
+
 def get_image_details_via_rest(request, image_id):
+    """
+    Retrieve image details from Glance using a REST API call.
+
+    :param str image_id: The ID of the image to retrieve.
+    :return: JSON response containing image details if successful, else None.
+    :rtype: dict or None
+    """
     headers = {"X-Auth-Token": request.user.token.id}
     try:
         response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}",
@@ -105,12 +127,21 @@ def get_image_details_via_rest(request, image_id):
 
 
 class DetailsPageView(generic.TemplateView):
+    """
+    View to display details for a specific app template and its image.
+    """
+
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
     page_title = "{{ app_template.name }}"
 
-    # Fetch the app template and image details
     def get_context_data(self, **kwargs):
-        context = super(DetailsPageView, self).get_context_data(**kwargs)
+        """
+        Populate context with app template and image details.
+
+        :return: Context dictionary containing app template and image information.
+        :rtype: dict
+        """
+        context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
         image_data = self.get_image_data(app_template['image_id'])
 
@@ -120,9 +151,15 @@ class DetailsPageView(generic.TemplateView):
         return context
 
     def get_app_template(self):
-        # Fetch the app template from the  database
+        """
+        Retrieve a specific app template based on its ID.
+
+        :param str template_id: The ID of the app template, obtained from the URL parameters.
+        :return: JSON response with app template data if successful, else an empty dict.
+        :rtype: dict
+        """
         try:
-            app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
+            app_template_id = self.kwargs['template_id']
             response = requests.get(f"http://localhost:8000/api/app-templates/{app_template_id}", timeout=10)
             response.raise_for_status()
             return response.json()
@@ -131,8 +168,13 @@ class DetailsPageView(generic.TemplateView):
             return {}
 
     def get_image_data(self, image_id):
+        """
+        Retrieve image details from Glance based on the image ID.
 
-        # Fetch image details from Glance based on the image_id
+        :param str image_id: The ID of the image to retrieve.
+        :return: Dictionary with image visibility and owner.
+        :rtype: dict
+        """
         try:
             image = glance.image_get(self.request, image_id)
             return {'visibility': image.visibility, 'owner': image.owner}
@@ -142,19 +184,38 @@ class DetailsPageView(generic.TemplateView):
 
 
 class CreateView(generic.TemplateView):
+    """
+    View to display the form for creating a new app template.
+    """
+
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
 
-    # Add the form to the context
     def get_context_data(self, **kwargs):
+        """
+        Add the app template form to the context.
+
+        :return: Context dictionary with the app template form.
+        :rtype: dict
+        """
         context = super().get_context_data(**kwargs)
         context['form'] = AppTemplateForm()
         return context
 
+
 class InstancesView(generic.TemplateView):
+    """
+    View to display the instance creation form.
+    """
+
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
 
-    # Add the form to the context
     def get_context_data(self, **kwargs):
+        """
+        Add the instance form and the image ID to the context.
+
+        :return: Context dictionary with the instance form and image ID.
+        :rtype: dict
+        """
         context = super().get_context_data(**kwargs)
         context['form'] = InstanceForm()
 
