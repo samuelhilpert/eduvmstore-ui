@@ -138,52 +138,39 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('')  # Redirect after successful creation
+    success_url = reverse_lazy('')  # Specify a success URL
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
-    def post(self, request,token_id, *args, **kwargs):
-        token_id = request.GET.get('token_id') or request.POST.get('token_id')
-
+    def post(self, request, *args, **kwargs):
+        token_id = request.POST.get('token_id')  # Retrieve token_id from POST data
         if not token_id:
-             return render(request, self.template_name, {"error": _("Token ID is required.")})
+            logging.error("Token ID is required but missing in the POST request.")
+            context = self.get_context_data()
+            context['error'] = _("Token ID is required but missing.")
+            return render(request, self.template_name, context)
 
         headers = {"X-Auth-Token": token_id}
 
         # Retrieve data from the request
-        image_id = request.POST.get('image_id')
-        name = request.POST.get('name')
-        short_description = request.POST.get('short_description')
-        description = request.POST.get('description')
-        instantiation_notice = request.POST.get('instantiation_notice')
-        public = request.POST.get('public')
-        version = request.POST.get('version')
-        fixed_ram_gb = request.POST.get('fixed_ram_gb')
-        fixed_disk_gb = request.POST.get('fixed_disk_gb')
-        fixed_cores = request.POST.get('fixed_cores')
-        per_user_ram_gb = request.POST.get('per_user_ram_gb')
-        per_user_disk_gb = request.POST.get('per_user_disk_gb')
-        per_user_cores = request.POST.get('per_user_cores')
-
-        # Prepare the data to be sent to the API
         data = {
-            'creator_id': "d110ce1c-800a-484e-b973-4da16d62dcca", # Example creator ID
-            'image_id': image_id,
-            'name': name,
-            'description': description,
-            'short_description': short_description,
-            'instantiation_notice': instantiation_notice,
-            'public': public,
-            'version' : version,
+            'creator_id': "d110ce1c-800a-484e-b973-4da16d62dcca",  # Example creator ID
+            'image_id': request.POST.get('image_id'),
+            'name': request.POST.get('name'),
+            'description': request.POST.get('description'),
+            'short_description': request.POST.get('short_description'),
+            'instantiation_notice': request.POST.get('instantiation_notice'),
+            'public': request.POST.get('public'),
+            'version': request.POST.get('version'),
             'approved': False,
-            'fixed_ram_gb': fixed_ram_gb,
-            'fixed_disk_gb': fixed_disk_gb,
-            'fixed_cores': fixed_cores,
-            'per_user_ram_gb': per_user_ram_gb,
-            'per_user_disk_gb': per_user_disk_gb,
-            'per_user_cores': per_user_cores,
+            'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
+            'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
+            'fixed_cores': request.POST.get('fixed_cores'),
+            'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
+            'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
+            'per_user_cores': request.POST.get('per_user_cores'),
         }
 
         try:
