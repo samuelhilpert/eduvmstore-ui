@@ -1,4 +1,4 @@
-from xml.sax.handler import version
+
 import requests
 import socket
 import logging
