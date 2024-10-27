@@ -80,7 +80,7 @@ class IndexView(generic.TemplateView):
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        user = self.request.user
+        #user = self.request.user
         token_id = None
 
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
