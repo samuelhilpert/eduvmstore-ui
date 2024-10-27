@@ -47,6 +47,7 @@ class IndexView(generic.TemplateView):
         context['auth_token'] = token_id
         context['admin'] = user.is_superuser
         context['show_content'] = False
+        context['user_id'] = user.id
 
         if user.is_superuser:
             context['show_content'] = True
