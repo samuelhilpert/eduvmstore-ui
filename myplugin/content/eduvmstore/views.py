@@ -22,8 +22,8 @@ def get_host_ip():
         s.close()
     return ip
 
-def fetch_app_templates(request):
-    headers = {"X-Auth-Token": request.user.token.id}
+def fetch_app_templates(token_id):
+    headers = {"X-Auth-Token": token_id}
     try:
         response = requests.get("http://localhost:8000/api/app-templates/", headers=headers, timeout=10)
         response.raise_for_status()
@@ -76,8 +76,9 @@ class IndexView(generic.TemplateView):
         context['app_templates'] = app_templates
         return context
 
-def get_image_details_via_rest(request, image_id):
-    headers = {"X-Auth-Token": request.user.token.id}
+def get_image_details_via_rest(token_id, image_id):
+    headers = {"X-Auth-Token": token_id}
+
     try:
         response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}",
                                 headers=headers, timeout=10)
@@ -105,8 +106,9 @@ class DetailsPageView(generic.TemplateView):
         context['image_owner'] = image_data.get('owner', 'N/A')
         return context
 
-    def get_app_template(self,request):
-        headers = {"X-Auth-Token": request.user.token.id}
+    def get_app_template(self,token_id):
+        headers = {"X-Auth-Token": token_id}
+
         """Fetch the app template from the external database."""
         try:
             app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
@@ -139,8 +141,9 @@ class CreateView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
-    def post(self, request, *args, **kwargs):
-        headers = {"X-Auth-Token": request.user.token.id}
+    def post(self, request,token_id, *args, **kwargs):
+        headers = {"X-Auth-Token": token_id}
+
         # Retrieve data from the request
         image_id = request.POST.get('image_id')
         name = request.POST.get('name')
@@ -203,7 +206,11 @@ class CreateView(generic.TemplateView):
         """Fetch the images from the Glance API using the Horizon API."""
         try:
             filters = {}
-            images, has_more_data, has_prev_data = glance.image_list_detailed(self.request, filters=filters, paginate=True)
+            images, has_more_data, has_prev_data = glance.image_list_detailed(
+                self.request,
+                filters=filters,
+                paginate=True
+            )
             return images  # Return the list of images
         except Exception as e:
             logging.error(f"Unable to retrieve images: {e}")
