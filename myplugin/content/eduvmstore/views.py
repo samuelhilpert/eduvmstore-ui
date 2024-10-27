@@ -9,16 +9,6 @@ from openstack_dashboard.api import glance
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
-from dotenv import load_dotenv
-import os
-
-
-# Load environment variables from .env file
-load_dotenv()
-# Access the API endpoints
-API_BASE_URL = os.getenv('API_BASE_URL')
-APP_TEMPLATE_ENDPOINT = os.getenv('APP_TEMPLATE_ENDPOINT')
-
 
 def get_host_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -35,7 +25,7 @@ def get_host_ip():
 def fetch_app_templates(request):
     headers = {"X-Auth-Token": request.user.token.id}
     try:
-        response = requests.get(f"{API_BASE_URL}{APP_TEMPLATE_ENDPOINT}", headers=headers, timeout=10)
+        response = requests.get("http://localhost:8000/api/app-templates/", headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -78,9 +68,10 @@ class IndexView(generic.TemplateView):
             glance_image = glance_images.get(image_id)
             if glance_image:
                 template['size'] = round(glance_image.size / (1024 * 1024), 2)
-
+                template['visibility'] = glance_image.visibility
             else:
                 template['size'] = _('Unknown')
+                template['visibility'] = _('Unknown')
 
         context['app_templates'] = app_templates
         return context
@@ -120,10 +111,10 @@ class DetailsPageView(generic.TemplateView):
         try:
             app_template_id = self.kwargs['template_id']  # Assuming template_id is in the URL
             response = requests.get(
-                f"{API_BASE_URL}{APP_TEMPLATE_ENDPOINT}{app_template_id}",
-                headers=headers,
-                timeout=10
-            )
+            f"http://localhost:8000/api/app-templates/{app_template_id}",
+            headers=headers,
+            timeout=10)
+
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
@@ -166,7 +157,7 @@ class CreateView(generic.TemplateView):
 
         # Prepare the data to be sent to the API
         data = {
-           # 'creator_id': "d110ce1c-800a-484e-b973-4da16d62dcca",  # Example creator ID
+            'creator_id': "d110ce1c-800a-484e-b973-4da16d62dcca", # Example creator ID
             'image_id': image_id,
             'name': name,
             'description': description,
@@ -186,7 +177,7 @@ class CreateView(generic.TemplateView):
         try:
             # Send the data to the API
             response = requests.post(
-                f"{API_BASE_URL}{APP_TEMPLATE_ENDPOINT}",
+                "http://localhost:8000/api/app-templates/",
                 json=data,
                 headers=headers,
                 timeout=10
