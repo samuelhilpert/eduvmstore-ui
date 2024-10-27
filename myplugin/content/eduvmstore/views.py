@@ -138,14 +138,14 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('')  # Specify a success URL
+    success_url = reverse_lazy('index')  # Specify a success URL
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        token_id = request.POST.get('token_id')  # Retrieve token_id from POST data
+        token_id = request.GET.get('token_id')  # Retrieve token_id from POST data
         if not token_id:
             logging.error("Token ID is required but missing in the POST request.")
             context = self.get_context_data()
@@ -164,7 +164,6 @@ class CreateView(generic.TemplateView):
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
-            'approved': False,
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
