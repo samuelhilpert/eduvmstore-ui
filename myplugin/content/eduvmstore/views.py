@@ -151,6 +151,7 @@ class CreateView(generic.TemplateView):
         description = request.POST.get('description')
         instantiation_notice = request.POST.get('instantiation_notice')
         public = request.POST.get('public')
+        version = request.POST.get('version')
         fixed_ram_gb = request.POST.get('fixed_ram_gb')
         fixed_disk_gb = request.POST.get('fixed_disk_gb')
         fixed_cores = request.POST.get('fixed_cores')
