@@ -21,7 +21,7 @@
         {% csrf_token %}
 <div class="container">
         <h1>Create Instance</h1>
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' image_id=app_template.id %}">
+    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}">
     {% csrf_token %}
     <h1>{{ app_template.id }}</h1>
     <label for="name">Instance Name:</label>
