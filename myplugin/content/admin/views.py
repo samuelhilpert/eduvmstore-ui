@@ -49,6 +49,23 @@ class IndexView(generic.TemplateView):
         context['show_content'] = False
         context['user_id'] = user.id
 
+        base_url = "http://localhost:8000"
+        new_user_id = user.id
+
+        url = f"{base_url}/api/users/{new_user_id}"
+
+        headers = {
+            "X-Auth-Token": token_id
+        }
+
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            context['user_data'] = response.json()  # Die API-Daten
+        except requests.exceptions.RequestException as e:
+            context['user_data_error'] = str(e)
+
+
         if user.is_superuser:
             context['show_content'] = True
         else:
