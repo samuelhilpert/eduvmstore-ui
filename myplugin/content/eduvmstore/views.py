@@ -211,7 +211,7 @@ class CreateView(generic.TemplateView):
             context['error'] = _("Token ID is required but missing.")
             return render(request, self.template_name, context)
 
-     #   headers = {"X-Auth-Token": token_id}
+        headers = {"X-Auth-Token": token_id}
 
         data = {
             'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",  # Example creator ID
@@ -235,7 +235,7 @@ class CreateView(generic.TemplateView):
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
                 json=data,
-           #     headers=headers,
+                headers=headers,
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
@@ -289,7 +289,7 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-      #  token_id = request.GET.get('token_id')
+        token_id = request.POST.get('token_id')
         app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
         flavor_id = request.POST.get('flavor_id')
         instance_name = request.POST.get('name')
@@ -312,7 +312,7 @@ class InstancesView(generic.TemplateView):
             response = requests.post(
                 "http://localhost:8000/api/instances/launch/",
                 json=data,
-             #   headers={"X-Auth-Token": token_id},
+                headers={"X-Auth-Token": token_id},
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
