@@ -171,7 +171,14 @@
         <div class="col-md-6">
             <div class="detail-group">
                 <strong>Visibility:</strong>
-                <p>{{ image_visibility }}</p>
+                <p>
+                    {% if app_template.public %}
+                    Public
+                {% else %}
+                    Private
+                {% endif %}
+                </p>
+
             </div>
         </div>
         <div class="col-md-6">

@@ -4,7 +4,8 @@ import logging
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
-from openstack_dashboard.api import glance
+from openstack_dashboard import api
+from openstack_dashboard.api import glance, nova
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -185,7 +186,7 @@ class CreateView(generic.TemplateView):
         View to handle the creation of a new app template with specified details.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('')  # Specify a success URL
+    success_url = reverse_lazy('/eduvmstore_dashboard/')  # Specify a success URL
 
     def get(self, request, *args, **kwargs):
         """
@@ -197,6 +198,7 @@ class CreateView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+
         """
             Handle POST requests to create a new app template by sending data to the backend API.
             :param HttpRequest request: The incoming HTTP POST request.
@@ -209,7 +211,7 @@ class CreateView(generic.TemplateView):
             context['error'] = _("Token ID is required but missing.")
             return render(request, self.template_name, context)
 
-        headers = {"X-Auth-Token": token_id}
+     #   headers = {"X-Auth-Token": token_id}
 
         data = {
             'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",  # Example creator ID
@@ -233,7 +235,7 @@ class CreateView(generic.TemplateView):
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
                 json=data,
-                headers=headers,
+           #     headers=headers,
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
@@ -280,6 +282,46 @@ class InstancesView(generic.TemplateView):
         View for displaying instances, including form input for instance creation.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
+    success_url = reverse_lazy('/')  # Redirect to the index page upon success
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+      #  token_id = request.GET.get('token_id')
+        app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
+        flavor_id = request.POST.get('flavor_id')
+        instance_name = request.POST.get('name')
+
+     #   if not token_id or not app_template_id or not flavor_id:
+     #       logging.error("Token ID, App Template ID, and Flavor ID are required.")
+     #       context = self.get_context_data()
+     #       context['error'] = _("All fields are required.")
+     #       return render(request, self.template_name, context)
+
+        # Prepare the payload for creating an instance
+        data = {
+            'app_template_id': app_template_id,
+            'flavor_id': flavor_id,
+            'name': instance_name,
+        }
+
+        try:
+            # Send the data to the backend to create an instance
+            response = requests.post(
+                "http://localhost:8000/api/instances/launch/",
+                json=data,
+             #   headers={"X-Auth-Token": token_id},
+                timeout=10
+            )
+            response.raise_for_status()  # Raise an error for bad responses
+            return redirect(self.success_url)  # Redirect to the success URL
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Failed to launch instance: {e}")
+            context = self.get_context_data()
+            context['error'] = _("Failed to launch instance. Please try again.")
+            return render(request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         """
@@ -290,11 +332,22 @@ class InstancesView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        context['form'] = InstanceForm()
+       # token_id = self.request.GET.get('token_id')
+        app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
 
-        image_id = self.request.GET.get('image_id')
-        if image_id:
-            context['image_id'] = image_id
+        # Fetch available flavors from Nova
+        context['flavors'] = self.get_flavors()
 
+        # Include the app_template_id in the context
+        context['app_template_id'] = app_template_id
         return context
+
+    def get_flavors(self, ):
+        """Fetch flavors from Nova to correlate instances."""
+        try:
+            flavors = api.nova.flavor_list(self.request)
+            return {str(flavor.id): flavor.name for flavor in flavors}
+        except Exception:
+            exceptions.handle(self.request, ignore=True)
+            return {}
 
