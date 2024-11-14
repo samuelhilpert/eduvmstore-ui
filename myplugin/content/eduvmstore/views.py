@@ -305,7 +305,7 @@ class InstancesView(generic.TemplateView):
             # Send the data to the backend to create an instance
             response = requests.post(API_ENDPOINTS['instances_launch'],
                                      json=data,
-                                     headers=headers,
+                                 #    headers=headers,
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             logging.info("Instance created successfully.")
