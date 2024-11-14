@@ -120,10 +120,11 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
-                <label for="script">Script:</label>
-                <input type="text" id="script" name="script" class="form-control">
+           <div class="col-md-4">
+                <label for="script_file">Upload Script:</label>
+                <input type="file" id="script_file" name="script_file" accept=".csv, .txt" class="form-control-file" >
             </div>
+
             <div class="col-md-4 d-flex align-items-end">
                 <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
             </div>

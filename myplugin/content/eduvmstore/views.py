@@ -9,6 +9,7 @@ from openstack_dashboard.api import glance, nova
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
+from myplugin.content.api_endpoints import API_ENDPOINTS
 
 def get_host_ip():
     """
@@ -42,7 +43,7 @@ def fetch_app_templates(request):
     headers = {"X-Auth-Token": token_id}
 
     try:
-        response = requests.get("http://localhost:8000/api/app-templates/",
+        response = requests.get(API_ENDPOINTS['app_templates'],  # Use the centralized endpoint
                                 headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
@@ -138,8 +139,10 @@ class DetailsPageView(generic.TemplateView):
         headers = {"X-Auth-Token": token_id}
 
         try:
-            response = requests.get(f"http://localhost:8000/api/app-templates/{self.kwargs['template_id']}",
-                                    headers=headers, timeout=10)
+            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                template_id=self.kwargs['template_id']),
+                headers=headers, timeout=10))
+
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
@@ -274,7 +277,7 @@ class InstancesView(generic.TemplateView):
         # If "No additional users" is not checked, collect the account data
         accounts = [] if no_additional_users else self.extract_accounts_from_form(request)
 
-        token_id = get_token_id(request)  # Assumes token ID is always present
+        token_id = get_token_id(self.request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
 
         # Prepare the payload for creating an instance
