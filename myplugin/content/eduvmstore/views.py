@@ -216,7 +216,7 @@ class CreateView(generic.TemplateView):
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             # After successful instance launch, redirect to the homepage
-            return redirect('dashboard/eduvmstore_dashboard/')
+            return redirect('')
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
             context = self.get_context_data()
@@ -270,10 +270,10 @@ class InstancesView(generic.TemplateView):
         app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
         flavor_id = request.POST.get('flavor_id')
         instance_name = request.POST.get('name')
-        no_additional_users = request.POST.get('no_additional_users') is not None
+       # no_additional_users = request.POST.get('no_additional_users') is not None
 
         # If "No additional users" is not checked, collect the account data
-        accounts = [] if no_additional_users else self.extract_accounts_from_form(request)
+        accounts = self.extract_accounts_from_form(self.request)
 
         token_id = get_token_id(request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
@@ -283,7 +283,7 @@ class InstancesView(generic.TemplateView):
             'app_template_id': app_template_id,
             'flavor_id': flavor_id,
             'name': instance_name,
-            'accounts': accounts  # Adding accounts to the payload
+            'accounts': accounts
         }
 
         try:
@@ -294,7 +294,7 @@ class InstancesView(generic.TemplateView):
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             # After successful instance launch, redirect to the homepage
-            return redirect('dashboard/eduvmstore_dashboard/')  # Redirect to the success URL
+            return redirect('')  # Redirect to the success URL
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
             context = self.get_context_data()
