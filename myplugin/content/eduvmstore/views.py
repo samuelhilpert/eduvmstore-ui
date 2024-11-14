@@ -298,7 +298,7 @@ class InstancesView(generic.TemplateView):
             'app_template_id': self.kwargs['image_id'],
             'flavor_id':  request.POST.get('flavor_id'),
             'name': request.POST.get('name'),
-            'accounts': self.extract_accounts_from_form(self.request)
+            'accounts': self.extract_accounts_from_form(request)
         }
 
         try:
@@ -348,15 +348,19 @@ class InstancesView(generic.TemplateView):
             return {}
 
     def extract_accounts_from_form(self, request):
-        """Extract account details from the POST form."""
+        """Extract account details from the POST form and format them as dictionaries with matching usernames and passwords."""
         accounts = []
-        # Loop to extract multiple accounts if provided
+
+        # Get account names and passwords from the POST request
         account_names = request.POST.getlist('account_name')
         account_passwords = request.POST.getlist('account_password')
 
-        # Zip the names and passwords together and create account dicts
+        # Create a dictionary for each account
         for name, password in zip(account_names, account_passwords):
-            if name and password:
-                accounts.append({"username": name, "password": password})
+            if name and password:  # Ensure username matches password
+                accounts.append({
+                    "username": name,
+                    "password": password
+                })
 
         return accounts
