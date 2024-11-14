@@ -127,14 +127,14 @@ class DetailsPageView(generic.TemplateView):
         return context
 
 
-    def get_app_template(self,request):
+    def get_app_template(self):
         """
             Fetch a specific app template from the external database using token authentication.
             :param token_id: Authentication token for API access.
             :return: JSON response of app template details if successful, otherwise an empty dict.
             :rtype: dict
         """
-        token_id = get_token_id(request)  # Assumes token ID is always present
+        token_id = get_token_id(self.request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
 
         try:
@@ -215,7 +215,7 @@ class CreateView(generic.TemplateView):
             )
             response.raise_for_status()  # Raise an error for bad responses
             # After successful instance launch, redirect to the homepage
-            return redirect('home')
+            return redirect('index')
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
             context = self.get_context_data()
