@@ -210,15 +210,13 @@ class CreateView(generic.TemplateView):
 
         try:
             # Send the data to the API
-            response = requests.post(
-                "http://localhost:8000/api/app-templates/",
-                json=data,
-                headers=headers,
-                timeout=10
-            )
+            response = requests.post(API_ENDPOINTS['app_templates'],
+                                     json=data,
+                                     headers=headers,
+                                     timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             # After successful instance launch, redirect to the homepage
-            return redirect('index')
+            return redirect('dashboard/eduvmstore_dashboard/')
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
             context = self.get_context_data()
@@ -277,7 +275,7 @@ class InstancesView(generic.TemplateView):
         # If "No additional users" is not checked, collect the account data
         accounts = [] if no_additional_users else self.extract_accounts_from_form(request)
 
-        token_id = get_token_id(self.request)  # Assumes token ID is always present
+        token_id = get_token_id(request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
 
         # Prepare the payload for creating an instance
@@ -290,15 +288,13 @@ class InstancesView(generic.TemplateView):
 
         try:
             # Send the data to the backend to create an instance
-            response = requests.post(
-                "http://localhost:8000/api/instances/launch/",
-                json=data,
-                headers=headers,
-                timeout=10
-            )
+            response = requests.post(API_ENDPOINTS['instances_launch'],
+                                     json=data,
+                                     headers=headers,
+                                     timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             # After successful instance launch, redirect to the homepage
-            return redirect('index')  # Redirect to the success URL
+            return redirect('dashboard/eduvmstore_dashboard/')  # Redirect to the success URL
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
             context = self.get_context_data()
