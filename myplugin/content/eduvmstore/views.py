@@ -27,7 +27,7 @@ def get_host_ip():
         s.close()
     return ip
 
-def get_token_id(request):
+def get_token_id(request,self):
     """
     Retrieves the token ID from the request object.
     """
@@ -191,6 +191,7 @@ class CreateView(generic.TemplateView):
         headers = {"X-Auth-Token": token_id}
 
         data = {
+            #creator_id should be changed
             'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",  # Example creator ID
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -270,6 +271,14 @@ class InstancesView(generic.TemplateView):
         app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
         flavor_id = request.POST.get('flavor_id')
         instance_name = request.POST.get('name')
+        no_additional_users = request.POST.get('no_additional_users') is not None
+
+      # Get accounts from form
+
+        accounts = self.extract_accounts_from_form(request)
+
+        # If "No additional users" is not checked, collect the account data
+        accounts = [] if no_additional_users else self.extract_accounts_from_form(request)
 
         token_id = get_token_id(request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
@@ -279,6 +288,7 @@ class InstancesView(generic.TemplateView):
             'app_template_id': app_template_id,
             'flavor_id': flavor_id,
             'name': instance_name,
+            'accounts': accounts  # Adding accounts to the payload
         }
 
         try:
@@ -324,3 +334,17 @@ class InstancesView(generic.TemplateView):
         except Exception:
             exceptions.handle(self.request, ignore=True)
             return {}
+
+    def extract_accounts_from_form(self, request):
+        """Extract account details from the POST form."""
+        accounts = []
+        # Loop to extract multiple accounts if provided
+        account_names = request.POST.getlist('account_name')
+        account_passwords = request.POST.getlist('account_password')
+
+        # Zip the names and passwords together and create account dicts
+        for name, password in zip(account_names, account_passwords):
+            if name and password:
+                accounts.append({"name": name, "password": password})
+
+        return accounts

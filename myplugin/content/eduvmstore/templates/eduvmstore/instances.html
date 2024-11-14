@@ -20,8 +20,6 @@
 
         {% csrf_token %}
   <form method="post" action="">
-        {% csrf_token %}
-
         <div class="form-group">
             <label for="app_template_id">{{ _("App Template ID") }}</label>
             <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
@@ -42,7 +40,54 @@
             <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('Enter instance name') }}" required>
         </div>
 
+
+        <!-- "No Additional Users" Checkbox -->
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="no_additional_users" name="no_additional_users">
+            <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
+        </div>
+
+ <!-- Accounts Section -->
+        <div id="accounts_section">
+            <h4>{{ _("Accounts") }}</h4>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="account_name_0">{{ _("Account Name") }}</label>
+                    <input type="text" class="form-control" id="account_name_0" name="account_name" placeholder="{{ _('Enter account name') }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="account_password_0">{{ _("Account Password") }}</label>
+                    <input type="password" class="form-control" id="account_password_0" name="account_password" placeholder="{{ _('Enter password') }}">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
+
         <button type="submit" class="btn btn-primary">{{ _("Launch Instance") }}</button>
-        <a href='#' class="btn btn-secondary">{{ _("Cancel") }}</a>
+        <a href="#" class="btn btn-secondary">{{ _("Cancel") }}</a>
     </form>
+
+     <script>
+        // JavaScript to add additional account fields dynamically
+        let accountCount = 1;
+        document.getElementById("add_account").addEventListener("click", function() {
+            const accountSection = document.getElementById("accounts_section");
+            const newAccountField = document.createElement("div");
+            newAccountField.classList.add("form-row");
+
+            newAccountField.innerHTML = `
+                <div class="form-group col-md-6">
+                    <label for="account_name_${accountCount}">{{ _("Account Name") }}</label>
+                    <input type="text" class="form-control" id="account_name_${accountCount}" name="account_name" placeholder="{{ _('Enter account name') }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="account_password_${accountCount}">{{ _("Account Password") }}</label>
+                    <input type="password" class="form-control" id="account_password_${accountCount}" name="account_password" placeholder="{{ _('Enter password') }}">
+                </div>
+            `;
+            accountSection.appendChild(newAccountField);
+            accountCount++;
+        });
+    </script>
 {% endblock %}
