@@ -276,13 +276,13 @@ class InstancesView(generic.TemplateView):
         #instance_name = request.POST.get('name')
        # no_additional_users = request.POST.get('no_additional_users') is not None
 
-        token_id = None
-        if hasattr(request, "user") and hasattr(request.user, "token"):
-            token_id = request.user.token.id
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Invalid token'}, status=401)
+       # token_id = None
+      #  if hasattr(request, "user") and hasattr(request.user, "token"):
+        #    token_id = request.user.token.id
+       # else:
+       #     return JsonResponse({'status': 'error', 'message': 'Invalid token'}, status=401)
 
-        headers = {"X-Auth-Token": token_id}
+        #headers = {"X-Auth-Token": token_id}
 
         # If "No additional users" is not checked, collect the account data
         #accounts = self.extract_accounts_from_form(self.request)
