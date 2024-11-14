@@ -345,6 +345,6 @@ class InstancesView(generic.TemplateView):
         # Zip the names and passwords together and create account dicts
         for name, password in zip(account_names, account_passwords):
             if name and password:
-                accounts.append({"name": name, "password": password})
+                accounts.append({"username": name, "password": password})
 
         return accounts
