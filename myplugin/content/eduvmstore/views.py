@@ -271,9 +271,9 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
-        flavor_id = request.POST.get('flavor_id')
-        instance_name = request.POST.get('name')
+        #app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
+        #flavor_id = request.POST.get('flavor_id')
+        #instance_name = request.POST.get('name')
        # no_additional_users = request.POST.get('no_additional_users') is not None
 
         token_id = None
@@ -285,24 +285,20 @@ class InstancesView(generic.TemplateView):
         headers = {"X-Auth-Token": token_id}
 
         # If "No additional users" is not checked, collect the account data
-        accounts = self.extract_accounts_from_form(self.request)
-
-        logging.info(
-        f"Creating instance with template ID {app_template_id}, flavor ID {flavor_id}, and name '{instance_name}'.")
-        logging.debug(f"Accounts data: {accounts}")
+        #accounts = self.extract_accounts_from_form(self.request)
 
     # Retrieve and log the token
         #token_id = get_token_id(request)
         #logging.debug(f"Token ID: {token_id}")  # Only use debug level for sensitive info
 
-        #eaders = {"X-Auth-Token": token_id}
+        #headers = {"X-Auth-Token": token_id}
 
         # Prepare the payload for creating an instance
         data = {
-            'app_template_id': app_template_id,
-            'flavor_id': flavor_id,
-            'name': instance_name,
-            'accounts': accounts
+            'app_template_id': self.kwargs['image_id'],
+            'flavor_id':  request.POST.get('flavor_id'),
+            'name': request.POST.get('name'),
+            'accounts': self.extract_accounts_from_form(self.request)
         }
 
         try:
