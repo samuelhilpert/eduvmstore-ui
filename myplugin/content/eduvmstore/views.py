@@ -1,6 +1,8 @@
 import requests
 import socket
 import logging
+
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
@@ -10,6 +12,9 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 def get_host_ip():
     """
@@ -266,17 +271,31 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-      #  token_id = request.GET.get('token_id')
         app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
         flavor_id = request.POST.get('flavor_id')
         instance_name = request.POST.get('name')
        # no_additional_users = request.POST.get('no_additional_users') is not None
 
+        token_id = None
+        if hasattr(request, "user") and hasattr(request.user, "token"):
+            token_id = request.user.token.id
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid token'}, status=401)
+
+        headers = {"X-Auth-Token": token_id}
+
         # If "No additional users" is not checked, collect the account data
         accounts = self.extract_accounts_from_form(self.request)
 
-        token_id = get_token_id(request)  # Assumes token ID is always present
-        headers = {"X-Auth-Token": token_id}
+        logging.info(
+        f"Creating instance with template ID {app_template_id}, flavor ID {flavor_id}, and name '{instance_name}'.")
+        logging.debug(f"Accounts data: {accounts}")
+
+    # Retrieve and log the token
+        #token_id = get_token_id(request)
+        #logging.debug(f"Token ID: {token_id}")  # Only use debug level for sensitive info
+
+        #eaders = {"X-Auth-Token": token_id}
 
         # Prepare the payload for creating an instance
         data = {
@@ -293,8 +312,11 @@ class InstancesView(generic.TemplateView):
                                      headers=headers,
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
+            logging.info("Instance created successfully.")
+            logging.debug(f"Response Data: {response.json()}")
             # After successful instance launch, redirect to the homepage
             return redirect('')  # Redirect to the success URL
+
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
             context = self.get_context_data()
