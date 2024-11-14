@@ -169,7 +169,7 @@ class CreateView(generic.TemplateView):
         View to handle the creation of a new app template with specified details.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    success_url = reverse_lazy('/eduvmstore_dashboard/')  # Specify a success URL
+    #success_url = reverse_lazy('/eduvmstore_dashboard/')  # Specify a success URL
 
     def get(self, request, *args, **kwargs):
         """
@@ -217,7 +217,8 @@ class CreateView(generic.TemplateView):
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
-            return redirect(self.success_url)  # Redirect to success URL
+            # After successful instance launch, redirect to the homepage
+            return redirect('home')
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
             context = self.get_context_data()
@@ -260,7 +261,7 @@ class InstancesView(generic.TemplateView):
         View for displaying instances, including form input for instance creation.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
-    success_url = reverse_lazy('/')  # Redirect to the index page upon success
+   # success_url = reverse_lazy('/')  # Redirect to the index page upon success
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
@@ -300,7 +301,8 @@ class InstancesView(generic.TemplateView):
                 timeout=10
             )
             response.raise_for_status()  # Raise an error for bad responses
-            return redirect(self.success_url)  # Redirect to the success URL
+            # After successful instance launch, redirect to the homepage
+            return redirect('index')  # Redirect to the success URL
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
             context = self.get_context_data()
