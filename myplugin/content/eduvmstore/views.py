@@ -271,18 +271,19 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        #app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
-        #flavor_id = request.POST.get('flavor_id')
-        #instance_name = request.POST.get('name')
-       # no_additional_users = request.POST.get('no_additional_users') is not None
+        app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
+        flavor_id = request.POST.get('flavor_id')
+        instance_name = request.POST.get('name')
+        # no_additional_users = request.POST.get('no_additional_users') is not None
 
-       # token_id = None
-      #  if hasattr(request, "user") and hasattr(request.user, "token"):
-        #    token_id = request.user.token.id
-       # else:
-       #     return JsonResponse({'status': 'error', 'message': 'Invalid token'}, status=401)
+        # token_id = None
+        # if hasattr(request, "user") and hasattr(request.user, "token"):
+        #     token_id = request.user.token.id
+        # else:
+        #     return JsonResponse({'status': 'error', 'message': 'Invalid token'}, status=401)
 
-        #headers = {"X-Auth-Token": token_id}
+        token_id = get_token_id(request)
+        headers = {"X-Auth-Token": token_id}
 
         # If "No additional users" is not checked, collect the account data
         #accounts = self.extract_accounts_from_form(self.request)
@@ -305,7 +306,7 @@ class InstancesView(generic.TemplateView):
             # Send the data to the backend to create an instance
             response = requests.post(API_ENDPOINTS['instances_launch'],
                                      json=data,
-                                 #    headers=headers,
+                                     headers=headers,
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             logging.info("Instance created successfully.")
