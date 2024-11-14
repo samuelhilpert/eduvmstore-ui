@@ -19,7 +19,7 @@
 {% block main %}
 
         {% csrf_token %}
-  <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' %}">
+  <form method="post" >
         <div class="form-group">
             <label for="app_template_id">{{ _("App Template ID") }}</label>
             <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
