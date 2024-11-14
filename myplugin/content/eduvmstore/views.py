@@ -1,8 +1,6 @@
 import requests
 import socket
 import logging
-
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
@@ -31,24 +29,18 @@ def get_host_ip():
 
 def get_token_id(request):
     """
-    Retrieves the token ID from the request object, if it exists.
-    :param request: Django request object
-    :return: token_id if available, None otherwise
+    Retrieves the token ID from the request object.
     """
-    if hasattr(request, "user") and hasattr(request.user, "token"):
-        return request.user.token.id
-    logging.warning("Token ID is missing for the request.")
-    return None
+    return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
+
 
 def fetch_app_templates(request):
     """
     Fetches app templates from the external API using a provided token ID.
-    :param request: Django request object
-    :return: List of app templates if the request is successful, otherwise an empty list.
-    :rtype: list
     """
     token_id = get_token_id(request)
     if token_id is None:
+        logging.warning("Token ID is missing.")
         return []
 
     headers = {"X-Auth-Token": token_id}
@@ -57,10 +49,9 @@ def fetch_app_templates(request):
                                 headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to fetch app templates: {e}")
+    except requests.RequestException as e:
+        logging.error("Failed to fetch app templates: %s", e)
         return []
-
 
 class IndexView(generic.TemplateView):
     """
@@ -95,9 +86,9 @@ class IndexView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        token_id = self.request.GET.get('token_id')
+        #token_id = self.request.GET.get('token_id')
 
-        app_templates = fetch_app_templates(token_id)
+        app_templates = fetch_app_templates(self.request)
 
         glance_images = self.get_images_data()
 
@@ -114,29 +105,6 @@ class IndexView(generic.TemplateView):
         context['app_templates'] = app_templates
         return context
 
-def get_image_details_via_rest(request, image_id):
-    """
-    Fetch image details via REST API using provided token and image ID.
-    :param request: Django request object
-    :param image_id: ID of the image to retrieve.
-    :return: JSON response of image details if successful, otherwise None.
-    :rtype: dict or None
-    """
-    token_id = get_token_id(request)
-    if token_id is None:
-        return None
-
-    headers = {"X-Auth-Token": token_id}
-    try:
-        response = requests.get(f"http://{get_host_ip()}/image/v2/images/{image_id}",
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching image details: {e}")
-        return None
-
-
 class DetailsPageView(generic.TemplateView):
     """
         Display detailed information for a specific app template, including associated image data.
@@ -151,30 +119,34 @@ class DetailsPageView(generic.TemplateView):
             :return: Context dictionary with app template and image details.
             :rtype: dict
         """
-        context = super(DetailsPageView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
-        image_data = self.get_image_data(app_template['image_id'])
-        context['app_template'] = app_template
-        context['image_visibility'] = image_data.get('visibility', 'N/A')
-        context['image_owner'] = image_data.get('owner', 'N/A')
+        image_data = self.get_image_data(app_template.get('image_id', ''))
+        context.update({
+            'app_template': app_template,
+            'image_visibility': image_data.get('visibility', 'N/A'),
+            'image_owner': image_data.get('owner', 'N/A'),
+        })
         return context
 
-    def get_app_template(self):
-        token_id = get_token_id(self.request)
-        if token_id is None:
-            return {}
 
+    def get_app_template(self):
+        """
+            Fetch a specific app template from the external database using token authentication.
+            :param token_id: Authentication token for API access.
+            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :rtype: dict
+        """
+        token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
+
         try:
-            app_template_id = self.kwargs['template_id']
-            response = requests.get(
-                f"http://localhost:8000/api/app-templates/{app_template_id}",
-                headers=headers, timeout=10
-            )
+            response = requests.get(f"http://localhost:8000/api/app-templates/{self.kwargs['template_id']}",
+                                    headers=headers, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            exceptions.handle(self.request, _('Unable to retrieve app template details: %s') % str(e))
+            logging.error("Unable to retrieve app template details: %s", e)
             return {}
 
     def get_image_data(self, image_id):
@@ -197,7 +169,7 @@ class CreateView(generic.TemplateView):
         View to handle the creation of a new app template with specified details.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    #success_url = reverse_lazy('/eduvmstore_dashboard/')  # Specify a success URL
+    success_url = reverse_lazy('/eduvmstore_dashboard/')  # Specify a success URL
 
     def get(self, request, *args, **kwargs):
         """
@@ -209,15 +181,17 @@ class CreateView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        token_id = get_token_id(request)
-        if token_id is None:
-            context = self.get_context_data()
-            context['error'] = _("Token ID is required but missing.")
-            return render(request, self.template_name, context)
 
+        """
+            Handle POST requests to create a new app template by sending data to the backend API.
+            :param HttpRequest request: The incoming HTTP POST request.
+            :return: Redirect response to success URL if successful, or re-rendered template with error.
+        """
+        token_id = get_token_id(request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
+
         data = {
-            'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",
+            'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",  # Example creator ID
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
@@ -232,13 +206,17 @@ class CreateView(generic.TemplateView):
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
         }
+
         try:
+            # Send the data to the API
             response = requests.post(
                 "http://localhost:8000/api/app-templates/",
-                json=data, headers=headers, timeout=10
+                json=data,
+                headers=headers,
+                timeout=10
             )
-            response.raise_for_status()
-            return HttpResponseRedirect(reverse_lazy('index'))
+            response.raise_for_status()  # Raise an error for bad responses
+            return redirect(self.success_url)  # Redirect to success URL
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
             context = self.get_context_data()
@@ -281,33 +259,38 @@ class InstancesView(generic.TemplateView):
         View for displaying instances, including form input for instance creation.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
-    #success_url = reverse_lazy('/')  # Redirect to the index page upon success
-
+    success_url = reverse_lazy('/')  # Redirect to the index page upon success
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        token_id = get_token_id(request)
-        if token_id is None:
-            context = self.get_context_data()
-            context['error'] = _("Token ID is required.")
-            return render(request, self.template_name, context)
+      #  token_id = request.GET.get('token_id')
+        app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
+        flavor_id = request.POST.get('flavor_id')
+        instance_name = request.POST.get('name')
 
+        token_id = get_token_id(request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
+
+        # Prepare the payload for creating an instance
         data = {
-            'app_template_id': self.kwargs['image_id'],
-            'flavor_id': request.POST.get('flavor_id'),
-            'name': request.POST.get('name'),
+            'app_template_id': app_template_id,
+            'flavor_id': flavor_id,
+            'name': instance_name,
         }
+
         try:
+            # Send the data to the backend to create an instance
             response = requests.post(
                 "http://localhost:8000/api/instances/launch/",
-                json=data, headers=headers, timeout=10
+                json=data,
+                headers=headers,
+                timeout=10
             )
-            response.raise_for_status()
-            return HttpResponseRedirect(reverse_lazy('index'))
+            response.raise_for_status()  # Raise an error for bad responses
+            return redirect(self.success_url)  # Redirect to the success URL
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
             context = self.get_context_data()
@@ -341,4 +324,3 @@ class InstancesView(generic.TemplateView):
         except Exception:
             exceptions.handle(self.request, ignore=True)
             return {}
-
