@@ -298,7 +298,7 @@ class InstancesView(generic.TemplateView):
             'app_template_id': self.kwargs['image_id'],
             'flavor_id':  request.POST.get('flavor_id'),
             'name': request.POST.get('name'),
-            'accounts': self.extract_accounts_from_form(request)
+            #'accounts': self.extract_accounts_from_form(request)
         }
 
         try:
@@ -308,8 +308,6 @@ class InstancesView(generic.TemplateView):
                                  #    headers=headers,
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
-            logging.info("Instance created successfully.")
-            logging.debug(f"Response Data: {response.json()}")
             # After successful instance launch, redirect to the homepage
             return redirect('')  # Redirect to the success URL
 
