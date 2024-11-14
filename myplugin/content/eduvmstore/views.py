@@ -27,7 +27,7 @@ def get_host_ip():
         s.close()
     return ip
 
-def get_token_id(request,self):
+def get_token_id(request):
     """
     Retrieves the token ID from the request object.
     """
@@ -38,12 +38,9 @@ def fetch_app_templates(request):
     """
     Fetches app templates from the external API using a provided token ID.
     """
-    token_id = get_token_id(request)
-    if token_id is None:
-        logging.warning("Token ID is missing.")
-        return []
-
+    token_id = get_token_id(request)  # Assumes token ID is always present
     headers = {"X-Auth-Token": token_id}
+
     try:
         response = requests.get("http://localhost:8000/api/app-templates/",
                                 headers=headers, timeout=10)
@@ -130,14 +127,14 @@ class DetailsPageView(generic.TemplateView):
         return context
 
 
-    def get_app_template(self):
+    def get_app_template(self,request):
         """
             Fetch a specific app template from the external database using token authentication.
             :param token_id: Authentication token for API access.
             :return: JSON response of app template details if successful, otherwise an empty dict.
             :rtype: dict
         """
-        token_id = get_token_id(self.request)
+        token_id = get_token_id(request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
 
         try:
@@ -273,10 +270,6 @@ class InstancesView(generic.TemplateView):
         flavor_id = request.POST.get('flavor_id')
         instance_name = request.POST.get('name')
         no_additional_users = request.POST.get('no_additional_users') is not None
-
-      # Get accounts from form
-
-        accounts = self.extract_accounts_from_form(request)
 
         # If "No additional users" is not checked, collect the account data
         accounts = [] if no_additional_users else self.extract_accounts_from_form(request)
