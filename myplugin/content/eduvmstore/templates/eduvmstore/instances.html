@@ -60,8 +60,10 @@
                     <input type="password" class="form-control" id="account_password_0" name="account_password" placeholder="{{ _('Enter password') }}">
                 </div>
             </div>
-             <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
+
         </div>
+
+        <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
 
      <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
@@ -69,6 +71,28 @@
         </div>
 
     </form>
+
+    <!-- Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">{{ _("Response") }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{ modal_message }}
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <script>
         // JavaScript to add additional account fields dynamically
@@ -101,5 +125,16 @@
                 accountsSection.style.display = "block";  // Show the accounts section
             }
         });
+
+        // Handle accounts section visibility
+    document.getElementById("no_additional_users").addEventListener("change", function() {
+        const accountsSection = document.getElementById("accounts_section");
+        accountsSection.style.display = this.checked ? "none" : "block";
+    });
+
+    // Show modal if there's a modal message
+    {% if modal_message %}
+        $('#responseModal').modal('show');
+    {% endif %}
     </script>
 {% endblock %}
