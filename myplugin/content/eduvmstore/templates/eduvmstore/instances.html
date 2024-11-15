@@ -88,7 +88,7 @@
             </div>
             <div class="modal-footer">
                 {% if modal_message == "Instance created successfully." %}
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                    <a href="dashboard/project/instances/{{ app_template_id }}" class="btn btn-primary">{{ _("Show Instance") }}</a>
                 {% endif %}
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
             </div>
