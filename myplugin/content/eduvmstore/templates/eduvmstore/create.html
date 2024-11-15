@@ -216,7 +216,7 @@
     </form>
 </div>
 
-    <!-- Modal for Success or Failure -->
+  <!-- Modal for Success or Failure -->
 <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -231,7 +231,7 @@
             </div>
             <div class="modal-footer">
                 {% if modal_message == "App-Template created successfully." %}
-                    <a  href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}"  class="btn btn-primary">{{ _("Back to Overview") }}</a>
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Back to Overview") }}</a>
                 {% endif %}
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
             </div>
