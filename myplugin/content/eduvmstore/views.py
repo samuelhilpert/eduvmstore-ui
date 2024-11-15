@@ -186,18 +186,15 @@ class CreateView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-
         """
-            Handle POST requests to create a new app template by sending data to the backend API.
-            :param HttpRequest request: The incoming HTTP POST request.
-            :return: Redirect response to success URL if successful, or re-rendered template with error.
+        Handle POST requests to create a new app template by sending data to the backend API.
         """
         token_id = get_token_id(request)  # Assumes token ID is always present
         headers = {"X-Auth-Token": token_id}
 
         data = {
-            #creator_id should be changed
-            'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",  # Example creator ID
+            # Creator ID should be dynamically set if required
+            'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
@@ -215,10 +212,12 @@ class CreateView(generic.TemplateView):
 
         try:
             # Send the data to the API
-            response = requests.post(API_ENDPOINTS['app_templates'],
-                                     json=data,
-                                     headers=headers,
-                                     timeout=10)
+            response = requests.post(
+                API_ENDPOINTS['app_templates'],
+                json=data,
+                headers=headers,
+                timeout=10
+            )
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
             else:
@@ -229,9 +228,9 @@ class CreateView(generic.TemplateView):
             logging.error(f"Failed to create app template: {e}")
             modal_message = _("Failed to create App-Template. Please try again.")
 
-            context = self.get_context_data(modal_message=modal_message)
-            context['error'] = _("Failed to create app template. Please try again.")
-            return render(request, self.template_name, context)
+        # Always return a response
+        context = self.get_context_data(modal_message=modal_message)
+        return render(request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         """
