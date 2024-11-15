@@ -300,14 +300,15 @@ class InstancesView(generic.TemplateView):
                                      headers=headers,
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
-            logging.info("Instance created successfully.")
-            logging.debug(f"Response Data: {response.json()}")
+            modal_message = _("Instance created successfully.")
             # After successful instance launch, redirect to the homepage
-            return redirect('index_redirect')
+            #return redirect('index_redirect')
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
-            context = self.get_context_data()
+            modal_message = _("Failed to launch instance. Please try again.")
+
+            context = self.get_context_data(modal_message=modal_message)
             context['error'] = _("Failed to launch instance. Please try again.")
             return render(request, self.template_name, context)
 

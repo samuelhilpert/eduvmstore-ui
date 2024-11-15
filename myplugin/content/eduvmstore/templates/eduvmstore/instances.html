@@ -86,7 +86,7 @@
                 {{ modal_message }}
             </div>
             <div class="modal-footer">
-                <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                <a href="/dashboard/project/instances/{{ app_template_id }}" class="btn btn-primary">{{ _("Show Instance") }}</a>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
             </div>
         </div>
@@ -137,4 +137,5 @@
         $('#responseModal').modal('show');
     {% endif %}
     </script>
+
 {% endblock %}
