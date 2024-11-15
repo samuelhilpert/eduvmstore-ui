@@ -16,10 +16,6 @@ from myplugin.content.api_endpoints import API_ENDPOINTS
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-
-def index_view(request):
-    return render(request, 'eduvmstore_dashboard/eduvmstore/index.html')
-
 def get_host_ip():
     """
         Retrieve the host's IP address by connecting to an external server.
@@ -225,7 +221,7 @@ class CreateView(generic.TemplateView):
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             # After successful instance launch, redirect to the homepage
-            return redirect('index_redirect')
+            #return redirect('index_redirect')
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
@@ -276,41 +272,39 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
-
-        # If "No additional users" is not checked, collect the account data
-        # no_additional_users = request.POST.get('no_additional_users') is not None
-        # accounts = self.extract_accounts_from_form(self.request)
-
 
         # Prepare the payload for creating an instance
         data = {
             'app_template_id': self.kwargs['image_id'],
-            'flavor_id':  request.POST.get('flavor_id'),
+            'flavor_id': request.POST.get('flavor_id'),
             'name': request.POST.get('name'),
-            'accounts': self.extract_accounts_from_form(request)
+            'accounts': self.extract_accounts_from_form(request),
         }
 
         try:
             # Send the data to the backend to create an instance
-            response = requests.post(API_ENDPOINTS['instances_launch'],
-                                     json=data,
-                                     headers=headers,
-                                     timeout=10)
-            response.raise_for_status()  # Raise an error for bad responses
-            modal_message = _("Instance created successfully.")
-            # After successful instance launch, redirect to the homepage
-            #return redirect('index_redirect')
+            response = requests.post(
+                API_ENDPOINTS['instances_launch'],
+                json=data,
+                headers=headers,
+                timeout=10,
+            )
+
+            if response.status_code == 201:
+                modal_message = _("Instance created successfully.")
+            else:
+                modal_message = _("Failed to launch instance. Please try again.")
+                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
             modal_message = _("Failed to launch instance. Please try again.")
 
-            context = self.get_context_data(modal_message=modal_message)
-            context['error'] = _("Failed to launch instance. Please try again.")
-            return render(request, self.template_name, context)
+        # Pass the modal message to the context
+        context = self.get_context_data(modal_message=modal_message)
+        return render(request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         """
