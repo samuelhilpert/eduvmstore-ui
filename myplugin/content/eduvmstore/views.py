@@ -211,24 +211,22 @@ class CreateView(generic.TemplateView):
         }
 
         try:
-            # Send the data to the API
             response = requests.post(
                 API_ENDPOINTS['app_templates'],
                 json=data,
                 headers=headers,
-                timeout=10
+                timeout=10,
             )
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
             else:
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-
         except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to create app template: {e}")
             modal_message = _("Failed to create App-Template. Please try again.")
+            logging.error(f"Request error: {e}")
 
-        # Always return a response
+            # Ensure the context always includes modal_message
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
 
