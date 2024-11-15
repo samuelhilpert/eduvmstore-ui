@@ -12,15 +12,10 @@
         <h3>Welcome, {{ username }}!</h3>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
         <h2>Confirm new App-Templates</h2>
+        <p><i style="color: gray;">Here you can confirm new App-Templates that have been uploaded by users.</i></p>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
         <h2>Edit User Roles</h2>
-        <p>Hallo: {{ user_name }}</p>
-        <p>"created_at": "{{ user_name.created_at }}"</p>
-        <p>"updated_at": "{{ user_name.updated_at }}",</p>
-        <p>"role": { </p>
-        <p>"id": "{{ user_name.role.id }}",</p>
-       <p>"name": "{{ user_name.role.name }}",</p>
-        <p>"access_level": {{ user_name.role.access_level }}</p>
+        <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
     {% else %}
         <div style="text-align: center; margin-top: 50px;">
             <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">
