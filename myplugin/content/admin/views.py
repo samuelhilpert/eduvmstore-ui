@@ -2,7 +2,7 @@ import requests
 import socket
 from django.views import generic
 
- # Retrieve the host IP address
+# Retrieve the host IP address
 def get_host_ip():
     """
         Retrieve the IP address of the host.
