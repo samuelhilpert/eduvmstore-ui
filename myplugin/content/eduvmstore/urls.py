@@ -9,5 +9,6 @@ urlpatterns = [
     path('details/<str:template_id>/', views.DetailsPageView.as_view(), name='details'),
     path('create/', views.CreateView.as_view(), name='create'),
     path('instances/<str:image_id>/', views.InstancesView.as_view(), name='instances'),
+    path('', views.index_view, name='index_redirect'),
 
 ]

@@ -16,6 +16,10 @@ from myplugin.content.api_endpoints import API_ENDPOINTS
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
+
+def index_view(request):
+    return render(request, 'eduvmstore_dashboard/eduvmstore/index.html')
+
 def get_host_ip():
     """
         Retrieve the host's IP address by connecting to an external server.
@@ -221,7 +225,8 @@ class CreateView(generic.TemplateView):
                                      timeout=10)
             response.raise_for_status()  # Raise an error for bad responses
             # After successful instance launch, redirect to the homepage
-            return redirect('')
+            return redirect('index_redirect')
+
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
             context = self.get_context_data()
@@ -276,23 +281,12 @@ class InstancesView(generic.TemplateView):
         instance_name = request.POST.get('name')
         # no_additional_users = request.POST.get('no_additional_users') is not None
 
-        # token_id = None
-        # if hasattr(request, "user") and hasattr(request.user, "token"):
-        #     token_id = request.user.token.id
-        # else:
-        #     return JsonResponse({'status': 'error', 'message': 'Invalid token'}, status=401)
-
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
         # If "No additional users" is not checked, collect the account data
         #accounts = self.extract_accounts_from_form(self.request)
 
-    # Retrieve and log the token
-        #token_id = get_token_id(request)
-        #logging.debug(f"Token ID: {token_id}")  # Only use debug level for sensitive info
-
-        #headers = {"X-Auth-Token": token_id}
 
         # Prepare the payload for creating an instance
         data = {
@@ -312,7 +306,7 @@ class InstancesView(generic.TemplateView):
             logging.info("Instance created successfully.")
             logging.debug(f"Response Data: {response.json()}")
             # After successful instance launch, redirect to the homepage
-            return redirect('')  # Redirect to the success URL
+            return redirect('index_redirect')
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to launch instance: {e}")
@@ -329,11 +323,14 @@ class InstancesView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-       # token_id = self.request.GET.get('token_id')
         app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
+        app_template = self.get_app_template()
 
         # Fetch available flavors from Nova
         context['flavors'] = self.get_flavors()
+
+        #Context for the selected App-Template --> Display system infos
+        context['app_template'] = app_template
 
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
@@ -365,3 +362,25 @@ class InstancesView(generic.TemplateView):
                 })
 
         return accounts
+
+    #Get App Template Details to display while launching an instance
+    def get_app_template(self):
+        """
+            Fetch a specific app template from the external database using token authentication.
+            :param token_id: Authentication token for API access.
+            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :rtype: dict
+        """
+        token_id = get_token_id(self.request)  # Assumes token ID is always present
+        headers = {"X-Auth-Token": token_id}
+
+        try:
+            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                template_id=self.kwargs['image_id']),
+                headers=headers, timeout=10))
+
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
