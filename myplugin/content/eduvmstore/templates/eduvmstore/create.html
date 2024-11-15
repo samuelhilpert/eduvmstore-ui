@@ -120,10 +120,11 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
-                <label for="script">Script:</label>
-                <input type="text" id="script" name="script" class="form-control">
+           <div class="col-md-4">
+                <label for="script_file">Upload Script:</label>
+                <input type="file" id="script_file" name="script_file" accept=".csv, .txt" class="form-control-file" >
             </div>
+
             <div class="col-md-4 d-flex align-items-end">
                 <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
             </div>
@@ -215,6 +216,29 @@
     </form>
 </div>
 
+<!-- Modal for Success or Failure -->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">{{ _("App-Template Creation Status") }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>{{ modal_message }}</p>
+            </div>
+            <div class="modal-footer">
+                {% if modal_message == "App-Template created successfully." %}
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                {% endif %}
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- JavaScript to handle modal -->
 <script>
     function openModal() {
@@ -241,5 +265,12 @@
             modal.style.display = 'none';
         }
     }
+     // Automatically show the modal if modal_message is set
+    {% if modal_message %}
+    $(document).ready(function() {
+        $('#responseModal').modal('show');
+    });
+    {% endif %}
+
 </script>
 {% endblock %}

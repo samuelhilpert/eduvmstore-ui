@@ -17,11 +17,9 @@
 {% endblock %}
 
 {% block main %}
-
-        {% csrf_token %}
-  <form method="post" action="">
-        {% csrf_token %}
-
+   {% csrf_token %}
+  <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id  %}">
+      {% csrf_token %}
         <div class="form-group">
             <label for="app_template_id">{{ _("App Template ID") }}</label>
             <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
@@ -42,7 +40,107 @@
             <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('Enter instance name') }}" required>
         </div>
 
-        <button type="submit" class="btn btn-primary">{{ _("Launch Instance") }}</button>
-        <a href='#' class="btn btn-secondary">{{ _("Cancel") }}</a>
+
+   <!-- "No Additional Users" Checkbox -->
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="no_additional_users" name="no_additional_users">
+            <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
+        </div>
+
+        <!-- Accounts Section -->
+        <div id="accounts_section" style="display: block;">
+            <h4>{{ _("Accounts") }}</h4>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="account_name_0">{{ _("Username") }}</label>
+                    <input type="text" class="form-control" id="account_name_0" name="account_name" placeholder="{{ _('Enter username') }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="account_password_0">{{ _("Account Password") }}</label>
+                    <input type="password" class="form-control" id="account_password_0" name="account_password" placeholder="{{ _('Enter password') }}">
+                </div>
+            </div>
+
+        </div>
+
+        <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
+
+     <div style="margin-top: 20px; margin-bottom: 20px;">
+            <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
+           <a href="#" class="btn btn-primary">{{ _("Cancel") }}</a>
+        </div>
+
     </form>
+
+
+<!-- Modal for Success or Failure -->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">{{ _("Instance Creation Status") }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>{{ modal_message }}</p>
+            </div>
+            <div class="modal-footer">
+                {% if modal_message == "Instance created successfully." %}
+                    <a href="/dashboard/project/instances/" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                {% endif %}
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+        // JavaScript to add additional account fields dynamically
+        let accountCount = 1;
+        document.getElementById("add_account").addEventListener("click", function() {
+            const accountSection = document.getElementById("accounts_section");
+            const newAccountField = document.createElement("div");
+            newAccountField.classList.add("form-row");
+
+            newAccountField.innerHTML = `
+                <div class="form-group col-md-6">
+                    <label for="account_name_${accountCount}">{{ _("Account Name") }}</label>
+                    <input type="text" class="form-control" id="account_name_${accountCount}" name="account_name" placeholder="{{ _('Enter account name') }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="account_password_${accountCount}">{{ _("Account Password") }}</label>
+                    <input type="password" class="form-control" id="account_password_${accountCount}" name="account_password" placeholder="{{ _('Enter password') }}">
+                </div>
+            `;
+            accountSection.appendChild(newAccountField);
+            accountCount++;
+        });
+
+        // JavaScript to show or hide the accounts section based on the checkbox
+        document.getElementById("no_additional_users").addEventListener("change", function() {
+            const accountsSection = document.getElementById("accounts_section");
+            if (this.checked) {
+                accountsSection.style.display = "none";  // Hide the accounts section
+            } else {
+                accountsSection.style.display = "block";  // Show the accounts section
+            }
+        });
+
+        // Handle accounts section visibility
+    document.getElementById("no_additional_users").addEventListener("change", function() {
+        const accountsSection = document.getElementById("accounts_section");
+        accountsSection.style.display = this.checked ? "none" : "block";
+    });
+
+    // Show modal if a modal message is present
+    {% if modal_message %}
+        $(document).ready(function() {
+            $('#responseModal').modal('show');
+        });
+    {% endif %}
+    </script>
+
 {% endblock %}
