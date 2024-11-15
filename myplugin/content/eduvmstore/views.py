@@ -339,7 +339,8 @@ class InstancesView(generic.TemplateView):
             return {}
 
     def extract_accounts_from_form(self, request):
-        """Extract account details from the POST form and format them as dictionaries with matching usernames and passwords."""
+        """Extract account details from the POST
+        form and format them as dictionaries with matching usernames and passwords."""
         accounts = []
 
         # Get account names and passwords from the POST request
