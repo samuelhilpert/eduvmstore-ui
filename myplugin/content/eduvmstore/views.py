@@ -219,13 +219,17 @@ class CreateView(generic.TemplateView):
                                      json=data,
                                      headers=headers,
                                      timeout=10)
-            response.raise_for_status()  # Raise an error for bad responses
-            # After successful instance launch, redirect to the homepage
-            #return redirect('index_redirect')
+            if response.status_code == 201:
+                modal_message = _("App-Template created successfully.")
+            else:
+                modal_message = _("Failed to create App-Template. Please try again.")
+                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to create app template: {e}")
-            context = self.get_context_data()
+            modal_message = _("Failed to create App-Template. Please try again.")
+
+            context = self.get_context_data(modal_message=modal_message)
             context['error'] = _("Failed to create app template. Please try again.")
             return render(request, self.template_name, context)
 
