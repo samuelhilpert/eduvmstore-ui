@@ -8,49 +8,8 @@
 
 {% block main %}
 
-<ul>
-    {% for image in images %}
-        <li>{{ image }}</li>
-    {% endfor %}
-</ul>
-
-
-<h3>Add New Template</h3>
-    <label for="templateName"> Name</label><input type="text" id="templateName" placeholder="Enter template name" />
-<button id="postButton">Post</button>
-
-<p id="responseMessage"></p>
-
-<script>
-document.getElementById('postButton').addEventListener('click', function() {
-    const templateName = document.getElementById('templateName').value;
-
-
-    fetch("http://localhost:8000/api/app-templates/", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}',
-        },
-        body: JSON.stringify({
-            "name": templateName
-        })
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            return response.text().then(text => { throw new Error(text); });
-        }
-    })
-    .then(data => {
-        document.getElementById('responseMessage').innerText = data.message || data.error;
-    })
-    .catch(error => {
-        document.getElementById('responseMessage').innerText = 'Error: ' + error.message;
-    });
-    });
-</script>
-
+    <h3>Anleitung</h3>
+    <hr style="border: 1px solid lightgray; margin: 5px 0;">
+    <h3>FAQ</h3>
 
 {% endblock %}
