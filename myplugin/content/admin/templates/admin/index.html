@@ -11,41 +11,11 @@
     {% if show_content %}
         <h3>Welcome, {{ username }}----{{ auth_token }}!</h3>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
-
         <h2>Confirm new App-Templates</h2>
-        <table style="margin: 0 auto; border-spacing: 20px; width: 80%;">
-            <tr style="border-bottom: 1px solid lightgray;">
-                <th>App-Template</th>
-                <th>Owner</th>
-                <th>Accept</th>
-                <th>Deny</th>
-            </tr>
-            <tr style="border-bottom: 1px solid lightgray;">
-                <td>SAP S5CZE</td>
-                <td>Valentin Czekalla</td>
-                <td><button>Accept</button></td>
-                <td><button>Deny</button></td>
-            </tr>
-        </table>
-
+        <p><i style="color: gray;">Here you can confirm new App-Templates that have been uploaded by users.</i></p>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
-
         <h2>Edit User Roles</h2>
-        <p>Role model: 100 - User, 500 - Admin</p>
-        <table style="margin: 0 auto; border-spacing: 20px; width: 80%;">
-            <tr style="border-bottom: 1px solid lightgray;">
-                <th>Username</th>
-                <th>Role</th>
-                <th>New role level</th>
-                <th>Accept</th>
-            </tr>
-            <tr style="border-bottom: 1px solid lightgray;">
-                <td>Valentin Czekalla</td>
-                <td>100</td>
-                <td><input type="number" name="new_role_level" min="100" max="500" step="100" required></td>
-                <td><button>Accept</button></td>
-            </tr>
-        </table>
+        <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
     {% else %}
         <div style="text-align: center; margin-top: 50px;">
             <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">

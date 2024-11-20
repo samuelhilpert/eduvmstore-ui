@@ -17,10 +17,9 @@
 {% endblock %}
 
 {% block main %}
-
-        {% csrf_token %}
-  <form method="post" action="">
-        {% csrf_token %}
+   {% csrf_token %}
+  <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id  %}">
+      {% csrf_token %}
         <div class="form-group">
             <label for="app_template_id">{{ _("App Template ID") }}</label>
             <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
@@ -61,8 +60,10 @@
                     <input type="password" class="form-control" id="account_password_0" name="account_password" placeholder="{{ _('Enter password') }}">
                 </div>
             </div>
-             <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
+
         </div>
+
+        <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
 
      <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
@@ -70,6 +71,31 @@
         </div>
 
     </form>
+
+
+<!-- Modal for Success or Failure -->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">{{ _("Instance Creation Status") }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>{{ modal_message }}</p>
+            </div>
+            <div class="modal-footer">
+                {% if modal_message == "Instance created successfully." %}
+                    <a href="/dashboard/project/instances/" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                {% endif %}
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <script>
         // JavaScript to add additional account fields dynamically
@@ -102,5 +128,19 @@
                 accountsSection.style.display = "block";  // Show the accounts section
             }
         });
+
+        // Handle accounts section visibility
+    document.getElementById("no_additional_users").addEventListener("change", function() {
+        const accountsSection = document.getElementById("accounts_section");
+        accountsSection.style.display = this.checked ? "none" : "block";
+    });
+
+    // Show modal if a modal message is present
+    {% if modal_message %}
+        $(document).ready(function() {
+            $('#responseModal').modal('show');
+        });
+    {% endif %}
     </script>
+
 {% endblock %}
