@@ -223,8 +223,8 @@ class CreateView(generic.TemplateView):
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
         except requests.exceptions.RequestException as e:
-            modal_message = _("Failed to create App-Template. Please try again.")
             logging.error(f"Request error: {e}")
+            modal_message = _("Failed to create App-Template. Please try again.")
 
             # Ensure the context always includes modal_message
         context = self.get_context_data(modal_message=modal_message)
@@ -372,6 +372,7 @@ class InstancesView(generic.TemplateView):
             return {}
 
     #Get App Template Details to display while launching an instance
+    #Not used at the moment
     def get_app_template(self):
         """
             Fetch a specific app template from the external database using token authentication.
