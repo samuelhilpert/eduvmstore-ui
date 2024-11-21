@@ -282,6 +282,7 @@ class InstancesView(generic.TemplateView):
             'flavor_id': request.POST.get('flavor_id'),
             'name': request.POST.get('name'),
             'accounts': self.extract_accounts_from_form(request),
+            'network_id': request.POST.get('network_id')
         }
 
         try:
@@ -325,6 +326,9 @@ class InstancesView(generic.TemplateView):
         #Context for the selected App-Template --> Display system infos
         context['app_template'] = app_template
 
+        # Fetch available networks
+        context['networks'] = self.get_networks()
+
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
         return context
@@ -356,6 +360,16 @@ class InstancesView(generic.TemplateView):
                 })
 
         return accounts
+
+    def get_networks(self):
+        """Fetch networks from Neutron for the current tenant."""
+        try:
+            tenant_id = self.request.user.tenant_id
+            networks = api.neutron.network_list_for_tenant(self.request, tenant_id)
+            return {network.id: network.name for network in networks}
+        except Exception as e:
+            logging.error(f"Unable to fetch networks: {e}")
+            return {}
 
     #Get App Template Details to display while launching an instance
     def get_app_template(self):

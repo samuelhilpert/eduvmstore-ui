@@ -40,6 +40,17 @@
             <input type="text" class="form-control" id="name" name="name" placeholder="{{ _('Enter instance name') }}" required>
         </div>
 
+          <!-- Network Selection -->
+      <div class="form-group">
+          <label for="network_id">{{ _("Select Network") }}</label>
+          <select class="form-control" id="network_id" name="network_id" required>
+              <option value="" disabled selected>{{ _("Choose a network") }}</option>
+              {% for network_id, network_name in networks.items %}
+                  <option value="{{ network_id }}">{{ network_name }}</option>
+              {% endfor %}
+          </select>
+      </div>
+
 
    <!-- "No Additional Users" Checkbox -->
         <div class="form-group form-check">
