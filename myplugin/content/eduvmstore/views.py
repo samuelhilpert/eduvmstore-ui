@@ -44,11 +44,11 @@ def fetch_app_templates(request):
     """
     Fetches app templates from the external API using a provided token ID.
     """
-    token_id = get_token_id(request)  # Assumes token ID is always present
+    token_id = get_token_id(request)
     headers = {"X-Auth-Token": token_id}
 
     try:
-        response = requests.get(API_ENDPOINTS['app_templates'],  # Use the centralized endpoint
+        response = requests.get(API_ENDPOINTS['app_templates'],
                                 headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
@@ -69,7 +69,7 @@ class IndexView(generic.TemplateView):
             :rtype: dict
         """
         try:
-            filters = {}  # Add any filters if needed
+            filters = {}
             marker = self.request.GET.get('marker', None)
 
             images, has_more_data, has_prev_data = glance.image_list_detailed(
@@ -140,7 +140,7 @@ class DetailsPageView(generic.TemplateView):
             :return: JSON response of app template details if successful, otherwise an empty dict.
             :rtype: dict
         """
-        token_id = get_token_id(self.request)  # Assumes token ID is always present
+        token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
 
         try:
@@ -174,7 +174,7 @@ class CreateView(generic.TemplateView):
         View to handle the creation of a new app template with specified details.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    #success_url = reverse_lazy('/eduvmstore_dashboard/')  # Specify a success URL
+    #success_url = reverse_lazy('/eduvmstore_dashboard/')
 
     def get(self, request, *args, **kwargs):
         """
@@ -189,11 +189,11 @@ class CreateView(generic.TemplateView):
         """
         Handle POST requests to create a new app template by sending data to the backend API.
         """
-        token_id = get_token_id(request)  # Assumes token ID is always present
+        token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
         data = {
-            # Creator ID should be dynamically set if required
+
             'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -226,7 +226,7 @@ class CreateView(generic.TemplateView):
             modal_message = _("Failed to create App-Template. Please try again.")
             logging.error(f"Request error: {e}")
 
-            # Ensure the context always includes modal_message
+
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
 
@@ -256,7 +256,7 @@ class CreateView(generic.TemplateView):
                 filters=filters,
                 paginate=True
             )
-            return images  # Return the list of images
+            return images
         except Exception as e:
             logging.error(f"Unable to retrieve images: {e}")
             return []
@@ -316,7 +316,7 @@ class InstancesView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
+        app_template_id = self.kwargs['image_id']
         app_template = self.get_app_template()
 
         # Fetch available flavors from Nova
@@ -349,7 +349,7 @@ class InstancesView(generic.TemplateView):
 
         # Create a dictionary for each account
         for name, password in zip(account_names, account_passwords):
-            if name and password:  # Ensure username matches password
+            if name and password:
                 accounts.append({
                     "username": name,
                     "password": password
@@ -365,7 +365,7 @@ class InstancesView(generic.TemplateView):
             :return: JSON response of app template details if successful, otherwise an empty dict.
             :rtype: dict
         """
-        token_id = get_token_id(self.request)  # Assumes token ID is always present
+        token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
 
         try:
