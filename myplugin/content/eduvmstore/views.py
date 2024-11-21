@@ -273,40 +273,74 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        token_id = get_token_id(request)
-        headers = {"X-Auth-Token": token_id}
-
-        # Prepare the payload for creating an instance
-        data = {
-            'app_template_id': self.kwargs['image_id'],
-            'flavor_id': request.POST.get('flavor_id'),
-            'name': request.POST.get('name'),
-            'accounts': self.extract_accounts_from_form(request),
-            'network_id': request.POST.get('network_id')
-        }
-
+        """Handle POST requests to create a new instance."""
         try:
-            # Send the data to the backend to create an instance
-            response = requests.post(
-                API_ENDPOINTS['instances_launch'],
-                json=data,
-                headers=headers,
-                timeout=10,
+            # Abrufen der Flavor, Name, Netzwerk-ID aus dem Formular
+            flavor_id = request.POST.get('flavor_id')
+            name = request.POST.get('name')
+            network_id = request.POST.get('network_id')
+
+            # Fetch the image ID from the app template
+            app_template = self.get_app_template()
+            image_id = app_template.get('image_id')
+
+
+            # Abrufen der ersten verfügbaren Image ID
+            #image_id = self.get_image_id()
+            #if not image_id:
+                #raise Exception("No image ID available to create instance.")
+
+            # Netzwerk-Ports definieren
+            nics = [{"net-id": network_id}]
+
+            key_name = None
+            user_data = None
+            security_groups = ["default"]
+
+            print(f" name: {name}, image: {image_id}, flavor: {flavor_id}, network: {network_id}")
+
+            # Horizon-API-Aufruf für das Erstellen der Instanz
+            nova.server_create(
+                request,
+                name=name,
+                image=image_id,
+                flavor=flavor_id,
+                key_name=key_name,
+                user_data=user_data,
+                security_groups=security_groups,
+                nics=nics,
             )
 
-            if response.status_code == 201:
-                modal_message = _("Instance created successfully.")
-            else:
-                modal_message = _("Failed to launch instance. Please try again.")
-                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
+            modal_message = _("Instance created successfully.")
+        except Exception as e:
+            logging.error(f"Failed to create instance: {e}")
+            modal_message = _(f"Failed to create instance. Error: {e}")
 
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to launch instance: {e}")
-            modal_message = _("Failed to launch instance. Please try again.")
-
-        # Pass the modal message to the context
+        # Kontextdaten für das Template bereitstellen
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
+
+    def get_image_id(self):
+        """
+        Abfrage der ersten verfügbaren Image ID von der OpenStack Glance API.
+        """
+        try:
+            # Abrufen aller verfügbaren Images (ohne Filter)
+            images, has_more_data, has_prev_data = glance.image_list_detailed(
+                self.request,
+                filters={}  # Keine Filter anwenden
+            )
+
+            # Erste Image ID aus den Ergebnissen extrahieren (falls vorhanden)
+            if images:
+                return images[0].id
+            else:
+                logging.warning("No images found.")
+                return None
+        except Exception as e:
+            logging.error(f"Error fetching image ID: {e}")
+            return None
+
 
     def get_context_data(self, **kwargs):
         """
