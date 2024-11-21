@@ -131,19 +131,16 @@
         });
 
         // JavaScript to show or hide the accounts section based on the checkbox
-        document.getElementById("no_additional_users").addEventListener("change", function() {
-            const accountsSection = document.getElementById("accounts_section");
-            if (this.checked) {
-                accountsSection.style.display = "none";  // Hide the accounts section
-            } else {
-                accountsSection.style.display = "block";  // Show the accounts section
-            }
-        });
-
-        // Handle accounts section visibility
-    document.getElementById("no_additional_users").addEventListener("change", function() {
+    document.getElementById("no_additional_users").addEventListener("change", function () {
         const accountsSection = document.getElementById("accounts_section");
-        accountsSection.style.display = this.checked ? "none" : "block";
+        accountsSection.style.display = this.checked ? "none" : "block"; // Toggle display based on checkbox state
+    });
+
+    // Initialize visibility based on checkbox state when the page loads
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.getElementById("no_additional_users");
+        const accountsSection = document.getElementById("accounts_section");
+        accountsSection.style.display = checkbox.checked ? "none" : "block";
     });
 
     // Show modal if a modal message is present
