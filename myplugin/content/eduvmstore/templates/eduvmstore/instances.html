@@ -25,11 +25,6 @@
             <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
         </div>
 
-  <!-- display image id-->
-   {% if app_template.image_id %}
-            <h4>Image ID: {{ app_template.image_id }}</h4>
-        {% endif %}
-
         <div class="form-group">
             <label for="flavor_id">{{ _("Select Flavor") }}</label>
             <select class="form-control" id="flavor_id" name="flavor_id" required>

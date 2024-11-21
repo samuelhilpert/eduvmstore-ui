@@ -7,6 +7,7 @@ from django.views import generic
 import requests
 from django.views.decorators.csrf import csrf_exempt
 
+#THIS CODE IS NOT USED AT THE MOMENT
 
 class IndexView(generic.TemplateView):
     """
