@@ -44,11 +44,11 @@ def fetch_app_templates(request):
     """
     Fetches app templates from the external API using a provided token ID.
     """
-    token_id = get_token_id(request)  # Assumes token ID is always present
+    token_id = get_token_id(request)
     headers = {"X-Auth-Token": token_id}
 
     try:
-        response = requests.get(API_ENDPOINTS['app_templates'],  # Use the centralized endpoint
+        response = requests.get(API_ENDPOINTS['app_templates'],
                                 headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
@@ -69,7 +69,7 @@ class IndexView(generic.TemplateView):
             :rtype: dict
         """
         try:
-            filters = {}  # Add any filters if needed
+            filters = {}
             marker = self.request.GET.get('marker', None)
 
             images, has_more_data, has_prev_data = glance.image_list_detailed(
@@ -140,7 +140,7 @@ class DetailsPageView(generic.TemplateView):
             :return: JSON response of app template details if successful, otherwise an empty dict.
             :rtype: dict
         """
-        token_id = get_token_id(self.request)  # Assumes token ID is always present
+        token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
 
         try:
@@ -189,11 +189,11 @@ class CreateView(generic.TemplateView):
         """
         Handle POST requests to create a new app template by sending data to the backend API.
         """
-        token_id = get_token_id(request)  # Assumes token ID is always present
+        token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
         data = {
-            # Creator ID should be dynamically set if required
+
             'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -226,7 +226,7 @@ class CreateView(generic.TemplateView):
             logging.error(f"Request error: {e}")
             modal_message = _("Failed to create App-Template. Please try again.")
 
-            # Ensure the context always includes modal_message
+
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
 
@@ -256,7 +256,7 @@ class CreateView(generic.TemplateView):
                 filters=filters,
                 paginate=True
             )
-            return images  # Return the list of images
+            return images
         except Exception as e:
             logging.error(f"Unable to retrieve images: {e}")
             return []
@@ -275,22 +275,17 @@ class InstancesView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
         """Handle POST requests to create a new instance."""
         try:
-            # Abrufen der Flavor, Name, Netzwerk-ID aus dem Formular
+
             flavor_id = request.POST.get('flavor_id')
             name = request.POST.get('name')
             network_id = request.POST.get('network_id')
 
-            # Fetch the image ID from the app template
+
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
 
 
-            # Abrufen der ersten verfügbaren Image ID
-            #image_id = self.get_image_id()
-            #if not image_id:
-                #raise Exception("No image ID available to create instance.")
 
-            # Netzwerk-Ports definieren
             nics = [{"net-id": network_id}]
 
             key_name = None
@@ -299,7 +294,7 @@ class InstancesView(generic.TemplateView):
 
             print(f" name: {name}, image: {image_id}, flavor: {flavor_id}, network: {network_id}")
 
-            # Horizon-API-Aufruf für das Erstellen der Instanz
+
             nova.server_create(
                 request,
                 name=name,
@@ -316,30 +311,10 @@ class InstancesView(generic.TemplateView):
             logging.error(f"Failed to create instance: {e}")
             modal_message = _(f"Failed to create instance. Error: {e}")
 
-        # Kontextdaten für das Template bereitstellen
+
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
 
-    def get_image_id(self):
-        """
-        Abfrage der ersten verfügbaren Image ID von der OpenStack Glance API.
-        """
-        try:
-            # Abrufen aller verfügbaren Images (ohne Filter)
-            images, has_more_data, has_prev_data = glance.image_list_detailed(
-                self.request,
-                filters={}  # Keine Filter anwenden
-            )
-
-            # Erste Image ID aus den Ergebnissen extrahieren (falls vorhanden)
-            if images:
-                return images[0].id
-            else:
-                logging.warning("No images found.")
-                return None
-        except Exception as e:
-            logging.error(f"Error fetching image ID: {e}")
-            return None
 
 
     def get_context_data(self, **kwargs):
@@ -387,7 +362,7 @@ class InstancesView(generic.TemplateView):
 
         # Create a dictionary for each account
         for name, password in zip(account_names, account_passwords):
-            if name and password:  # Ensure username matches password
+            if name and password:
                 accounts.append({
                     "username": name,
                     "password": password
@@ -406,7 +381,6 @@ class InstancesView(generic.TemplateView):
             return {}
 
     #Get App Template Details to display while launching an instance
-    #Not used at the moment
     def get_app_template(self):
         """
             Fetch a specific app template from the external database using token authentication.

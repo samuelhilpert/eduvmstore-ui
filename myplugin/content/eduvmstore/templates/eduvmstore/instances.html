@@ -107,7 +107,7 @@
 
 
     <script>
-        // JavaScript to add additional account fields dynamically
+
         let accountCount = 1;
         document.getElementById("add_account").addEventListener("click", function() {
             const accountSection = document.getElementById("accounts_section");
@@ -128,20 +128,19 @@
             accountCount++;
         });
 
-        // JavaScript to show or hide the accounts section based on the checkbox
+
     document.getElementById("no_additional_users").addEventListener("change", function () {
         const accountsSection = document.getElementById("accounts_section");
-        accountsSection.style.display = this.checked ? "none" : "block"; // Toggle display based on checkbox state
+        accountsSection.style.display = this.checked ? "none" : "block";
     });
 
-    // Initialize visibility based on checkbox state when the page loads
     document.addEventListener("DOMContentLoaded", function () {
         const checkbox = document.getElementById("no_additional_users");
         const accountsSection = document.getElementById("accounts_section");
         accountsSection.style.display = checkbox.checked ? "none" : "block";
     });
 
-    // Show modal if a modal message is present
+
     {% if modal_message %}
         $(document).ready(function() {
             $('#responseModal').modal('show');
