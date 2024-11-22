@@ -39,15 +39,17 @@ class IndexView(generic.TemplateView):
         user = self.request.user
         token_id = None
 
-
+        # Check if the user has a token attribute and retrieve its ID
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
+        # Add user details and admin status to the context
         context['username'] = user.username
         context['auth_token'] = token_id
         context['admin'] = user.is_superuser
         context['show_content'] = False
 
+        # Check if the user is an admin and set the content visibility accordingly
         if user.is_superuser:
             context['show_content'] = True
         else:

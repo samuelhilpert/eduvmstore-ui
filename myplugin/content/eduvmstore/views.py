@@ -174,7 +174,7 @@ class CreateView(generic.TemplateView):
         View to handle the creation of a new app template with specified details.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    #success_url = reverse_lazy('/eduvmstore_dashboard/')  # Specify a success URL
+    #success_url = reverse_lazy('/eduvmstore_dashboard/')
 
     def get(self, request, *args, **kwargs):
         """
@@ -324,7 +324,7 @@ class InstancesView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        app_template_id = self.kwargs['image_id']  # Assuming template_id is in the URL
+        app_template_id = self.kwargs['image_id']
         app_template = self.get_app_template()
 
         # Fetch available flavors from Nova
@@ -386,7 +386,7 @@ class InstancesView(generic.TemplateView):
             :return: JSON response of app template details if successful, otherwise an empty dict.
             :rtype: dict
         """
-        token_id = get_token_id(self.request)  # Assumes token ID is always present
+        token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
 
         try:
