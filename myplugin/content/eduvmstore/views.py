@@ -193,8 +193,6 @@ class CreateView(generic.TemplateView):
         headers = {"X-Auth-Token": token_id}
 
         data = {
-
-            'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
