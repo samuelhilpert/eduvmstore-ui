@@ -213,6 +213,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Create</button>
+         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
     </form>
 </div>
 
@@ -231,7 +232,7 @@
             </div>
             <div class="modal-footer">
                 {% if modal_message == "App-Template created successfully." %}
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Show Overview") }}</a>
                 {% endif %}
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
             </div>

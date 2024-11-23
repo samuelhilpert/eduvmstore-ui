@@ -193,8 +193,6 @@ class CreateView(generic.TemplateView):
         headers = {"X-Auth-Token": token_id}
 
         data = {
-
-            'creator_id': "1d268016-2c68-4d58-ab90-268f4a84f39d",
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
@@ -223,8 +221,8 @@ class CreateView(generic.TemplateView):
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
         except requests.exceptions.RequestException as e:
-            modal_message = _("Failed to create App-Template. Please try again.")
             logging.error(f"Request error: {e}")
+            modal_message = _("Failed to create App-Template. Please try again.")
 
 
         context = self.get_context_data(modal_message=modal_message)
@@ -273,39 +271,49 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        token_id = get_token_id(request)
-        headers = {"X-Auth-Token": token_id}
-
-        # Prepare the payload for creating an instance
-        data = {
-            'app_template_id': self.kwargs['image_id'],
-            'flavor_id': request.POST.get('flavor_id'),
-            'name': request.POST.get('name'),
-            'accounts': self.extract_accounts_from_form(request),
-        }
-
+        """Handle POST requests to create a new instance."""
         try:
-            # Send the data to the backend to create an instance
-            response = requests.post(
-                API_ENDPOINTS['instances_launch'],
-                json=data,
-                headers=headers,
-                timeout=10,
+
+            flavor_id = request.POST.get('flavor_id')
+            name = request.POST.get('name')
+            network_id = request.POST.get('network_id')
+
+
+            app_template = self.get_app_template()
+            image_id = app_template.get('image_id')
+
+
+
+            nics = [{"net-id": network_id}]
+
+            key_name = None
+            user_data = None
+            security_groups = ["default"]
+
+            print(f" name: {name}, image: {image_id}, flavor: {flavor_id}, network: {network_id}")
+
+
+            nova.server_create(
+                request,
+                name=name,
+                image=image_id,
+                flavor=flavor_id,
+                key_name=key_name,
+                user_data=user_data,
+                security_groups=security_groups,
+                nics=nics,
             )
 
-            if response.status_code == 201:
-                modal_message = _("Instance created successfully.")
-            else:
-                modal_message = _("Failed to launch instance. Please try again.")
-                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
+            modal_message = _("Instance created successfully.")
+        except Exception as e:
+            logging.error(f"Failed to create instance: {e}")
+            modal_message = _(f"Failed to create instance. Error: {e}")
 
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to launch instance: {e}")
-            modal_message = _("Failed to launch instance. Please try again.")
 
-        # Pass the modal message to the context
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
+
+
 
     def get_context_data(self, **kwargs):
         """
@@ -324,6 +332,9 @@ class InstancesView(generic.TemplateView):
 
         #Context for the selected App-Template --> Display system infos
         context['app_template'] = app_template
+
+        # Fetch available networks
+        context['networks'] = self.get_networks()
 
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
@@ -356,6 +367,16 @@ class InstancesView(generic.TemplateView):
                 })
 
         return accounts
+
+    def get_networks(self):
+        """Fetch networks from Neutron for the current tenant."""
+        try:
+            tenant_id = self.request.user.tenant_id
+            networks = api.neutron.network_list_for_tenant(self.request, tenant_id)
+            return {network.id: network.name for network in networks}
+        except Exception as e:
+            logging.error(f"Unable to fetch networks: {e}")
+            return {}
 
     #Get App Template Details to display while launching an instance
     def get_app_template(self):
