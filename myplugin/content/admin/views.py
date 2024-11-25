@@ -1,5 +1,6 @@
 import requests
 import socket
+import logging
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
 
@@ -21,6 +22,28 @@ def get_host_ip():
     finally:
         s.close()
     return ip
+
+def get_token_id(request):
+    """
+    Retrieves the token ID from the request object.
+    """
+    return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
+
+def get_users(request):
+    """
+    Fetches app templates from the external API using a provided token ID.
+    """
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    try:
+        response = requests.get(API_ENDPOINTS['user_list'],
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to fetch users: %s", e)
+        return []
 
 class IndexView(generic.TemplateView):
     """
@@ -44,6 +67,9 @@ class IndexView(generic.TemplateView):
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
+        user_data = get_users(self.request)
+        context['users'] = user_data
+
         # Add user details and admin status to the context
         context['username'] = user.username
         context['auth_token'] = token_id
@@ -58,6 +84,13 @@ class IndexView(generic.TemplateView):
 
 
         return context
+
+
+
+
+
+
+
 
 
 
