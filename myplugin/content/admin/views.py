@@ -1,6 +1,7 @@
 import requests
 import socket
 from django.views import generic
+from myplugin.content.api_endpoints import API_ENDPOINTS
 
 # Retrieve the host IP address
 def get_host_ip():
