@@ -76,7 +76,7 @@ class IndexView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        user = self.request.user
+        userdev = self.request.user
         token_id = None
 
         # Check if the user has a token attribute and retrieve its ID
@@ -96,13 +96,13 @@ class IndexView(generic.TemplateView):
         context['detailed_users'] = detailed_users
 
         # Add user details and admin status to the context
-        context['username'] = user.username
+        context['username'] = userdev.username
         context['auth_token'] = token_id
-        context['admin'] = user.is_superuser
+        context['admin'] = userdev.is_superuser
         context['show_content'] = False
 
         # Check if the user is an admin and set the content visibility accordingly
-        if user.is_superuser:
+        if userdev.is_superuser:
             context['show_content'] = True
         else:
             context['show_content'] = False
