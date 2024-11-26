@@ -45,6 +45,22 @@ def get_users(request):
         logging.error("Failed to fetch users: %s", e)
         return []
 
+def get_user_details(request, user_id):
+    """
+    Fetches detailed user information for a given user_id using the external API.
+    """
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+    url = f"{API_ENDPOINTS['user_list']}{user_id}"  #
+
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to fetch user details for user_id %s: %s", user_id, e)
+        return {}
+
 class IndexView(generic.TemplateView):
     """
         View for displaying the admin index page with user details and admin status.
@@ -69,6 +85,15 @@ class IndexView(generic.TemplateView):
 
         user_data = get_users(self.request)
         context['users'] = user_data
+
+        detailed_users = []
+        for user in user_data:
+            user_id = user.get('id')  # Assuming the API response includes an 'id' field
+            if user_id:
+                user_details = get_user_details(self.request, user_id)
+                detailed_users.append(user_details)
+
+        context['detailed_users'] = detailed_users
 
         # Add user details and admin status to the context
         context['username'] = user.username
