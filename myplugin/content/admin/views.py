@@ -45,6 +45,22 @@ def get_users(request):
         logging.error("Failed to fetch users: %s", e)
         return []
 
+def get_roles(request):
+    """
+    Fetches app templates from the external API using a provided token ID.
+    """
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    try:
+        response = requests.get(API_ENDPOINTS['roles_list'],
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to fetch roles: %s", e)
+        return []
+
 def get_user_details(request, user_id):
     """
     Fetches detailed user information for a given user_id using the external API.
@@ -85,6 +101,9 @@ class IndexView(generic.TemplateView):
 
         user_data = get_users(self.request)
         context['users'] = user_data
+
+        roles_data = get_roles(self.request)
+        context['roles'] = roles_data
 
         detailed_users = []
         for user in user_data:
