@@ -37,36 +37,41 @@
         <h2>Edit User Roles</h2>
         <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th style="border: 1px solid black; padding: 5px;">ID</th>
-                <th style="border: 1px solid black; padding: 5px;">Role Name</th>
-                <th style="border: 1px solid black; padding: 5px;">New Role</th>
-                <th style="border: 1px solid black; padding: 5px;">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for user in detailed_users %}
+        <form method="post" action="{% url 'change_user_role' %}">
+            {% csrf_token %}
+            <table class="table table-striped">
+                <thead>
                 <tr>
-                    <td style="border: 1px solid black; padding: 5px;">{{ user.id }}</td>
-                    <td style="border: 1px solid black; padding: 5px;">{{ user.role.name }}</td>
-                    <td style="border: 1px solid black; padding: 5px;">
-                        <select id="new_role_{{ user.id }}" style="width: 100%;">
-                            {% for role in roles %}
-                                <option value="{{ role.id }}">{{ role.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td style="border: 1px solid black; padding: 5px; text-align: center;">
-                        <button  style="padding: 5px 10px;">
-                            Confirm
-                        </button>
-                    </td>
+                    <th>ID</th>
+                    <th>Created At</th>
+                    <th>Updated At</th>
+                    <th>Current Role</th>
+                    <th>New Role</th>
+                    <th>Action</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for user in detailed_users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.created_at }}</td>
+                        <td>{{ user.updated_at }}</td>
+                        <td>{{ user.role.name }}</td>
+                        <td>
+                            <select name="new_role_{{ user.id }}" style="width: 100%;">
+                                {% for role in roles %}
+                                    <option value="{{ role.id }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <button type="submit" name="user_id" value="{{ user.id }}" style="padding: 5px 10px;">Confirm</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
 
         <h1 style="text-align: center;">This page is still under construction. Come back soon.</h1>
     {% else %}
