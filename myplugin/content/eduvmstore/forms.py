@@ -66,41 +66,47 @@ class AppTemplateForm(forms.Form):
 
 
     # System Requirements
-    fixed_ram_gb = forms.IntegerField(
+    fixed_ram_gb = forms.DecimalField(
         label="Minimum RAM (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        min_value=0
+        min_value=0,
+        decimal_places=1
     )
-    fixed_disk_gb = forms.IntegerField(
+    fixed_disk_gb = forms.DecimalField(
         label="Minimum Disk (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        min_value=0
+        min_value=0,
+        decimal_places=1
     )
-    fixed_cores = forms.IntegerField(
+    fixed_cores = forms.DecimalField(
         label="Minimum Cores",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        min_value=0
+        min_value=0,
+        decimal_places=1
     )
-    per_user_ram_gb = forms.IntegerField(
+    per_user_ram_gb = forms.DecimalField(
         label="Minimum RAM per User (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        min_value=0
+        min_value=0,
+        decimal_places=1
     )
-    per_user_disk_gb = forms.IntegerField(
+    per_user_disk_gb = forms.DecimalField(
         label="Minimum Disk per User (GB)",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        min_value=0
+        min_value=0,
+        decimal_places=1
     )
-    per_user_cores = forms.IntegerField(
+    per_user_cores = forms.DecimalField(
         label="Minimum Cores per User",
         required=False,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
-        min_value=0
+        min_value=0,
+        decimal_places=1
     )
 
 
