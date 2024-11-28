@@ -79,41 +79,7 @@ def get_user_details(request, user_id):
         logging.error("Failed to fetch user details for user_id %s: %s", user_id, e)
         return {}
 
-def change_user_role(request):
-    """
-    Ändert die Rolle eines Benutzers über einen API-PATCH-Aufruf.
-    """
-    if request.method == "POST":
-        user_id = request.POST.get("user_id")
-        new_role_id = request.POST.get(f"new_role_{user_id}")
 
-        if user_id and new_role_id:
-            try:
-                # Basis-URL und Endpunkt konfigurieren
-                api_url = f"{API_ENDPOINTS['user_list']}{user_id}"  #
-
-                # Header und Daten vorbereiten
-                headers = {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {request.user.token.id}",  # Beispiel-Token
-                }
-                payload = {"role": new_role_id}
-
-                # PATCH-Request ausführen
-                response = requests.patch(api_url, json=payload, headers=headers)
-
-                if response.status_code == 200:
-                    messages.success(request, f"Role for user {user_id} updated successfully via API.")
-                else:
-                    # API-Fehlermeldung extrahieren
-                    error_message = response.json().get("error", "Unknown error occurred.")
-                    messages.error(request, f"Failed to update role via API: {error_message}")
-            except requests.RequestException as e:
-                messages.error(request, f"Error during API call: {str(e)}")
-        else:
-            messages.error(request, "User ID or new role not provided.")
-
-    return redirect("index")  # Passe den View-Namen an
 
 class IndexView(generic.TemplateView):
     """
