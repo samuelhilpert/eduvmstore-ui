@@ -153,7 +153,7 @@ class IndexView(generic.TemplateView):
             # API-Aufruf vorbereiten
             api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
 
-            payload = {"role": new_role_id}
+            payload = {"role_id": new_role_id}
             headers = {"X-Auth-Token": token_id}
 
             # API-PATCH-Aufruf
