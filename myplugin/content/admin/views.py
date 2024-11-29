@@ -160,7 +160,7 @@ class IndexView(generic.TemplateView):
             response = requests.patch(api_url, json=payload, headers=headers)
 
             if response.status_code == 200:
-                messages.success(request, f"Role for user {user_id} updated successfully.")
+                messages.success(request, f"Role for user {user_id} updated successfully to {new_role_id}.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
                 messages.error(request, f"Failed to update role: {error_message}")
