@@ -133,6 +133,73 @@ class IndexView(generic.TemplateView):
 
         return context
 
+    import requests
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.views.generic import TemplateView
+from myplugin.content.api_endpoints import API_ENDPOINTS
+
+class IndexView(TemplateView):
+    """
+    View for displaying the admin index page with user details and handling role updates.
+    """
+    template_name = 'eduvmstore_dashboard/admin/index.html'
+
+    def get_context_data(self, **kwargs):
+        """
+        Add user details, roles, and admin status to the context.
+        """
+        context = super().get_context_data(**kwargs)
+        userdev = self.request.user
+
+        # API-Aufrufe für Benutzer und Rollen
+        context['users'] = get_users(self.request)
+        context['roles'] = get_roles(self.request)
+        context['detailed_users'] = [
+            get_user_details(self.request, user['id']) for user in context['users']
+        ]
+
+        # Benutzerinformationen hinzufügen
+        context['username'] = userdev.username
+        context['auth_token'] = getattr(userdev.token, 'id', None)
+        context['admin'] = userdev.is_superuser
+        context['show_content'] = userdev.is_superuser
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to update a user's role via the external API.
+        """
+        user_id = request.POST.get("user_id")
+        new_role_id = request.POST.get("new_role")
+        token_id = get_token_id(request)
+        print(user_id)
+        print(new_role_id)
+        print(token_id)
+
+        if not user_id or not new_role_id:
+            messages.error(request, "User ID and Role ID are required.")
+            return redirect(request.path)  # Zurück zur aktuellen Seite
+
+        try:
+            # API-Aufruf vorbereiten
+            api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
+            headers = {"X-Auth-Token": token_id}
+            payload = {"role": new_role_id}
+
+            # API-PATCH-Aufruf
+            response = requests.patch(api_url, json=payload, headers=headers)
+
+            if response.status_code == 200:
+                messages.success(request, f"Role for user {user_id} updated successfully.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to update role: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect(request.path)  # Zurück zur aktuellen Seite
 
 
 
