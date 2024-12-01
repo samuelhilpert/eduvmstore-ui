@@ -171,7 +171,8 @@ class UpdateRolesView(generic.View):
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
-        return redirect(request.path)
+        return redirect('horizon:eduvmstore_dashboard:admin:index')
+
 
 
 
