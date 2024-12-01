@@ -138,12 +138,9 @@ class IndexView(generic.TemplateView):
         Handle POST requests to update a user's role via the external API.
         """
         user_id = request.POST.get("user_id")
-        new_role_id = request.POST.get("new_role")
+        new_role_id = request.POST.get(f"new_role_{user_id}")
         token_id = get_token_id(request)
-        print("POST data:", request.POST)
-        print("User ID:", user_id)
-        print("New Role ID:", new_role_id)
-        print("Token ID:", token_id)
+
 
         if not user_id or not new_role_id:
             messages.error(request, "User ID and Role ID are required.")
