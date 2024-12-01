@@ -37,7 +37,7 @@
         <h2>Edit User Roles</h2>
         <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
-        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:index' %}">
+        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}">
             {% csrf_token %}
             <table class="table table-striped">
                 <thead>

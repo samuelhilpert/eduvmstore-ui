@@ -133,6 +133,13 @@ class IndexView(generic.TemplateView):
 
         return context
 
+      # Zurück zur aktuellen Seite
+
+
+class UpdateRolesView(generic.View):
+    """
+    Handle POST requests to update a user's role via the Backend.
+    """
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to update a user's role via the external API.
@@ -164,11 +171,7 @@ class IndexView(generic.TemplateView):
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
-        return redirect(request.path)  # Zurück zur aktuellen Seite
-
-
-
-
+        return redirect(request.path)
 
 
 
