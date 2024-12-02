@@ -211,7 +211,7 @@ class ApproveTemplateView(generic.View):
 
         try:
             # API-Aufruf vorbereiten
-            api_url = f"{API_ENDPOINTS['app-templates']}{template_id}/approved/"
+            api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/approved/"
 
             headers = {"X-Auth-Token": token_id}
 
