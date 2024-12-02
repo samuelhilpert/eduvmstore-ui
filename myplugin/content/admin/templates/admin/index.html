@@ -48,14 +48,14 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for user in detailed_users %}
+                {% for template in approvable_app_templates %}
                     <tr>
-                        <td>test</td>
-                        <td>test</td>
-                        <td>test</td>
-                        <td>test</td>
-                        <td>test</td>
-                        <td>test</td>
+                        <td>{{ template.id }}</td>
+                        <td>{{ template.creator_id }}</td>
+                        <td>{{ template.creator_at }}</td>
+                        <td>{{ template.image_id }}</td>
+                        <td>{{ template.name }}</td>
+                        <td>{{ template.short_description }}</td>
                         <td>
                             <button type="submit" name="user_id" value="{{ user.id }}" style="padding: 5px 10px;">Confirm</button>
                         </td>

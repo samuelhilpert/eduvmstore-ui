@@ -79,6 +79,22 @@ def get_user_details(request, user_id):
         logging.error("Failed to fetch user details for user_id %s: %s", user_id, e)
         return {}
 
+def get_app_templates_to_approve(request):
+    """
+    Fetches app templates to approve from the external API using a provided token ID.
+    """
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    try:
+        response = requests.get(API_ENDPOINTS['get_to_approve'],
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to fetch app templates to approve: %s", e)
+        return []
+
 
 
 class IndexView(generic.TemplateView):
@@ -108,6 +124,9 @@ class IndexView(generic.TemplateView):
 
         roles_data = get_roles(self.request)
         context['roles'] = roles_data
+
+        approvable_app_templates = get_app_templates_to_approve(self.request)
+        context['approvable_app_templates'] = approvable_app_templates
 
         detailed_users = []
         for user in user_data:
