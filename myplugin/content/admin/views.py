@@ -170,7 +170,7 @@ class UpdateRolesView(generic.View):
 
         if not user_id or not new_role_id:
             messages.error(request, "User ID and Role ID are required.")
-            return redirect(request.path)  # Zurück zur aktuellen Seite
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
             # API-Aufruf vorbereiten
@@ -184,6 +184,42 @@ class UpdateRolesView(generic.View):
 
             if response.status_code == 200:
                 messages.success(request, f"Role for user {user_id} updated successfully to {new_role_id}.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to update role: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+
+class ApproveTemplateView(generic.View):
+    """
+    Handle POST requests to update a user's role via the Backend.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to update a user's role via the external API.
+        """
+        template_id = request.POST.get("template_id")
+        token_id = get_token_id(request)
+
+
+        if not template_id:
+            messages.error(request, "Template ID are required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+        try:
+            # API-Aufruf vorbereiten
+            api_url = f"{API_ENDPOINTS['app-templates']}{template_id}/approved/"
+
+            headers = {"X-Auth-Token": token_id}
+
+            # API-PATCH-Aufruf
+            response = requests.patch(api_url, headers=headers)
+
+            if response.status_code == 200:
+                messages.success(request, f"{template_id} confirmed. This template is now available for all users.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
                 messages.error(request, f"Failed to update role: {error_message}")

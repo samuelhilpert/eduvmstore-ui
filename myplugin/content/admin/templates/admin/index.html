@@ -34,6 +34,8 @@
         <h2>Confirm new App-Templates</h2>
         <p><i style="color: gray;">Here you can confirm new App-Templates that have been uploaded by users.</i></p>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
+        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}">
+        {% csrf_token %}
             <table class="table table-striped">
                 <thead>
                 <tr>
@@ -57,12 +59,13 @@
                         <td>{{ template.name }}</td>
                         <td>{{ template.short_description }}</td>
                         <td>
-                            <button type="submit" name="user_id" value="{{ user.id }}" style="padding: 5px 10px;">Confirm</button>
+                            <button type="submit" name="template_id" value="{{ template.id }}" style="padding: 5px 10px;">Confirm</button>
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
+        </form>
         <h2>Edit User Roles</h2>
         <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
