@@ -6,24 +6,6 @@ from django.contrib import messages
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
 
-# Retrieve the host IP address
-def get_host_ip():
-    """
-        Retrieve the IP address of the host.
-
-        :return: The IP address of the host.
-        :rtype: str
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-    except Exception as e:
-        raise RuntimeError("Failed to retrieve host IP address") from e
-    finally:
-        s.close()
-    return ip
 
 def get_token_id(request):
     """
@@ -95,6 +77,22 @@ def get_app_templates_to_approve(request):
         logging.error("Failed to fetch app templates to approve: %s", e)
         return []
 
+def get_app_templates(request):
+    """
+    Fetches app templates from the external API using a provided token ID.
+    """
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    try:
+        response = requests.get(API_ENDPOINTS['app_templates'],
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to fetch app templates: %s", e)
+        return []
+
 
 
 class IndexView(generic.TemplateView):
@@ -127,6 +125,9 @@ class IndexView(generic.TemplateView):
 
         approvable_app_templates = get_app_templates_to_approve(self.request)
         context['approvable_app_templates'] = approvable_app_templates
+
+        app_templates = get_app_templates(self.request)
+        context['app_templates'] = app_templates
 
         detailed_users = []
         for user in user_data:
@@ -228,7 +229,34 @@ class ApproveTemplateView(generic.View):
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
 
+class DeleteTemplateView(generic.View):
 
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to delete a template via the external API.
+        """
+        template_id = request.POST.get("template_id")
+        token_id = get_token_id(request)
 
+        if not template_id:
+            messages.error(request, "Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
 
+        try:
+            # Prepare API call
+            api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/"
 
+            headers = {"X-Auth-Token": token_id}
+
+            # API DELETE call
+            response = requests.delete(api_url, headers=headers)
+
+            if response.status_code == 204:
+                messages.success(request, f"Template {template_id} deleted successfully.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to delete template: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:admin:index')

@@ -8,6 +8,7 @@ urlpatterns = [
     re_path(r'^$', views.IndexView.as_view(), name='index'),
     path('update_roles/', views.UpdateRolesView.as_view(), name='update_roles'),
     path('approve_template/', views.ApproveTemplateView.as_view(), name='approve_template'),
+    path('delete_template/', views.DeleteTemplateView.as_view(), name='delete_template'),
 
 
 ]
