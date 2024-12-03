@@ -260,3 +260,35 @@ class DeleteTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+class DeleteUserView(generic.View):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to delete a template via the external API.
+        """
+        user_id = request.POST.get("user_id")
+        token_id = get_token_id(request)
+
+        if not user_id:
+            messages.error(request, "Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+        try:
+            # Prepare API call
+            api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
+
+            headers = {"X-Auth-Token": token_id}
+
+            # API DELETE call
+            response = requests.delete(api_url, headers=headers)
+
+            if response.status_code == 204:
+                messages.success(request, f"User {user_id} deleted successfully.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to delete user: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:admin:index')
