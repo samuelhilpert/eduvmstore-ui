@@ -128,12 +128,12 @@
                     <tr>
                         <td>{{ temp.id }}</td>
                         <td>{{ temp.name }}</td>
-                        <td>{{ template.updated_at }}</td>
-                        <td>{{ template.short_description }}</td>
-                        <td>{{ template.version }}</td>
-                        <td>{{ template.public }}</td>
+                        <td>{{ temp.updated_at }}</td>
+                        <td>{{ temp.short_description }}</td>
+                        <td>{{ temp.version }}</td>
+                        <td>{{ temp.public }}</td>
                         <td>
-                            <button type="submit" name="template_id" value="{{ template.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to delete this app template?');">Delete</button>
+                            <button type="submit" name="template_id" value="{{ temp.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to delete this app template?');">Delete</button>
                         </td>
                     </tr>
                 {% endfor %}
