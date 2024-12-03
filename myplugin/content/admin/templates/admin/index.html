@@ -69,7 +69,7 @@
         <h2>Edit User Roles</h2>
         <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
-        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}" onsubmit="return confirmAction();">
+        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}">
             {% csrf_token %}
             <table class="table table-striped">
                 <thead>
@@ -97,7 +97,7 @@
                             </select>
                         </td>
                         <td>
-                            <button type="submit" name="user_id" value="{{ user.id }}" style="padding: 5px 10px;">Confirm</button>
+                            <button type="submit" name="user_id" value="{{ user.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to update this role?');">Confirm</button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -117,9 +117,3 @@
 
 {% endblock %}
 
-<script>
-    function confirmAction() {
-        // Zeigt ein Bestätigungsfenster an
-        return confirm("Are you sure you want to perform this action?");
-    }
-</script>
