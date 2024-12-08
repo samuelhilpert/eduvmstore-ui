@@ -292,3 +292,41 @@ class DeleteUserView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+class CreateRoleView(generic.View):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to delete a template via the external API.
+        """
+        new_role_name = request.POST.get("new_role_name")
+        access_level = request.POST.get("access_level")
+        token_id = get_token_id(request)
+
+        if not new_role_name:
+            messages.error(request, "Role Name is required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+        try:
+            # Prepare API call
+            api_url = f"{API_ENDPOINTS['roles_list']}/"
+
+            headers = {"X-Auth-Token": token_id}
+
+            payload = {
+                "name": new_role_name,
+                "access_level": access_level
+            }
+
+            # API DELETE call
+            response = requests.delete(api_url, json=payload, headers=headers)
+
+            if response.status_code == 204:
+                messages.success(request, f"Role {new_role_name} deleted successfully.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to create role: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:admin:index')

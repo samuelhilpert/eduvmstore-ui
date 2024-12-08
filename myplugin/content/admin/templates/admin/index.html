@@ -70,8 +70,8 @@
         <h3>Welcome, {{ username }}!</h3>
         <hr style="border: 1px solid lightgray; margin: 5px 0;">
         <button class="accordion">
-            User Management
-            <span class="accordion-description">Manage user roles and delete users from the system.</span>
+            App Template Management
+            <span class="accordion-description">Approve or delete uploaded App Templates.</span>
         </button>
         <div class="panel">
             <h2>Confirm new App-Templates</h2>
@@ -146,8 +146,8 @@
             </form>
         </div>
         <button class="accordion">
-            App Template Management
-            <span class="accordion-description">Approve, delete, or edit uploaded App Templates.</span>
+            User Management
+            <span class="accordion-description">Manage user roles and delete users from the system.</span>
         </button>
         <div class="panel">
             <h2>Edit User Roles</h2>
@@ -219,6 +219,24 @@
                     </tbody>
                 </table>
             </form>
+        </div>
+        <button class="accordion">
+            Role Management
+            <span class="accordion-description">Create, manage and delete roles from the system.</span>
+        </button>
+        <div class="panel">
+            <h2>Create Role</h2>
+            <p><i style="color: gray;">Here you can create a Role.</i></p>
+            <hr style="border: 1px solid lightgray; margin: 5px 0;">
+            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:create_role' %}">
+                {% csrf_token %}
+                <label for="new_role_name">Role Name:</label>
+                <input type="text" id="new_role_name" name="new_role_name" required>
+                <label for="access_level">Access Level:</label>
+                <input type="text" id="access_level" name="access_level" required>
+                <button type="submit">Create Role</button>
+            </form>
+            <p>Here will be the role management</p>
         </div>
 
         <h1 style="text-align: center;">This page is still under construction. Come back soon.</h1>
