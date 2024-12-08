@@ -319,10 +319,12 @@ class CreateRoleView(generic.View):
             }
 
             # API DELETE call
-            response = requests.delete(api_url, json=payload, headers=headers)
+            response = requests.post(api_url, json=payload, headers=headers)
 
-            if response.status_code == 204:
-                messages.success(request, f"Role {new_role_name} deleted successfully.")
+            if response.status_code == 201:
+                created_role = response.json()
+                role_id = created_role.get("new_role_id")
+                messages.success(request, f"Role '{new_role_name}' created successfully with ID {role_id}.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
                 messages.error(request, f"Failed to create role: {error_message}")
