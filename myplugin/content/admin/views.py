@@ -323,7 +323,7 @@ class CreateRoleView(generic.View):
 
             if response.status_code == 201:
                 created_role = response.json()
-                role_id = created_role.get("new_role_id")
+                role_id = created_role.get("id")
                 messages.success(request, f"Role '{new_role_name}' created successfully with ID {role_id}.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
