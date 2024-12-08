@@ -318,7 +318,7 @@ class CreateRoleView(generic.View):
                 "access_level": access_level
             }
 
-            # API DELETE call
+
             response = requests.post(api_url, json=payload, headers=headers)
 
             if response.status_code == 201:
