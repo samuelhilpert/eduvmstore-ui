@@ -279,33 +279,41 @@
     // Funktion zur Validierung
     function preventInvalidInput(event) {
         const input = event.target;
+        const value = input.value;
+        const selectionStart = input.selectionStart;
+        const selectionEnd = input.selectionEnd;
 
-        // Erlaube nur Zahlen und Punkt
+        // Erlaube alle Steuerzeichen (z.B. Backspace, Delete, Pfeiltasten)
+        if (event.inputType === "deleteContentBackward" || event.inputType === "deleteContentForward") {
+            return; // Löschen erlauben
+        }
+
+        // Erlaube nur Ziffern, Punkt und Komma
         const validInputPattern = /^[0-9.,]$/;
 
-        // Blockiere Eingabe, wenn das Zeichen nicht erlaubt ist
-        if (!validInputPattern.test(event.data)) {
+        // Eingabe prüfen und blockieren, falls ungültig
+        if (!event.data || !validInputPattern.test(event.data)) {
             event.preventDefault();
             return;
         }
 
-        // Ersetze Komma durch Punkt, falls eingegeben
+        // Ersetze Komma durch Punkt
         if (event.data === ',') {
-            const start = input.selectionStart;
-            const end = input.selectionEnd;
-            input.value = input.value.slice(0, start) + '.' + input.value.slice(end);
-            input.setSelectionRange(start + 1, start + 1);
+            input.value = value.slice(0, selectionStart) + '.' + value.slice(selectionEnd);
+            input.setSelectionRange(selectionStart + 1, selectionStart + 1);
             event.preventDefault();
+            return;
         }
 
         // Prüfe auf maximal zwei Dezimalstellen
-        const newValue = input.value + event.data;
+        const newValue = value.slice(0, selectionStart) + event.data + value.slice(selectionEnd);
         const decimalCheck = /^\d+(\.\d{0,2})?$/;
 
         if (!decimalCheck.test(newValue)) {
-            event.preventDefault();
+            event.preventDefault(); // Eingabe blockieren
         }
     }
+
 
     // Event-Listener für alle Eingabefelder
     inputIds.forEach(id => {
