@@ -278,25 +278,36 @@
 
     // Funktion zur Validierung
     function validateInput(event) {
-        // Speichere die Cursorposition
-        const start = this.selectionStart;
-        const end = this.selectionEnd;
+        // Speichere die aktuelle Eingabe und Cursorposition
+        const input = event.target;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
 
-        // 1. Entferne alle ungültigen Zeichen
-        let newValue = this.value.replace(/[^0-9.,]/g, '');
+        // Vorherige Eingabe speichern
+        const oldValue = input.value;
 
-        // 2. Ersetze Komma durch Punkt
-        newValue = newValue.replace(',', '.');
+        // Erlaube nur Ziffern, Punkt und Komma
+        let newValue = oldValue.replace(/[^0-9.,]/g, '');
 
-        // 3. Erlaube maximal 2 Dezimalstellen
+        // Ersetze Komma durch Punkt, aber nur wenn es neu eingegeben wurde
+        if (newValue.includes(',')) {
+            newValue = newValue.replace(',', '.');
+        }
+
+        // Prüfe, ob Eingabe den Maximalwert für Dezimalstellen überschreitet
         const regex = /^(\d+(\.\d{0,2})?)?/;
-        const match = newValue.match(regex);
-        this.value = match[0] || '';
+        const match = newValue.match(regex)[0] || '';
 
-        // Stelle die Cursorposition wieder her
-        const cursorOffset = this.value.length - newValue.length;
-        this.setSelectionRange(start + cursorOffset, end + cursorOffset);
+        // Falls sich der Wert geändert hat, aktualisiere das Eingabefeld
+        if (match !== oldValue) {
+            input.value = match;
+
+            // Berechne den neuen Cursorstand
+            const cursorOffset = match.length - oldValue.length;
+            input.setSelectionRange(start + cursorOffset, end + cursorOffset);
+        }
     }
+
 
 
     // Event-Listener für alle Eingabefelder
