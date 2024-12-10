@@ -277,22 +277,40 @@
     ];
 
     // Funktion zur Validierung
-    function validateInput(event) {
-        // Nur erlaubte Zeichen (Zahlen, Punkt, Komma)
-        this.value = this.value.replace(/[^0-9.,]/g, '');
+    function preventInvalidInput(event) {
+        const input = event.target;
 
-        // Maximal zwei Dezimalstellen erlauben
-        const regex = /^(\d+(\.\d{0,2})?)?/;
-        this.value = this.value.match(regex)[0] || '';
+        // Erlaube nur Zahlen und Punkt
+        const validInputPattern = /^[0-9.,]$/;
+
+        // Blockiere Eingabe, wenn das Zeichen nicht erlaubt ist
+        if (!validInputPattern.test(event.data)) {
+            event.preventDefault();
+            return;
+        }
+
+        // Ersetze Komma durch Punkt, falls eingegeben
+        if (event.data === ',') {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            input.value = input.value.slice(0, start) + '.' + input.value.slice(end);
+            input.setSelectionRange(start + 1, start + 1);
+            event.preventDefault();
+        }
+
+        // Prüfe auf maximal zwei Dezimalstellen
+        const newValue = input.value + event.data;
+        const decimalCheck = /^\d+(\.\d{0,2})?$/;
+
+        if (!decimalCheck.test(newValue)) {
+            event.preventDefault();
+        }
     }
-
-
-
 
     // Event-Listener für alle Eingabefelder
     inputIds.forEach(id => {
         const input = document.getElementById(id);
-        input.addEventListener("input", validateInput);
+        input.addEventListener("beforeinput", preventInvalidInput);
     });
      // Automatically show the modal if modal_message is set
     {% if modal_message %}
