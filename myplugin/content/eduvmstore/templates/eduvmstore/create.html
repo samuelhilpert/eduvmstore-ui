@@ -283,15 +283,17 @@
         const selectionStart = input.selectionStart;
         const selectionEnd = input.selectionEnd;
 
-        // Erlaube alle Steuerzeichen (z.B. Backspace, Delete, Pfeiltasten)
-        if (event.inputType === "deleteContentBackward" || event.inputType === "deleteContentForward") {
-            return; // Löschen erlauben
+        // Erlaube Steuerzeichen (Löschen, Pfeiltasten)
+        if (
+            event.inputType === "deleteContentBackward" ||
+            event.inputType === "deleteContentForward" ||
+            event.inputType === "insertFromPaste"
+        ) {
+            return;
         }
 
-        // Erlaube nur Ziffern, Punkt und Komma
-        const validInputPattern = /^[0-9.,]$/;
-
         // Eingabe prüfen und blockieren, falls ungültig
+        const validInputPattern = /^[0-9.]$/;
         if (!event.data || !validInputPattern.test(event.data)) {
             event.preventDefault();
             return;
@@ -305,6 +307,12 @@
             return;
         }
 
+        // Blockiere zweiten Punkt, falls schon einer existiert
+        if (event.data === '.' && value.includes('.')) {
+            event.preventDefault();
+            return;
+        }
+
         // Prüfe auf maximal zwei Dezimalstellen
         const newValue = value.slice(0, selectionStart) + event.data + value.slice(selectionEnd);
         const decimalCheck = /^\d+(\.\d{0,2})?$/;
@@ -313,6 +321,7 @@
             event.preventDefault(); // Eingabe blockieren
         }
     }
+
 
 
     // Event-Listener für alle Eingabefelder
