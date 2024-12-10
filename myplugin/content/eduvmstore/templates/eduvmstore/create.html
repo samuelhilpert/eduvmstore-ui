@@ -277,53 +277,20 @@
     ];
 
     // Funktion zur Validierung
-    function preventInvalidInput(event) {
-        const input = event.target;
-        const value = input.value;
-        const selectionStart = input.selectionStart;
-        const selectionEnd = input.selectionEnd;
+    function validateInput(event) {
+        // Nur erlaubte Zeichen (Zahlen, Punkt, Komma)
+        this.value = this.value.replace(/[^0-9.,]/g, '');
 
-        // Erlaube Steuerzeichen (Löschen, Pfeiltasten, Einfügen)
-        if (
-            event.inputType === "deleteContentBackward" ||
-            event.inputType === "deleteContentForward" ||
-            event.inputType === "insertFromPaste" ||
-            event.inputType === "insertText" && event.data === null
-        ) {
-            return; // Erlaubt spezielle Eingaben
-        }
+        // Komma durch Punkt ersetzen
+        this.value = this.value.replace(',', '.');
 
-        // Eingabe prüfen und blockieren, falls ungültig
-        const validInputPattern = /^[0-9,]$/;
-
-        if (!event.data || !validInputPattern.test(event.data)) {
-            event.preventDefault(); // Blockiere ungültige Eingabe
-            return;
-        }
-
-        // Blockiere zweites Komma
-        if (event.data === ',' && value.includes(',')) {
-            event.preventDefault();
-            return;
-        }
-
-        // Prüfe auf maximal zwei Dezimalstellen
-        const newValue = value.slice(0, selectionStart) + event.data + value.slice(selectionEnd);
-        const decimalCheck = /^\d+(,\d{0,2})?$/;
-
-        if (!decimalCheck.test(newValue)) {
-            event.preventDefault(); // Eingabe blockieren
-        }
+        // Maximal zwei Dezimalstellen erlauben
+        const regex = /^(\d+(\.\d{0,2})?)?/;
+        this.value = this.value.match(regex)[0] || '';
     }
-
-
-
-
-
-    // Event-Listener für alle Eingabefelder
     inputIds.forEach(id => {
         const input = document.getElementById(id);
-        input.addEventListener("beforeinput", preventInvalidInput);
+        input.addEventListener("input", validateInput);
     });
      // Automatically show the modal if modal_message is set
     {% if modal_message %}
