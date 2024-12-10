@@ -283,19 +283,21 @@
         const selectionStart = input.selectionStart;
         const selectionEnd = input.selectionEnd;
 
-        // Erlaube Steuerzeichen (Löschen, Pfeiltasten)
+        // Erlaube Steuerzeichen (Löschen, Pfeiltasten, Einfügen)
         if (
             event.inputType === "deleteContentBackward" ||
             event.inputType === "deleteContentForward" ||
-            event.inputType === "insertFromPaste"
+            event.inputType === "insertFromPaste" ||
+            event.inputType === "insertText" && event.data === null
         ) {
-            return;
+            return; // Erlaubt spezielle Eingaben
         }
 
         // Eingabe prüfen und blockieren, falls ungültig
         const validInputPattern = /^[0-9,]$/;
+
         if (!event.data || !validInputPattern.test(event.data)) {
-            event.preventDefault();
+            event.preventDefault(); // Blockiere ungültige Eingabe
             return;
         }
 
@@ -313,6 +315,7 @@
             event.preventDefault(); // Eingabe blockieren
         }
     }
+
 
 
 
