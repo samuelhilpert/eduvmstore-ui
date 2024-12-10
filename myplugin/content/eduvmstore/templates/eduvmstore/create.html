@@ -293,34 +293,27 @@
         }
 
         // Eingabe prüfen und blockieren, falls ungültig
-        const validInputPattern = /^[0-9.]$/;
+        const validInputPattern = /^[0-9,]$/;
         if (!event.data || !validInputPattern.test(event.data)) {
             event.preventDefault();
             return;
         }
 
-        // Ersetze Komma durch Punkt
-        if (event.data === ',') {
-            input.value = value.slice(0, selectionStart) + '.' + value.slice(selectionEnd);
-            input.setSelectionRange(selectionStart + 1, selectionStart + 1);
-            event.preventDefault();
-            return;
-        }
-
-        // Blockiere zweiten Punkt, falls schon einer existiert
-        if (event.data === '.' && value.includes('.')) {
+        // Blockiere zweites Komma
+        if (event.data === ',' && value.includes(',')) {
             event.preventDefault();
             return;
         }
 
         // Prüfe auf maximal zwei Dezimalstellen
         const newValue = value.slice(0, selectionStart) + event.data + value.slice(selectionEnd);
-        const decimalCheck = /^\d+(\.\d{0,2})?$/;
+        const decimalCheck = /^\d+(,\d{0,2})?$/;
 
         if (!decimalCheck.test(newValue)) {
             event.preventDefault(); // Eingabe blockieren
         }
     }
+
 
 
 
