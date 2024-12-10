@@ -281,9 +281,6 @@
         // Nur erlaubte Zeichen (Zahlen, Punkt, Komma)
         this.value = this.value.replace(/[^0-9.,]/g, '');
 
-        // Komma durch Punkt ersetzen
-        this.value = this.value.replace(',', '.');
-
         // Maximal zwei Dezimalstellen erlauben
         const regex = /^(\d+(\.\d{0,2})?)?/;
         this.value = this.value.match(regex)[0] || '';
