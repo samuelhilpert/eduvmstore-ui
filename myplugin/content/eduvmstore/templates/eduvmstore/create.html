@@ -184,7 +184,10 @@
                 <h4>Fixed Resources</h4>
                 <div class="form-group mt-5">
                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
-                    <input type="number" id="fixed_ram_gb" name="fixed_ram_gb" class="form-control" required min="0" step="0.01">
+                    <input type="text" id="fixed_ram_gb"
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                           placeholder="z. B. 123.45"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="fixed_disk_gb">Fixed Disk (GB):</label>
