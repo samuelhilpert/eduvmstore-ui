@@ -278,24 +278,15 @@
 
     // Funktion zur Validierung
     function validateInput(event) {
-        const input = event.target;
+        // Nur erlaubte Zeichen (Zahlen, Punkt, Komma)
+        this.value = this.value.replace(/[^0-9.,]/g, '');
 
-        // Speichere die ursprüngliche Cursorposition
-        const start = input.selectionStart;
-        const end = input.selectionEnd;
+        // Komma durch Punkt ersetzen
+        this.value = this.value.replace(',', '.');
 
-        // Erlaube nur Ziffern und Punkt
-        let newValue = input.value.replace(/[^0-9.]/g, '');
-
-        // Beschränke maximal auf zwei Dezimalstellen
+        // Maximal zwei Dezimalstellen erlauben
         const regex = /^(\d+(\.\d{0,2})?)?/;
-        const match = newValue.match(regex)[0] || '';
-
-        // Falls sich der Wert geändert hat, aktualisiere das Eingabefeld
-        if (match !== input.value) {
-            input.value = match;
-            input.setSelectionRange(start, end);
-        }
+        this.value = this.value.match(regex)[0] || '';
     }
 
 
