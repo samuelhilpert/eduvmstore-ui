@@ -94,7 +94,6 @@ def get_app_templates(request):
         return []
 
 
-
 class IndexView(generic.TemplateView):
     """
         View for displaying the admin index page with user details and admin status.
@@ -116,6 +115,10 @@ class IndexView(generic.TemplateView):
         # Check if the user has a token attribute and retrieve its ID
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
+
+        user_id = self.request.user.id
+        context['user_id'] = user_id
+        context['token_id'] = token_id
 
         user_data = get_users(self.request)
         context['users'] = user_data
