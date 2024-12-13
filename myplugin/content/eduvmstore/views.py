@@ -2,6 +2,7 @@ import requests
 import socket
 import logging
 
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -12,6 +13,7 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -217,9 +219,11 @@ class CreateView(generic.TemplateView):
             )
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
+                messages.success(request, f"App Template created successfully.")
             else:
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
+                messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
             modal_message = _("Failed to create App-Template. Please try again.")
