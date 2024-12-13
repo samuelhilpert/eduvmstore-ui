@@ -117,9 +117,9 @@ class IndexView(generic.TemplateView):
             token_id = self.request.user.token.id
 
         user_id = self.request.user.id
-        context['user_id'] = user_id
-        context['token_id'] = token_id
-
+        user_details = get_user_details(self.request, user_id)
+        role_level = user_details['role']['access_level']
+        context['role_name'] = role_level
         user_data = get_users(self.request)
         context['users'] = user_data
 
@@ -147,11 +147,12 @@ class IndexView(generic.TemplateView):
         context['admin'] = userdev.is_superuser
         context['show_content'] = False
 
-        # Check if the user is an admin and set the content visibility accordingly
-        if userdev.is_superuser:
+        # Check if the user is an admin by the role_level attribute, if its equal or greater than 6000 it is an admin
+        if role_level >= 6000:
             context['show_content'] = True
         else:
             context['show_content'] = False
+
 
 
         return context
