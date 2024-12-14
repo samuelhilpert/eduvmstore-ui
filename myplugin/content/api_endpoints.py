@@ -11,4 +11,5 @@ API_ENDPOINTS = {
     'user_list': BASE_URL + 'users/',  # For user list
     'roles_list': BASE_URL + 'roles',  # For roles list
     'get_to_approve': BASE_URL + 'app-templates/?public=True&approved=False', # For approving app templates
+    'check_name': BASE_URL + 'app-templates/name/',  # For checking if a name is valid
 }

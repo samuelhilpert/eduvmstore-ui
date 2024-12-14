@@ -51,7 +51,7 @@ def get_user_details(request, user_id):
     """
     token_id = get_token_id(request)
     headers = {"X-Auth-Token": token_id}
-    url = f"{API_ENDPOINTS['user_list']}{user_id}"  #
+    url = f"{API_ENDPOINTS['user_list']}{user_id}"
 
     try:
         response = requests.get(url, headers=headers, timeout=10)

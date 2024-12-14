@@ -58,6 +58,28 @@ def fetch_app_templates(request):
         logging.error("Failed to fetch app templates: %s", e)
         return []
 
+
+def validate_name(request):
+    name = request.GET.get('name', '').strip()
+
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    # API-Aufruf an das Backend
+    url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+
+        is_valid = not data.get('collisions', True)
+    except (requests.RequestException, ValueError):
+        is_valid = False
+
+
+    return JsonResponse({'valid': is_valid})
+
 class IndexView(generic.TemplateView):
     """
         Display the main index page with available app templates and associated image data.

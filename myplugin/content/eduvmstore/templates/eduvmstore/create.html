@@ -104,6 +104,15 @@
     .form-check-input {
         margin-left: 10px;
     }
+
+    .is-valid {
+        border: 2px solid green !important;
+    }
+
+    .is-invalid {
+        border: 2px solid red !important;
+    }
+
 </style>
 
 <div class="form-container">
@@ -146,7 +155,8 @@
         <div class="form-group row">
             <div class="col-md-6">
                 <label for="name">App-Template Name:</label>
-                <input type="text" id="name" name="name" class="form-control" required>
+                <input type="text" id="name" name="name" class="form-control" required oninput="checkName()">
+                <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
                 <label for="short_description">Short Description:</label>
@@ -283,6 +293,33 @@
         $('#responseModal').modal('show');
     });
     {% endif %}
+
+    async function checkName() {
+        const name = document.getElementById("name").value;
+        const feedback = document.getElementById("name-feedback");
+        const inputField = document.getElementById("name");
+
+        try {
+            // Aufruf der Django-View
+            const response = await fetch(`/validate-name/?name=${encodeURIComponent(name)}`);
+            const result = await response.json();
+
+            if (result.valid) {
+                inputField.classList.remove("is-invalid");
+                inputField.classList.add("is-valid");
+                feedback.textContent = "Name valid";
+                feedback.style.color = "green";
+            } else {
+                inputField.classList.remove("is-valid");
+                inputField.classList.add("is-invalid");
+                feedback.textContent = "Name schon vergeben";
+                feedback.style.color = "red";
+            }
+        } catch (error) {
+            console.error("Fehler bei der Validierung:", error);
+        }
+    }
+
 
 </script>
 {% endblock %}
