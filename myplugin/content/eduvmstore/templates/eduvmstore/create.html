@@ -166,7 +166,8 @@
        <div class="form-group row">
             <div class="col-md-4">
                 <label for="version">Version:</label>
-                 <input type="text" id="version" name="version" class="form-control">
+                 <input type="text" id="version" name="version" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+
             </div>
         <div class="col-md-4">
             <label for="public">Visibility:</label>
