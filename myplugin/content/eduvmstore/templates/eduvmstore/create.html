@@ -155,7 +155,9 @@
         <div class="form-group row">
             <div class="col-md-6">
                 <label for="name">App-Template Name:</label>
-                <input type="text" id="name" name="name" class="form-control" required oninput="checkName()">
+                <input type="text" id="name" name="name" class="form-control" required
+                       data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:validate_name' %}"
+                       oninput="checkName()">
                 <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
@@ -313,12 +315,14 @@
 
     // Name validieren (POST-Anfrage)
     async function checkName() {
-        const name = document.getElementById("name").value;
-        const feedback = document.getElementById("name-feedback");
         const inputField = document.getElementById("name");
+        const name = inputField.value;
+        const url = inputField.dataset.url;  // URL direkt aus dem Attribut
+        const feedback = document.getElementById("name-feedback");
+
 
         try {
-            const response = await fetch(`/validate-name/`, {
+            const response = await fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -326,6 +330,10 @@
                 },
                 body: JSON.stringify({ name: name })
             });
+
+            if (!response.ok) {
+                throw new Error(`HTTP-Fehler: ${response.status}`);
+            }
 
             const result = await response.json();
 
@@ -344,6 +352,7 @@
             console.error("Fehler bei der Validierung:", error);
         }
     }
+
 
 
 
