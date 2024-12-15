@@ -313,11 +313,11 @@
 
     const csrftoken = getCookie("csrftoken");
 
-    // Name validieren (POST-Anfrage)
+
     async function checkName() {
         const inputField = document.getElementById("name");
         const name = inputField.value;
-        const url = inputField.dataset.url;  // URL direkt aus dem Attribut
+        const url = inputField.dataset.url;
         const feedback = document.getElementById("name-feedback");
 
 
@@ -340,12 +340,12 @@
             if (result.valid) {
                 inputField.classList.remove("is-invalid");
                 inputField.classList.add("is-valid");
-                feedback.textContent = "Name valid";
+                feedback.textContent = "Name available";
                 feedback.style.color = "green";
             } else {
                 inputField.classList.remove("is-valid");
                 inputField.classList.add("is-invalid");
-                feedback.textContent = "Name schon vergeben";
+                feedback.textContent = "Name already taken";
                 feedback.style.color = "red";
             }
         } catch (error) {
