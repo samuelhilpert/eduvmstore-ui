@@ -1,6 +1,7 @@
 import requests
 import socket
 import logging
+import json
 
 from django.contrib import messages
 from django.http import JsonResponse
@@ -60,25 +61,31 @@ def fetch_app_templates(request):
 
 
 def validate_name(request):
-    name = request.GET.get('name', '').strip()
+    if request.method == "POST":
+        try:
+            # JSON-Body auslesen
+            body = json.loads(request.body)
+            name = body.get('name', '').strip()
 
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
+            # Token-ID abrufen
+            token_id = get_token_id(request)
+            headers = {"X-Auth-Token": token_id}
 
-    # API-Aufruf an das Backend
-    url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+            # API-Aufruf an das Backend
+            url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
 
+            # Antwort verarbeiten
+            data = response.json()
+            is_valid = not data.get('collisions', True)
 
-        is_valid = not data.get('collisions', True)
-    except (requests.RequestException, ValueError):
-        is_valid = False
+        except (requests.RequestException, ValueError, json.JSONDecodeError):
+            is_valid = False
 
+        return JsonResponse({'valid': is_valid})
 
-    return JsonResponse({'valid': is_valid})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 class IndexView(generic.TemplateView):
     """

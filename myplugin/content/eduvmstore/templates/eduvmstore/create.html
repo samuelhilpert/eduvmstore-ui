@@ -294,14 +294,39 @@
     });
     {% endif %}
 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split("; ");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+    // Name validieren (POST-Anfrage)
     async function checkName() {
         const name = document.getElementById("name").value;
         const feedback = document.getElementById("name-feedback");
         const inputField = document.getElementById("name");
 
         try {
-            // Aufruf der Django-View
-            const response = await fetch(`/validate-name/?name=${encodeURIComponent(name)}`);
+            const response = await fetch(`/validate-name/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify({ name: name })
+            });
+
             const result = await response.json();
 
             if (result.valid) {
@@ -319,6 +344,7 @@
             console.error("Fehler bei der Validierung:", error);
         }
     }
+
 
 
 </script>
