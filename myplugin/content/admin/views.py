@@ -146,7 +146,7 @@ class IndexView(generic.TemplateView):
         context['admin'] = userdev.is_superuser
         context['show_content'] = False
 
-        # Check if the user is an admin by the role_level attribute, if its equal or greater than 6000 it is an admin
+        # Check if the user is an admin, if its equal or greater than 6000 it is an admin
         if role_level >= 6000:
             context['show_content'] = True
         else:
@@ -184,7 +184,7 @@ class UpdateRolesView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API-PATCH-Aufruf
-            response = requests.patch(api_url, json=payload, headers=headers)
+            response = requests.patch(api_url, json=payload, headers=headers,timeout=10)
 
             if response.status_code == 200:
                 messages.success(request, f"Role for user {user_id} updated successfully to {new_role_id}.")
@@ -220,10 +220,10 @@ class ApproveTemplateView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API-PATCH-Aufruf
-            response = requests.patch(api_url, headers=headers)
+            response = requests.patch(api_url, headers=headers,timeout=10)
 
             if response.status_code == 200:
-                messages.success(request, f"{template_id} confirmed. This template is now available for all users.")
+                messages.success(request, f"{template_id} confirmed. This template is now public.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
                 messages.error(request, f"Failed to update role: {error_message}")
@@ -252,7 +252,7 @@ class DeleteTemplateView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API DELETE call
-            response = requests.delete(api_url, headers=headers)
+            response = requests.delete(api_url, headers=headers,timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"Template {template_id} deleted successfully.")
@@ -284,7 +284,7 @@ class DeleteUserView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API DELETE call
-            response = requests.delete(api_url, headers=headers)
+            response = requests.delete(api_url, headers=headers,timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"User {user_id} deleted successfully.")
@@ -322,7 +322,7 @@ class CreateRoleView(generic.View):
             }
 
 
-            response = requests.post(api_url, json=payload, headers=headers)
+            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 201:
                 created_role = response.json()
