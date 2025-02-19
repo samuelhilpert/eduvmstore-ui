@@ -104,6 +104,31 @@
     .form-check-input {
         margin-left: 10px;
     }
+
+    .is-valid {
+        border: 2px solid green !important;
+    }
+
+    .is-invalid {
+        border: 2px solid red !important;
+    }
+
+    .select-box, .form-control {
+        height: auto;
+        line-height: 1.5;
+        padding: 8px 12px;
+        font-size: 14px;
+        box-sizing: border-box;
+        appearance: none;
+    }
+
+    .select-box:focus, .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #007bff;
+    }
+
+
 </style>
 
 <div class="form-container">
@@ -146,7 +171,10 @@
         <div class="form-group row">
             <div class="col-md-6">
                 <label for="name">App-Template Name:</label>
-                <input type="text" id="name" name="name" class="form-control" required>
+                <input type="text" id="name" name="name" class="form-control" required
+                       data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:validate_name' %}"
+                       oninput="checkName()">
+                <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
                 <label for="short_description">Short Description:</label>
@@ -166,7 +194,8 @@
        <div class="form-group row">
             <div class="col-md-4">
                 <label for="version">Version:</label>
-                 <input type="text" id="version" name="version" class="form-control">
+                 <input type="text" id="version" name="version" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+
             </div>
         <div class="col-md-4">
             <label for="public">Visibility:</label>
@@ -184,35 +213,45 @@
                 <h4>Fixed Resources</h4>
                 <div class="form-group mt-5">
                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
-                    <input type="number" id="fixed_ram_gb" name="fixed_ram_gb" class="form-control" required>
+                    <input type="text" id="fixed_ram_gb"
+                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');"
+                           name="fixed_ram_gb" class="form-control"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="fixed_disk_gb">Fixed Disk (GB):</label>
-                    <input type="number" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required>
+                    <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required
+                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="fixed_cores">Fixed Cores:</label>
-                    <input type="number" id="fixed_cores" name="fixed_cores" class="form-control" required>
+                    <input type="text" id="fixed_cores" name="fixed_cores" class="form-control" required
+                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
             </div>
+
             <div class="col-md-6">
                 <h4>Resources per User</h4>
                 <div class="form-group mt-5">
                     <label for="per_user_ram_gb">Per User RAM (GB):</label>
-                    <input type="number" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required>
+                    <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required
+                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_disk_gb">Per User Disk (GB):</label>
-                    <input type="number" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required>
+                    <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required
+                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_cores">Per User Cores:</label>
-                    <input type="number" id="per_user_cores" name="per_user_cores" class="form-control" required>
+                    <input type="text" id="per_user_cores" name="per_user_cores" class="form-control" required
+                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
             </div>
+
         </div>
 
-        <button type="submit" class="btn btn-primary">Create</button>
+        <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
     </form>
 </div>
@@ -272,6 +311,69 @@
         $('#responseModal').modal('show');
     });
     {% endif %}
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split("; ");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+
+    async function checkName() {
+        const inputField = document.getElementById("name");
+        const name = inputField.value;
+        const url = inputField.dataset.url;
+        const feedback = document.getElementById("name-feedback");
+        const submitButton = document.getElementById("submit-button");
+
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify({ name: name })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP-Fehler: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.valid) {
+                inputField.classList.remove("is-invalid");
+                inputField.classList.add("is-valid");
+                feedback.textContent = "Name available";
+                feedback.style.color = "green";
+                submitButton.disabled = false;
+            } else {
+                inputField.classList.remove("is-valid");
+                inputField.classList.add("is-invalid");
+                feedback.textContent = "Name already taken";
+                feedback.style.color = "red";
+                submitButton.disabled = true;
+            }
+        } catch (error) {
+            console.error("Fehler bei der Validierung:", error);
+        }
+    }
+
+
+
 
 </script>
 {% endblock %}

@@ -8,12 +8,222 @@
 
 {% block main %}
 
+    <style>
+        .accordion {
+            cursor: pointer;
+            padding: 15px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: background-color 0.2s ease;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .accordion-description {
+            display: block; /* Block-Element für separate Zeile */
+            font-size: 0.9em; /* Kleinere Schriftgröße */
+            color: #6c757d; /* Dezente graue Farbe */
+            margin-top: 5px; /* Abstand zum Titel */
+            font-weight: normal; /* Nicht fett */
+        }
+
+        .panel {
+            display: none;
+            background-color: white;
+            padding: 0 15px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px; /* Fügt Abstand nach dem Panel hinzu */
+        }
+        .accordion:hover {
+            background-color: #e2e6ea;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* Style für die Kacheln */
+        .tile-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .tile {
+            background-color: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+            background-color: #f1f1f1;
+        }
+
+        /* Style für die Pop-ups */
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            text-align: left;
+        }
+
+        .popup-content .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+    </style>
+
     <h2>Instructions</h2>
-    <p><i style="color: gray;">Here you will find numerous instructions.</i></p>
+    <p><i style="color: gray;">Here you find numerous instructions.</i></p>
     <hr style="border: 1px solid lightgray; margin: 5px 0;">
+    <div class="tile-container">
+        <!-- Kachel 1: App-Template erstellen -->
+        <div class="tile" onclick="openPopup('create-template-popup')">
+            <h3>Create App Template</h3>
+        </div>
+
+        <!-- Kachel 2: App starten -->
+        <div class="tile" onclick="openPopup('start-app-popup')">
+            <h3>Start App</h3>
+        </div>
+
+        <!-- Kachel 3: App veröffentlichen -->
+        <div class="tile" onclick="openPopup('publish-app-popup')">
+            <h3>Publish App</h3>
+        </div>
+    </div>
+
+    <!-- Pop-up: App-Template erstellen -->
+    <div id="create-template-popup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup('create-template-popup')">&times;</span>
+            <h3>Create App Template</h3>
+            <p>Follow these steps to create an app template:</p>
+            <ol>
+                <li>Go to the EduVMStore dashboard.</li>
+                <li>Click on the ‘Create App Template’ button.</li>
+                <li>Choose an image from the drop down menu.</li>
+                <li>Upload or Write the required script for the image.</li>
+                <li>Enter a name for the app template.</li>
+                <li>Enter a description for the app template.</li>
+                <li>Specify the version of the app template.</li>
+                <li>Set the visibility to "Private" or "Public".</li>
+                <li>Specify the required resources for the app template.</li>
+                <li>Click on the ‘Create’ button to create the app template.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Pop-up: App starten -->
+    <div id="start-app-popup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup('start-app-popup')">&times;</span>
+            <h3>Start App</h3>
+            <p>To start an app:</p>
+            <ol>
+                <li>Navigate to the app overview page.</li>
+                <li>Click the "Start" button next to the desired app.</li>
+                <li>Confirm the startup settings and click "Start".</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Pop-up: App veröffentlichen -->
+    <div id="publish-app-popup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup('publish-app-popup')">&times;</span>
+            <h3>Publish App</h3>
+            <p>To publish an app:</p>
+            <ol>
+                <li>Ensure the app is complete and functional.</li>
+                <li>Navigate to the publishing settings.</li>
+                <li>Set visibility to "Public" and click "Publish".</li>
+            </ol>
+        </div>
+    </div>
     <h2>FAQ</h2>
     <p><i style="color: gray;">Here are frequently asked questions.</i></p>
     <hr style="border: 1px solid lightgray; margin: 5px 0;">
-    <h1 style="text-align: center;">This page is still under construction. Come back soon.</h1>
+    <button class="accordion">
+        What is the EduVMStore?
+    </button>
+    <div class="panel">
+        <p>EduVMStore is a platform designed for managing and provisioning virtual machines in an educational context. It integrates with OpenStack to simplify the creation, configuration, and management of VMs, enabling users, such as students and educators, to deploy customized learning environments quickly. The platform supports various VM configurations and resource allocations, making it suitable for classroom and research purposes..</p>
+    </div>
+    <button class="accordion">
+        Who created the EduVMStore?
+    </button>
+    <div class="panel">
+        <p>The EduVMStore was developed by students of the DHBW Mannheim, Germany. The project was part of the Bachelor's degree program in Business Informatics. The name of the student are Valentin Czekalla, Jared Heinrich, Marian Rickert, Emese Racz, Monika Bircic und Samuel Hilpert.</p>
+    </div>
+    <button class="accordion">Who can use EduVMStore?</button>
+    <div class="panel">
+        <p>EduVMStore is designed for students, educators, and IT administrators in educational institutions that require virtualized environments for teaching, learning, and research.</p>
+    </div>
+    <h2>Contact</h2>
+    <p><i style="color: gray;">Here are the contact information of the admin and a contact formular.</i></p>
+    <hr style="border: 1px solid lightgray; margin: 5px 0;">
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const accordions = document.querySelectorAll('.accordion');
+            accordions.forEach(acc => {
+                acc.addEventListener('click', function () {
+                    this.classList.toggle('active');
+                    const panel = this.nextElementSibling;
+                    if (panel.style.display === 'block') {
+                        panel.style.display = 'none';
+                    } else {
+                        panel.style.display = 'block';
+                    }
+                });
+            });
+        });
+
+        function openPopup(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closePopup(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+    </script>
 
 {% endblock %}

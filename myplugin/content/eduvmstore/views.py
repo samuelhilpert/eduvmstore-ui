@@ -1,7 +1,9 @@
 import requests
 import socket
 import logging
+import json
 
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -12,6 +14,7 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -55,6 +58,34 @@ def fetch_app_templates(request):
     except requests.RequestException as e:
         logging.error("Failed to fetch app templates: %s", e)
         return []
+
+
+def validate_name(request):
+    if request.method == "POST":
+        try:
+            # JSON-Body auslesen
+            body = json.loads(request.body)
+            name = body.get('name', '').strip()
+
+            # Token-ID abrufen
+            token_id = get_token_id(request)
+            headers = {"X-Auth-Token": token_id}
+
+            # API-Aufruf an das Backend
+            url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+
+            # Antwort verarbeiten
+            data = response.json()
+            is_valid = not data.get('collisions', True)
+
+        except (requests.RequestException, ValueError, json.JSONDecodeError):
+            is_valid = False
+
+        return JsonResponse({'valid': is_valid})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 class IndexView(generic.TemplateView):
     """
@@ -217,9 +248,11 @@ class CreateView(generic.TemplateView):
             )
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
+                messages.success(request, f"App Template created successfully.")
             else:
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
+                messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
             modal_message = _("Failed to create App-Template. Please try again.")
