@@ -146,6 +146,15 @@
             $('#responseModal').modal('show');
         });
     {% endif %}
+
+        {% if request.session.pdf_data %}
+            <script>
+                window.onload = function() {
+                window.location.href = "{% url 'orizon:eduvmstore_dashboard:eduvmstore:download_pdf' %}";
+            };
+            </script>
+        {% endif %}
+
     </script>
 
 {% endblock %}
