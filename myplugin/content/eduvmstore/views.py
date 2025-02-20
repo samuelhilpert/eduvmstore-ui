@@ -297,6 +297,28 @@ class CreateView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return []
 
+
+def generate_pdf(accounts):
+    """Erstellt eine PDF mit den Benutzern und Passwörtern."""
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    pdf.setTitle("User Credentials")
+
+    pdf.drawString(100, 750, "Benutzerkonten für die erstellte Instanz:")
+    y = 730
+    for account in accounts:
+        pdf.drawString(100, y, f"Benutzername: {account['username']} - Passwort: {account['password']}")
+        y -= 20
+
+    pdf.showPage()
+    pdf.save()
+
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename=benutzerkonten.pdf"
+    return response
+
+
 class InstancesView(generic.TemplateView):
     """
         View for displaying instances, including form input for instance creation.
@@ -344,7 +366,7 @@ class InstancesView(generic.TemplateView):
             )
 
 
-            pdf_response = self.generate_pdf(accounts)
+            pdf_response = generate_pdf(accounts)
             return pdf_response
 
 
@@ -356,27 +378,6 @@ class InstancesView(generic.TemplateView):
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
-
-    def generate_pdf(self, accounts):
-        """Erstellt eine PDF mit den Benutzern und Passwörtern."""
-        buffer = io.BytesIO()
-        pdf = canvas.Canvas(buffer, pagesize=letter)
-        pdf.setTitle("User Credentials")
-
-        pdf.drawString(100, 750, "Benutzerkonten für die erstellte Instanz:")
-        y = 730
-        for account in accounts:
-            pdf.drawString(100, y, f"Benutzername: {account['username']} - Passwort: {account['password']}")
-            y -= 20
-
-        pdf.showPage()
-        pdf.save()
-
-        buffer.seek(0)
-        response = HttpResponse(buffer, content_type="application/pdf")
-        response["Content-Disposition"] = "inline; filename=benutzerkonten.pdf"
-        return response
-
 
     def get_context_data(self, **kwargs):
         """
