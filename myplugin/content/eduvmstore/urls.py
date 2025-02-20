@@ -10,6 +10,5 @@ urlpatterns = [
     path('create/', views.CreateView.as_view(), name='create'),
     path('instances/<str:image_id>/', views.InstancesView.as_view(), name='instances'),
     path('validate-name/', views.validate_name, name='validate_name'),
-    path('download_pdf/', views.download_pdf, name='download_pdf'),
 
 ]

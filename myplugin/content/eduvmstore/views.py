@@ -6,7 +6,7 @@ import json
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova
@@ -14,10 +14,10 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from io import BytesIO
+import io
 
 
 
@@ -300,8 +300,8 @@ class CreateView(generic.TemplateView):
 
 def generate_pdf(accounts):
     """Erstellt eine PDF mit den Benutzern und Passwörtern."""
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer)
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
     pdf.setTitle("User Credentials")
 
     pdf.drawString(100, 750, "Benutzerkonten für die erstellte Instanz:")
@@ -314,16 +314,12 @@ def generate_pdf(accounts):
     pdf.save()
 
     buffer.seek(0)
-    return buffer.getvalue()
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename=benutzerkonten.pdf"
+    return response
 
-def download_pdf(request):
-    """Gibt die gespeicherte PDF zurück und entfernt sie aus der Session."""
-    pdf_data = request.session.pop("pdf_data", None)
-    if pdf_data:
-        response = HttpResponse(pdf_data, content_type="application/pdf")
-        response["Content-Disposition"] = "attachment; filename=benutzerkonten.pdf"
-        return response
-    return HttpResponseRedirect(reverse("instances_view"))
+
+
 
 
 class InstancesView(generic.TemplateView):
@@ -371,8 +367,9 @@ class InstancesView(generic.TemplateView):
                 security_groups=security_groups,
                 nics=nics,
             )
-            request.session["pdf_data"] = generate_pdf(accounts)
-            modal_message = _("Instance created successfully.")
+            pdf_response = generate_pdf(accounts)
+            return pdf_response
+
         except Exception as e:
             logging.error(f"Failed to create instance: {e}")
             modal_message = _(f"Failed to create instance. Error: {e}")
