@@ -314,13 +314,38 @@ class InstancesView(generic.TemplateView):
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
+            users = "jared,1234"
+            cloudscript = f"""
+#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      jared:1234
+      marian:1234
+      samuel:1234
+      emy:1234
+      monika:1234
+      valentin:1234
+    permissions: '0644'
+    owner: root:root
 
+runcmd:
+  - cat /etc/users.txt > /etc/testtesttest
+  - |
+    while IFS=':' read -r username password; do
+    if ! id "$username" &>/dev/null; then
+    useradd -m -s "/bin/bash" "$username"
+    echo "$username:$password" | chpasswd
+    fi
+    done < /etc/users.txt
+"""
 
+            print(cloudscript)
 
             nics = [{"net-id": network_id}]
 
             key_name = None
-            user_data = None
+            user_data = cloudscript
             security_groups = ["default"]
 
             print(f" name: {name}, image: {image_id}, flavor: {flavor_id}, network: {network_id}")
