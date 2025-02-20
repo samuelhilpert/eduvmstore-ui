@@ -14,6 +14,11 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import io
+
 
 
 # Configure logging
@@ -314,6 +319,7 @@ class InstancesView(generic.TemplateView):
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
+            accounts = self.extract_accounts_from_form(request)
 
 
 
@@ -337,7 +343,12 @@ class InstancesView(generic.TemplateView):
                 nics=nics,
             )
 
-            modal_message = _("Instance created successfully.")
+
+            pdf_response = self.generate_pdf(accounts)
+            return pdf_response
+
+
+
         except Exception as e:
             logging.error(f"Failed to create instance: {e}")
             modal_message = _(f"Failed to create instance. Error: {e}")
@@ -346,6 +357,25 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
 
+    def generate_pdf(self, accounts):
+        """Erstellt eine PDF mit den Benutzern und Passwörtern."""
+        buffer = io.BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=letter)
+        pdf.setTitle("User Credentials")
+
+        pdf.drawString(100, 750, "Benutzerkonten für die erstellte Instanz:")
+        y = 730
+        for account in accounts:
+            pdf.drawString(100, y, f"Benutzername: {account['username']} - Passwort: {account['password']}")
+            y -= 20
+
+        pdf.showPage()
+        pdf.save()
+
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type="application/pdf")
+        response["Content-Disposition"] = "inline; filename=benutzerkonten.pdf"
+        return response
 
 
     def get_context_data(self, **kwargs):
