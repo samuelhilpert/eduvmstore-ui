@@ -142,6 +142,7 @@ class IndexView(generic.TemplateView):
                 template['visibility'] = _('Unknown')
 
         context['app_templates'] = app_templates
+
         return context
 
 class DetailsPageView(generic.TemplateView):
@@ -368,6 +369,7 @@ class InstancesView(generic.TemplateView):
                 nics=nics,
             )
             pdf_response = generate_pdf(accounts)
+            context = self.get_context_data(show_popup=True)
             return pdf_response
 
         except Exception as e:
@@ -402,6 +404,8 @@ class InstancesView(generic.TemplateView):
 
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
+
+        context['show_popup'] = kwargs.get('show_popup', False)
         return context
 
     def get_flavors(self, ):
