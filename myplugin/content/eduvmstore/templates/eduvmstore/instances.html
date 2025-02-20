@@ -150,7 +150,7 @@
         {% if request.session.pdf_data %}
             <script>
                 window.onload = function() {
-                window.location.href = "{% url 'orizon:eduvmstore_dashboard:eduvmstore:download_pdf' %}";
+                window.location.href = "{% url 'horizon:eduvmstore_dashboard:eduvmstore:download_pdf' %}";
             };
             </script>
         {% endif %}
