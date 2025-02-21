@@ -18,38 +18,6 @@
 
 
 {% block main %}
-    <style>
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            border-radius: 5px;
-            color: #fff;
-            z-index: 1000;
-        }
-
-        .popup p {
-            font-size: 18px;
-            margin: 0 0 10px 0;
-        }
-
-        .popup button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .popup button:hover {
-            background-color: #0056b3;
-        }
-    </style>
 
 
     {% csrf_token %}
@@ -140,20 +108,11 @@
     </div>
 </div>
 
-    {% if show_popup %}
-        <div class="popup">
-            <p>Instance erfolgreich erstellt!</p>
-            <button onclick="closePopup()">Schließen</button>
-        </div>
-    {% endif %}
 
 
 
     <script>
 
-        function closePopup() {
-            document.querySelector('.popup').style.display = 'none';
-        }
 
         let accountCount = 1;
         document.getElementById("add_account").addEventListener("click", function() {
