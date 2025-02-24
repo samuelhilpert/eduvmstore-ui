@@ -14,11 +14,12 @@
 {% endblock %}
 
 {% block main %}
-    <h2>Instance successfully created!</h2>
     <p>The instance was successfully created. You can now download the associated PDF.</p>
 
     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:success' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary">Download PDF</button>
     </form>
+
+    <a href="{% url 'horizon:project:instances:index' %}" class="btn btn-primary">Weiter</a>
 {% endblock %}

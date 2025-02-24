@@ -477,4 +477,5 @@ class InstanceSuccessView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
         accounts = request.session.get("accounts", [])
         pdf_response = generate_pdf(accounts)
+        del request.session["accounts"]
         return pdf_response
