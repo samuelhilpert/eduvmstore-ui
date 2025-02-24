@@ -14,11 +14,11 @@
 {% endblock %}
 
 {% block main %}
-    <h2>Instanz erfolgreich erstellt!</h2>
-    <p>Die Instanz wurde erfolgreich erstellt. Sie können die zugehörige PDF jetzt herunterladen.</p>
+    <h2>Instance successfully created!</h2>
+    <p>The instance was successfully created. You can now download the associated PDF.</p>
 
     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:success' %}">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary">PDF herunterladen</button>
+        <button type="submit" class="btn btn-primary">Download PDF</button>
     </form>
 {% endblock %}
