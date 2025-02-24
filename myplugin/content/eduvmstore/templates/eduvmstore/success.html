@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Instanz erfolgreich erstellt!</h2>
+    <p>Die Instanz wurde erfolgreich erstellt. Sie können die zugehörige PDF jetzt herunterladen.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">PDF herunterladen</button>
+    </form>
+{% endblock %}

@@ -18,6 +18,8 @@ from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
+from django.urls import reverse
+from django.views import View
 
 
 
@@ -346,8 +348,7 @@ class InstancesView(generic.TemplateView):
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
             accounts = self.extract_accounts_from_form(request)
-
-
+            request.session["accounts"] = accounts
 
             nics = [{"net-id": network_id}]
 
@@ -368,8 +369,8 @@ class InstancesView(generic.TemplateView):
                 security_groups=security_groups,
                 nics=nics,
             )
-            pdf_response = generate_pdf(accounts)
-            return pdf_response
+
+            return redirect(reverse('success'))
 
         except Exception as e:
             logging.error(f"Failed to create instance: {e}")
@@ -465,3 +466,15 @@ class InstancesView(generic.TemplateView):
         except requests.RequestException as e:
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
+
+class InstanceSuccessView(generic.TemplateView):
+
+    template_name = "eduvmstore_dashboard/eduvmstore/success.html"
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        accounts = request.session.get("accounts", [])
+        pdf_response = generate_pdf(accounts)
+        return pdf_response
