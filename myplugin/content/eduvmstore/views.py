@@ -370,7 +370,7 @@ class InstancesView(generic.TemplateView):
                 nics=nics,
             )
 
-            return redirect(reverse('success'))
+            return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
 
         except Exception as e:
             logging.error(f"Failed to create instance: {e}")
