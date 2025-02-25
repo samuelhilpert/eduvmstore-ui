@@ -14,6 +14,7 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
+import base64
 
 
 # Configure logging
@@ -340,15 +341,13 @@ runcmd:
     done < /etc/users.txt
 """
 
-            print(cloudscript)
+            user_datas = base64.b64encode(cloudscript.encode('utf-8')).decode('utf-8')
 
             nics = [{"net-id": network_id}]
 
             key_name = None
-            user_data = cloudscript
             security_groups = ["default"]
 
-            print(f" name: {name}, image: {image_id}, flavor: {flavor_id}, network: {network_id}")
 
 
             nova.server_create(
@@ -357,7 +356,7 @@ runcmd:
                 image=image_id,
                 flavor=flavor_id,
                 key_name=key_name,
-                user_data=user_data,
+                user_data=user_datas,
                 security_groups=security_groups,
                 nics=nics,
             )
