@@ -341,8 +341,8 @@ runcmd:
     done < /etc/users.txt
 """
 
-            user_datas = base64.b64encode(cloudscript.encode('utf-8')).decode('utf-8')
-
+            #user_datas = base64.b64encode(cloudscript.encode('utf-8')).decode('utf-8')
+            user_datas = cloudscript
             nics = [{"net-id": network_id}]
 
             key_name = None
