@@ -315,8 +315,17 @@ class InstancesView(generic.TemplateView):
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
-            description = "Instance created from App-Template: "
-            users = "jared,1234"
+
+            accounts = self.extract_accounts_from_form(request)
+
+        # Beschreibung mit Einleitungstext + Accounts formatieren
+            if accounts:
+                account_list = "\n".join([f"- {acc['username']}: {acc['password']}" for acc in accounts])
+                description = f"Diese Instanz wurde mit folgenden Accounts erstellt:\n{account_list}"
+            else:
+                description = "Diese Instanz hat keine vordefinierten Benutzerkonten."
+
+
             cloudscript = f"""
 #cloud-config
 write_files:
@@ -363,6 +372,7 @@ runcmd:
                 security_groups=security_groups,
                 nics=nics,
                 meta=metadata,
+                description=description,
             )
 
             modal_message = _("Instance created successfully.")
