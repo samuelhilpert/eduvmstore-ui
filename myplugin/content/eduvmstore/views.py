@@ -15,6 +15,7 @@ from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
 import base64
+import re
 
 
 # Configure logging
@@ -304,6 +305,7 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
+
     def post(self, request, *args, **kwargs):
         """Handle POST requests to create a new instance."""
         try:
@@ -321,9 +323,11 @@ class InstancesView(generic.TemplateView):
         # Beschreibung mit Einleitungstext + Accounts formatieren
             if accounts:
                 account_list = "\n".join([f"- {acc['username']}: {acc['password']}" for acc in accounts])
-                description = f"Diese Instanz wurde mit folgenden Accounts erstellt:\n{account_list}"
+                raw_description = f"Diese Instanz wurde mit folgenden Accounts erstellt:\n{account_list}"
             else:
-                description = "Diese Instanz hat keine vordefinierten Benutzerkonten."
+                raw_description = "Diese Instanz hat keine vordefinierten Benutzerkonten."
+
+            description = self.format_description(raw_description)
 
 
             cloudscript = f"""
@@ -470,3 +474,9 @@ runcmd:
         except requests.RequestException as e:
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
+
+    def format_description(self,description):
+        """Formatiert die Beschreibung für OpenStack, entfernt Zeilenumbrüche & ungültige Zeichen."""
+        description = re.sub(r'\s+', ' ', description)  # Alle Whitespaces durch ein Leerzeichen ersetzen
+        description = description[:255]  # Maximal 255 Zeichen (falls notwendig)
+        return description
