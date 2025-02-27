@@ -315,6 +315,7 @@ class InstancesView(generic.TemplateView):
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
+            description = "Instance created from App-Template: "
             users = "jared,1234"
             cloudscript = f"""
 #cloud-config
@@ -348,6 +349,8 @@ runcmd:
             key_name = None
             security_groups = ["default"]
 
+            metadata = {"description": description}
+
 
 
             nova.server_create(
@@ -359,6 +362,7 @@ runcmd:
                 user_data=user_datas,
                 security_groups=security_groups,
                 nics=nics,
+                meta=metadata,
             )
 
             modal_message = _("Instance created successfully.")
