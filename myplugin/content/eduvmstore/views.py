@@ -301,13 +301,13 @@ class CreateView(generic.TemplateView):
             return []
 
 
-def generate_pdf(accounts):
+def generate_pdf(accounts, name):
     """Erstellt eine PDF mit den Benutzern und Passwörtern."""
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
     pdf.setTitle("User Credentials")
 
-    pdf.drawString(100, 750, "Benutzerkonten für die erstellte Instanz:")
+    pdf.drawString(100, 750, f"Benutzerkonten für die erstellte Instanz {name}:")
     y = 730
     for account in accounts:
         pdf.drawString(100, y, f"Benutzername: {account['username']} - Passwort: {account['password']}")
@@ -349,6 +349,7 @@ class InstancesView(generic.TemplateView):
             image_id = app_template.get('image_id')
             accounts = self.extract_accounts_from_form(request)
             request.session["accounts"] = accounts
+            request.session["instance_name"] = name
 
             nics = [{"net-id": network_id}]
 
@@ -476,6 +477,7 @@ class InstanceSuccessView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         accounts = request.session.get("accounts", [])
-        pdf_response = generate_pdf(accounts)
+        name = request.session.get("instance_name", [])
+        pdf_response = generate_pdf(accounts, name)
         del request.session["accounts"]
         return pdf_response
