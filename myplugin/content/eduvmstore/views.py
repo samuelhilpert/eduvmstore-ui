@@ -480,4 +480,5 @@ class InstanceSuccessView(generic.TemplateView):
         name = request.session.get("instance_name", [])
         pdf_response = generate_pdf(accounts, name)
         del request.session["accounts"]
+        del request.session["instance_name"]
         return pdf_response
