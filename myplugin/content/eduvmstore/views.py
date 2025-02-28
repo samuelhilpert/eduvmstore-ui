@@ -20,7 +20,8 @@ from reportlab.pdfgen import canvas
 import io
 from django.urls import reverse
 from django.views import View
-
+import base64
+import re
 
 
 # Configure logging
@@ -336,6 +337,7 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
+
     def post(self, request, *args, **kwargs):
         """Handle POST requests to create a new instance."""
         try:
@@ -347,17 +349,60 @@ class InstancesView(generic.TemplateView):
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
+
             accounts = self.extract_accounts_from_form(request)
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
 
+
+
+            
+
+        # Beschreibung mit Einleitungstext + Accounts formatieren
+            if accounts:
+                account_list = "\n".join([f"- {acc['username']}: {acc['password']}" for acc in accounts])
+                raw_description = f"Diese Instanz wurde mit folgenden Accounts erstellt:\n{account_list}"
+            else:
+                raw_description = "Diese Instanz hat keine vordefinierten Benutzerkonten."
+
+            description = self.format_description(raw_description)
+
+
+            cloudscript = f"""
+#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      jared:1234
+      marian:1234
+      samuel:1234
+      emy:1234
+      monika:1234
+      valentin:1234
+    permissions: '0644'
+    owner: root:root
+
+runcmd:
+  - cat /etc/users.txt > /etc/testtesttest
+  - |
+    while IFS=':' read -r username password; do
+    if ! id "$username" &>/dev/null; then
+    useradd -m -s "/bin/bash" "$username"
+    echo "$username:$password" | chpasswd
+    fi
+    done < /etc/users.txt
+"""
+
+            #user_datas = base64.b64encode(cloudscript.encode('utf-8')).decode('utf-8')
+            user_datas = cloudscript
+
             nics = [{"net-id": network_id}]
 
             key_name = None
-            user_data = None
             security_groups = ["default"]
 
-            print(f" name: {name}, image: {image_id}, flavor: {flavor_id}, network: {network_id}")
+            metadata = {"description": description}
+
 
 
             nova.server_create(
@@ -366,9 +411,11 @@ class InstancesView(generic.TemplateView):
                 image=image_id,
                 flavor=flavor_id,
                 key_name=key_name,
-                user_data=user_data,
+                user_data=user_datas,
                 security_groups=security_groups,
                 nics=nics,
+                meta=metadata,
+                description=description,
             )
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
@@ -467,6 +514,13 @@ class InstancesView(generic.TemplateView):
         except requests.RequestException as e:
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
+
+    def format_description(self,description):
+        """Formatiert die Beschreibung für OpenStack, entfernt Zeilenumbrüche & ungültige Zeichen."""
+        description = re.sub(r'\s+', ' ', description)  # Alle Whitespaces durch ein Leerzeichen ersetzen
+        description = description[:255]  # Maximal 255 Zeichen (falls notwendig)
+        return description
+
 
 class InstanceSuccessView(generic.TemplateView):
 
