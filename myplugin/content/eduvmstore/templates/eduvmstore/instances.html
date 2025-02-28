@@ -16,8 +16,11 @@
     </div>
 {% endblock %}
 
+
 {% block main %}
-   {% csrf_token %}
+
+
+    {% csrf_token %}
   <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id  %}">
       {% csrf_token %}
         <div class="form-group">
@@ -106,7 +109,10 @@
 </div>
 
 
+
+
     <script>
+
 
         let accountCount = 1;
         document.getElementById("add_account").addEventListener("click", function() {
@@ -146,6 +152,7 @@
             $('#responseModal').modal('show');
         });
     {% endif %}
+
     </script>
 
 {% endblock %}

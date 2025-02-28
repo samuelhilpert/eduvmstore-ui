@@ -14,6 +14,12 @@ from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+import io
+from django.urls import reverse
+from django.views import View
 import base64
 import re
 
@@ -139,6 +145,7 @@ class IndexView(generic.TemplateView):
                 template['visibility'] = _('Unknown')
 
         context['app_templates'] = app_templates
+
         return context
 
 class DetailsPageView(generic.TemplateView):
@@ -294,6 +301,31 @@ class CreateView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return []
 
+
+def generate_pdf(accounts, name):
+    """Erstellt eine PDF mit den Benutzern und Passwörtern."""
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    pdf.setTitle("User Credentials")
+
+    pdf.drawString(100, 750, f"Benutzerkonten für die erstellte Instanz {name}:")
+    y = 730
+    for account in accounts:
+        pdf.drawString(100, y, f"Benutzername: {account['username']} - Passwort: {account['password']}")
+        y -= 20
+
+    pdf.showPage()
+    pdf.save()
+
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename=benutzerkonten.pdf"
+    return response
+
+
+
+
+
 class InstancesView(generic.TemplateView):
     """
         View for displaying instances, including form input for instance creation.
@@ -319,6 +351,12 @@ class InstancesView(generic.TemplateView):
             image_id = app_template.get('image_id')
 
             accounts = self.extract_accounts_from_form(request)
+            request.session["accounts"] = accounts
+            request.session["instance_name"] = name
+
+
+
+            
 
         # Beschreibung mit Einleitungstext + Accounts formatieren
             if accounts:
@@ -357,6 +395,7 @@ runcmd:
 
             #user_datas = base64.b64encode(cloudscript.encode('utf-8')).decode('utf-8')
             user_datas = cloudscript
+
             nics = [{"net-id": network_id}]
 
             key_name = None
@@ -379,7 +418,8 @@ runcmd:
                 description=description,
             )
 
-            modal_message = _("Instance created successfully.")
+            return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
+
         except Exception as e:
             logging.error(f"Failed to create instance: {e}")
             modal_message = _(f"Failed to create instance. Error: {e}")
@@ -387,7 +427,6 @@ runcmd:
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
-
 
 
     def get_context_data(self, **kwargs):
@@ -413,6 +452,7 @@ runcmd:
 
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
+
         return context
 
     def get_flavors(self, ):
@@ -480,3 +520,19 @@ runcmd:
         description = re.sub(r'\s+', ' ', description)  # Alle Whitespaces durch ein Leerzeichen ersetzen
         description = description[:255]  # Maximal 255 Zeichen (falls notwendig)
         return description
+
+
+class InstanceSuccessView(generic.TemplateView):
+
+    template_name = "eduvmstore_dashboard/eduvmstore/success.html"
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        accounts = request.session.get("accounts", [])
+        name = request.session.get("instance_name", [])
+        pdf_response = generate_pdf(accounts, name)
+        del request.session["accounts"]
+        del request.session["instance_name"]
+        return pdf_response
