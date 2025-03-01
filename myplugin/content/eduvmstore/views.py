@@ -345,8 +345,7 @@ def generate_pdf(accounts, name):
     return response#
 
 def generate_cloud_config(accounts):
-    """Erstellt ein #cloud-config Skript mit den übergebenen Account-Daten.
-       Die Felder basieren auf einer Anfrage und sind nicht global unterschiedlich."""
+    """Erstellt ein korrekt formatiertes #cloud-config Skript mit dynamischen Account-Daten."""
 
     if not accounts:
         return ""  # Falls keine Accounts vorhanden sind, kein Skript erstellen
@@ -355,21 +354,23 @@ def generate_cloud_config(accounts):
     sorted_keys = list(accounts[0].keys())  # Reihenfolge bleibt für diese Anfrage gleich
 
     # Generiere den Inhalt der Datei /etc/users.txt aus den Accounts
-    users_content = "\n".join([",".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts])
+    users_content = "\n".join(
+        [",".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
+    )
 
     # Erstelle das cloud-config Skript mit den dynamischen Account-Daten
     cloud_config = f"""#cloud-config
 write_files:
   - path: /etc/users.txt
     content: |
-      {users_content}
+{generate_indented_content(users_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
 
 runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
-    while IFS=',' read -r username password; do
+    while IFS=':' read -r username password; do
     if ! id "$username" &>/dev/null; then
     useradd -m -s "/bin/bash" "$username"
     echo "$username:$password" | chpasswd
@@ -378,6 +379,15 @@ runcmd:
 """
 
     return cloud_config
+
+
+def generate_indented_content(content, indent_level=6):
+    """
+    Fügt Leerzeichen-Einrückungen zu mehrzeiligen Strings hinzu, um YAML-Fehlformatierungen zu verhindern.
+    """
+    indent = " " * indent_level
+    return "\n".join([indent + line for line in content.split("\n")])
+
 
 
 
@@ -458,12 +468,13 @@ runcmd:
 
             user_datas = generate_cloud_config(accounts)
 
+
             nics = [{"net-id": network_id}]
 
             key_name = None
             security_groups = ["default"]
 
-            metadata = {"description": user_datas}
+            metadata = {"description": description}
 
 
 
