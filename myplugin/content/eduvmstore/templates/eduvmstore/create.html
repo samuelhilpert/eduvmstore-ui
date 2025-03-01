@@ -250,6 +250,37 @@
             </div>
 
         </div>
+        <h3>Script</h3>
+        <div class="form-group row">
+            <div class="col-md-4">
+                <label for="account_structure">Account Structure:</label>
+                <input type="text" id="account_structure" name="account_structure" class="form-control" required >
+            </div>
+
+            <div class="col-md-4">
+                <label for="script_file">Upload Script:</label>
+                <input type="file" id="script_file" name="script_file" accept=".csv, .txt" class="form-control-file" >
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
+            </div>
+        </div>
+
+        <!-- Modal for script input -->
+        <div id="scriptModal" class="modal mt-5">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">×</span>
+                <h5>Write Script</h5>
+                <textarea id="scriptText" class="form-control " rows="10"></textarea>
+                <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
+            </div>
+        </div>
+
+        <!-- Hidden input to store the script text -->
+        <input type="hidden" id="hiddenScriptField" name="script_text" />
+
+</div>
 
         <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
