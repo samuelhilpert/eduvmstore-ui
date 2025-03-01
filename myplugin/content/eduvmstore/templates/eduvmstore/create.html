@@ -294,6 +294,14 @@
 <!-- JavaScript to handle modal -->
 <script>
     function openModal() {
+        var scriptTextArea = document.getElementById('scriptText');
+        var accountStructure = document.getElementById('account_structure').value;
+
+        // Falls das Textfeld leer ist, setzen wir den Platzhalter-Text
+        if (!scriptTextArea.value.trim()) {
+            scriptTextArea.value = `Die Account Structure ist: ${accountStructure}\n\n`;
+        }
+
         document.getElementById('scriptModal').style.display = 'block';
     }
 
@@ -302,13 +310,25 @@
     }
 
     function saveScript() {
-        // Get the script text from the textarea
-        var scriptText = document.getElementById('scriptText').value;
-        // Store it in the hidden input field
-        document.getElementById('hiddenScriptField').value = scriptText;
-        // Close the modal
+        var scriptTextArea = document.getElementById('scriptText');
+        var hiddenScriptField = document.getElementById('hiddenScriptField');
+        var accountStructure = document.getElementById('account_structure').value;
+
+        var userScript = scriptTextArea.value.trim();
+
+        // Falls der Text noch den Standardtext enthält, entfernen wir ihn
+        var placeholderText = `Die Account Structure ist: ${accountStructure}`;
+        if (userScript.startsWith(placeholderText)) {
+            userScript = userScript.replace(placeholderText, '').trim();
+        }
+
+        // Speichern nur den eigentlichen Inhalt
+        hiddenScriptField.value = userScript;
+
+        // Modal schließen
         closeModal();
     }
+
 
     // Close the modal if the user clicks anywhere outside of it
     window.onclick = function(event) {
