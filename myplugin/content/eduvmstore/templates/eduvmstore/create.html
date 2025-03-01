@@ -262,6 +262,9 @@
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="script_text" />
 
+        <p id="scriptPreview" style="font-size: 14px; color: gray; margin-top: 10px;">(Noch kein Skript gespeichert)</p>
+
+
 
         <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
@@ -324,6 +327,9 @@
 
         // Speichern nur den eigentlichen Inhalt
         hiddenScriptField.value = userScript;
+
+        document.getElementById('scriptPreview').innerText = userScript ? `Gespeicherter Inhalt:\n${userScript}` : "(Noch kein Skript gespeichert)";
+
 
         // Modal schließen
         closeModal();
