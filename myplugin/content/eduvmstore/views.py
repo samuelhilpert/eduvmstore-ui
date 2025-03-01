@@ -463,7 +463,7 @@ runcmd:
             key_name = None
             security_groups = ["default"]
 
-            metadata = {"description": description}
+            metadata = {"description": user_datas}
 
 
 
