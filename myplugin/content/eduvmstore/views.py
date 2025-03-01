@@ -344,7 +344,7 @@ def generate_pdf(accounts, name):
     response["Content-Disposition"] = "attachment; filename=userdata.pdf"
     return response#
 
-def generate_cloud_config(accounts, backend_script):
+def generate_cloud_config(accounts,backend_script):
     """Erstellt ein korrekt formatiertes #cloud-config Skript mit dynamischen Account-Daten."""
 
     if not accounts:
@@ -430,8 +430,7 @@ class InstancesView(generic.TemplateView):
             description = self.format_description(raw_description)
 
 
-            backend_script =
-            """
+            backend_script =f"""
             runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
@@ -442,9 +441,7 @@ class InstancesView(generic.TemplateView):
     fi
     done < /etc/users.txt
             """
-
             user_datas = generate_cloud_config(accounts, backend_script)
-
 
             nics = [{"net-id": network_id}]
 
