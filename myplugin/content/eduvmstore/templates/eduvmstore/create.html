@@ -323,7 +323,7 @@ write_files:
         var hiddenScriptField = document.getElementById('hiddenScriptField');
         var accountStructure = document.getElementById('account_structure').value;
 
-        var userScript = scriptTextArea.value.trim();
+        var userScript = scriptTextArea.value;
 
         // Falls der Text noch den Standardtext enthält, entfernen wir ihn
 
@@ -336,7 +336,7 @@ write_files:
     owner: root:root`;
 
         if (userScript.startsWith(placeholderText)) {
-            userScript = userScript.replace(placeholderText, '').trim();
+            userScript = userScript.replace(placeholderText, '');
         }
 
         // Speichern nur den eigentlichen Inhalt
