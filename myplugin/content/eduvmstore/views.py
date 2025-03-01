@@ -308,7 +308,7 @@ def generate_pdf(accounts, name):
     pdf = canvas.Canvas(buffer, pagesize=letter)
     pdf.setTitle("User Credentials")
 
-    pdf.drawString(100, 750, f"Benutzerkonten für die erstellte Instanz {name}:")
+    pdf.drawString(100, 750, f"User accounts for the created instance {name}:")
     y = 730
 
     # Alle möglichen Schlüssel sammeln (damit die PDF-Spalten dynamisch sind)
@@ -341,7 +341,7 @@ def generate_pdf(accounts, name):
 
     buffer.seek(0)
     response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=benutzerkonten.pdf"
+    response["Content-Disposition"] = "attachment; filename=userdata.pdf"
     return response
 
 
@@ -513,7 +513,7 @@ runcmd:
         Bestimmt, welche Felder aus dem Formular erwartet werden.
         Kann dynamisch angepasst werden.
         """
-        return ["account_name", "account_password", "account_mail"]
+        return ["account_name", "account_password"]
 
     def extract_accounts_from_form_new(self, request):
         """Extrahiert Account-Daten basierend auf den definierten Feldern."""
@@ -521,11 +521,8 @@ runcmd:
         expected_fields = self.get_expected_fields()  # Erwartete Felder holen
 
     # Alle Werte aus dem POST-Request für die erwarteten Felder holen
-        #extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
-        extracted_data = {
-            "account_name": ["Alice", "Bob"],
-            "account_password": ["pass123", "secure456"],
-            "account_mail": ["alice@mail.de", "bob@mail.de"]}
+        extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
+        # extracted_data = {"account_name": ["Alice", "Bob"],"account_password": ["pass123", "secure456"]}
 
     # Anzahl der Einträge (alle Listen sind gleich lang)
         num_entries = len(next(iter(extracted_data.values())))
