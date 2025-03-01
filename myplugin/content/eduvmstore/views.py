@@ -369,7 +369,7 @@ write_files:
 runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
-    while IFS=',' read -r {",".join(sorted_keys)}; do
+    while IFS=',' read -r username password; do
     if ! id "$username" &>/dev/null; then
     useradd -m -s "/bin/bash" "$username"
     echo "$username:$password" | chpasswd
