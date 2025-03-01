@@ -431,7 +431,7 @@ class InstancesView(generic.TemplateView):
 
 
             backend_script =f"""
-            runcmd:
+runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
     while IFS=':' read -r username password; do
