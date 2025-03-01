@@ -513,7 +513,7 @@ runcmd:
         Bestimmt, welche Felder aus dem Formular erwartet werden.
         Kann dynamisch angepasst werden.
         """
-        return ["account_name", "account_password"]
+        return ["account_name", "account_password", "account_mail"]
 
     def extract_accounts_from_form_new(self, request):
         """Extrahiert Account-Daten basierend auf den definierten Feldern."""
@@ -521,7 +521,11 @@ runcmd:
         expected_fields = self.get_expected_fields()  # Erwartete Felder holen
 
     # Alle Werte aus dem POST-Request für die erwarteten Felder holen
-        extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
+        #extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
+        extracted_data = {
+            "account_name": ["Alice", "Bob"],
+            "account_password": ["pass123", "secure456"],
+            "account_mail": ["alice@mail.de", "bob@mail.de"]}
 
     # Anzahl der Einträge (alle Listen sind gleich lang)
         num_entries = len(next(iter(extracted_data.values())))
