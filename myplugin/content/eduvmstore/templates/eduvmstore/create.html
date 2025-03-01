@@ -302,7 +302,13 @@
 
         // Falls das Textfeld leer ist, setzen wir den Platzhalter-Text
         if (!scriptTextArea.value.trim()) {
-            scriptTextArea.value = `Die Account Structure ist: ${accountStructure}\n\n`;
+            scriptTextArea.value = `#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      ${accountStructure}
+    permissions: '0644'
+    owner: root:root`;
         }
 
         document.getElementById('scriptModal').style.display = 'block';
