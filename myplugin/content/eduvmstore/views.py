@@ -344,7 +344,7 @@ def generate_pdf(accounts, name):
     response["Content-Disposition"] = "attachment; filename=userdata.pdf"
     return response#
 
-def generate_cloud_config(accounts):
+def generate_cloud_config(accounts, backend_script):
     """Erstellt ein korrekt formatiertes #cloud-config Skript mit dynamischen Account-Daten."""
 
     if not accounts:
@@ -367,15 +367,7 @@ write_files:
     permissions: '0644'
     owner: root:root
 
-runcmd:
-  - cat /etc/users.txt > /etc/testtesttest
-  - |
-    while IFS=':' read -r username password; do
-    if ! id "$username" &>/dev/null; then
-    useradd -m -s "/bin/bash" "$username"
-    echo "$username:$password" | chpasswd
-    fi
-    done < /etc/users.txt
+{backend_script}
 """
 
     return cloud_config
@@ -438,21 +430,9 @@ class InstancesView(generic.TemplateView):
             description = self.format_description(raw_description)
 
 
-            cloudscript = f"""
-#cloud-config
-write_files:
-  - path: /etc/users.txt
-    content: |
-      jared:1234
-      marian:1234
-      samuel:1234
-      emy:1234
-      monika:1234
-      valentin:1234
-    permissions: '0644'
-    owner: root:root
-
-runcmd:
+            backend_script =
+            """
+            runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
     while IFS=':' read -r username password; do
@@ -461,12 +441,9 @@ runcmd:
     echo "$username:$password" | chpasswd
     fi
     done < /etc/users.txt
-"""
+            """
 
-
-
-
-            user_datas = generate_cloud_config(accounts)
+            user_datas = generate_cloud_config(accounts, backend_script)
 
 
             nics = [{"net-id": network_id}]
