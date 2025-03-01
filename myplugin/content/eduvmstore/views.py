@@ -342,7 +342,42 @@ def generate_pdf(accounts, name):
     buffer.seek(0)
     response = HttpResponse(buffer, content_type="application/pdf")
     response["Content-Disposition"] = "attachment; filename=userdata.pdf"
-    return response
+    return response#
+
+def generate_cloud_config(accounts):
+    """Erstellt ein #cloud-config Skript mit den übergebenen Account-Daten.
+       Die Felder basieren auf einer Anfrage und sind nicht global unterschiedlich."""
+
+    if not accounts:
+        return ""  # Falls keine Accounts vorhanden sind, kein Skript erstellen
+
+    # Nutze die Schlüssel der ersten Account-Daten als Struktur für diese Anfrage
+    sorted_keys = list(accounts[0].keys())  # Reihenfolge bleibt für diese Anfrage gleich
+
+    # Generiere den Inhalt der Datei /etc/users.txt aus den Accounts
+    users_content = "\n".join([",".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts])
+
+    # Erstelle das cloud-config Skript mit den dynamischen Account-Daten
+    cloud_config = f"""#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      {users_content}
+    permissions: '0644'
+    owner: root:root
+
+runcmd:
+  - cat /etc/users.txt > /etc/testtesttest
+  - |
+    while IFS=',' read -r {",".join(sorted_keys)}; do
+    if ! id "$username" &>/dev/null; then
+    useradd -m -s "/bin/bash" "$username"
+    echo "$username:$password" | chpasswd
+    fi
+    done < /etc/users.txt
+"""
+
+    return cloud_config
 
 
 
@@ -419,7 +454,9 @@ runcmd:
 """
 
 
-            user_datas = cloudscript
+
+
+            user_datas = generate_cloud_config(accounts)
 
             nics = [{"net-id": network_id}]
 
