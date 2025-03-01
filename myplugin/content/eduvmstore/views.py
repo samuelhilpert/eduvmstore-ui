@@ -350,7 +350,9 @@ class InstancesView(generic.TemplateView):
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
 
-            accounts = self.extract_accounts_from_form(request)
+            # script = app_template.get('script')
+
+            accounts = self.extract_accounts_from_form_new(request)
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
 
@@ -393,7 +395,7 @@ runcmd:
     done < /etc/users.txt
 """
 
-            #user_datas = base64.b64encode(cloudscript.encode('utf-8')).decode('utf-8')
+
             user_datas = cloudscript
 
             nics = [{"net-id": network_id}]
@@ -480,6 +482,31 @@ runcmd:
                     "username": name,
                     "password": password
                 })
+
+        return accounts
+
+    def get_expected_fields(self):
+        """
+        Bestimmt, welche Felder aus dem Formular erwartet werden.
+        Kann dynamisch angepasst werden.
+        """
+        return ["account_name", "account_password"]
+
+    def extract_accounts_from_form_new(self, request):
+        """Extrahiert Account-Daten basierend auf den definierten Feldern."""
+        accounts = []
+        expected_fields = self.get_expected_fields()  # Erwartete Felder holen
+
+    # Alle Werte aus dem POST-Request für die erwarteten Felder holen
+        extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
+
+    # Anzahl der Einträge (alle Listen sind gleich lang)
+        num_entries = len(next(iter(extracted_data.values())))
+
+    # Daten als Liste von Dictionaries speichern
+        for i in range(num_entries):
+            account = {field: extracted_data[field][i] for field in expected_fields}
+            accounts.append(account)
 
         return accounts
 
