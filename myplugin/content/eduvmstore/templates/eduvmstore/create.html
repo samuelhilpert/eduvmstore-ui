@@ -318,16 +318,13 @@ write_files:
         document.getElementById('scriptModal').style.display = 'none';
     }
 
-    function saveScript() {
+    ffunction saveScript() {
         var scriptTextArea = document.getElementById('scriptText');
         var hiddenScriptField = document.getElementById('hiddenScriptField');
         var accountStructure = document.getElementById('account_structure').value;
 
-        var userScript = scriptTextArea.value.trim();
-
-        // Falls der Text noch den Standardtext enthält, entfernen wir ihn
-
-        var placeholderText = `#cloud-config
+        // Vorausgefülltes Cloud-Init-Skript mit Platzhalter
+        var defaultScript = `#cloud-config
 write_files:
   - path: /etc/users.txt
     content: |
@@ -335,19 +332,23 @@ write_files:
     permissions: '0644'
     owner: root:root`;
 
-        if (userScript.startsWith(placeholderText)) {
-            userScript = userScript.replace(placeholderText, '').trim();
+        var userScript = scriptTextArea.value;
+
+        // Falls der Text noch genau dem Platzhaltertext entspricht, wird er entfernt
+        if (userScript === defaultScript) {
+            userScript = "";
         }
 
-        // Speichern nur den eigentlichen Inhalt
+        // Speichern nur den eigentlichen Inhalt, **keine Leerzeichen oder Zeilenumbrüche entfernen!**
         hiddenScriptField.value = userScript;
 
+        // Zeige dem Nutzer, was gespeichert wird (mit Zeilenumbrüchen)
         document.getElementById('scriptPreview').innerText = userScript ? `Gespeicherter Inhalt:\n${userScript}` : "(Noch kein Skript gespeichert)";
-
 
         // Modal schließen
         closeModal();
     }
+
 
 
     // Close the modal if the user clicks anywhere outside of it
