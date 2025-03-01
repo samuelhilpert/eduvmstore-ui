@@ -303,16 +303,38 @@ class CreateView(generic.TemplateView):
 
 
 def generate_pdf(accounts, name):
-    """Erstellt eine PDF mit den Benutzern und Passwörtern."""
+    """Erstellt eine PDF mit allen verfügbaren Account-Daten."""
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
     pdf.setTitle("User Credentials")
 
     pdf.drawString(100, 750, f"Benutzerkonten für die erstellte Instanz {name}:")
     y = 730
+
+    # Alle möglichen Schlüssel sammeln (damit die PDF-Spalten dynamisch sind)
+    all_keys = set()
     for account in accounts:
-        pdf.drawString(100, y, f"Benutzername: {account['username']} - Passwort: {account['password']}")
+        all_keys.update(account.keys())
+
+    # Umwandlung in eine sortierte Liste für Konsistenz
+    all_keys = sorted(all_keys)
+
+    # Überschriften für die Tabelle (dynamisch)
+    pdf.drawString(100, y, " | ".join(all_keys).capitalize())
+    y -= 20
+    pdf.drawString(100, y, "-" * 100)
+    y -= 20
+
+    # Jede Zeile der Tabelle ausgeben
+    for account in accounts:
+        row_values = [account.get(key, "N/A") for key in all_keys]  # Fehlende Werte mit "N/A" ersetzen
+        pdf.drawString(100, y, " | ".join(row_values))
         y -= 20
+
+        # Falls die Seite voll ist, eine neue Seite hinzufügen
+        if y < 50:
+            pdf.showPage()
+            y = 750  # Reset der Position für die nächste Seite
 
     pdf.showPage()
     pdf.save()
@@ -321,6 +343,7 @@ def generate_pdf(accounts, name):
     response = HttpResponse(buffer, content_type="application/pdf")
     response["Content-Disposition"] = "attachment; filename=benutzerkonten.pdf"
     return response
+
 
 
 
