@@ -355,7 +355,7 @@ def generate_cloud_config(accounts):
 
     # Generiere den Inhalt der Datei /etc/users.txt aus den Accounts
     users_content = "\n".join(
-        [",".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
+        [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
     )
 
     # Erstelle das cloud-config Skript mit den dynamischen Account-Daten
