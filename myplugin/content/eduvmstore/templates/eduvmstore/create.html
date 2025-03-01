@@ -320,7 +320,15 @@
         var userScript = scriptTextArea.value.trim();
 
         // Falls der Text noch den Standardtext enthält, entfernen wir ihn
-        var placeholderText = `Die Account Structure ist: ${accountStructure}`;
+
+        var placeholderText = `#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      ${accountStructure}
+    permissions: '0644'
+    owner: root:root`;
+
         if (userScript.startsWith(placeholderText)) {
             userScript = userScript.replace(placeholderText, '').trim();
         }
