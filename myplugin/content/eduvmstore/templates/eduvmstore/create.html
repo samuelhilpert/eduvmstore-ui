@@ -245,7 +245,7 @@
             </div>
 
             <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
+                <button type="button" class="btn btn-primary" id="writeScriptButton" onclick="openModal()">Write Script</button>
             </div>
         </div>
 
@@ -348,6 +348,26 @@ write_files:
         // Modal schließen
         closeModal();
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var accountStructureInput = document.getElementById("account_structure");
+        var writeScriptButton = document.getElementById("writeScriptButton");
+
+        // Funktion zum Überprüfen, ob das Feld gefüllt ist
+        function checkAccountStructure() {
+            if (accountStructureInput.value.trim() !== "") {
+                writeScriptButton.disabled = false; // Aktivieren
+            } else {
+                writeScriptButton.disabled = true;  // Deaktivieren
+            }
+        }
+
+        // Beim Laden direkt prüfen
+        checkAccountStructure();
+
+        // Event Listener für Änderungen im Input-Feld
+        accountStructureInput.addEventListener("input", checkAccountStructure);
+    });
 
 
 
