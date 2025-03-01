@@ -362,7 +362,7 @@ class InstancesView(generic.TemplateView):
 
         # Beschreibung mit Einleitungstext + Accounts formatieren
             if accounts:
-                account_list = "\n".join([f"- {acc['username']}: {acc['password']}" for acc in accounts])
+                account_list = "\n".join([f"- {acc['account_username']}: {acc['account_password']}" for acc in accounts])
                 raw_description = f"Diese Instanz wurde mit folgenden Accounts erstellt:\n{account_list}"
             else:
                 raw_description = "Diese Instanz hat keine vordefinierten Benutzerkonten."
