@@ -455,9 +455,9 @@ class InstancesView(generic.TemplateView):
 
             if accounts:
                 account_list = "\n".join([f"- {acc['account_name']}: {acc['account_password']}" for acc in accounts])
-                raw_description = f"Diese Instanz wurde mit folgenden Accounts erstellt:\n{account_list}"
+                raw_description = f"This instance was created with the following accounts:\n{account_list}"
             else:
-                raw_description = "Diese Instanz hat keine vordefinierten Benutzerkonten."
+                raw_description = "This instance has no predefined user accounts."
 
             description = self.format_description(raw_description)
 
