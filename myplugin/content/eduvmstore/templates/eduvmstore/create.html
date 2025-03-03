@@ -297,19 +297,6 @@
 <!-- JavaScript to handle modal -->
 <script>
     function openModal() {
-        var scriptTextArea = document.getElementById('scriptText');
-        var accountStructure = document.getElementById('account_structure').value;
-
-        // Falls das Textfeld leer ist, setzen wir den Platzhalter-Text
-        if (!scriptTextArea.value.trim()) {
-            scriptTextArea.value = `#cloud-config
-write_files:
-  - path: /etc/users.txt
-    content: |
-      ${accountStructure}
-    permissions: '0644'
-    owner: root:root`;
-        }
 
         document.getElementById('scriptModal').style.display = 'block';
     }
@@ -319,56 +306,13 @@ write_files:
     }
 
     function saveScript() {
-        var scriptTextArea = document.getElementById('scriptText');
-        var hiddenScriptField = document.getElementById('hiddenScriptField');
-        var accountStructure = document.getElementById('account_structure').value;
-
-        var userScript = scriptTextArea.value;  // **Nichts verändern!**
-
-        // Platzhalter-Text für Vergleich, der entfernt werden soll (ohne Veränderungen!)
-        var placeholderText = `#cloud-config
-write_files:
-  - path: /etc/users.txt
-    content: |
-      ${accountStructure}
-    permissions: '0644'
-    owner: root:root`;
-
-        // Falls der User den Standardtext unverändert gelassen hat, entfernen wir ihn **ohne Einrückungen zu zerstören**.
-        if (userScript.startsWith(placeholderText)) {
-            userScript = userScript.substring(placeholderText.length);  // Schneidet nur den exakten Platzhalter ab
-        }
-
-        // Speichern des Skripts genau so, wie es eingegeben wurde – ohne jegliche Änderung!
-        hiddenScriptField.value = userScript;
-
-        // Anzeige, was genau gespeichert wird (mit Einrückungen!)
-        document.getElementById('scriptPreview').innerText = `Gespeicherter Inhalt:\n${userScript || "(Noch kein Skript gespeichert)"}`;
-
-        // Modal schließen
+        // Get the script text from the textarea
+        var scriptText = document.getElementById('scriptText').value;
+        // Store it in the hidden input field
+        document.getElementById('hiddenScriptField').value = scriptText;
+        // Close the modal
         closeModal();
     }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        var accountStructureInput = document.getElementById("account_structure");
-        var writeScriptButton = document.getElementById("writeScriptButton");
-
-        // Funktion zum Überprüfen, ob das Feld gefüllt ist
-        function checkAccountStructure() {
-            if (accountStructureInput.value.trim() !== "") {
-                writeScriptButton.disabled = false; // Aktivieren
-            } else {
-                writeScriptButton.disabled = true;  // Deaktivieren
-            }
-        }
-
-        // Beim Laden direkt prüfen
-        checkAccountStructure();
-
-        // Event Listener für Änderungen im Input-Feld
-        accountStructureInput.addEventListener("input", checkAccountStructure);
-    });
-
 
 
 
