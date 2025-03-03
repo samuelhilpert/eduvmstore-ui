@@ -339,7 +339,7 @@ def generate_pdf(accounts, name):
 
     all_keys = sorted(all_keys)
 
-    pdf.drawString(100, y, " | ".join(all_keys).capitalize())
+    pdf.drawString(100, y, " | ".join(all_keys))
     y -= 20
     pdf.drawString(100, y, "-" * 100)
     y -= 20
@@ -455,8 +455,7 @@ class InstancesView(generic.TemplateView):
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
-
-            # script = app_template.get('script')
+            script = app_template.get('script')
 
             accounts = self.extract_accounts_from_form_new(request)
             request.session["accounts"] = accounts
@@ -482,7 +481,7 @@ runcmd:
     fi
     done < /etc/users.txt
             """
-            user_datas = generate_cloud_config(accounts, backend_script)
+            user_datas = generate_cloud_config(accounts, script)
 
             nics = [{"net-id": network_id}]
 
