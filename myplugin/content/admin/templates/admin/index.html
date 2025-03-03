@@ -9,107 +9,150 @@
 {% block main %}
 
     <style>
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .table th {
-            background-color: #f8f9fa;
-            color: #495057;
-            font-weight: bold;
-        }
-        .table tr:hover {
-            background-color: #f1f1f1;
-        }
-
         .accordion {
+            background: linear-gradient(135deg, #333, #777);
+            color: white;
             cursor: pointer;
             padding: 15px;
             width: 100%;
             text-align: left;
             border: none;
             outline: none;
-            transition: background-color 0.2s ease;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-            font-weight: bold;
-            position: relative;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .accordion-description {
-            display: block; /* Block-Element für separate Zeile */
-            font-size: 0.9em; /* Kleinere Schriftgröße */
-            color: #6c757d; /* Dezente graue Farbe */
-            margin-top: 5px; /* Abstand zum Titel */
-            font-weight: normal; /* Nicht fett */
+        .accordion:after {
+            content: '\25BC';
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion.active:after {
+            transform: rotate(180deg);
+        }
+
+        .accordion:hover {
+            background-color: #555;
         }
 
         .panel {
             display: none;
-            background-color: white;
-            padding: 0 15px;
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 20px; /* Fügt Abstand nach dem Panel hinzu */
-        }
-        .accordion:hover {
-            background-color: #e2e6ea;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-top: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .panel.active {
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background: #333;
+            color: white;
+        }
+        .table tr:hover {
+            background: #f1f1f1;
+        }
+
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background: #f8f9fa;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus {
+            border-color: #333;
+            outline: none;
+        }
+
+                .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
             display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
 
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #333;
+            outline: none;
+        }
     </style>
 
     {% if show_content %}
-        <h3>Welcome, {{ username }}!</h3>
-        <hr style="border: 1px solid lightgray; margin: 5px 0;">
-        <button class="accordion">
-            App Template Management
-            <span class="accordion-description">Approve or delete uploaded App Templates.</span>
-        </button>
+        <h3 style="text-align: center; color: #333;">Welcome, {{ username }}!</h3>
+        <hr>
+
+        <button class="accordion">App Template Management</button>
         <div class="panel">
             <h2>Confirm new App-Templates</h2>
-            <p><i style="color: gray;">Here you can confirm new App-Templates that have been uploaded by users.</i></p>
+             <p><i style="color: gray;">Here you can confirm new App-Templates that have been uploaded by users.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
             <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}">
-            {% csrf_token %}
-                <table class="table table-striped">
+                {% csrf_token %}
+                <table class="table">
                     <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Creator ID</th>
-                        <th>Created At</th>
-                        <th>Image ID</th>
-                        <th>Name</th>
-                        <th>Short Description</th>
-                        <th>Approve</th>
-
-                    </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Creator ID</th>
+                            <th>Created At</th>
+                            <th>Image ID</th>
+                            <th>Name</th>
+                            <th>Short Description</th>
+                            <th>Approve</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {% for template in approvable_app_templates %}
-                        <tr>
-                            <td>{{ template.id }}</td>
-                            <td>{{ template.creator_id }}</td>
-                            <td>{{ template.created_at }}</td>
-                            <td>{{ template.image_id }}</td>
-                            <td>{{ template.name }}</td>
-                            <td>{{ template.short_description }}</td>
-                            <td>
-                                <button type="submit" name="template_id" value="{{ template.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to approve this app template?');">Approve</button>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                        {% for template in approvable_app_templates %}
+                            <tr>
+                                <td>{{ template.id }}</td>
+                                <td>{{ template.creator_id }}</td>
+                                <td>{{ template.created_at }}</td>
+                                <td>{{ template.image_id }}</td>
+                                <td>{{ template.name }}</td>
+                                <td>{{ template.short_description }}</td>
+                                <td>
+                                    <button class="btn btn-primary" type="submit" name="template_id" value="{{ template.id }}">Approve</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </form>
-            <h2>Delete App-Templates</h2>
+         <h2>Delete App-Templates</h2>
             <p><i style="color: gray;">Here you can delete App-Templates.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
             <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}">
@@ -137,51 +180,7 @@
                             <td>{{ temp.version }}</td>
                             <td>{{ temp.public }}</td>
                             <td>
-                                <button type="submit" name="template_id" value="{{ temp.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to delete this app template?');">Delete</button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </form>
-        </div>
-        <button class="accordion">
-            User Management
-            <span class="accordion-description">Manage user roles and delete users from the system.</span>
-        </button>
-        <div class="panel">
-            <h2>Edit User Roles</h2>
-            <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
-            <hr style="border: 1px solid lightgray; margin: 5px 0;">
-            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}">
-                {% csrf_token %}
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Created At</th>
-                        <th>Updated At</th>
-                        <th>Current Role</th>
-                        <th>New Role</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for user in detailed_users %}
-                        <tr>
-                            <td>{{ user.id }}</td>
-                            <td>{{ user.created_at }}</td>
-                            <td>{{ user.updated_at }}</td>
-                            <td>{{ user.role.name }}</td>
-                            <td>
-                                <select name="new_role_{{ user.id }}" style="width: 100%;">
-                                    {% for role in roles %}
-                                        <option value="{{ role.id }}">{{ role.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                            <td>
-                                <button type="submit" name="user_id" value="{{ user.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to update this role?');">Confirm</button>
+                                <button class="btn btn-primary" type="submit" name="template_id" value="{{ temp.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to delete this app template?');">Delete</button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -189,6 +188,49 @@
                 </table>
             </form>
 
+        </div>
+
+
+        <button class="accordion">User Management</button>
+        <div class="panel">
+            <h2>Edit User Roles</h2>
+            <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
+            <hr style="border: 1px solid lightgray; margin: 5px 0;">
+            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}">
+                {% csrf_token %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                            <th>Current Role</th>
+                            <th>New Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in detailed_users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.created_at }}</td>
+                                <td>{{ user.updated_at }}</td>
+                                <td>{{ user.role.name }}</td>
+                                <td>
+                                    <select name="new_role_{{ user.id }}">
+                                        {% for role in roles %}
+                                            <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary" type="submit" name="user_id" value="{{ user.id }}">Confirm</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
             <h2>Delete User</h2>
             <p><i style="color: gray;">Here you can delete User.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
@@ -212,7 +254,7 @@
                             <td>{{ user.updated_at }}</td>
                             <td>{{ user.role.name }}</td>
                             <td>
-                                <button type="submit" name="user_id" value="{{ user.id }}" style="padding: 5px 10px;" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
+                                <button class="btn btn-primary" type="submit" name="user_id" value="{{ user.id }}" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -220,25 +262,25 @@
                 </table>
             </form>
         </div>
-        <button class="accordion">
-            Role Management
-            <span class="accordion-description">Create, manage and delete roles from the system.</span>
-        </button>
+
+        <button class="accordion">Role Management</button>
         <div class="panel">
             <h2>Create Role</h2>
             <p><i style="color: gray;">Here you can create a Role.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
             <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:create_role' %}">
                 {% csrf_token %}
-                <label for="new_role_name">Role Name:</label>
-                <input type="text" id="new_role_name" name="new_role_name" required>
-                <label for="access_level">Access Level:</label>
-                <input type="text" id="access_level" name="access_level" required>
-                <button type="submit">Create Role</button>
+               <div class="form-group">
+                    <label for="new_role_name">Role Name:</label>
+                    <input type="text" id="new_role_name" name="new_role_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="access_level">Access Level:</label>
+                    <input type="text" id="access_level" name="access_level" required>
+                </div>
+                <button class="btn btn-primary" type="submit">Create Role</button>
             </form>
-
         </div>
-
     {% else %}
         <div style="text-align: center; margin-top: 50px;">
             <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">
@@ -266,8 +308,4 @@
         });
     </script>
 
-
 {% endblock %}
-
-
-
