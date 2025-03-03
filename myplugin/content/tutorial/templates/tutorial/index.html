@@ -99,6 +99,45 @@
         .tile-back ul li:last-child {
             border-bottom: none;
         }
+
+        .accordion {
+            background: linear-gradient(135deg, #333, #777);
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .accordion:hover {
+            background-color: #555;
+        }
+
+        .panel {
+            display: none;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-top: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-container {
+            width: 100%;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
     </style>
 
     <h2 style="text-align: center; color: #333;">Instructions</h2>
@@ -159,11 +198,51 @@
             </div>
         </div>
     </div>
+    <hr>
+  <h2 style="text-align: center; color: #333;">FAQ</h2>
+    <p style="text-align: center; color: #666; font-size: 16px;">Here are frequently asked questions.</p>
+    <hr>
+        <button class="accordion">What is the EduVMStore?</button>
+        <div class="panel">
+            <p> EduVMStore is a platform designed for managing and provisioning virtual machines in an educational context. It integrates with OpenStack to simplify the creation, configuration, and management of VMs, enabling users, such as students and educators, to deploy customized learning environments quickly. The platform supports various VM configurations and resource allocations, making it suitable for classroom and research purposes.</p>
+        </div>
+        <button class="accordion">Who created the EduVMStore?</button>
+        <div class="panel">
+            <p>The EduVMStore was developed by students of the DHBW Mannheim, Germany. The project was part of the Bachelor's degree program in Business Informatics. The name of the student are Valentin Czekalla, Jared Heinrich, Marian Rickert, Emese Racz, Monika Bircic und Samuel Hilpert.</p>
+        </div>
+        <button class="accordion">Who can use EduVMStore?</button>
+        <div class="panel">
+            <p>EduVMStore is designed for students, educators, and IT administrators in educational institutions that require virtualized environments for teaching, learning, and research.</p>
+        </div>
+    <hr>
+  <h2 style="text-align: center; color: #333;">Contact</h2>
+    <p></p>
+    <hr>
+    <div class="contact-container">
+
+        <p>Email: admin@eduVMStore.com</p>
+        <p>Phone: +49 123 456 7890</p>
+    </div>
+
 
     <script>
         function flipTile(tile) {
             tile.classList.toggle('flip');
         }
+
+        var acc = document.getElementsByClassName("accordion");
+        for (var i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        }
+
     </script>
 
 {% endblock %}
