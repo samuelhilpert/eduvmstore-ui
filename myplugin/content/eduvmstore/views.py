@@ -232,12 +232,20 @@ class CreateView(generic.TemplateView):
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
+        account_structure_raw = request.POST.get('account_structure', '').strip()
+        if account_structure_raw:
+            account_attributes = [{"name": attr.strip()} for attr in account_structure_raw.split(':') if attr.strip()]
+        else:
+            account_attributes = []
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
+            'script': request.POST.get('hiddenScriptField'),
+            'account_attributes' : account_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -246,6 +254,7 @@ class CreateView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+
         }
 
         try:
@@ -561,10 +570,12 @@ runcmd:
         return accounts
 
     def get_expected_fields(self):
-        """
-        Determines which fields are expected from the form.
-        """
-        return ["account_name", "account_password"]
+
+        app_template = self.get_app_template()
+        account_structure = app_template.get('account_attributes')
+
+        account_attribute = [attr['name'] for attr in account_structure]
+        return account_attribute
 
     def extract_accounts_from_form_new(self, request):
         accounts = []
