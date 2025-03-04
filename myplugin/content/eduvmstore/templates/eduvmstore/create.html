@@ -253,6 +253,15 @@
         <div id="scriptModal" class="modal mt-5">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">×</span>
+                <pre class="p-2 border rounded bg-light">
+#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      <span id="scriptContent"></span>
+    permissions: '0644'
+    owner: root:root
+        </pre>
                 <h5>Write Script</h5>
                 <textarea id="scriptText" class="form-control " rows="10"></textarea>
                 <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
@@ -261,9 +270,6 @@
 
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
-
-
-
 
         <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
@@ -296,7 +302,8 @@
 <!-- JavaScript to handle modal -->
 <script>
     function openModal() {
-
+        let accountStructure = document.getElementById("account_structure").value;
+        document.getElementById("scriptContent").innerText = accountStructure;
         document.getElementById('scriptModal').style.display = 'block';
     }
 
