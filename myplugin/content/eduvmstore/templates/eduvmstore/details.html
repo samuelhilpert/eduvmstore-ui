@@ -197,7 +197,8 @@
 
                 <div class="detail-group">
                     <strong>Script:</strong>
-                    <pre>
+                    {% if app_template.script %}
+                        <pre>
 #cloud-config
 write_files:
   - path: /etc/users.txt
@@ -205,24 +206,18 @@ write_files:
       <span id="formatted-accounts"></span>
     permissions: '0644'
     owner: root:root
-                    </pre>
-                    <pre>{{ app_template.script }}</pre>
-                </div>
+                        </pre>
+                        <pre>{{ app_template.script }}</pre>
 
+                        <script>
+                            let accountAttributes = {{ app_template.account_attributes|safe }};
+                            let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+                            document.getElementById("formatted-accounts").textContent = formattedAccounts;
+                        </script>
 
-            </div>
-        </div>
-    </div>
-
-    <script>
-
-        let accountAttributes = {{ app_template.account_attributes|safe }};
-
-        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-
-        document.getElementById("formatted-accounts").textContent = formattedAccounts;
-
-    </script>
+                    {% else %}
+                        <p>No script uploaded.</p>
+                    {% endif %}
 
 
 {% endblock %}
