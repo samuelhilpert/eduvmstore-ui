@@ -37,7 +37,7 @@
         margin-bottom: 20px;
         color: #343a40;
     }
-    .system-requirements, .image-info {
+    .system-requirements, .image-info, .script-details {
         background-color: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
@@ -195,7 +195,7 @@
         <div class="row">
             <div class="col-md-6">
 
-                <div class="uploaded-script">
+                <div class="detail-group">
                     <strong>Script:</strong>
                     {% if app_template.script %}
                         <pre>
@@ -217,7 +217,7 @@ write_files:
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="account-structure">
+                <div class="detail-group">
                     <strong>Account Structure:</strong>
                     <span id="structured-accounts"></span>
                 </div>
