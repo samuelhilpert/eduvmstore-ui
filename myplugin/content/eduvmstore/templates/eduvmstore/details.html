@@ -191,11 +191,11 @@
 </div>
 
     <h4>Script</h4>
-    <div class="system-requirements">
+    <div class="script-details">
         <div class="row">
             <div class="col-md-6">
 
-                <div class="detail-group">
+                <div class="uploaded-script">
                     <strong>Script:</strong>
                     {% if app_template.script %}
                         <pre>
@@ -209,11 +209,7 @@ write_files:
                         </pre>
                         <pre>{{ app_template.script }}</pre>
 
-                        <script>
-                            let accountAttributes = {{ app_template.account_attributes|safe }};
-                            let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-                            document.getElementById("formatted-accounts").textContent = formattedAccounts;
-                        </script>
+
 
                     {% else %}
                         <p>No script uploaded.</p>
@@ -221,13 +217,19 @@ write_files:
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="detail-group">
+                <div class="account-structure">
                     <strong>Account Structure:</strong>
                     <span id="formatted-accounts"></span>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        let accountAttributes = {{ app_template.account_attributes|safe }};
+        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+        document.getElementById("formatted-accounts").textContent = formattedAccounts;
+    </script>
 
 
 {% endblock %}
