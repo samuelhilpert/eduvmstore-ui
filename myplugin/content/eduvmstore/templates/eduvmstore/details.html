@@ -196,7 +196,16 @@
             <div class="col-md-6">
 
                 <div class="detail-group">
-                    <strong>Fixed RAM (GB):</strong>
+                    <strong>Script:</strong>
+                    <pre>
+                        #cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      {{ app_template.account_attributes }}
+    permissions: '0644'
+    owner: root:root
+                    </pre>
                     <p>{{ app_template.script }}</p>
                 </div>
 
