@@ -202,7 +202,7 @@
 write_files:
   - path: /etc/users.txt
     content: |
-      {{ app_template.account_attributes }}
+      <span id="formatted-accounts"></span>
     permissions: '0644'
     owner: root:root
                     </pre>
@@ -214,6 +214,15 @@ write_files:
         </div>
     </div>
 
-    <div>{{ token_id }}</div>
+    <script>
+
+        let accountAttributes = {{ app_template.account_attributes|safe }};
+
+        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+
+        document.getElementById("formatted-accounts").textContent = formattedAccounts;
+
+    </script>
+
 
 {% endblock %}
