@@ -456,6 +456,7 @@ class InstancesView(generic.TemplateView):
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
             script = app_template.get('script')
+            app_template_name = app_template.get('name')
 
             accounts = self.extract_accounts_from_form_new(request)
             request.session["accounts"] = accounts
@@ -470,17 +471,6 @@ class InstancesView(generic.TemplateView):
             description = self.format_description(raw_description)
 
 
-            backend_script =f"""
-runcmd:
-  - cat /etc/users.txt > /etc/testtesttest
-  - |
-    while IFS=':' read -r username password; do
-    if ! id "$username" &>/dev/null; then
-    useradd -m -s "/bin/bash" "$username"
-    echo "$username:$password" | chpasswd
-    fi
-    done < /etc/users.txt
-            """
             user_datas = generate_cloud_config(accounts, script)
 
             nics = [{"net-id": network_id}]
@@ -488,7 +478,8 @@ runcmd:
             key_name = None
             security_groups = ["default"]
 
-            metadata = {"description": description}
+            metadata = {"description": description,
+                        "app_template_name": app_template_name}
 
 
 
