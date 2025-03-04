@@ -1,0 +1,31 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - git
+  - python3
+  - python3-pip
+  - python3-venv
+
+write_files:
+  - path: /initialization_script
+    content: |
+      DEVSTACK_DIR="$HOME/devstack"
+      CONFIG_PATH="/local.conf"
+      git clone https://opendev.org/openstack/devstack $DEVSTACK_DIR
+      cp $CONFIG_PATH $DEVSTACK_DIR/local.conf
+    permissions: '0755'
+    owner: root:root
+
+write_files:
+  - path: /local.conf
+    content: |
+      [[local|localrc]]
+      ADMIN_PASSWORD=nomoresecret
+      DATABASE_PASSWORD=stackdb
+      RABBIT_PASSWORD=stackqueue
+      SERVICE_PASSWORD=$ADMIN_PASSWORD
+      ENABLE_PLUGIN eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui main
+    permissions: '0755'
+    owner: root:root
