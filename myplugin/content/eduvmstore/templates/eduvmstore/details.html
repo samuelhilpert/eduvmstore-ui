@@ -198,7 +198,7 @@
                 <div class="detail-group">
                     <strong>Script:</strong>
                     <pre>
-                        #cloud-config
+#cloud-config
 write_files:
   - path: /etc/users.txt
     content: |
@@ -206,7 +206,7 @@ write_files:
     permissions: '0644'
     owner: root:root
                     </pre>
-                    <p>{{ app_template.script }}</p>
+                    <pre>{{ app_template.script }}</pre>
                 </div>
 
 
