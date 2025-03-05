@@ -306,6 +306,59 @@ class EditView(generic.TemplateView):
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
 
+    def get_context_data(self, **kwargs):
+        """
+            Add app template and image data to the context.
+            :param kwargs: Additional context parameters.
+            :return: Context dictionary with app template and image details.
+            :rtype: dict
+        """
+        context = super().get_context_data(**kwargs)
+        app_template = self.get_app_template()
+        image_data = self.get_image_data(app_template.get('image_id', ''))
+        context.update({
+            'app_template': app_template,
+            'image_visibility': image_data.get('visibility', 'N/A'),
+            'image_owner': image_data.get('owner', 'N/A'),
+        })
+        return context
+
+
+    def get_app_template(self):
+        """
+            Fetch a specific app template from the external database using token authentication.
+            :param token_id: Authentication token for API access.
+            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :rtype: dict
+        """
+        token_id = get_token_id(self.request)
+        headers = {"X-Auth-Token": token_id}
+
+        try:
+            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                template_id=self.kwargs['template_id']),
+                headers=headers, timeout=10))
+
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
+
+    def get_image_data(self, image_id):
+        """
+            Fetch image details from Glance based on the image_id.
+            :param image_id: ID of the image to retrieve.
+            :return: Dictionary with visibility and owner details of the image.
+            :rtype: dict
+        """
+        try:
+            image = glance.image_get(self.request, image_id)
+            return {'visibility': image.visibility, 'owner': image.owner}
+        except Exception as e:
+            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+            return {}
+
 def generate_pdf(accounts, name):
     """Erstellt eine PDF mit den Benutzern und Passwörtern."""
     buffer = io.BytesIO()
