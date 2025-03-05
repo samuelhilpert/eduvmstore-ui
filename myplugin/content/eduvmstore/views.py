@@ -457,18 +457,13 @@ class InstancesView(generic.TemplateView):
             image_id = app_template.get('image_id')
             script = app_template.get('script')
             app_template_name = app_template.get('name')
+            app_template_descritpion = app_template.get('description')
 
             accounts = self.extract_accounts_from_form_new(request)
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
 
-            if accounts:
-                account_list = "\n".join([f"- {acc['account_name']}: {acc['account_password']}" for acc in accounts])
-                raw_description = f"This instance was created with the following accounts:\n{account_list}"
-            else:
-                raw_description = "This instance has no predefined user accounts."
-
-            description = self.format_description(raw_description)
+            description = self.format_description(app_template_descritpion)
 
 
             user_datas = generate_cloud_config(accounts, script)
@@ -478,12 +473,11 @@ class InstancesView(generic.TemplateView):
             key_name = None
             security_groups = ["default"]
 
-            metadata = {"description": description,
-                        "app_template": app_template_name}
+            metadata = {"app_template": app_template_name}
 
             for index, account in enumerate(accounts):
                 user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                metadata[f"user_{index}"] = user_data
+                metadata[f"user_{index+1}"] = user_data
 
 
 
