@@ -300,6 +300,11 @@ class CreateView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return []
 
+class EditView(generic.TemplateView):
+    """
+        View to handle the creation of a new app template with specified details.
+    """
+    template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
 
 def generate_pdf(accounts, name):
     """Erstellt eine PDF mit den Benutzern und Passwörtern."""
@@ -482,3 +487,4 @@ class InstanceSuccessView(generic.TemplateView):
         del request.session["accounts"]
         del request.session["instance_name"]
         return pdf_response
+
