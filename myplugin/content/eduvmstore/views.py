@@ -481,6 +481,10 @@ class InstancesView(generic.TemplateView):
             metadata = {"description": description,
                         "app_template": app_template_name}
 
+            for index, account in enumerate(accounts):
+                user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
+                metadata[f"user_{index}"] = user_data
+
 
 
             nova.server_create(
