@@ -479,7 +479,7 @@ class InstancesView(generic.TemplateView):
             security_groups = ["default"]
 
             metadata = {"description": description,
-                        "App Template": app_template_name}
+                        "app_template": app_template_name}
 
 
 
