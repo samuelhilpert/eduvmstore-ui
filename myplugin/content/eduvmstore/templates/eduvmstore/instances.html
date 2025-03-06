@@ -62,10 +62,9 @@
 </div>
       <!-- Accounts Section -->
       <div id="accounts_section">
-
+ <h4>{{ _("Accounts") }}</h4>
       <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
 
-          <h4>{{ _("Accounts") }}</h4>
       </div>
      <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
@@ -109,11 +108,10 @@
         accountDiv.classList.add("account-section", "border", "p-3", "mb-3", "rounded");
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
-        let fieldsHtml = `<legend>Account ${accountCounter}</legend><div class="form-row">`;
-
         accountAttributes.forEach(attr => {
             fieldsHtml += `
                 <div class="form-group col-md-4">
+                    <label for="${attr}_${accountCounter}">${attr}</label>
                     <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" required>
                 </div>
             `;
