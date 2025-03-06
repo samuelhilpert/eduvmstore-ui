@@ -531,7 +531,8 @@ class InstancesView(generic.TemplateView):
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
 
-
+        # Add expected fields dynamically for form rendering
+        context['expected_account_fields'] = self.get_expected_fields()
 
         return context
 
@@ -562,12 +563,16 @@ class InstancesView(generic.TemplateView):
         return accounts
 
     def get_expected_fields(self):
-
+        """
+        Extracts the expected account attributes dynamically from the app template.
+        """
         app_template = self.get_app_template()
-        account_structure = app_template.get('account_attributes')
+        account_structure = app_template.get('account_attributes', [])
 
-        account_attribute = [attr['name'] for attr in account_structure]
-        return account_attribute
+        # Ensure it returns a list of attribute names
+        if isinstance(account_structure, list):
+            return [attr.get('name') for attr in account_structure if 'name' in attr]
+        return []
 
     def extract_accounts_from_form_new(self, request):
         accounts = []
