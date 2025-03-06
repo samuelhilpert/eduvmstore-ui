@@ -64,9 +64,11 @@
       <div id="accounts_section">
 
           <h4>{{ _("Accounts") }}</h4>
-      <button type="button" id="add_account" class="btn btn-secondary mt-5">{{ _("Add Account") }}</button>
-      </div>
+          <div class="mt-5">
+                <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
+          </div>
 
+      </div>
 
      <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
@@ -124,7 +126,7 @@ accountAttributes.forEach(attr => {
 });
 
 fieldsHtml += `
-    <div class="col-md-2 d-flex align-items-center">
+    <div class="col-md-2 d-flex align-items-center mb-3">
         <button type="button" class="btn btn-danger btn-sm remove-account" data-id="account_${accountCounter}">
             Remove
         </button>
