@@ -449,7 +449,7 @@ class InstancesView(generic.TemplateView):
         try:
 
             flavor_id = request.POST.get('flavor_id')
-            name = request.POST.get('name')
+            name = request.POST.get('instance_name')
             network_id = request.POST.get('network_id')
 
 
