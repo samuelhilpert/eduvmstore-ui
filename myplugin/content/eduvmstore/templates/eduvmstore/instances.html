@@ -110,7 +110,10 @@
         accountDiv.classList.add("account-section", "border", "p-3", "mb-3", "rounded");
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
-        let fieldsHtml = `<legend>Account ${accountCounter}</legend><div class="form-row">`;
+        let fieldsHtml = `
+            <legend class="small text-muted">Account ${accountCounter}</legend>
+            <div class="form-row align-items-center">
+        `;
 
         accountAttributes.forEach(attr => {
             fieldsHtml += `
@@ -122,10 +125,12 @@
         });
 
         fieldsHtml += `
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm remove-account" data-id="account_${accountCounter}">
+                    Remove
+                </button>
             </div>
-            <button type="button" class="btn btn-danger btn-sm remove-account mb-3 " data-id="account_${accountCounter}">
-                Remove
-            </button>
+            </div>
         `;
 
         accountDiv.innerHTML = fieldsHtml;
