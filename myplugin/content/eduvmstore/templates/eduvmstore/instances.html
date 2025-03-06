@@ -111,27 +111,26 @@
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
         let fieldsHtml = `
-            <legend>Account ${accountCounter}</legend>
             <div class="form-row align-items-center">
         `;
 
-        accountAttributes.forEach(attr => {
-            fieldsHtml += `
-                <div class="form-group col-md-4">
-                    <label for="${attr}_${accountCounter}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" placeholder="Enter ${attr}" required>
-                </div>
-            `;
-        });
+accountAttributes.forEach(attr => {
+    fieldsHtml += `
+        <div class="form-group col-md-4">
+            <label for="${attr}_${accountCounter}">${attr}</label>
+            <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" placeholder="Enter ${attr}" required>
+        </div>
+    `;
+});
 
-        fieldsHtml += `
-            <div class="col-md-2  d-flex align-items-end">
-                <button type="button" class="btn btn-danger btn-sm remove-account mt-3 " data-id="account_${accountCounter}">
-                    Remove
-                </button>
-            </div>
-            </div>
-        `;
+fieldsHtml += `
+    <div class="col-md-2 d-flex align-items-center">
+        <button type="button" class="btn btn-danger btn-sm remove-account" data-id="account_${accountCounter}">
+            Remove
+        </button>
+    </div>
+    </div>
+`;
 
         accountDiv.innerHTML = fieldsHtml;
         accountsSection.appendChild(accountDiv);
