@@ -61,22 +61,13 @@
     <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
 </div>
 
-        <!-- Accounts Section -->
-        <div id="accounts_section" style="display: block;">
-            <h4>{{ _("Accounts") }}</h4>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="account_name_0">{{ _("Username") }}</label>
-                    <input type="text" class="form-control" id="account_name_0" name="account_name" placeholder="{{ _('Enter username') }}">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="account_password_0">{{ _("Account Password") }}</label>
-                    <input type="password" class="form-control" id="account_password_0" name="account_password" placeholder="{{ _('Enter password') }}">
-                </div>
-            </div>
-                <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
-        </div>
+      <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
 
+
+      <!-- Accounts Section -->
+      <div id="accounts_section">
+          <h4>{{ _("Accounts") }}</h4>
+      </div>
      <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
@@ -108,31 +99,46 @@
     </div>
 </div>
 
+ <script>
 
+    let accountAttributes = {{ expected_account_fields|safe }};
+    let accountCounter = 1;
 
+    function addAccountFields() {
+        const accountsSection = document.getElementById("accounts_section");
+        const accountDiv = document.createElement("div");
 
-    <script>
+        accountDiv.classList.add("form-row");
+        accountDiv.setAttribute("id", `account_${accountCounter}`);
 
-
-        let accountCount = 1;
-        document.getElementById("add_account").addEventListener("click", function() {
-            const accountSection = document.getElementById("accounts_section");
-            const newAccountField = document.createElement("div");
-            newAccountField.classList.add("form-row");
-
-            newAccountField.innerHTML = `
-                <div class="form-group col-md-6">
-                    <label for="account_name_${accountCount}">{{ _("Account Name") }}</label>
-                    <input type="text" class="form-control" id="account_name_${accountCount}" name="account_name" placeholder="{{ _('Enter account name') }}">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="account_password_${accountCount}">{{ _("Account Password") }}</label>
-                    <input type="password" class="form-control" id="account_password_${accountCount}" name="account_password" placeholder="{{ _('Enter password') }}">
+        let fieldsHtml ="";
+        accountAttributes.forEach(attr => {
+            fieldsHtml += `
+                <div class="form-group col-md-4">
+                    <label for="${attr}_${accountCounter}">${attr}</label>
+                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}" required>
                 </div>
             `;
-            accountSection.appendChild(newAccountField);
-            accountCount++;
         });
+        accountDiv.innerHTML = fieldsHtml + `
+            <div class="form-group col-md-2">
+                <button type="button" class="btn btn-danger" onclick="removeAccountFields(${accountCounter})">Remove</button>
+            </div>
+        `;
+
+        accountsSection.appendChild(accountDiv);
+        accountCounter++;
+
+    }
+
+    function removeAccountFields(accountId) {
+        const accountDiv = document.getElementById(`account_`+ id);
+        if (accountDiv) {
+            accountDiv.remove();
+        }
+    }
+
+    document.getElementById("add_account").addEventListener("click", addAccountFields);
 
 
     document.getElementById("no_additional_users").addEventListener("change", function () {
@@ -153,6 +159,6 @@
         });
     {% endif %}
 
-    </script>
+</script>
 
 {% endblock %}
