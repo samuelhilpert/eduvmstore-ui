@@ -61,6 +61,14 @@
     <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
 </div>
 
+  <!--Dynamic Field Creation -->
+  {% for attribute in account_attributes %}
+<div class="form-group">
+    <label for="{{ attribute }}">{{ attribute|capfirst }}</label>
+    <input type="text" class="form-control" id="{{ attribute }}" name="{{ attribute }}" placeholder="Enter {{ attribute }}">
+</div>
+{% endfor %}
+
         <!-- Accounts Section -->
         <div id="accounts_section" style="display: block;">
             <h4>{{ _("Accounts") }}</h4>
