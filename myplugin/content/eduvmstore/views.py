@@ -582,6 +582,8 @@ class InstancesView(generic.TemplateView):
         # extracted_data = {"account_name": ["Alice", "Bob"],"account_password": ["pass123", "secure456"]}
 
         num_entries = len(next(iter(extracted_data.values())))
+        if any(len(data) != num_entries for data in extracted_data.values()):
+            raise ValueError("Mismatch in the number of account fields.")
 
         for i in range(num_entries):
             account = {field: extracted_data[field][i] for field in expected_fields}
