@@ -64,11 +64,9 @@
       <div id="accounts_section">
 
           <h4>{{ _("Accounts") }}</h4>
-          <div class="mt-5">
-                <button type="button" id="add_account" style="margin-top: 20px" class="btn btn-secondary">{{ _("Add Account") }}</button>
-          </div>
-
+      <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
       </div>
+
 
      <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
@@ -106,45 +104,35 @@
     let accountCounter = 1;
 
     function addAccountFields() {
-        const accountsSection = document.getElementById("accounts_container");
-        const accountDiv = document.createElement("fieldset");
+        const accountsSection = document.getElementById("accounts_section");
+        const accountDiv = document.createElement("div");
 
-        accountDiv.classList.add("account-section", "border", "p-3", "mb-3", "rounded");
+        accountDiv.classList.add("form-row");
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
-        let fieldsHtml = `
-            <div class="form-row align-items-center" style= "border-bottom: #343a40">
+        let fieldsHtml = "";
+
+        accountAttributes.forEach(attr => {
+            fieldsHtml += `
+                <div class="form-group col-md-4">
+                    <label for="${attr}_${accountCounter}">${attr}</label>
+                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" placeholder="Enter ${attr}" required>
+                </div>
+            `;
+        });
+
+        fieldsHtml += `
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-account " data-id="account_${accountCounter}">
+                Remove
+            </button>
         `;
-
-accountAttributes.forEach(attr => {
-    fieldsHtml += `
-        <div class="form-group col-md-4" style="margin-top: 15px; border-bottom: #343a40">
-            <label for="${attr}_${accountCounter}">${attr}</label>
-            <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" placeholder="Enter ${attr}" required>
-        </div>
-    `;
-});
-
-fieldsHtml += `
-    <div class="col-md-2 d-flex align-items-center mb-3" >
-        <button type="button" class="btn btn-danger btn-sm remove-account" data-id="account_${accountCounter}">
-            Remove
-        </button>
-    </div>
-    </div>
-`;
 
         accountDiv.innerHTML = fieldsHtml;
         accountsSection.appendChild(accountDiv);
 
         accountCounter++;
     }
-
-    document.getElementById("accounts_section").innerHTML = `
-        <h4>{{ _("Accounts") }}</h4>
-        <div id="accounts_container"></div>
-        <button type="button" id="add_account" class="btn btn-secondary" style="margin-top: 20px">{{ _("Add Account") }}</button>
-    `;
 
     document.getElementById("add_account").addEventListener("click", addAccountFields);
 
@@ -160,7 +148,7 @@ fieldsHtml += `
         accountsSection.style.display = this.checked ? "none" : "block";
 
         if (this.checked) {
-            document.getElementById("accounts_container").innerHTML = ""; // Clear all added accounts when disabled
+            accountsSection.innerHTML = ""; // Clear all added accounts when disabled
             accountCounter = 1;
         }
     });
