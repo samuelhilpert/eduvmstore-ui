@@ -67,8 +67,6 @@
             <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
         </div>
 
-        <hr>
-
         <!-- Accounts Section -->
         <div id="accounts_section">
             <h4>{{ _("Accounts") }}</h4>
@@ -76,7 +74,6 @@
             <button type="button" id="add_account" class="btn btn-secondary mt-3">{{ _("Add Account") }}</button>
         </div>
 
-        <hr>
 
         <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
@@ -150,7 +147,7 @@
         document.getElementById("accounts_section").innerHTML = `
             <h4>{{ _("Accounts") }}</h4>
             <div id="accounts_container"></div>
-            <button type="button" id="add_account" class="btn btn-secondary mt-3">{{ _("Add Account") }}</button>
+            <button type="button" id="add_account" class="btn btn-secondary mt-3" style="margin-top: 20px">{{ _("Add Account") }}</button>
         `;
 
         document.getElementById("add_account").addEventListener("click", addAccountFields);
