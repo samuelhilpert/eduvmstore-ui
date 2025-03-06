@@ -118,7 +118,7 @@
 
 accountAttributes.forEach(attr => {
     fieldsHtml += `
-        <div class="form-group col-md-4">
+        <div class="form-group col-md-4" style="margin-top: 15px; border-bottom: #6c757d">
             <label for="${attr}_${accountCounter}">${attr}</label>
             <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" placeholder="Enter ${attr}" required>
         </div>
@@ -126,7 +126,7 @@ accountAttributes.forEach(attr => {
 });
 
 fieldsHtml += `
-    <div class="col-md-2 d-flex align-items-center mb-3" style="margin-top: 15px; border-bottom: #6c757d">
+    <div class="col-md-2 d-flex align-items-center mb-3" >
         <button type="button" class="btn btn-danger btn-sm remove-account" data-id="account_${accountCounter}">
             Remove
         </button>
