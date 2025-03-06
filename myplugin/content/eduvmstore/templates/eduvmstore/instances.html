@@ -98,28 +98,28 @@
 </div>
 
 <script>
-    let accountCount = 1;
-    const expectedFields = {{ expected_account_fields|safe }}; // Getting fields dynamically
+ let accountCount = 1;
+const expectedFields = {{ expected_account_fields|safe }}; // Getting fields dynamically
 
-    document.getElementById("add_account").addEventListener("click", function () {
-        const accountSection = document.getElementById("dynamic_account_fields");
-        const newAccountDiv = document.createElement("div");
-        newAccountDiv.classList.add("form-row");
+document.getElementById("add_account").addEventListener("click", function () {
+    const accountSection = document.getElementById("dynamic_account_fields");
+    const newAccountDiv = document.createElement("div");
+    newAccountDiv.classList.add("form-row");
 
-        let fieldsHTML = "";
-        expectedFields.forEach(field => {
-            fieldsHTML += `
-                <div class="form-group col-md-6">
-                    <label for="${field}_${accountCount}">${field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                    <input type="text" class="form-control" id="${field}_${accountCount}" name="${field}[]" placeholder="Enter ${field}">
-                </div>
-            `;
-        });
-
-        newAccountDiv.innerHTML = fieldsHTML;
-        accountSection.appendChild(newAccountDiv);
-        accountCount++;
+    let fieldsHTML = "";
+    expectedFields.forEach(field => {
+        fieldsHTML += `
+            <div class="form-group col-md-6">
+                <label for="${field}_${accountCount}">${field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                <input type="text" class="form-control" id="${field}_${accountCount}" name="${field}[]" placeholder="Enter ${field}">
+            </div>
+        `;
     });
+
+    newAccountDiv.innerHTML = fieldsHTML;
+    accountSection.appendChild(newAccountDiv);
+    accountCount++;
+});
 
     document.getElementById("no_additional_users").addEventListener("change", function () {
         let accountsSection = document.getElementById("accounts_section");

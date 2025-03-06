@@ -576,15 +576,17 @@ class InstancesView(generic.TemplateView):
 
     def extract_accounts_from_form_new(self, request):
         accounts = []
-        expected_fields = self.get_expected_fields()  # Erwartete Felder holen
+        expected_fields = self.get_expected_fields()  # Retrieve expected field names (e.g., account_name, account_password, etc.)
 
+        # Create a dictionary where the key is the field name, and the value is the list of submitted values
         extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
-        # extracted_data = {"account_name": ["Alice", "Bob"],"account_password": ["pass123", "secure456"]}
 
+        # Check if all fields have the same number of entries (i.e., consistency in the number of accounts)
         num_entries = len(next(iter(extracted_data.values())))
         if any(len(data) != num_entries for data in extracted_data.values()):
             raise ValueError("Mismatch in the number of account fields.")
 
+        # Loop through each entry and create an account dictionary for each account
         for i in range(num_entries):
             account = {field: extracted_data[field][i] for field in expected_fields}
             accounts.append(account)
