@@ -99,7 +99,7 @@
 
 <script>
     let accountCount = 0;
-    const expectedFields = {{ expected_account_fields|safe }};  // Getting fields dynamically
+    const expectedFields = {{ expected_account_fields|safe }}; // Getting fields dynamically
 
     document.getElementById("add_account").addEventListener("click", function () {
         const accountSection = document.getElementById("dynamic_account_fields");
@@ -111,7 +111,7 @@
             fieldsHTML += `
                 <div class="form-group col-md-6">
                     <label for="${field}_${accountCount}">${field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                    <input type="text" class="form-control" id="${field}_${accountCount}" name="${field}" placeholder="Enter ${field}">
+                    <input type="text" class="form-control" id="${field}_${accountCount}" name="${field}[]" placeholder="Enter ${field}">
                 </div>
             `;
         });
@@ -122,7 +122,14 @@
     });
 
     document.getElementById("no_additional_users").addEventListener("change", function () {
-        document.getElementById("accounts_section").style.display = this.checked ? "none" : "block";
+        let accountsSection = document.getElementById("accounts_section");
+        if (this.checked) {
+            accountsSection.style.display = "none";
+            document.getElementById("dynamic_account_fields").innerHTML = ""; // Clear inputs when disabled
+            accountCount = 0;
+        } else {
+            accountsSection.style.display = "block";
+        }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -135,5 +142,4 @@
     });
     {% endif %}
 </script>
-
 {% endblock %}
