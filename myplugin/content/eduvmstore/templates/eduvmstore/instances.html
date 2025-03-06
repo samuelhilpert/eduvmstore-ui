@@ -98,7 +98,8 @@
     </div>
 </div>
 
- <script>
+  <script>
+
     let accountAttributes = {{ expected_account_fields|safe }};
     let accountCounter = 1;
 
@@ -109,30 +110,30 @@
         accountDiv.classList.add("form-row");
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
-        let fieldsHtml = "";
-
+        let fieldsHtml ="";
         accountAttributes.forEach(attr => {
             fieldsHtml += `
                 <div class="form-group col-md-4">
                     <label for="${attr}_${accountCounter}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}"  required>
+                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}" required>
                 </div>
             `;
         });
-
         accountDiv.innerHTML = fieldsHtml;
-        accountsSection.appendChild(accountDiv);
 
+        accountsSection.appendChild(accountDiv);
         accountCounter++;
+
     }
 
+
     document.getElementById("add_account").addEventListener("click", addAccountFields);
+
+
     document.getElementById("no_additional_users").addEventListener("change", function () {
         const accountsSection = document.getElementById("accounts_section");
         accountsSection.style.display = this.checked ? "none" : "block";
     });
-
-
 
     document.addEventListener("DOMContentLoaded", function () {
         const checkbox = document.getElementById("no_additional_users");
@@ -140,11 +141,13 @@
         accountsSection.style.display = checkbox.checked ? "none" : "block";
     });
 
+
     {% if modal_message %}
         $(document).ready(function() {
             $('#responseModal').modal('show');
         });
     {% endif %}
+
 </script>
 
 {% endblock %}
