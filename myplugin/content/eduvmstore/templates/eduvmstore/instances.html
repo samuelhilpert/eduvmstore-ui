@@ -60,11 +60,12 @@
     <input type="checkbox" class="form-check-input" id="no_additional_users" name="no_additional_users" checked>
     <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
 </div>
-      <!-- Accounts Section -->
-      <div id="accounts_section">
 
       <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
 
+
+      <!-- Accounts Section -->
+      <div id="accounts_section">
           <h4>{{ _("Accounts") }}</h4>
       </div>
      <div style="margin-top: 20px; margin-bottom: 20px;">
@@ -98,7 +99,7 @@
     </div>
 </div>
 
-  <script>
+ <script>
 
     let accountAttributes = {{ expected_account_fields|safe }};
     let accountCounter = 1;
@@ -126,7 +127,6 @@
 
     }
 
-
     document.getElementById("add_account").addEventListener("click", addAccountFields);
 
 
@@ -149,5 +149,3 @@
     {% endif %}
 
 </script>
-
-{% endblock %}
