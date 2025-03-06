@@ -116,17 +116,10 @@
             fieldsHtml += `
                 <div class="form-group col-md-4">
                     <label for="${attr}_${accountCounter}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" placeholder="Enter ${attr}" required>
+                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]"  required>
                 </div>
             `;
         });
-
-        fieldsHtml += `
-            </div>
-            <button type="button" class="btn btn-danger btn-sm remove-account " data-id="account_${accountCounter}">
-                Remove
-            </button>
-        `;
 
         accountDiv.innerHTML = fieldsHtml;
         accountsSection.appendChild(accountDiv);
@@ -135,23 +128,12 @@
     }
 
     document.getElementById("add_account").addEventListener("click", addAccountFields);
-
-    document.getElementById("accounts_section").addEventListener("click", function (event) {
-        if (event.target.classList.contains("remove-account")) {
-            let accountId = event.target.getAttribute("data-id");
-            document.getElementById(accountId).remove();
-        }
-    });
-
     document.getElementById("no_additional_users").addEventListener("change", function () {
         const accountsSection = document.getElementById("accounts_section");
         accountsSection.style.display = this.checked ? "none" : "block";
-
-        if (this.checked) {
-            accountsSection.innerHTML = ""; // Clear all added accounts when disabled
-            accountCounter = 1;
-        }
     });
+
+
 
     document.addEventListener("DOMContentLoaded", function () {
         const checkbox = document.getElementById("no_additional_users");
