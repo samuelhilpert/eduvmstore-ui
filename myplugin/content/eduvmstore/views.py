@@ -531,6 +531,8 @@ class InstancesView(generic.TemplateView):
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
 
+
+
         return context
 
     def get_flavors(self, ):
