@@ -111,7 +111,7 @@
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
         let fieldsHtml = `
-            <legend class="small text-muted">Account ${accountCounter}</legend>
+            <legend>Account ${accountCounter}</legend>
             <div class="form-row align-items-center">
         `;
 
@@ -125,7 +125,7 @@
         });
 
         fieldsHtml += `
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-2 mt-3 d-flex align-items-end">
                 <button type="button" class="btn btn-danger btn-sm remove-account" data-id="account_${accountCounter}">
                     Remove
                 </button>
