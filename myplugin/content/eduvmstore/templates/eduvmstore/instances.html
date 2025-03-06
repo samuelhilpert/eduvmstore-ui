@@ -60,12 +60,11 @@
     <input type="checkbox" class="form-check-input" id="no_additional_users" name="no_additional_users" checked>
     <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
 </div>
+      <!-- Accounts Section -->
+      <div id="accounts_section">
 
       <button type="button" id="add_account" class="btn btn-secondary">{{ _("Add Account") }}</button>
 
-
-      <!-- Accounts Section -->
-      <div id="accounts_section">
           <h4>{{ _("Accounts") }}</h4>
       </div>
      <div style="margin-top: 20px; margin-bottom: 20px;">
@@ -100,40 +99,57 @@
 </div>
 
  <script>
-
     let accountAttributes = {{ expected_account_fields|safe }};
     let accountCounter = 1;
 
     function addAccountFields() {
         const accountsSection = document.getElementById("accounts_section");
-        const accountDiv = document.createElement("div");
+        const accountDiv = document.createElement("fieldset");
 
-        accountDiv.classList.add("form-row");
+        accountDiv.classList.add("account-section", "border", "p-3", "mb-3", "rounded");
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
-        let fieldsHtml ="";
+        let fieldsHtml = `<legend>Account ${accountCounter}</legend><div class="form-row">`;
+
         accountAttributes.forEach(attr => {
             fieldsHtml += `
                 <div class="form-group col-md-4">
                     <label for="${attr}_${accountCounter}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}" required>
+                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" required>
                 </div>
             `;
         });
+
+        fieldsHtml += `
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-account" data-id="account_${accountCounter}">
+                Remove Account
+            </button>
+        `;
+
         accountDiv.innerHTML = fieldsHtml;
-
         accountsSection.appendChild(accountDiv);
+
         accountCounter++;
-
     }
-
 
     document.getElementById("add_account").addEventListener("click", addAccountFields);
 
+    document.getElementById("accounts_section").addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-account")) {
+            let accountId = event.target.getAttribute("data-id");
+            document.getElementById(accountId).remove();
+        }
+    });
 
     document.getElementById("no_additional_users").addEventListener("change", function () {
         const accountsSection = document.getElementById("accounts_section");
         accountsSection.style.display = this.checked ? "none" : "block";
+
+        if (this.checked) {
+            accountsSection.innerHTML = ""; // Clear all added accounts when disabled
+            accountCounter = 1;
+        }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -142,13 +158,11 @@
         accountsSection.style.display = checkbox.checked ? "none" : "block";
     });
 
-
     {% if modal_message %}
         $(document).ready(function() {
             $('#responseModal').modal('show');
         });
     {% endif %}
-
 </script>
 
 {% endblock %}
