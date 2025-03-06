@@ -113,12 +113,12 @@
         accountDiv.setAttribute("id", `account_${accountCounter}`);
 
         let fieldsHtml = `
-            <div class="form-row align-items-center">
+            <div class="form-row align-items-center" style= "border-bottom: #343a40">
         `;
 
 accountAttributes.forEach(attr => {
     fieldsHtml += `
-        <div class="form-group col-md-4" style="margin-top: 15px; border-bottom: #6c757d">
+        <div class="form-group col-md-4" style="margin-top: 15px; border-bottom: #343a40">
             <label for="${attr}_${accountCounter}">${attr}</label>
             <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]" placeholder="Enter ${attr}" required>
         </div>
