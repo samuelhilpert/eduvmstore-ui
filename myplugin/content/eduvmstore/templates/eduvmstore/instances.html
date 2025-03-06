@@ -104,7 +104,7 @@
     let accountCounter = 1;
 
     function addAccountFields() {
-        const accountsSection = document.getElementById("accounts_section");
+        const accountsSection = document.getElementById("accounts_container");
         const accountDiv = document.createElement("fieldset");
 
         accountDiv.classList.add("account-section", "border", "p-3", "mb-3", "rounded");
@@ -139,6 +139,12 @@
         accountCounter++;
     }
 
+    document.getElementById("accounts_section").innerHTML = `
+        <h4>{{ _("Accounts") }}</h4>
+        <div id="accounts_container"></div>
+        <button type="button" id="add_account" class="btn btn-secondary mt-2">{{ _("Add Account") }}</button>
+    `;
+
     document.getElementById("add_account").addEventListener("click", addAccountFields);
 
     document.getElementById("accounts_section").addEventListener("click", function (event) {
@@ -153,7 +159,7 @@
         accountsSection.style.display = this.checked ? "none" : "block";
 
         if (this.checked) {
-            accountsSection.innerHTML = ""; // Clear all added accounts when disabled
+            document.getElementById("accounts_container").innerHTML = ""; // Clear all added accounts when disabled
             accountCounter = 1;
         }
     });
