@@ -120,11 +120,22 @@
                 </div>
             `;
         });
-        accountDiv.innerHTML = fieldsHtml;
+        accountDiv.innerHTML = fieldsHtml+ `
+                <div class="form-group col-md-2">
+                    <button type="button" class="btn btn-danger" onclick="removeAccountFields(${accountCounter})">Remove</button>
+                </div>
+            `;
 
         accountsSection.appendChild(accountDiv);
         accountCounter++;
 
+    }
+
+    function removeAccountFields(accountId) {
+        const accountDiv = document.getElementById(`account_${accountId}`);
+        if (accountDiv) {
+            accountDiv.remove();
+        }
     }
 
     document.getElementById("add_account").addEventListener("click", addAccountFields);
