@@ -114,9 +114,9 @@
         let fieldsHtml = `<h5>Account ${accountCounter}</h5>`;
         accountAttributes.forEach(attr => {
             fieldsHtml += `
-                <div class="form-group mb-5" >
+                <div class="form-group md-5">
                     <label for="${attr}_${accountCounter}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}[]"  placeholder="Enter ${attr}" required>
+                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}" required>
                 </div>
             `;
         });
