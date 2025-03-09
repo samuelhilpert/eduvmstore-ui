@@ -168,7 +168,7 @@ class UpdateRolesView(generic.View):
         Handle POST requests to update a user's role via the external API.
         """
         user_id = request.POST.get("user_id")
-        new_role_id = request.POST.get(f"new_role_{user_id}")
+        new_role_id = request.POST.get("new_role_id")
         token_id = get_token_id(request)
 
 
