@@ -234,7 +234,11 @@ class CreateView(generic.TemplateView):
 
         account_structure_raw = request.POST.get('account_structure', '').strip()
         if account_structure_raw:
-            account_attributes = [{"name": attr.strip()} for attr in account_structure_raw.split(':') if attr.strip()]
+            account_attributes = [
+                {"name": attr.strip()}
+                for attr in account_structure_raw.split(':')
+                if attr.strip()
+            ]
         else:
             account_attributes = []
 
