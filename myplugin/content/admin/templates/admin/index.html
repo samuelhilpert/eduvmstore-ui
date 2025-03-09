@@ -131,8 +131,6 @@
             <h2>Confirm new App-Templates</h2>
              <p><i style="color: gray;">Here you can confirm new App-Templates that have been uploaded by users.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
-            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}">
-                {% csrf_token %}
                 <table class="table">
                     <thead>
                         <tr>
@@ -146,23 +144,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for template in approvable_app_templates %}
-                            <tr>
-                                <td>{{ template.id }}</td>
-                                <td>{{ template.creator_id }}</td>
-                                <td>{{ template.created_at }}</td>
-                                <td>{{ template.image_id }}</td>
-                                <td>{{ template.name }}</td>
-                                <td>{{ template.short_description }}</td>
-                                <td>
+                    {% for template in approvable_app_templates %}
+                        <tr>
+                            <td>{{ template.id }}</td>
+                            <td>{{ template.creator_id }}</td>
+                            <td>{{ template.created_at }}</td>
+                            <td>{{ template.image_id }}</td>
+                            <td>{{ template.name }}</td>
+                            <td>{{ template.short_description }}</td>
+                            <td>
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}">
+                                    {% csrf_token %}
                                     <input type="hidden" name="template_id" value="{{ template.id }}">
                                     <button class="btn btn-primary" type="submit">Approve</button>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
-            </form>
+
          <h2>Delete App-Templates</h2>
             <p><i style="color: gray;">Here you can delete App-Templates.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
