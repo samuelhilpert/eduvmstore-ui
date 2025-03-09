@@ -167,8 +167,6 @@
          <h2>Delete App-Templates</h2>
             <p><i style="color: gray;">Here you can delete App-Templates.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
-            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}">
-                {% csrf_token %}
                 <table class="table table-striped">
                     <thead>
                     <tr>
@@ -192,13 +190,16 @@
                             <td>{{ temp.version }}</td>
                             <td>{{ temp.public }}</td>
                             <td>
-                                <button class="btn btn-danger" type="submit" name="template_id" value="{{ temp.id }}" >Delete</button>
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="template_id" value="{{ temp.id }}">
+                                    <button class="btn btn-primary" type="submit">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
-            </form>
 
         </div>
 
@@ -208,8 +209,6 @@
             <h2>Edit User Roles</h2>
             <p><i style="color: gray;">Here you can edit the roles of users.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
-            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}">
-                {% csrf_token %}
                 <table class="table">
                     <thead>
                         <tr>
@@ -236,18 +235,20 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <button class="btn btn-primary" type="submit" name="user_id" value="{{ user.id }}">Confirm</button>
+                                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                                        <button class="btn btn-primary" type="submit">Confirm</button>
+                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </form>
             <h2>Delete User</h2>
             <p><i style="color: gray;">Here you can delete User.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
-            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_user' %}">
-                {% csrf_token %}
+
                 <table class="table table-striped">
                     <thead>
                     <tr>
@@ -266,33 +267,18 @@
                             <td>{{ user.updated_at }}</td>
                             <td>{{ user.role.name }}</td>
                             <td>
-                                <button class="btn btn-danger" type="submit" name="user_id" value="{{ user.id }}" >Delete</button>
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_user' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <button class="btn btn-primary" type="submit">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
-            </form>
         </div>
 
-        <button class="accordion">Role Management</button>
-        <div class="panel">
-            <h2>Create Role</h2>
-            <p><i style="color: gray;">Here you can create a Role.</i></p>
-            <hr style="border: 1px solid lightgray; margin: 5px 0;">
-            <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:create_role' %}">
-                {% csrf_token %}
-               <div class="form-group">
-                    <label for="new_role_name">Role Name:</label>
-                    <input type="text" id="new_role_name" name="new_role_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="access_level">Access Level:</label>
-                    <input type="text" id="access_level" name="access_level" required>
-                </div>
-                <button class="btn btn-primary" type="submit">Create Role</button>
-            </form>
-        </div>
     {% else %}
         <div style="text-align: center; margin-top: 50px;">
             <img src="{% static 'images/Unbenannt.png' %}" alt="EduVMStoreLogo" width="200" style="display: block; margin: 0 auto;">
