@@ -228,7 +228,7 @@
                                 <td>{{ user.updated_at }}</td>
                                 <td>{{ user.role.name }}</td>
                                 <td>
-                                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}">
+                                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}" style="display: flex; gap: 10px; align-items: center;">
                                         {% csrf_token %}
                                         <input type="hidden" name="user_id" value="{{ user.id }}">
 
@@ -241,6 +241,7 @@
                                         <button class="btn btn-primary" type="submit">Confirm</button>
                                     </form>
                                 </td>
+
                             </tr>
                         {% endfor %}
                     </tbody>
