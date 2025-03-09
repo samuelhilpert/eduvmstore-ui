@@ -155,7 +155,8 @@
                                 <td>{{ template.name }}</td>
                                 <td>{{ template.short_description }}</td>
                                 <td>
-                                    <button class="btn btn-primary" type="submit" name="template_id" value="{{ template.id }}">Approve</button>
+                                    <input type="hidden" name="template_id" value="{{ template.id }}">
+                                    <button class="btn btn-primary" type="submit">Approve</button>
                                 </td>
                             </tr>
                         {% endfor %}
