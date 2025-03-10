@@ -456,6 +456,7 @@ class InstancesView(generic.TemplateView):
             name = request.POST.get('instances_name')
             network_id = request.POST.get('network_id')
 
+            no_additional_users = request.POST.get('no_additional_users')  # Kann 'on' sein oder nicht vorhanden
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
@@ -463,14 +464,25 @@ class InstancesView(generic.TemplateView):
             app_template_name = app_template.get('name')
             app_template_descritpion = app_template.get('description')
 
-            accounts = self.extract_accounts_from_form_new(request)
+            try:
+                accounts = self.extract_accounts_from_form_new(request)
+            except Exception:
+                accounts = []  # Falls ein Fehler auftritt, leere Liste setzen
+
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
 
             description = self.format_description(app_template_descritpion)
 
 
-            user_datas = generate_cloud_config(accounts, script)
+            if not script:
+                user_datas = None  # Fall 1: Script ist leer
+            elif script and no_additional_users == "on":
+                user_datas = f"#cloud-config\n{script}" # Fall 2: Script ist da und no_additional_users ist aktiviert
+            elif script and no_additional_users is None and not accounts:
+                user_datas = f"#cloud-config\n{script}" # Fall 3: Script ist da, kein no_additional_users, aber accounts ist leer oder Fehler
+            else:
+                user_datas = generate_cloud_config(accounts, script)  # Standardfall
 
             nics = [{"net-id": network_id}]
 
