@@ -475,8 +475,10 @@ class InstancesView(generic.TemplateView):
             description = self.format_description(app_template_descritpion)
 
 
-            if not script:
-                user_datas = None  # Fall 1: Script ist leer
+            if not script and not accounts:
+                user_datas = None  # Fall 1: Weder script noch accounts -> None
+            elif not script and accounts:
+                user_datas = generate_cloud_config(accounts, None)  # Fall 2: Kein Script, aber Accounts -> Nur write_files
             elif script and no_additional_users == "on":
                 user_datas = f"#cloud-config\n{script}" # Fall 2: Script ist da und no_additional_users ist aktiviert
             elif script and no_additional_users is None and not accounts:
