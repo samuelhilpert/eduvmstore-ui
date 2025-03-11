@@ -456,7 +456,7 @@ class InstancesView(generic.TemplateView):
             name = request.POST.get('instances_name')
             network_id = request.POST.get('network_id')
 
-            no_additional_users = request.POST.get('no_additional_users')  # Kann 'on' sein oder nicht vorhanden
+            no_additional_users = request.POST.get('no_additional_users')
 
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
@@ -467,7 +467,7 @@ class InstancesView(generic.TemplateView):
             try:
                 accounts = self.extract_accounts_from_form_new(request)
             except Exception:
-                accounts = []  # Falls ein Fehler auftritt, leere Liste setzen
+                accounts = []
 
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
