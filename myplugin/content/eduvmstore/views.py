@@ -476,15 +476,15 @@ class InstancesView(generic.TemplateView):
 
 
             if not script and not accounts:
-                user_datas = None  # Fall 1: Weder script noch accounts -> None
+                user_datas = None
             elif not script and accounts:
-                user_datas = generate_cloud_config(accounts, None)  # Fall 2: Kein Script, aber Accounts -> Nur write_files
+                user_datas = generate_cloud_config(accounts, None)
             elif script and no_additional_users == "on":
-                user_datas = f"#cloud-config\n{script}" # Fall 2: Script ist da und no_additional_users ist aktiviert
+                user_datas = f"#cloud-config\n{script}"
             elif script and no_additional_users is None and not accounts:
-                user_datas = f"#cloud-config\n{script}" # Fall 3: Script ist da, kein no_additional_users, aber accounts ist leer oder Fehler
+                user_datas = f"#cloud-config\n{script}"
             else:
-                user_datas = generate_cloud_config(accounts, script)  # Standardfall
+                user_datas = generate_cloud_config(accounts, script)
 
             nics = [{"net-id": network_id}]
 
