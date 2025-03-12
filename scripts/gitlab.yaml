@@ -9,14 +9,15 @@ packages:
 runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
+    FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
     while IFS=':' read -r username password firstname lastname email; do
-    if ! id "$username" &>/dev/null; then
-      useradd -m -s "/bin/bash" "$username"
-      echo "$username:$password" | chpasswd
-      if [ "$username" = "marian" ]; then
-        usermod -aG sudo "$username"
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+        if [ "$username" = "$FIRST_USER" ]; then
+          usermod -aG sudo "$username"
+        fi
       fi
-    fi
     done < /etc/users.txt
 
   # Install GitLab 
