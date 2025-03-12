@@ -77,7 +77,8 @@ def validate_name(request):
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
-    :return: JsonResponse indicating whether the name is valid or an error message if the request method is invalid.
+    :return: JsonResponse indicating whether the name is valid or an error message
+            if the request method is invalid.
     :rtype: JsonResponse
     """
     if request.method == "POST":
