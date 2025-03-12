@@ -229,7 +229,6 @@
             <div class="col-md-4">
                 <label for="script_file">Upload Script:</label>
                 <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
-                <button type="button" class="btn btn-danger" onclick="makeScript()" data-action="none">X</button>
             </div>
 
 
@@ -309,9 +308,6 @@ write_files:
         }
     });
 
-    function makeScript() {
-        document.getElementById('script_file').value = "";
-    }
 
 
     function openModal() {
