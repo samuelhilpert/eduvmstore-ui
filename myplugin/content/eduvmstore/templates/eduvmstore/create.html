@@ -228,7 +228,7 @@
 
             <div class="col-md-4">
                 <label for="script_file">Upload Script:</label>
-                <input type="file" id="script_file" name="script_file" accept=".csv, .txt" class="form-control-file" >
+                <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
             </div>
 
             <div class="col-md-4 d-flex align-items-end">
@@ -289,6 +289,24 @@ write_files:
 
 <!-- JavaScript to handle modal -->
 <script>
+    document.getElementById('script_file').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var fileContent = e.target.result;
+
+                document.getElementById('hiddenScriptField').value = fileContent;
+
+                document.getElementById('scriptText').value = fileContent;
+            };
+
+            reader.readAsText(file);
+        }
+    });
+
+
     function openModal() {
         let accountStructure = document.getElementById("account_structure").value;
         document.getElementById("scriptContent").innerText = accountStructure;
