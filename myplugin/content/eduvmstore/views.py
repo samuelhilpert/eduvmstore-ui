@@ -69,22 +69,33 @@ def fetch_app_templates(request):
 
 
 def validate_name(request):
+    """
+    Validate the uniqueness of a name by checking for collisions via an external API.
+
+    This function handles POST requests to validate a name by sending it to an external API
+    and checking for any name collisions. It uses the token ID from the request for authentication.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: JsonResponse indicating whether the name is valid or an error message if the request method is invalid.
+    :rtype: JsonResponse
+    """
     if request.method == "POST":
         try:
-            # JSON-Body auslesen
+            # Read JSON-Body
             body = json.loads(request.body)
             name = body.get('name', '').strip()
 
-            # Token-ID abrufen
+            # Retrieve Token-ID
             token_id = get_token_id(request)
             headers = {"X-Auth-Token": token_id}
 
-            # API-Aufruf an das Backend
+            # API-Calls to Backend
             url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
 
-            # Antwort verarbeiten
+            # Process Response
             data = response.json()
             is_valid = not data.get('collisions', True)
 
@@ -654,9 +665,29 @@ class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
 
     def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to render the success template.
+
+        :param request: The incoming HTTP GET request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: Rendered HTML response.
+        :rtype: HttpResponse
+        """
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to generate and return a PDF with user account information.
+
+        :param request: The incoming HTTP POST request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: HTTP response containing the generated PDF file.
+        :rtype: HttpResponse
+        """
         accounts = request.session.get("accounts", [])
         name = request.session.get("instance_name", [])
         pdf_response = generate_pdf(accounts, name)
