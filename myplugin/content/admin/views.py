@@ -133,7 +133,7 @@ class IndexView(generic.TemplateView):
 
         detailed_users = []
         for user in user_data:
-            user_id = user.get('id')  # Assuming the API response includes an 'id' field
+            user_id = user.get('id')
             if user_id:
                 user_details = get_user_details(self.request, user_id)
                 detailed_users.append(user_details)
@@ -156,8 +156,6 @@ class IndexView(generic.TemplateView):
 
         return context
 
-      # Zurück zur aktuellen Seite
-
 
 class UpdateRolesView(generic.View):
     """
@@ -177,13 +175,13 @@ class UpdateRolesView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # API-Aufruf vorbereiten
+            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
 
             payload = {"role_id": new_role_id}
             headers = {"X-Auth-Token": token_id}
 
-            # API-PATCH-Aufruf
+            # API-PATCH-Call
             response = requests.patch(api_url, json=payload, headers=headers,timeout=10)
 
             if response.status_code == 200:
@@ -214,12 +212,12 @@ class ApproveTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # API-Aufruf vorbereiten
+            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/approved/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # API-PATCH-Aufruf
+            # API-PATCH-Call
             response = requests.patch(api_url, headers=headers,timeout=10)
 
             if response.status_code == 200:
