@@ -232,7 +232,6 @@
 
 
                 <button type="button" class="btn btn-primary mr-2" id="writeScriptButton" onclick="openModal()">Write Script</button>
-                <button type="button" class="btn btn-danger" onclick="clearFileUpload()">Clear Uploaded Script</button>
 
 
 
@@ -309,11 +308,6 @@ write_files:
         }
     });
 
-    function clearFileUpload() {  // "clear" statt "otherScript"
-        document.getElementById('script_file').value = "";  // Datei-Input zurücksetzen
-        document.getElementById('scriptText').value = "";  // Textarea leeren
-        document.getElementById('hiddenScriptField').value = "";  // Hidden-Field leeren
-    }
 
     function openModal() {
         let accountStructure = document.getElementById("account_structure").value;
