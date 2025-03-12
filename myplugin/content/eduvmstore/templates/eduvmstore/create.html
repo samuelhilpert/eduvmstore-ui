@@ -229,6 +229,8 @@
             <div class="col-md-4">
                 <label for="script_file">Upload Script:</label>
                 <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
+                <button type="button" id="clearScriptButton" onclick="otherScript()"
+                        class="btn btn-outline-danger btn-sm ml-2">✖</button>
             </div>
 
             <div class="col-md-4 d-flex align-items-end">
@@ -253,7 +255,6 @@ write_files:
 
                 <textarea id="scriptText" class="form-control " rows="10"></textarea>
                 <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
-                <button type="button" class="btn btn-danger btn-sm mt-2" id="clearScriptButton" onclick="clearScript()">Delete</button>
 
             </div>
         </div>
@@ -308,10 +309,8 @@ write_files:
         }
     });
 
-    function clearScript() {
+    function otherScript() {
         document.getElementById('script_file').value = "";
-        document.getElementById('scriptText').value = "";
-        document.getElementById('hiddenScriptField').value = "";
     }
 
 
