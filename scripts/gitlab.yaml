@@ -19,7 +19,7 @@ runcmd:
     fi
     done < /etc/users.txt
 
-  # GitLab installieren
+  # Install GitLab 
   - apt-get update
   - DEBIAN_FRONTEND=noninteractive apt-get install -y curl openssh-server ca-certificates tzdata postfix jq
   - curl -fsSL https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
@@ -27,16 +27,16 @@ runcmd:
   - gitlab-ctl reconfigure
   - gitlab-ctl restart
 
-  # Warten, bis GitLab gestartet ist
+  # Wait until GitLab starts
   - sleep 60
 
-  # Root-Token für API-Zugriff generieren
+  # Generate Root-Token for API
   - |
     export GITLAB_ROOT_TOKEN=$(openssl rand -hex 20)
     gitlab-rails runner "token = User.find_by(username: 'root').personal_access_tokens.create(scopes: ['api'], name: 'root-token', expires_at: 1.year.from_now); token.set_token('$GITLAB_ROOT_TOKEN'); token.save!"
     echo "$GITLAB_ROOT_TOKEN" > /root/gitlab_token.txt
 
-  # Benutzer in GitLab anlegen
+  # Create user in GitLab
   - |
     export GITLAB_ROOT_TOKEN=$(cat /root/gitlab_token.txt)
     while IFS=':' read -r username password firstname lastname email; do
@@ -50,4 +50,4 @@ runcmd:
     fi
     done < /etc/users.txt
 
-final_message: "GitLab-Installation und Benutzererstellung abgeschlossen."
+final_message: "GitLab installation and user creation completed."
