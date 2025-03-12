@@ -226,19 +226,18 @@
                 <input type="text" id="account_structure" name="account_structure" class="form-control" >
             </div>
 
-            <div class="col-md-4 d-flex align-items-center">
-                <label for="script_file" class="mr-2">Upload Script:</label>
+            <div class="col-md-4">
+                <label for="script_file">Upload Script:</label>
+                <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
 
-                <div class="position-relative">
-                    <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file">
-
-                    <button type="button" id="clearScriptButton" onclick="otherScript()"
-                            class="btn btn-outline-danger btn-sm ml-2">✖</button>
-                </div>
             </div>
 
             <div class="col-md-4 d-flex align-items-end">
                 <button type="button" class="btn btn-primary" id="writeScriptButton" onclick="openModal()">Write Script</button>
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-primary" onclick="otherScript()">Delete Uploaded Script Script</button>
             </div>
         </div>
 
