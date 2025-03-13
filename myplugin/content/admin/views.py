@@ -236,6 +236,42 @@ class ApproveTemplateView(generic.View):
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
 
+
+class RejectTemplateView(generic.View):
+    """
+    Handle POST requests to update a user's role via the Backend.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to update a user's role via the external API.
+        """
+        template_id = request.POST.get("template_id")
+        token_id = get_token_id(request)
+
+
+        if not template_id:
+            messages.error(request, "Template ID are required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+        try:
+            # Prepare API-Call
+            api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/reject/"
+
+            headers = {"X-Auth-Token": token_id}
+
+            # API-PATCH-Call
+            response = requests.patch(api_url, headers=headers,timeout=10)
+
+            if response.status_code == 200:
+                messages.success(request, f"{template_id} reject. This template is now private.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to update role: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:admin:index')
+
 class DeleteTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
