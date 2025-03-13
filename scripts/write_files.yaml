@@ -1,0 +1,12 @@
+#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      jared:1234
+      marian:1234
+      samuel:1234
+      emy:1234
+      monika:1234
+      valentin:1234
+    permissions: '0644'
+    owner: root:root
