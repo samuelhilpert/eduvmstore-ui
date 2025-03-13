@@ -22,6 +22,8 @@ from django.urls import reverse
 from django.views import View
 import base64
 import re
+import os
+
 
 
 # Configure logging
@@ -509,6 +511,18 @@ class InstancesView(generic.TemplateView):
                 user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
                 metadata[f"user_{index+1}"] = user_data
 
+            keypair_name = f"{name}_keypair"
+
+            existing_keys = nova.keypair_list(request)
+            existing_key_names = [key.name for key in existing_keys]
+
+            if keypair_name not in existing_key_names:
+                keypair = nova.keypair_create(request, key_name=keypair_name)
+                private_key = keypair.private_key  # Der private Key
+
+                request.session["private_key"] = private_key
+                request.session["keypair_name"] = keypair_name
+
 
 
             nova.server_create(
@@ -695,3 +709,26 @@ class InstanceSuccessView(generic.TemplateView):
         del request.session["accounts"]
         del request.session["instance_name"]
         return pdf_response
+
+
+class DownloadPrivateKeyView(generic.View):
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to download the private key file.
+
+        The private key is stored in the session and returned as a file download.
+        """
+        private_key = request.session.get("private_key")
+        keypair_name = request.session.get("keypair_name", "instance_key")
+
+        if not private_key:
+            return HttpResponse("No private key found.", status=404)
+
+        response = HttpResponse(private_key, content_type="application/x-pem-file")
+        response["Content-Disposition"] = f'attachment; filename="{keypair_name}.pem"'
+
+        # 🔹 Schlüssel aus der Session löschen, um Sicherheit zu gewährleisten
+        del request.session["private_key"]
+        del request.session["keypair_name"]
+
+        return response
