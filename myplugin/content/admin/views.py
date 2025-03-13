@@ -125,6 +125,12 @@ class IndexView(generic.TemplateView):
         roles_data = get_roles(self.request)
         context['roles'] = roles_data
 
+        admin_access_level = None
+        for item in roles_data:
+            if item["name"] == "EduVMStoreAdmin":
+                admin_access_level = item["access_level"]
+                break
+
         approvable_app_templates = get_app_templates_to_approve(self.request)
         context['approvable_app_templates'] = approvable_app_templates
 
@@ -146,8 +152,8 @@ class IndexView(generic.TemplateView):
         context['admin'] = userdev.is_superuser
         context['show_content'] = False
 
-        # Check if the user is an admin, if its equal or greater than 6000 it is an admin
-        if role_level >= 6000:
+        # Check if the user is an admin
+        if role_level >= admin_access_level:
             context['show_content'] = True
         else:
             context['show_content'] = False
