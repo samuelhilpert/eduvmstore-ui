@@ -141,6 +141,7 @@
                             <th>Name</th>
                             <th>Short Description</th>
                             <th>Approve</th>
+                            <th>Reject</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -159,6 +160,12 @@
                                     <button class="btn btn-primary" type="submit">Approve</button>
                                 </form>
                             </td>
+                            <td>
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:reject_template' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="template_id" value="{{ template.id }}">
+                                    <button class="btn btn-primary" type="submit">Reject</button>
+                                </form>
                         </tr>
                     {% endfor %}
                     </tbody>
