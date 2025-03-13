@@ -24,6 +24,8 @@ import base64
 import re
 
 
+
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -500,7 +502,6 @@ class InstancesView(generic.TemplateView):
 
             nics = [{"net-id": network_id}]
 
-            key_name = None
             security_groups = ["default"]
 
             metadata = {"app_template": app_template_name}
@@ -509,6 +510,18 @@ class InstancesView(generic.TemplateView):
                 user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
                 metadata[f"user_{index+1}"] = user_data
 
+            keypair_name = f"{name}_keypair"
+
+            existing_keys = nova.keypair_list(request)
+            existing_key_names = [key.name for key in existing_keys]
+
+            if keypair_name not in existing_key_names:
+                keypair = nova.keypair_create(request, name=keypair_name)
+                private_key = keypair.private_key
+
+                request.session["private_key"] = private_key
+                request.session["keypair_name"] = keypair_name
+
 
 
             nova.server_create(
@@ -516,7 +529,7 @@ class InstancesView(generic.TemplateView):
                 name=name,
                 image=image_id,
                 flavor=flavor_id,
-                key_name=key_name,
+                key_name=keypair_name,
                 user_data=user_datas,
                 security_groups=security_groups,
                 nics=nics,
@@ -695,3 +708,26 @@ class InstanceSuccessView(generic.TemplateView):
         del request.session["accounts"]
         del request.session["instance_name"]
         return pdf_response
+
+
+class DownloadPrivateKeyView(generic.View):
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to download the private key file.
+
+        The private key is stored in the session and returned as a file download.
+        """
+        private_key = request.session.get("private_key")
+        keypair_name = request.session.get("keypair_name", "instance_key")
+
+        if not private_key:
+            return HttpResponse("No private key found.", status=404)
+
+        response = HttpResponse(private_key, content_type="application/x-pem-file")
+        response["Content-Disposition"] = f'attachment; filename="{keypair_name}.pem"'
+
+
+        del request.session["private_key"]
+        del request.session["keypair_name"]
+
+        return response
