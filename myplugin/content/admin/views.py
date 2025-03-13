@@ -1,6 +1,7 @@
 import requests
 import socket
 import logging
+import sys
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.views import generic
@@ -125,7 +126,7 @@ class IndexView(generic.TemplateView):
         roles_data = get_roles(self.request)
         context['roles'] = roles_data
 
-        admin_access_level = None
+        admin_access_level = sys.maxsize
         for item in roles_data:
             if item["name"] == "EduVMStoreAdmin":
                 admin_access_level = item["access_level"]
