@@ -22,7 +22,7 @@ from django.urls import reverse
 from django.views import View
 import base64
 import re
-import os
+
 
 
 
@@ -726,7 +726,7 @@ class DownloadPrivateKeyView(generic.View):
         response = HttpResponse(private_key, content_type="application/x-pem-file")
         response["Content-Disposition"] = f'attachment; filename="{keypair_name}.pem"'
 
-        # 🔹 Schlüssel aus der Session löschen, um Sicherheit zu gewährleisten
+
         del request.session["private_key"]
         del request.session["keypair_name"]
 
