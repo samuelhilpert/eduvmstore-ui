@@ -517,7 +517,7 @@ class InstancesView(generic.TemplateView):
             existing_key_names = [key.name for key in existing_keys]
 
             if keypair_name not in existing_key_names:
-                keypair = nova.keypair_create(request, key_name=keypair_name)
+                keypair = nova.keypair_create(request, name=keypair_name)
                 private_key = keypair.private_key  # Der private Key
 
                 request.session["private_key"] = private_key
