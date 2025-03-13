@@ -333,17 +333,15 @@ class CreateView(generic.TemplateView):
             return []
 
 
-def generate_pdf(accounts, name, logo_path=None):
+def generate_pdf(accounts, name):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
-    Optionally includes a logo at the top.
+    Includes a logo at the top if available.
 
     :param accounts: A list of dictionaries, where each dictionary contains user account details.
     :type accounts: list
     :param name: The name of the created instance.
     :type name: str
-    :param logo_path: Path to a logo image file to be included in the PDF (optional).
-    :type logo_path: str or None
     :return: An HTTP response containing the generated PDF file.
     :rtype: HttpResponse
     """
@@ -352,20 +350,34 @@ def generate_pdf(accounts, name, logo_path=None):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Add title
+    # Define the logo path
+    logo_path = os.path.join(settings.BASE_DIR, "static", "images", "Unbenannt.png")
+
+    # Add title and logo if available
+    header = []
+    if os.path.exists(logo_path):
+        logo = Image(logo_path, width=1.5*inch, height=1.5*inch)
+        header.append(logo)
+
     title = Paragraph(f"<b>User Credentials</b>", styles['Title'])
-    elements.append(title)
+    header.append(title)
+
+    if os.path.exists(logo_path):
+        elements.append(Table([header], colWidths=[2.5*inch, 3.5*inch]))
+    else:
+        elements.append(title)
+
     elements.append(Spacer(1, 0.2 * inch))
 
     subtitle = Paragraph(f"User accounts for the created instance: <b>{name}</b>", styles['Heading2'])
     elements.append(subtitle)
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Extract all unique keys for the table header
-    all_keys = set()
-    for account in accounts:
-        all_keys.update(account.keys())
-    all_keys = sorted(all_keys)
+    # Extract all unique keys in original order
+    if accounts:
+        all_keys = list(accounts[0].keys())
+    else:
+        all_keys = []
 
     # Create table data with headers
     table_data = [all_keys]
@@ -381,7 +393,7 @@ def generate_pdf(accounts, name, logo_path=None):
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Table content background set to white
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
 
