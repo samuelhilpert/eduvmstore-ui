@@ -226,7 +226,7 @@ class ApproveTemplateView(generic.View):
                 messages.success(request, f"{template_id} confirmed. This app template is now public.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to update role: {error_message}")
+                messages.error(request, f"Failed to approve app template: {error_message}")
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
@@ -261,7 +261,7 @@ class RejectTemplateView(generic.View):
                 messages.success(request, f"{template_id} rejected. This app template remains private.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to update role: {error_message}")
+                messages.error(request, f"Failed to reject app template: {error_message}")
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
