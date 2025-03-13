@@ -17,6 +17,10 @@ from myplugin.content.api_endpoints import API_ENDPOINTS
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 import io
 from django.urls import reverse
 from django.views import View
@@ -329,54 +333,66 @@ class CreateView(generic.TemplateView):
             return []
 
 
-def generate_pdf(accounts, name):
+def generate_pdf(accounts, name, logo_path=None):
     """
-    Generate a PDF document containing user account information for a created instance.
-
-    This function creates a PDF file with a list of user accounts and their details for a specified instance.
-    The PDF is generated using the ReportLab library and returned as an HTTP response.
+    Generate a well-formatted PDF document containing user account information in a table format.
+    Optionally includes a logo at the top.
 
     :param accounts: A list of dictionaries, where each dictionary contains user account details.
     :type accounts: list
     :param name: The name of the created instance.
     :type name: str
+    :param logo_path: Path to a logo image file to be included in the PDF (optional).
+    :type logo_path: str or None
     :return: An HTTP response containing the generated PDF file.
     :rtype: HttpResponse
     """
-
     buffer = io.BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
-    pdf.setTitle("User Credentials")
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
 
-    pdf.drawString(100, 750, f"User accounts for the created instance {name}:")
-    y = 730
+    # Add title
+    title = Paragraph(f"<b>User Credentials</b>", styles['Title'])
+    elements.append(title)
+    elements.append(Spacer(1, 0.2 * inch))
 
+    subtitle = Paragraph(f"User accounts for the created instance: <b>{name}</b>", styles['Heading2'])
+    elements.append(subtitle)
+    elements.append(Spacer(1, 0.2 * inch))
+
+    # Extract all unique keys for the table header
     all_keys = set()
     for account in accounts:
         all_keys.update(account.keys())
-
     all_keys = sorted(all_keys)
 
-    pdf.drawString(100, y, " | ".join(all_keys))
-    y -= 20
-    pdf.drawString(100, y, "-" * 100)
-    y -= 20
-
+    # Create table data with headers
+    table_data = [all_keys]
     for account in accounts:
         row_values = [account.get(key, "N/A") for key in all_keys]
-        pdf.drawString(100, y, " | ".join(row_values))
-        y -= 20
+        table_data.append(row_values)
 
-        if y < 50:
-            pdf.showPage()
-            y = 750
+    # Define table style
+    table = Table(table_data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
 
-    pdf.showPage()
-    pdf.save()
+    elements.append(table)
 
+    # Build PDF
+    doc.build(elements)
     buffer.seek(0)
-    response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=userdata.pdf"
+
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=userdata.pdf'
     return response
 
 def generate_cloud_config(accounts,backend_script):
