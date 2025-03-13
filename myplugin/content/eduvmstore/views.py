@@ -502,7 +502,6 @@ class InstancesView(generic.TemplateView):
 
             nics = [{"net-id": network_id}]
 
-            key_name = None
             security_groups = ["default"]
 
             metadata = {"app_template": app_template_name}
@@ -518,7 +517,7 @@ class InstancesView(generic.TemplateView):
 
             if keypair_name not in existing_key_names:
                 keypair = nova.keypair_create(request, name=keypair_name)
-                private_key = keypair.private_key  # Der private Key
+                private_key = keypair.private_key
 
                 request.session["private_key"] = private_key
                 request.session["keypair_name"] = keypair_name
@@ -530,7 +529,7 @@ class InstancesView(generic.TemplateView):
                 name=name,
                 image=image_id,
                 flavor=flavor_id,
-                key_name=key_name,
+                key_name=keypair_name,
                 user_data=user_datas,
                 security_groups=security_groups,
                 nics=nics,
