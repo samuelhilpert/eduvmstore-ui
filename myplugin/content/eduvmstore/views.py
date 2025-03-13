@@ -621,7 +621,7 @@ class InstancesView(generic.TemplateView):
     def get_expected_fields(self):
 
         app_template = self.get_app_template()
-        account_structure = app_template.get('account_attributes')
+        account_structure = app_template.get('instantiation_attributes')
 
         account_attribute = [attr['name'] for attr in account_structure]
         return account_attribute
