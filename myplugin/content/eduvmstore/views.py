@@ -15,12 +15,11 @@ from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
 from django.http import HttpResponse
-from django.conf import settings
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import io
 import os
@@ -339,7 +338,6 @@ class CreateView(generic.TemplateView):
 def generate_pdf(accounts, name):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
-    Includes a logo at the top if available.
 
     :param accounts: A list of dictionaries, where each dictionary contains user account details.
     :type accounts: list
@@ -353,42 +351,24 @@ def generate_pdf(accounts, name):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Define the logo path
-    logo_path = os.path.join(settings.BASE_DIR, "static", "images", "Unbenannt.png")
-
-    # Add title and logo if available
-    header = []
-    if os.path.exists(logo_path):
-        logo = Image(logo_path, width=1.5*inch, height=1.5*inch)
-        header.append(logo)
-
-    title = Paragraph(f"<b>User Credentials</b>", styles['Title'])
-    header.append(title)
-
-    if os.path.exists(logo_path):
-        elements.append(Table([header], colWidths=[2.5*inch, 3.5*inch]))
-    else:
-        elements.append(title)
-
+    title = Paragraph(f"<b>{name}</b>", styles['Title'])
+    elements.append(title)
     elements.append(Spacer(1, 0.2 * inch))
 
-    subtitle = Paragraph(f"User accounts for the created instance: <b>{name}</b>", styles['Heading2'])
+    subtitle = Paragraph(f"Instantiation Attributes for the created instance {name} from the EduVMStore", styles['Heading2'])
     elements.append(subtitle)
     elements.append(Spacer(1, 0.2 * inch))
 
-    # Extract all unique keys in original order
     if accounts:
         all_keys = list(accounts[0].keys())
     else:
         all_keys = []
 
-    # Create table data with headers
     table_data = [all_keys]
     for account in accounts:
         row_values = [account.get(key, "N/A") for key in all_keys]
         table_data.append(row_values)
 
-    # Define table style
     table = Table(table_data, repeatRows=1)
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -396,19 +376,19 @@ def generate_pdf(accounts, name):
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),  # Table content background set to white
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
 
     elements.append(table)
 
-    # Build PDF
     doc.build(elements)
     buffer.seek(0)
 
     response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=userdata.pdf'
+    response['Content-Disposition'] = f'attachment; filename=instantiation_attributes_{name}.pdf'
     return response
+
 
 def generate_cloud_config(accounts,backend_script):
     """
