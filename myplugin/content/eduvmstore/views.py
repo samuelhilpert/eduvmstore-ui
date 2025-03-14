@@ -335,7 +335,7 @@ class CreateView(generic.TemplateView):
             return []
 
 
-def generate_pdf(accounts, name):
+def generate_pdf(accounts, name, app_template, created):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
 
@@ -355,7 +355,7 @@ def generate_pdf(accounts, name):
     elements.append(title)
     elements.append(Spacer(1, 0.2 * inch))
 
-    subtitle = Paragraph(f"Instantiation Attributes for the created instance {name} from the EduVMStore", styles['Heading2'])
+    subtitle = Paragraph(f"Instantiation Attributes for the created instance {name} from the EduVMStore. This instance was created with the app template {app_template} on {created}.", styles['Normal'])
     elements.append(subtitle)
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -488,6 +488,7 @@ class InstancesView(generic.TemplateView):
             script = app_template.get('script')
             app_template_name = app_template.get('name')
             app_template_descritpion = app_template.get('description')
+            created = app_template.get('created_at', '').split('T')[0]
 
             try:
                 accounts = self.extract_accounts_from_form_new(request)
@@ -496,6 +497,8 @@ class InstancesView(generic.TemplateView):
 
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
+            request.session["app_template"] = app_template_name
+            request.session["created"] = created
 
             description = self.format_description(app_template_descritpion)
 
@@ -715,9 +718,13 @@ class InstanceSuccessView(generic.TemplateView):
         """
         accounts = request.session.get("accounts", [])
         name = request.session.get("instance_name", [])
-        pdf_response = generate_pdf(accounts, name)
+        app_template = request.session.get("app_template", [])
+        created = request.session.get("created", [])
+        pdf_response = generate_pdf(accounts, name, app_template, created)
         del request.session["accounts"]
         del request.session["instance_name"]
+        del request.session["app_template"]
+        del request.session["created"]
         return pdf_response
 
 
