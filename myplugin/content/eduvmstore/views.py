@@ -17,7 +17,13 @@ from myplugin.content.api_endpoints import API_ENDPOINTS
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 import io
+import os
+
 from django.urls import reverse
 from django.views import View
 import base64
@@ -263,7 +269,7 @@ class CreateView(generic.TemplateView):
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'script': request.POST.get('hiddenScriptField'),
-            'account_attributes' : account_attributes,
+            'instantiation_attributes' : account_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -329,12 +335,9 @@ class CreateView(generic.TemplateView):
             return []
 
 
-def generate_pdf(accounts, name):
+def generate_pdf(accounts, name, app_template, created):
     """
-    Generate a PDF document containing user account information for a created instance.
-
-    This function creates a PDF file with a list of user accounts and their details for a specified instance.
-    The PDF is generated using the ReportLab library and returned as an HTTP response.
+    Generate a well-formatted PDF document containing user account information in a table format.
 
     :param accounts: A list of dictionaries, where each dictionary contains user account details.
     :type accounts: list
@@ -343,41 +346,49 @@ def generate_pdf(accounts, name):
     :return: An HTTP response containing the generated PDF file.
     :rtype: HttpResponse
     """
-
     buffer = io.BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
-    pdf.setTitle("User Credentials")
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
 
-    pdf.drawString(100, 750, f"User accounts for the created instance {name}:")
-    y = 730
+    title = Paragraph(f"<b>{name}</b>", styles['Title'])
+    elements.append(title)
+    elements.append(Spacer(1, 0.2 * inch))
 
-    all_keys = set()
-    for account in accounts:
-        all_keys.update(account.keys())
+    subtitle = Paragraph(f"Instantiation Attributes for the created instance {name} from the EduVMStore. This instance was created with the app template {app_template} on {created}.", styles['Normal'])
+    elements.append(subtitle)
+    elements.append(Spacer(1, 0.2 * inch))
 
-    all_keys = sorted(all_keys)
+    if accounts:
+        all_keys = list(accounts[0].keys())
+    else:
+        all_keys = []
 
-    pdf.drawString(100, y, " | ".join(all_keys))
-    y -= 20
-    pdf.drawString(100, y, "-" * 100)
-    y -= 20
-
+    table_data = [all_keys]
     for account in accounts:
         row_values = [account.get(key, "N/A") for key in all_keys]
-        pdf.drawString(100, y, " | ".join(row_values))
-        y -= 20
+        table_data.append(row_values)
 
-        if y < 50:
-            pdf.showPage()
-            y = 750
+    table = Table(table_data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
 
-    pdf.showPage()
-    pdf.save()
+    elements.append(table)
 
+    doc.build(elements)
     buffer.seek(0)
-    response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=userdata.pdf"
+
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=instantiation_attributes_{name}.pdf'
     return response
+
 
 def generate_cloud_config(accounts,backend_script):
     """
@@ -477,6 +488,7 @@ class InstancesView(generic.TemplateView):
             script = app_template.get('script')
             app_template_name = app_template.get('name')
             app_template_descritpion = app_template.get('description')
+            created = app_template.get('created_at', '').split('T')[0]
 
             try:
                 accounts = self.extract_accounts_from_form_new(request)
@@ -485,6 +497,8 @@ class InstancesView(generic.TemplateView):
 
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
+            request.session["app_template"] = app_template_name
+            request.session["created"] = created
 
             description = self.format_description(app_template_descritpion)
 
@@ -605,7 +619,7 @@ class InstancesView(generic.TemplateView):
     def get_expected_fields(self):
 
         app_template = self.get_app_template()
-        account_structure = app_template.get('account_attributes')
+        account_structure = app_template.get('instantiation_attributes')
 
         account_attribute = [attr['name'] for attr in account_structure]
         return account_attribute
@@ -704,9 +718,13 @@ class InstanceSuccessView(generic.TemplateView):
         """
         accounts = request.session.get("accounts", [])
         name = request.session.get("instance_name", [])
-        pdf_response = generate_pdf(accounts, name)
+        app_template = request.session.get("app_template", [])
+        created = request.session.get("created", [])
+        pdf_response = generate_pdf(accounts, name, app_template, created)
         del request.session["accounts"]
         del request.session["instance_name"]
+        del request.session["app_template"]
+        del request.session["created"]
         return pdf_response
 
 
