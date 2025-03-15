@@ -127,33 +127,13 @@
             <div class="col-md-4">
                 <label for="image_id">Select Image:</label>
                 <select name="image_id" id="image_id" class="form-control select-box" required>
-                    {% for image in images %}
-                        <option value="{{ image.0 }}">{{ image.1 }}</option>
-                    {% endfor %}
+                        <option value="{{ app_template.short_description }}">{{ app_template.image_id }}</option>
                 </select>
             </div>
-           <div class="col-md-4">
-                <label for="script_file">Upload Script:</label>
-                <input type="file" id="script_file" name="script_file" accept=".csv, .txt" class="form-control-file" >
-            </div>
 
-            <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
-            </div>
         </div>
 
         <!-- Modal for script input -->
-        <div id="scriptModal" class="modal mt-5">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">×</span>
-                <h5>Write Script</h5>
-                <textarea id="scriptText" class="form-control " rows="10"></textarea>
-                <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
-            </div>
-        </div>
-
-        <!-- Hidden input to store the script text -->
-        <input type="hidden" id="hiddenScriptField" name="script_text" />
 
         <div class="form-group row">
             <div class="col-md-6">
@@ -170,26 +150,26 @@
         </div>
         <div class="form-group">
             <label for="description">Description:</label>
-            <textarea id="description" name="description" class="form-control"  required> {{ app_template.description }}</textarea>
+            <textarea id="description" name="description"  class="form-control" required>{{ app_template.description }}</textarea>
         </div>
         <div class="form-group">
             <label for="instantiation_notice">Instantiation Notice:</label>
-            <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required>{{ app_template.instantiation_notice }}</textarea>
+            <textarea id="instantiation_notice" name="instantiation_notice" class="form-control">{{ app_template.instantiation_notice }}</textarea>
         </div>
 
 
        <div class="form-group row">
             <div class="col-md-4">
                 <label for="version">Version:</label>
-                 <input type="text" id="version" name="version" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+                 <input type="text" id="version" name="version" value="{{ app_template.version }}" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
 
             </div>
         <div class="col-md-4">
             <label for="public">Visibility:</label>
             <select name="public" id="public" class="form-control select-box" required>
-                <option value="True">Public</option>
-                <option value="False">Private</option>
-            </select>
+                <option value="True" {% if app_template.visibility == "True" %}selected{% endif %}>Public</option>
+                <option value="False" {% if app_template.visibility == "False" %}selected{% endif %}>Private</option>
+             </select>
         </div>
 
         </div>
@@ -200,19 +180,19 @@
                 <h4>Fixed Resources</h4>
                 <div class="form-group mt-5">
                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
-                    <input type="text" id="fixed_ram_gb"
+                    <input type="text" id="fixed_ram_gb" value="{{ app_template.fixed_ram_gb }}"
                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');"
-                           name="fixed_ram_gb" class="form-control" value="{{ app_template.fixed_ram_gb }}"
+                           name="fixed_ram_gb" class="form-control"
                            required>
                 </div>
                 <div class="form-group">
                     <label for="fixed_disk_gb">Fixed Disk (GB):</label>
-                    <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" value="{{ app_template.fixed_disk_gb }}" required
+                    <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" value="{{ app_template.fixed_disk_gb }}" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="fixed_cores">Fixed Cores:</label>
-                    <input type="text" id="fixed_cores" name="fixed_cores" class="form-control" value="{{ app_template.fixed_cores }}" required
+                    <input type="text" id="fixed_cores" name="fixed_cores" value="{{ app_template.fixed_cores }}" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
             </div>
@@ -221,24 +201,65 @@
                 <h4>Resources per User</h4>
                 <div class="form-group mt-5">
                     <label for="per_user_ram_gb">Per User RAM (GB):</label>
-                    <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" value="{{ app_template.per_user_ram_gb }}" required
+                    <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" value="{{ app_template.per_user_ram_gb }}" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_disk_gb">Per User Disk (GB):</label>
-                    <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" value="{{ app_template.per_user_disk_gb }}" required
+                    <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" value="{{ app_template.per_user_disk_gb }}" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_cores">Per User Cores:</label>
-                    <input type="text" id="per_user_cores" name="per_user_cores" class="form-control" value="{{ app_template.per_user_cores }}" required
+                    <input type="text" id="per_user_cores" name="per_user_cores" value="{{ app_template.per_user_cores }}" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
                 </div>
             </div>
 
         </div>
+        <h3>Script</h3>
+        <div class="form-group row">
+            <div class="col-md-4">
+                <label for="account_structure">Account Structure:</label>
+                <input type="text" id="account_structure" name="account_structure" value="{{ app_template.account_attributes}}" class="form-control" >
+            </div>
 
-        <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
+            <div class="col-md-4">
+                <label for="script_file">Upload Script:</label>
+                <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-primary" id="writeScriptButton" onclick="openModal()">Write Script</button>
+            </div>
+
+        </div>
+
+        <!-- Modal for script input -->
+        <div id="scriptModal" class="modal mt-5">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">×</span>
+                <h5>Write Script</h5>
+                <pre class="p-2 border rounded bg-light">
+#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      <span id="scriptContent"></span>
+    permissions: '0644'
+    owner: root:root
+        </pre>
+
+                <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
+                <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
+
+            </div>
+        </div>
+
+        <!-- Hidden input to store the script text -->
+        <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
+
+        <button type="submit" class="btn btn-primary" id="submit-button" >Edit</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
     </form>
 </div>
@@ -268,7 +289,27 @@
 
 <!-- JavaScript to handle modal -->
 <script>
+    document.getElementById('script_file').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var fileContent = e.target.result;
+
+                document.getElementById('hiddenScriptField').value = fileContent;
+
+                document.getElementById('scriptText').value = fileContent;
+            };
+
+            reader.readAsText(file);
+        }
+    });
+
+
     function openModal() {
+        let accountStructure = document.getElementById("account_structure").value;
+        document.getElementById("scriptContent").innerText = accountStructure;
         document.getElementById('scriptModal').style.display = 'block';
     }
 
@@ -284,6 +325,8 @@
         // Close the modal
         closeModal();
     }
+
+
 
     // Close the modal if the user clicks anywhere outside of it
     window.onclick = function(event) {
