@@ -44,7 +44,10 @@
     <!-- Container für Instanzen -->
     <div class="tab-content mt-3" id="instancesContainer"></div>
 
-
+     <div style="margin-top: 20px; margin-bottom: 20px;">
+            <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
+           <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+        </div>
 
 </form>
 
