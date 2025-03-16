@@ -17,11 +17,19 @@ from myplugin.content.api_endpoints import API_ENDPOINTS
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 import io
+import os
+
 from django.urls import reverse
 from django.views import View
 import base64
 import re
+
+
 
 
 # Configure logging
@@ -69,22 +77,34 @@ def fetch_app_templates(request):
 
 
 def validate_name(request):
+    """
+    Validate the uniqueness of a name by checking for collisions via an external API.
+
+    This function handles POST requests to validate a name by sending it to an external API
+    and checking for any name collisions. It uses the token ID from the request for authentication.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: JsonResponse indicating whether the name is valid or an error message
+            if the request method is invalid.
+    :rtype: JsonResponse
+    """
     if request.method == "POST":
         try:
-            # JSON-Body auslesen
+            # Read JSON-Body
             body = json.loads(request.body)
             name = body.get('name', '').strip()
 
-            # Token-ID abrufen
+            # Retrieve Token-ID
             token_id = get_token_id(request)
             headers = {"X-Auth-Token": token_id}
 
-            # API-Aufruf an das Backend
+            # API-Calls to Backend
             url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
 
-            # Antwort verarbeiten
+            # Process Response
             data = response.json()
             is_valid = not data.get('collisions', True)
 
@@ -315,12 +335,9 @@ class CreateView(generic.TemplateView):
             return []
 
 
-def generate_pdf(accounts, name):
+def generate_pdf(accounts, name, app_template, created):
     """
-    Generate a PDF document containing user account information for a created instance.
-
-    This function creates a PDF file with a list of user accounts and their details for a specified instance.
-    The PDF is generated using the ReportLab library and returned as an HTTP response.
+    Generate a well-formatted PDF document containing user account information in a table format.
 
     :param accounts: A list of dictionaries, where each dictionary contains user account details.
     :type accounts: list
@@ -329,41 +346,49 @@ def generate_pdf(accounts, name):
     :return: An HTTP response containing the generated PDF file.
     :rtype: HttpResponse
     """
-
     buffer = io.BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
-    pdf.setTitle("User Credentials")
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
 
-    pdf.drawString(100, 750, f"User accounts for the created instance {name}:")
-    y = 730
+    title = Paragraph(f"<b>{name}</b>", styles['Title'])
+    elements.append(title)
+    elements.append(Spacer(1, 0.2 * inch))
 
-    all_keys = set()
-    for account in accounts:
-        all_keys.update(account.keys())
+    subtitle = Paragraph(f"Instantiation Attributes for the created instance {name} from the EduVMStore. This instance was created with the app template {app_template} on {created}.", styles['Normal'])
+    elements.append(subtitle)
+    elements.append(Spacer(1, 0.2 * inch))
 
-    all_keys = sorted(all_keys)
+    if accounts:
+        all_keys = list(accounts[0].keys())
+    else:
+        all_keys = []
 
-    pdf.drawString(100, y, " | ".join(all_keys))
-    y -= 20
-    pdf.drawString(100, y, "-" * 100)
-    y -= 20
-
+    table_data = [all_keys]
     for account in accounts:
         row_values = [account.get(key, "N/A") for key in all_keys]
-        pdf.drawString(100, y, " | ".join(row_values))
-        y -= 20
+        table_data.append(row_values)
 
-        if y < 50:
-            pdf.showPage()
-            y = 750
+    table = Table(table_data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
 
-    pdf.showPage()
-    pdf.save()
+    elements.append(table)
 
+    doc.build(elements)
     buffer.seek(0)
-    response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=userdata.pdf"
+
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=instantiation_attributes_{name}.pdf'
     return response
+
 
 def generate_cloud_config(accounts,backend_script):
     """
@@ -593,6 +618,7 @@ class InstancesView(generic.TemplateView):
     def get_expected_fields(self):
 
         app_template = self.get_app_template()
+        
         instantiation_attributes = app_template.get('instantiation_attributes')
 
         instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
@@ -667,12 +693,59 @@ class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
 
     def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to render the success template.
+
+        :param request: The incoming HTTP GET request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: Rendered HTML response.
+        :rtype: HttpResponse
+        """
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to generate and return a PDF with user account information.
+
+        :param request: The incoming HTTP POST request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: HTTP response containing the generated PDF file.
+        :rtype: HttpResponse
+        """
         accounts = request.session.get("accounts", [])
         name = request.session.get("instance_name", [])
-        pdf_response = generate_pdf(accounts, name)
+        app_template = request.session.get("app_template", [])
+        created = request.session.get("created", [])
+        pdf_response = generate_pdf(accounts, name, app_template, created)
         del request.session["accounts"]
         del request.session["instance_name"]
+        del request.session["app_template"]
+        del request.session["created"]
         return pdf_response
+
+
+class DownloadPrivateKeyView(generic.View):
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to download the private key file.
+
+        The private key is stored in the session and returned as a file download.
+        """
+        private_key = request.session.get("private_key")
+        keypair_name = request.session.get("keypair_name", "instance_key")
+
+        if not private_key:
+            return HttpResponse("No private key found.", status=404)
+
+        response = HttpResponse(private_key, content_type="application/x-pem-file")
+        response["Content-Disposition"] = f'attachment; filename="{keypair_name}.pem"'
+
+
+        del request.session["private_key"]
+        del request.session["keypair_name"]
+
+        return response
