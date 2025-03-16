@@ -226,7 +226,7 @@ write_files:
     </div>
 
     <script>
-        let accountAttributes = {{ app_template.instantiation_attribute|safe }};
+        let accountAttributes = {{ app_template.instantiation_attributes|safe }};
         let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
         document.getElementById("formatted-accounts").textContent = formattedAccounts;
         document.getElementById("structured-accounts").textContent = formattedAccounts;
