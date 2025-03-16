@@ -421,7 +421,6 @@ def generate_indented_content(content, indent_level=6):
 
 
 
-
 class InstancesView(generic.TemplateView):
     """
         View for displaying instances, including form input for instance creation.
@@ -463,6 +462,7 @@ class InstancesView(generic.TemplateView):
             script = app_template.get('script')
             app_template_name = app_template.get('name')
             app_template_descritpion = app_template.get('description')
+            created = app_template.get('created_at', '').split('T')[0]
 
             try:
                 accounts = self.extract_accounts_from_form_new(request)
@@ -471,6 +471,8 @@ class InstancesView(generic.TemplateView):
 
             request.session["accounts"] = accounts
             request.session["instance_name"] = name
+            request.session["app_template"] = app_template_name
+            request.session["created"] = created
 
             description = self.format_description(app_template_descritpion)
 
@@ -488,7 +490,6 @@ class InstancesView(generic.TemplateView):
 
             nics = [{"net-id": network_id}]
 
-            key_name = None
             security_groups = ["default"]
 
             metadata = {"app_template": app_template_name}
@@ -497,6 +498,18 @@ class InstancesView(generic.TemplateView):
                 user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
                 metadata[f"user_{index+1}"] = user_data
 
+            keypair_name = f"{name}_keypair"
+
+            existing_keys = nova.keypair_list(request)
+            existing_key_names = [key.name for key in existing_keys]
+
+            if keypair_name not in existing_key_names:
+                keypair = nova.keypair_create(request, name=keypair_name)
+                private_key = keypair.private_key
+
+                request.session["private_key"] = private_key
+                request.session["keypair_name"] = keypair_name
+
 
 
             nova.server_create(
@@ -504,7 +517,7 @@ class InstancesView(generic.TemplateView):
                 name=name,
                 image=image_id,
                 flavor=flavor_id,
-                key_name=key_name,
+                key_name=keypair_name,
                 user_data=user_datas,
                 security_groups=security_groups,
                 nics=nics,
@@ -580,7 +593,7 @@ class InstancesView(generic.TemplateView):
     def get_expected_fields(self):
 
         app_template = self.get_app_template()
-        account_structure = app_template.get('account_attributes')
+        account_structure = app_template.get('instantiation_attributes')
 
         account_attribute = [attr['name'] for attr in account_structure]
         return account_attribute

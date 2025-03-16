@@ -222,8 +222,8 @@
         <h3>Script</h3>
         <div class="form-group row">
             <div class="col-md-4">
-                <label for="account_structure">Account Structure:</label>
-                <input type="text" id="account_structure" name="account_structure" class="form-control" >
+                <label for="instantiation_attributes">Instantiation Attributes:</label>
+                <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" >
             </div>
 
             <div class="col-md-4">
@@ -290,7 +290,7 @@ write_files:
 <!-- JavaScript to handle modal -->
 <script>
     function openModal() {
-        let accountStructure = document.getElementById("account_structure").value;
+        let accountStructure = document.getElementById("instantiation_attributes").value;
         document.getElementById("scriptContent").innerText = accountStructure;
         document.getElementById('scriptModal').style.display = 'block';
     }
