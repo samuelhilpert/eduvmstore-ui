@@ -252,15 +252,15 @@ class CreateView(generic.TemplateView):
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
-        account_structure_raw = request.POST.get('account_structure', '').strip()
-        if account_structure_raw:
-            account_attributes = [
+        instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
+        if instantiation_attribute_raw:
+            instantiation_attributes = [
                 {"name": attr.strip()}
-                for attr in account_structure_raw.split(':')
+                for attr in instantiation_attribute_raw.split(':')
                 if attr.strip()
             ]
         else:
-            account_attributes = []
+            instantiation_attributes = []
 
         data = {
             'image_id': request.POST.get('image_id'),
@@ -269,7 +269,7 @@ class CreateView(generic.TemplateView):
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'script': request.POST.get('hiddenScriptField'),
-            'instantiation_attributes' : account_attributes,
+            'instantiation_attributes' : instantiation_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -440,7 +440,6 @@ def generate_indented_content(content, indent_level=6):
 
     indent = " " * indent_level
     return "\n".join([indent + line for line in content.split("\n")])
-
 
 
 
@@ -619,10 +618,11 @@ class InstancesView(generic.TemplateView):
     def get_expected_fields(self):
 
         app_template = self.get_app_template()
-        account_structure = app_template.get('instantiation_attributes')
+        
+        instantiation_attributes = app_template.get('instantiation_attributes')
 
-        account_attribute = [attr['name'] for attr in account_structure]
-        return account_attribute
+        instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
+        return instantiation_attribute
 
     def extract_accounts_from_form_new(self, request):
         accounts = []
