@@ -26,50 +26,25 @@
         <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
     </div>
 
-    <div class="form-group">
-        <label for="flavor_id">{{ _("Select Flavor") }}</label>
-        <select class="form-control" id="flavor_id" name="flavor_id" required>
-            <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-            {% for flavor_id, flavor_name in flavors.items %}
-                <option value="{{ flavor_id }}">{{ flavor_name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
+    <!-- Basis-Instanzname -->
     <div class="form-group">
         <label for="instances_name">{{ _("Instance Name") }}</label>
         <input type="text" class="form-control" id="instances_name" name="instances_name" placeholder="{{ _('Enter instance name') }}" required>
     </div>
 
+    <!-- Anzahl der Instanzen -->
     <div class="form-group">
-        <label for="network_id">{{ _("Select Network") }}</label>
-        <select class="form-control" id="network_id" name="network_id" required>
-            <option value="" disabled selected>{{ _("Choose a network") }}</option>
-            {% for network_id, network_name in networks.items %}
-                <option value="{{ network_id }}">{{ network_name }}</option>
-            {% endfor %}
-        </select>
+        <label for="num_instances">{{ _("Number of Instances") }}</label>
+        <input type="number" class="form-control" id="num_instances" name="num_instances" min="1" value="1" required>
     </div>
 
-    <!-- "No Additional Users" Checkbox -->
-    <div class="form-group form-check">
-        <input type="checkbox" class="form-check-input" id="no_additional_users" name="no_additional_users" checked>
-        <label class="form-check-label" for="no_additional_users">{{ _("No additional users") }}</label>
-    </div>
+    <!-- Navigation für Instanzen -->
+    <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
 
-    <!-- Accounts Section -->
-    <div id="accounts_section" style="display: none; margin-bottom: 20px;">
-        <h4>{{ _("Accounts") }}</h4>
-        <div id="dynamic_accounts_container"></div>
-    </div>
+    <!-- Container für Instanzen -->
+    <div class="tab-content mt-3" id="instancesContainer"></div>
 
-    <!-- Add Account Button -->
-    <button type="button" id="add_account" class="btn btn-secondary" style="display: none;">{{ _("Add Account") }}</button>
 
-    <div style="margin-top: 20px;">
-        <button type="submit" class="btn btn-primary">{{ _("Launch Instance") }}</button>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
-    </div>
 
 </form>
 
@@ -96,79 +71,244 @@
     </div>
 </div>
 
-<script>
-    let accountAttributes = {{ expected_account_fields|safe }};
-    let accountCounter = 1;
-    let accountCounterShow = 0;
+    <style>
+        /* Alle Instanzen außer der aktiven komplett unsichtbar */
+        .tab-pane {
+            display: none;
+            position: absolute;
+            left: -9999px; /* Aus dem Sichtfeld */
+        }
 
-    function addAccountFields() {
-        accountCounter++;
-        accountCounterShow++;
-        const accountsContainer = document.getElementById("dynamic_accounts_container");
-        const accountSection = document.createElement("div");
+        /* Aktive Instanz sichtbar machen */
+        .tab-pane.show.active {
+            display: block;
+            position: static;
+        }
+    </style>
 
-        accountSection.classList.add("card", "p-3", "mb-3");
-        accountSection.setAttribute("id", `account_${accountCounter}`);
-        accountSection.style.border = "1px solid #ccc";
-        accountSection.style.borderRadius = "5px";
-        accountSection.style.padding = "15px";
+    <script>
+        window.onload = function () {
+            let numInstancesInput = document.getElementById("num_instances");
+            let instancesNameInput = document.getElementById("instances_name");
+            let instanceTabs = document.getElementById("instanceTabs");
+            let instancesContainer = document.getElementById("instancesContainer");
 
-        let fieldsHtml = `<h5>Account ${accountCounterShow}</h5>`;
-        accountAttributes.forEach(attr => {
-            fieldsHtml += `
-                <div class="form-group md-5">
-                    <label for="${attr}_${accountCounter}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${accountCounter}" name="${attr}" required>
+            if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+                console.error("Fehlende HTML-Elemente. IDs überprüfen.");
+                return;
+            }
+
+            numInstancesInput.value = "1";
+            generateInstanceFields();
+
+            numInstancesInput.addEventListener("input", generateInstanceFields);
+            instancesNameInput.addEventListener("input", generateInstanceFields);
+        };
+
+        // Dynamische Account-Felder
+        let accountAttributes = {{ expected_account_fields|safe }};
+
+        function generateInstanceFields() {
+            let instanceTabs = document.getElementById("instanceTabs");
+            let instancesContainer = document.getElementById("instancesContainer");
+
+            if (!instanceTabs || !instancesContainer) {
+                console.error("Fehlende Elemente: 'instanceTabs' oder 'instancesContainer' nicht gefunden.");
+                return;
+            }
+
+            let numInstancesInput = document.getElementById("num_instances");
+            let numInstances = parseInt(numInstancesInput.value, 10) || 1;
+            numInstancesInput.value = numInstances;
+
+            const baseNameInput = document.getElementById("instances_name");
+            const baseName = baseNameInput ? baseNameInput.value.trim() : "instance";
+
+            instanceTabs.innerHTML = "";
+            instancesContainer.innerHTML = "";
+
+            for (let i = 1; i <= numInstances; i++) {
+                const instanceName = `${baseName}-${i}`;
+                const tabId = `instanceTab_${i}`;
+                const contentId = `instanceContent_${i}`;
+
+                // Tabs für Navigation
+                instanceTabs.innerHTML += `
+            <li class="nav-item">
+                <a class="nav-link ${i === 1 ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
+                    Instance ${i}
+                </a>
+            </li>
+        `;
+
+                // Instanz-Container mit dynamischen Accounts
+                instancesContainer.innerHTML += `
+            <div class="tab-pane fade ${i === 1 ? 'show active' : 'd-none'}" id="${contentId}" role="tabpanel">
+                <h4>${instanceName}</h4>
+                <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
+
+                <div class="form-group">
+                    <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
+                    <select class="form-control" id="flavor_id_${i}" name="flavor_id_${i}" required>
+                        <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+                        {% for flavor_id, flavor_name in flavors.items %}
+                            <option value="{{ flavor_id }}">{{ flavor_name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-            `;
-        });
 
-        fieldsHtml += `<button type="button" class="btn btn-danger btn-sm mt-2 remove-account" data-id="${accountCounter}">Remove</button>`;
-        accountSection.innerHTML = fieldsHtml;
+                <div class="form-group">
+                    <label for="network_id_${i}">{{ _("Select Network") }}</label>
+                    <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
+                        <option value="" disabled selected>{{ _("Choose a network") }}</option>
+                        {% for network_id, network_name in networks.items %}
+                            <option value="{{ network_id }}">{{ network_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-        accountsContainer.appendChild(accountSection);
-    }
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
+                    <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
+                </div>
 
-    document.getElementById("add_account").addEventListener("click", addAccountFields);
+                <!-- Dynamische Accounts -->
+                <div id="accounts_section_${i}" style="display: none;">
+                    <h4>{{ _("Accounts") }}</h4>
+                    <div id="dynamic_accounts_container_${i}"></div>
+                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
+                </div>
 
-    document.getElementById("dynamic_accounts_container").addEventListener("click", function (event) {
-        if (event.target.classList.contains("remove-account")) {
-            let accountId = event.target.getAttribute("data-id");
-            document.getElementById(`account_${accountId}`).remove();
+                <div class="d-flex justify-content-between mt-3">
+                    ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous") }}</button>` : ""}
+                    ${i < numInstances ? `<button type="button" class="btn btn-primary next-instance" data-instance="${i}">→ {{ _("Next") }}</button>` : ""}
+                </div>
+            </div>
+        `;
+            }
+
+            attachInstanceEventListeners();
+            attachAccountButtonListeners();
         }
-    });
 
-    document.getElementById("no_additional_users").addEventListener("change", function () {
-        const accountsSection = document.getElementById("accounts_section");
-        const addAccountButton = document.getElementById("add_account");
+        // **Fix: Event-Listener für Navigation**
+        function attachInstanceEventListeners() {
+            document.querySelectorAll(".next-instance").forEach(button => {
+                button.addEventListener("click", function () {
+                    let instanceId = parseInt(this.getAttribute("data-instance"));
+                    switchToInstance(instanceId + 1);
+                });
+            });
 
-        if (this.checked) {
-            accountsSection.style.display = "none";
-            addAccountButton.style.display = "none";
-            document.getElementById("dynamic_accounts_container").innerHTML = "";
-            accountCounter = 1;
-            accountCounterShow = 0;
-        } else {
-            accountsSection.style.display = "block";
-            addAccountButton.style.display = "block";
+            document.querySelectorAll(".prev-instance").forEach(button => {
+                button.addEventListener("click", function () {
+                    let instanceId = parseInt(this.getAttribute("data-instance"));
+                    switchToInstance(instanceId - 1);
+                });
+            });
+
+            document.querySelectorAll(".nav-link").forEach(tab => {
+                tab.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    let instanceId = parseInt(this.id.replace("instanceTab_", ""));
+                    switchToInstance(instanceId);
+                });
+            });
         }
-    });
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkbox = document.getElementById("no_additional_users");
-        const accountsSection = document.getElementById("accounts_section");
-        const addAccountButton = document.getElementById("add_account");
+        // **Fix: Tabs vollständig anzeigen**
+        function switchToInstance(instanceId) {
+            document.querySelectorAll(".tab-pane").forEach(el => {
+                el.classList.remove("show", "active");
+                el.style.display = "none"; // **Verhindert leeren Platz**
+            });
 
-        if (!checkbox.checked) {
-            accountsSection.style.display = "block";
-            addAccountButton.style.display = "block";
+            let newContent = document.getElementById(`instanceContent_${instanceId}`);
+            if (newContent) {
+                newContent.classList.add("show", "active");
+                newContent.style.display = "block"; // **Sichtbar machen**
+            }
+
+            document.querySelectorAll(".nav-link").forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+            let newTab = document.getElementById(`instanceTab_${instanceId}`);
+            if (newTab) {
+                newTab.classList.add("active");
+            }
         }
-    });
 
-    {% if modal_message %}
-    $(document).ready(function () {
-        $('#responseModal').modal('show');
-    });
-    {% endif %}
-</script>
+        // **Fix: Event-Listener für Account-Felder**
+        function attachAccountButtonListeners() {
+            document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+                checkbox.addEventListener("change", function () {
+                    let instanceId = this.id.split("_").pop();
+                    let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
+                    let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+
+                    if (this.checked) {
+                        accountsSection.style.display = "none";
+                        addAccountButton.style.display = "none";
+                        document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
+                    } else {
+                        accountsSection.style.display = "block";
+                        addAccountButton.style.display = "block";
+                    }
+                });
+            });
+
+            document.querySelectorAll(".add_account_btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    let instanceId = this.getAttribute("data-instance");
+                    addAccountFields(instanceId);
+                });
+            });
+        }
+
+        function addAccountFields(instanceId) {
+            let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+            if (!accountsContainer) return;
+
+            let accountCounter = accountsContainer.childElementCount + 1;
+            let accountSection = document.createElement("div");
+            accountSection.classList.add("card", "p-3", "mb-3");
+            accountSection.setAttribute("id", `account_${instanceId}_${accountCounter}`);
+            accountSection.style.border = "1px solid #ccc";
+            accountSection.style.borderRadius = "5px";
+            accountSection.style.padding = "15px";
+
+            let fieldsHtml = `<h5>Account ${accountCounter}</h5>`;
+            accountAttributes.forEach(attr => {
+                fieldsHtml += `
+            <div class="form-group md-5">
+                <label for="${attr}_${instanceId}_${accountCounter}">${attr}</label>
+                <input type="text" class="form-control" id="${attr}_${instanceId}_${accountCounter}" name="${attr}_${instanceId}[]" required>
+            </div>
+        `;
+            });
+
+            fieldsHtml += `
+        <button type="button" class="btn btn-danger btn-sm mt-2 remove-account" data-instance="${instanceId}" data-id="${accountCounter}">Remove</button>
+    `;
+
+            accountSection.innerHTML = fieldsHtml;
+            accountsContainer.appendChild(accountSection);
+
+            // **Event-Listener für Remove-Button**
+            accountSection.querySelector(".remove-account").addEventListener("click", function () {
+                accountSection.remove();
+            });
+        }
+        {% if modal_message %}
+            $(document).ready(function () {
+                $('#responseModal').modal('show');
+            });
+        {% endif %}
+
+
+    </script>
+
+
+
 {% endblock %}
