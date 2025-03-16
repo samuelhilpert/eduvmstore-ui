@@ -249,7 +249,7 @@ class CreateView(generic.TemplateView):
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'script': request.POST.get('hiddenScriptField'),
-            'account_attributes' : instantiation_attributes,
+            'instantiation_attributes' : instantiation_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
