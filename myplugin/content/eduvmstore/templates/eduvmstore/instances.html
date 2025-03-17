@@ -78,14 +78,12 @@
 
 
     <style>
-        /* Alle Instanzen außer der aktiven komplett unsichtbar */
         .tab-pane {
             display: none;
             position: absolute;
-            left: -9999px; /* Aus dem Sichtfeld */
+            left: -9999px;
         }
 
-        /* Aktive Instanz sichtbar machen */
         .tab-pane.show.active {
             display: block;
             position: static;
@@ -129,13 +127,13 @@
             numInstancesInput.value = numInstances;
 
             const baseNameInput = document.getElementById("instances_name");
-            const baseName = baseNameInput ? baseNameInput.value.trim() : "instance";
+            let baseName = baseNameInput ? baseNameInput.value.trim() : "";
 
             instanceTabs.innerHTML = "";
             instancesContainer.innerHTML = "";
 
             for (let i = 1; i <= numInstances; i++) {
-                const instanceName = `${baseName}-${i}`;
+                let instanceName = baseName ? `${baseName}-${i}` : "";
                 const tabId = `instanceTab_${i}`;
                 const contentId = `instanceContent_${i}`;
 
@@ -148,8 +146,8 @@
         `;
 
                 instancesContainer.innerHTML += `
-            <div class="tab-pane fade ${i === 1 ? 'show active' : 'd-none'}" id="${contentId}" role="tabpanel">
-                <h4>${instanceName}</h4>
+            <div class="tab-pane ${i === 1 ? 'show active' : ''}" id="${contentId}" role="tabpanel">
+                <h4 id="instanceTitle_${i}">${instanceName}</h4> <!-- Dynamischer Titel -->
                 <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
 
                 <div class="form-group">
@@ -197,7 +195,8 @@
             switchToInstance(1);
         }
 
-        // **Fix: Event-Listener für Navigation**
+
+
         function attachInstanceEventListeners() {
             document.querySelectorAll(".next-instance").forEach(button => {
                 button.addEventListener("click", function () {
@@ -222,36 +221,32 @@
             });
         }
 
-        // **Fix: Tabs vollständig anzeigen**
+
         function switchToInstance(instanceId) {
-            // **Alle Instanzen verstecken**
+
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
-                el.style.display = "none"; // **Sorgt dafür, dass kein leerer Bereich bleibt**
+                el.style.display = "none";
             });
 
-            // **Die gewählte Instanz aktivieren**
             let newContent = document.getElementById(`instanceContent_${instanceId}`);
             if (newContent) {
                 newContent.classList.add("show", "active");
-                newContent.style.display = "block"; // **Stellt sicher, dass die Instanz sichtbar wird**
+                newContent.style.display = "block";
             }
 
-            // **Alle Tabs deaktivieren**
             document.querySelectorAll(".nav-link").forEach(tab => {
                 tab.classList.remove("active");
             });
 
-            // **Den neuen Tab aktivieren**
             let newTab = document.getElementById(`instanceTab_${instanceId}`);
             if (newTab) {
                 newTab.classList.add("active");
-                newTab.click(); // **Simuliert einen Klick, um Bootstrap-Tab-Mechanismus auszulösen**
+                newTab.click();
             }
         }
 
 
-        // **Fix: Event-Listener für Account-Felder**
         function attachAccountButtonListeners() {
             document.querySelectorAll(".no_additional_users").forEach(checkbox => {
                 checkbox.addEventListener("change", function () {
@@ -307,7 +302,6 @@
             accountSection.innerHTML = fieldsHtml;
             accountsContainer.appendChild(accountSection);
 
-            // **Event-Listener für Remove-Button**
             accountSection.querySelector(".remove-account").addEventListener("click", function () {
                 accountSection.remove();
             });
