@@ -217,32 +217,25 @@
 
 
         function switchToInstance(instanceId) {
-            // **Alle Instanzen verstecken**
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
-                el.style.display = "none"; // Kein Platz für versteckte Instanzen reservieren
+                el.style.display = "none";
             });
 
-            // **Neue Instanz aktivieren**
             let newContent = document.getElementById(`instanceContent_${instanceId}`);
             if (newContent) {
                 newContent.classList.add("show", "active");
                 newContent.style.display = "block";
             }
 
-            // **Alle Tabs deaktivieren**
             document.querySelectorAll(".nav-link").forEach(tab => {
                 tab.classList.remove("active");
             });
 
-            // **Neuen Tab aktivieren und Bootstrap’s Tab-Mechanismus anstoßen**
             let newTab = document.getElementById(`instanceTab_${instanceId}`);
             if (newTab) {
                 newTab.classList.add("active");
-
-                // **Bootstrap Tab-Mechanismus korrekt auslösen**
-                let tab = new bootstrap.Tab(newTab);
-                tab.show();
+                newTab.click();
             }
         }
 
