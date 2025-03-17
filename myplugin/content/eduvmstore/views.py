@@ -442,10 +442,6 @@ def generate_indented_content(content, indent_level=6):
     return "\n".join([indent + line for line in content.split("\n")])
 
 
-
-
-
-
 class InstancesView(generic.TemplateView):
     """
         View for displaying instances, including form input for instance creation.
@@ -589,11 +585,46 @@ class InstancesView(generic.TemplateView):
 
         return context
 
-    def get_flavors(self, ):
-        """Fetch flavors from Nova to correlate instances."""
+    #def get_flavors(self, ):
+      #  """Fetch flavors from Nova to correlate instances."""
+       # try:
+       #     flavors = api.nova.flavor_list(self.request)
+       #     return {str(flavor.id): flavor.name for flavor in flavors}
+       # except Exception:
+       #     exceptions.handle(self.request, ignore=True)
+       #     return {}
+
+    def get_flavors(self, app_template):
         try:
             flavors = api.nova.flavor_list(self.request)
-            return {str(flavor.id): flavor.name for flavor in flavors}
+            flavor_dict = {str(flavor.id): flavor for flavor in flavors}
+
+            # App template requirements
+            fixed_ram_gb = app_template.get('fixed_ram_gb')
+            fixed_disk_gb = app_template.get('fixed_disk_gb')
+            fixed_cores = app_template.get('fixed_cores')
+            per_user_ram_gb = app_template.get('per_user_ram_gb')
+            per_user_disk_gb = app_template.get('per_user_disk_gb')
+            per_user_cores = app_template.get('per_user_cores')
+
+            total_users = len(self.extract_accounts_from_form_new(self.request))
+
+            required_ram = fixed_ram_gb + total_users * per_user_ram_gb
+            required_disk = fixed_disk_gb + total_users * per_user_disk_gb
+            required_cores = fixed_cores + total_users * per_user_cores
+
+            selected_flavor = None
+
+            for flavor_id, flavor in flavor_dict.items():
+                if (flavor.ram >= required_ram * 1024 and
+                        flavor.disk >= required_disk and
+                        flavor.vcpus >= required_cores):
+                    selected_flavor = flavor_id
+                    break
+
+            return {'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
+                    'selected_flavor': selected_flavor}
+
         except Exception:
             exceptions.handle(self.request, ignore=True)
             return {}
