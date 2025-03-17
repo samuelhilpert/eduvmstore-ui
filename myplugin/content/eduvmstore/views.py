@@ -602,13 +602,13 @@ class InstancesView(generic.TemplateView):
 
             # Fetch available resources from Nova (limits)
             nova_limits = api.nova.tenant_absolute_limits(self.request)
-            available_ram = nova_limits.maxTotalRAMSize  # Total available RAM in MB
-            available_cores = nova_limits.maxTotalCores  # Total available CPU cores
-            available_instances = nova_limits.maxTotalInstances  # Total available instances
+            available_ram = nova_limits.get('maxTotalRAMSize', 0)  # Total available RAM in MB
+            available_cores = nova_limits.get('maxTotalCores', 0)  # Total available CPU cores
+            available_instances = nova_limits.get('maxTotalInstances', 0)  # Total available instances
 
             # Fetch available storage from Cinder (limits)
             cinder_limits = api.cinder.tenant_absolute_limits(self.request)
-            available_disk = cinder_limits.totalGigabytesUsed  # Total available disk in GB
+            available_disk = cinder_limits.get('totalGigabytesUsed', 0)  # Total available disk in GB
 
             # Extract fixed resource requirements from the app template
             fixed_ram_gb = int(app_template.get('fixed_ram_gb', 0))
@@ -641,7 +641,8 @@ class InstancesView(generic.TemplateView):
                 'available_cores': available_cores,
             }
 
-        except Exception:
+        except Exception as e:
+            logging.error(f"Error in get_flavors: {e}")
             exceptions.handle(self.request, ignore=True)
             return {}
 
