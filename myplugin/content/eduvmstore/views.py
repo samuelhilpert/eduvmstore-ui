@@ -300,9 +300,9 @@ class CreateView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return []
 
-    class EditView(generic.TemplateView):
+class EditView(generic.TemplateView):
         """
-        View to handle the editing of an existing app template.
+            View to handle the edit of app template with specified details.
         """
         template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
 
