@@ -570,7 +570,7 @@ class InstancesView(generic.TemplateView):
         app_template = self.get_app_template()
 
         # Fetch available flavors from Nova
-        context['flavors'] = self.get_flavors()
+        context['flavors'] = self.get_flavors(app_template)
 
         #Context for the selected App-Template --> Display system infos
         context['app_template'] = app_template
