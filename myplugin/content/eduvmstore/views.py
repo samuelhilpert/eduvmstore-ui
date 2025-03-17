@@ -596,34 +596,50 @@ class InstancesView(generic.TemplateView):
 
     def get_flavors(self, app_template):
         try:
+            # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
 
-            # App template requirements
-            fixed_ram_gb = app_template.get('fixed_ram_gb')
-            fixed_disk_gb = app_template.get('fixed_disk_gb')
-            fixed_cores = app_template.get('fixed_cores')
-            per_user_ram_gb = app_template.get('per_user_ram_gb')
-            per_user_disk_gb = app_template.get('per_user_disk_gb')
-            per_user_cores = app_template.get('per_user_cores')
+            # Fetch available resources from Nova (limits)
+            nova_limits = api.nova.tenant_absolute_limits(self.request)
+            available_ram = nova_limits.maxTotalRAMSize  # Total available RAM in MB
+            available_cores = nova_limits.maxTotalCores  # Total available CPU cores
+            available_instances = nova_limits.maxTotalInstances  # Total available instances
 
-            total_users = len(self.extract_accounts_from_form_new(self.request))
+            # Fetch available storage from Cinder (limits)
+            cinder_limits = api.cinder.tenant_absolute_limits(self.request)
+            available_disk = cinder_limits.totalGigabytesUsed  # Total available disk in GB
 
-            required_ram = fixed_ram_gb + total_users * per_user_ram_gb
-            required_disk = fixed_disk_gb + total_users * per_user_disk_gb
-            required_cores = fixed_cores + total_users * per_user_cores
+            # Extract fixed resource requirements from the app template
+            fixed_ram_gb = int(app_template.get('fixed_ram_gb', 0))
+            fixed_disk_gb = int(app_template.get('fixed_disk_gb', 0))
+            fixed_cores = int(app_template.get('fixed_cores', 0))
 
-            selected_flavor = None
+            # Convert fixed RAM from GB to MB (OpenStack uses MB for RAM)
+            fixed_ram_mb = fixed_ram_gb * 1024
 
+            # Collect all flavors that meet the fixed requirements and do not exceed available resources
+            suitable_flavors = {}
             for flavor_id, flavor in flavor_dict.items():
-                if (flavor.ram >= required_ram * 1024 and
-                        flavor.disk >= required_disk and
-                        flavor.vcpus >= required_cores):
-                    selected_flavor = flavor_id
-                    break
+                if (flavor.ram >= fixed_ram_mb and
+                        flavor.disk >= fixed_disk_gb and
+                        flavor.vcpus >= fixed_cores and
+                        flavor.ram <= available_ram and
+                        flavor.disk <= available_disk and
+                        flavor.vcpus <= available_cores):
+                    suitable_flavors[flavor_id] = flavor.name
 
-            return {'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
-                    'selected_flavor': selected_flavor}
+            # Return all flavors, suitable flavors, and resource requirements
+            return {
+                'all_flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
+                'suitable_flavors': suitable_flavors,
+                'required_ram': fixed_ram_gb,
+                'required_disk': fixed_disk_gb,
+                'required_cores': fixed_cores,
+                'available_ram': available_ram // 1024,  # Convert MB back to GB for display
+                'available_disk': available_disk,
+                'available_cores': available_cores,
+            }
 
         except Exception:
             exceptions.handle(self.request, ignore=True)
