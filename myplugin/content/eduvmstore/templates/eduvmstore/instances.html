@@ -117,11 +117,6 @@
             let instanceTabs = document.getElementById("instanceTabs");
             let instancesContainer = document.getElementById("instancesContainer");
 
-            if (!instanceTabs || !instancesContainer) {
-                console.error("Fehlende Elemente: 'instanceTabs' oder 'instancesContainer' nicht gefunden.");
-                return;
-            }
-
             let numInstancesInput = document.getElementById("num_instances");
             let numInstances = parseInt(numInstancesInput.value, 10) || 1;
             numInstancesInput.value = numInstances;
