@@ -316,11 +316,10 @@ class EditView(generic.TemplateView):
             context = super().get_context_data(**kwargs)
             app_template = self.get_app_template()
             image_data = self.get_image_data(app_template.get('image_id', ''))
-            context.update({
-                'app_template': app_template,
-                'image_visibility': image_data.get('visibility', 'N/A'),
-                'image_owner': image_data.get('owner', 'N/A'),
-            })
+            context["app_template"] = app_template
+            context["new_app_template_id"] = app_template.id  # Pass app template ID
+            context["app_template_update_url"] = API_ENDPOINTS["app_template_update"].format(
+                new_app_template_id=app_template.id)
             return context
 
         def get_app_template(self):

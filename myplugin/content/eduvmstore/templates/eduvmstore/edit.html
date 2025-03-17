@@ -119,7 +119,7 @@
 </style>
 
 <div class="form-container">
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}">
+    <form id="edit-app-template-form">
         {% csrf_token %}
 
         <h3>App-Template Details</h3>
@@ -289,6 +289,58 @@ write_files:
 
 <!-- JavaScript to handle modal -->
 <script>
+    document.getElementById("edit-app-template-form").addEventListener("submit", async function(event) {
+    event.preventDefault();  // Prevent default form submission
+
+    const formData = new FormData(this);
+    const jsonData = {};
+
+    formData.forEach((value, key) => {
+        jsonData[key] = value;
+    });
+
+    const url = "{{ app_template_update_url }}";  // Use the correct API endpoint from Django
+    const csrftoken = getCookie("csrftoken");  // Get CSRF token
+
+    try {
+        const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
+            },
+            body: JSON.stringify(jsonData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("App template updated successfully!");
+            window.location.href = "{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}";  // Redirect on success
+        } else {
+            alert("Error: " + result.error);
+        }
+    } catch (error) {
+        console.error("Error updating template:", error);
+        alert("An unexpected error occurred.");
+    }
+});
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split("; ");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
     document.getElementById('script_file').addEventListener('change', function(event) {
         var file = event.target.files[0];
         if (file) {
@@ -341,21 +393,6 @@ write_files:
         $('#responseModal').modal('show');
     });
     {% endif %}
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split("; ");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i];
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
 
     const csrftoken = getCookie("csrftoken");
 
