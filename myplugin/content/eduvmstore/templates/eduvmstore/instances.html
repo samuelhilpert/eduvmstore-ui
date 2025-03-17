@@ -224,26 +224,32 @@
 
         // **Fix: Tabs vollständig anzeigen**
         function switchToInstance(instanceId) {
+            // **Alle Instanzen verstecken**
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
-                el.style.display = "none"; // **Verhindert leeren Platz**
+                el.style.display = "none"; // **Sorgt dafür, dass kein leerer Bereich bleibt**
             });
 
+            // **Die gewählte Instanz aktivieren**
             let newContent = document.getElementById(`instanceContent_${instanceId}`);
             if (newContent) {
                 newContent.classList.add("show", "active");
-                newContent.style.display = "block"; // **Sichtbar machen**
+                newContent.style.display = "block"; // **Stellt sicher, dass die Instanz sichtbar wird**
             }
 
+            // **Alle Tabs deaktivieren**
             document.querySelectorAll(".nav-link").forEach(tab => {
                 tab.classList.remove("active");
             });
 
+            // **Den neuen Tab aktivieren**
             let newTab = document.getElementById(`instanceTab_${instanceId}`);
             if (newTab) {
                 newTab.classList.add("active");
+                newTab.click(); // **Simuliert einen Klick, um Bootstrap-Tab-Mechanismus auszulösen**
             }
         }
+
 
         // **Fix: Event-Listener für Account-Felder**
         function attachAccountButtonListeners() {
