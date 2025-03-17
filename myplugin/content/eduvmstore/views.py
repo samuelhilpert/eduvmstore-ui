@@ -306,88 +306,57 @@ class CreateView(generic.TemplateView):
         """
         template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
 
-        def get(self, request, *args, **kwargs):
-            """
-            Render the template on GET request.
-            """
-            context = self.get_context_data()
-            return render(request, self.template_name, context)
-
-        def post(self, request, *args, **kwargs):
-            """
-            Handle POST request to update an existing app template by sending data to the backend API.
-            """
-            app_template_id = kwargs.get('app_template_id')
-            token_id = get_token_id(request)
-            headers = {"X-Auth-Token": token_id}
-
-            data = {
-                'name': request.POST.get('name'),
-                'description': request.POST.get('description'),
-                'short_description': request.POST.get('short_description'),
-                'instantiation_notice': request.POST.get('instantiation_notice'),
-                'public': request.POST.get('public'),
-                'version': request.POST.get('version'),
-                'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
-                'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
-                'fixed_cores': request.POST.get('fixed_cores'),
-                'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
-                'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
-                'per_user_cores': request.POST.get('per_user_cores'),
-            }
-
-            try:
-                response = requests.put(
-                    f"{API_ENDPOINTS['app_templates']}/{app_template_id}",
-                    json=data,
-                    headers=headers,
-                    timeout=10,
-                )
-                if response.status_code == 200:
-                    modal_message = _("App-Template updated successfully.")
-                    messages.success(request, "App Template updated successfully.")
-                else:
-                    modal_message = _("Failed to update App-Template. Please try again.")
-                    logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                    messages.error(request, f"Failed to update App-Template. {response.text}")
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Request error: {e}")
-                modal_message = _("Failed to update App-Template. Please try again.")
-
-            context = self.get_context_data(modal_message=modal_message)
-            return render(request, self.template_name, context)
-
         def get_context_data(self, **kwargs):
             """
-            Add existing app template data to the context.
+                Add app template and image data to the context.
+                :param kwargs: Additional context parameters.
+                :return: Context dictionary with app template and image details.
+                :rtype: dict
             """
-            context = {}
-            app_template_id = self.kwargs.get('app_template_id')
-            context['app_template'] = self.get_app_template(app_template_id)
-            context.update(kwargs)
+            context = super().get_context_data(**kwargs)
+            app_template = self.get_app_template()
+            image_data = self.get_image_data(app_template.get('image_id', ''))
+            context.update({
+                'app_template': app_template,
+                'image_visibility': image_data.get('visibility', 'N/A'),
+                'image_owner': image_data.get('owner', 'N/A'),
+            })
             return context
 
-        @memoized.memoized_method
-        def get_app_template(self, app_template_id):
+        def get_app_template(self):
             """
-            Fetch the existing app template data from the backend.
+                Fetch a specific app template from the external database using token authentication.
+                :param token_id: Authentication token for API access.
+                :return: JSON response of app template details if successful, otherwise an empty dict.
+                :rtype: dict
             """
             token_id = get_token_id(self.request)
             headers = {"X-Auth-Token": token_id}
 
             try:
-                response = requests.get(f"{API_ENDPOINTS['app_templates']}/{app_template_id}", headers=headers,
-                                        timeout=10)
-                if response.status_code == 200:
-                    return response.json()
-                else:
-                    logging.error(f"Failed to fetch app template: {response.status_code}, {response.text}")
-                    exceptions.handle(self.request, _("Unable to fetch App-Template details."))
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Request error: {e}")
-                exceptions.handle(self.request, _("Unable to fetch App-Template details."))
+                response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                    template_id=self.kwargs['template_id']),
+                    headers=headers, timeout=10))
 
-            return {}
+                response.raise_for_status()
+                return response.json()
+            except requests.RequestException as e:
+                logging.error("Unable to retrieve app template details: %s", e)
+                return {}
+
+        def get_image_data(self, image_id):
+            """
+                Fetch image details from Glance based on the image_id.
+                :param image_id: ID of the image to retrieve.
+                :return: Dictionary with visibility and owner details of the image.
+                :rtype: dict
+            """
+            try:
+                image = glance.image_get(self.request, image_id)
+                return {'visibility': image.visibility, 'owner': image.owner}
+            except Exception as e:
+                exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+                return {}
 
 def generate_pdf(accounts, name):
     """Erstellt eine PDF mit den Benutzern und Passwörtern."""
