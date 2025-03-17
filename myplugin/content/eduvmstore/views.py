@@ -460,102 +460,86 @@ class InstancesView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-     Handle POST requests to create a new instance with specified details.
-
-     This method extracts necessary data from the POST request, generates a cloud-config script,
-     and creates a new instance using the Nova API. It also handles session data for accounts
-     and instance name, and formats the instance description.
-
-     :param request: The incoming HTTP POST request.
-     :type request: HttpRequest
-     :param args: Additional positional arguments.
-     :param kwargs: Additional keyword arguments.
-     :return: An HTTP redirect to the success page or a rendered template with an error message.
-     :rtype: HttpResponse
-     """
-
+        Handle POST requests to create multiple instances.
+        """
         try:
-
-            flavor_id = request.POST.get('flavor_id')
-            name = request.POST.get('instances_name')
-            network_id = request.POST.get('network_id')
-
-            no_additional_users = request.POST.get('no_additional_users')
-
+            num_instances = int(request.POST.get('num_instances', 1))
+            base_name = request.POST.get('instances_name')
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
             script = app_template.get('script')
             app_template_name = app_template.get('name')
-            app_template_descritpion = app_template.get('description')
+            app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
 
-            try:
-                accounts = self.extract_accounts_from_form_new(request)
-            except Exception:
-                accounts = []
-
-            request.session["accounts"] = accounts
-            request.session["instance_name"] = name
             request.session["app_template"] = app_template_name
             request.session["created"] = created
 
-            description = self.format_description(app_template_descritpion)
-
-
-            if not script and not accounts:
-                user_datas = None
-            elif not script and accounts:
-                user_datas = generate_cloud_config(accounts, None)
-            elif script and no_additional_users == "on":
-                user_datas = f"#cloud-config\n{script}"
-            elif script and no_additional_users is None and not accounts:
-                user_datas = f"#cloud-config\n{script}"
-            else:
-                user_datas = generate_cloud_config(accounts, script)
-
-            nics = [{"net-id": network_id}]
 
             security_groups = ["default"]
-
             metadata = {"app_template": app_template_name}
 
-            for index, account in enumerate(accounts):
-                user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                metadata[f"user_{index+1}"] = user_data
+            instances = []
+            for i in range(1, num_instances + 1):
+                instance_name = f"{base_name}-{i}"
+                flavor_id = request.POST.get(f'flavor_id_{i}')
+                network_id = request.POST.get(f'network_id_{i}')
+                no_additional_users = request.POST.get(f'no_additional_users_{i}')
 
-            keypair_name = f"{name}_keypair"
+                try:
+                    accounts = self.extract_accounts_from_form_new(request, i)
+                except Exception:
+                    accounts = []
 
-            existing_keys = nova.keypair_list(request)
-            existing_key_names = [key.name for key in existing_keys]
+                request.session[f"accounts_{i}"] = accounts
+                request.session[f"names_{i}"] = instance_name
 
-            if keypair_name not in existing_key_names:
-                keypair = nova.keypair_create(request, name=keypair_name)
-                private_key = keypair.private_key
+                description = self.format_description(app_template_description)
 
-                request.session["private_key"] = private_key
-                request.session["keypair_name"] = keypair_name
+                if not script and not accounts:
+                    user_data = None
+                elif not script and accounts:
+                    user_data = generate_cloud_config(accounts, None)
+                elif script and no_additional_users == "on":
+                    user_data = f"#cloud-config\n{script}"
+                elif script and no_additional_users is None and not accounts:
+                    user_data = f"#cloud-config\n{script}"
+                else:
+                    user_data = generate_cloud_config(accounts, script)
 
+                nics = [{"net-id": network_id}]
+                keypair_name = f"{instance_name}_keypair"
 
+                # Check existing keys to prevent duplicate creation
+                existing_keys = nova.keypair_list(request)
+                existing_key_names = [key.name for key in existing_keys]
 
-            nova.server_create(
-                request,
-                name=name,
-                image=image_id,
-                flavor=flavor_id,
-                key_name=keypair_name,
-                user_data=user_datas,
-                security_groups=security_groups,
-                nics=nics,
-                meta=metadata,
-                description=description,
-            )
+                if keypair_name not in existing_key_names:
+                    keypair = nova.keypair_create(request, name=keypair_name)
+                    private_key = keypair.private_key
+
+                    request.session[f"private_key_{i}"] = private_key
+                    request.session[f"keypair_name_{i}"] = keypair_name
+
+                nova.server_create(
+                    request,
+                    name=instance_name,
+                    image=image_id,
+                    flavor=flavor_id,
+                    key_name=keypair_name,
+                    user_data=user_data,
+                    security_groups=security_groups,
+                    nics=nics,
+                    meta=metadata,
+                    description=description,
+                )
+                instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
 
         except Exception as e:
-            logging.error(f"Failed to create instance: {e}")
-            modal_message = _(f"Failed to create instance. Error: {e}")
-
+            logging.error(f"Failed to create instances: {e}")
+            modal_message = _(f"Failed to create instances. Error: {e}")
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
