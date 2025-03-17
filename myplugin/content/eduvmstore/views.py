@@ -602,13 +602,15 @@ class InstancesView(generic.TemplateView):
 
             # Fetch available resources from Nova (limits)
             nova_limits = api.nova.tenant_absolute_limits(self.request)
-            available_ram = nova_limits.get('maxTotalRAMSize', 0)  # Total available RAM in MB
-            available_cores = nova_limits.get('maxTotalCores', 0)  # Total available CPU cores
-            available_instances = nova_limits.get('maxTotalInstances', 0)  # Total available instances
+            total_available_ram = nova_limits.get('maxTotalRAMSize', 0)  # Total available RAM in MB
+            total_available_cores = nova_limits.get('maxTotalCores', 0)  # Total available CPU cores
+            total_available_instances = nova_limits.get('maxTotalInstances', 0)  # Total available instances
 
-            # Fetch available storage from Cinder (limits)
+            # Fetch used storage from Cinder (limits)
             cinder_limits = api.cinder.tenant_absolute_limits(self.request)
-            available_disk = cinder_limits.get('totalGigabytesUsed', 0)  # Total available disk in GB
+            used_disk = cinder_limits.get('totalGigabytesUsed', 0)  # Total used disk in GB
+            total_disk_limit = cinder_limits.get('maxTotalVolumeGigabytes', 0)  # Total available disk limit in GB
+            total_available_disk = total_disk_limit - used_disk  # Calculate available disk
 
             # Extract fixed resource requirements from the app template
             fixed_ram_gb = int(app_template.get('fixed_ram_gb', 0))
@@ -621,24 +623,26 @@ class InstancesView(generic.TemplateView):
             # Collect all flavors that meet the fixed requirements and do not exceed available resources
             suitable_flavors = {}
             for flavor_id, flavor in flavor_dict.items():
-                if (flavor.ram >= fixed_ram_mb and
+                if (
+                        flavor.ram >= fixed_ram_mb and
                         flavor.disk >= fixed_disk_gb and
                         flavor.vcpus >= fixed_cores and
-                        flavor.ram <= available_ram and
-                        flavor.disk <= available_disk and
-                        flavor.vcpus <= available_cores):
+                        flavor.ram <= total_available_ram and
+                        flavor.disk <= total_available_disk and
+                        flavor.vcpus <= total_available_cores
+                ):
                     suitable_flavors[flavor_id] = flavor.name
 
-            # Return all flavors, suitable flavors, and resource requirements
+            # Return all flavors, suitable flavors, and resource information
             return {
                 'all_flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
                 'suitable_flavors': suitable_flavors,
                 'required_ram': fixed_ram_gb,
                 'required_disk': fixed_disk_gb,
                 'required_cores': fixed_cores,
-                'available_ram': available_ram // 1024,  # Convert MB back to GB for display
-                'available_disk': available_disk,
-                'available_cores': available_cores,
+                'available_ram': total_available_ram // 1024,  # Convert MB back to GB for display
+                'available_disk': total_available_disk,
+                'available_cores': total_available_cores,
             }
 
         except Exception as e:
