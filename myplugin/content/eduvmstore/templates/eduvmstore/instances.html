@@ -420,10 +420,14 @@ function selectAutomaticFlavor(instanceId) {
     }
 }
 
-   let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-        let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
-        document.getElementById("formatted-accounts").textContent = formattedAccounts;
-        document.getElementById("structured-accounts").textContent = formattedAccounts;
+// Ensure instantiationAttributes is properly parsed if it's a JSON string
+    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+
+    // Combine values with the key 'name'
+    let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
+
+    // Display the combined value in the modal table
+    document.getElementById("structured-accounts").textContent = formattedAccounts;
     </script>
 
 {% endblock %}
