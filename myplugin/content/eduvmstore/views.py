@@ -615,21 +615,20 @@ class InstancesView(generic.TemplateView):
         expected_fields = self.get_expected_fields()  # Erwartete Felder aus dem App-Template
 
         # Holt alle relevanten Felder aus dem Request für die spezifische Instanz
-        extracted_data = {field: request.POST.getlist(f"{field}_{instance_id}[]") for field in expected_fields}
+        extracted_data = {
+            field: request.POST.getlist(f"{field}_{instance_id}") for field in expected_fields
+        }
 
-        # Prüfen, ob überhaupt Account-Daten für diese Instanz existieren
-        if not extracted_data or not any(extracted_data.values()):
-            return accounts  # Leere Liste zurückgeben, wenn keine Accounts existieren
-
-        # Anzahl der Accounts berechnen (alle Arrays haben die gleiche Länge)
-        num_entries = len(next(iter(extracted_data.values()), []))
+        # Anzahl der Accounts bestimmen (nimmt die längste Liste als Referenz)
+        num_accounts = max(len(values) for values in extracted_data.values() if values)
 
         # Accounts zusammenstellen
-        for i in range(num_entries):
-            account = {field: extracted_data[field][i] for field in expected_fields}
+        for i in range(num_accounts):
+            account = {field: extracted_data[field][i] if i < len(extracted_data[field]) else "N/A" for field in expected_fields}
             accounts.append(account)
 
         return accounts
+
 
 
     def get_networks(self):
