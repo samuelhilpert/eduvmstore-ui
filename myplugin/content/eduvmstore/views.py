@@ -386,10 +386,7 @@ def generate_pdf(accounts, name, app_template, created):
     doc.build(elements)
     buffer.seek(0)
 
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=instantiation_attributes_{name}.pdf'
-    return response
-
+    return buffer.getvalue()
 
 def generate_cloud_config(accounts,backend_script):
     """
@@ -498,7 +495,7 @@ class InstancesView(generic.TemplateView):
                 description = self.format_description(app_template_description)
 
 
-                user_datas = generate_cloud_config(accounts, script)
+                user_data = generate_cloud_config(accounts, script)
 
 
 
@@ -517,8 +514,8 @@ class InstancesView(generic.TemplateView):
                     request.session[f"keypair_name_{i}"] = keypair_name
 
                 for index, account in enumerate(accounts):
-                    user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                    metadata[f"user_{index+1}"] = user_data
+                    user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
+                    metadata[f"user_{index+1}"] = user_data_account
 
 
                 nova.server_create(
@@ -527,7 +524,7 @@ class InstancesView(generic.TemplateView):
                     image=image_id,
                     flavor=flavor_id,
                     key_name=keypair_name,
-                    user_data=user_datas,
+                    user_data=user_data,
                     security_groups=security_groups,
                     nics=nics,
                     meta=metadata,
@@ -691,6 +688,13 @@ class InstanceSuccessView(generic.TemplateView):
         """
         return render(request, self.template_name)
 
+    class DownloadInstanceDataView(generic.View):
+        """
+        View to generate and return a ZIP file containing:
+        - PDFs with instance user account information
+        - Private keys (either one shared key or separate keys per instance)
+        """
+
     def post(self, request, *args, **kwargs):
         num_instances = request.session.get("num_instances", 1)
         separate_keys = request.session.get("separate_keys", False)
@@ -699,19 +703,18 @@ class InstanceSuccessView(generic.TemplateView):
 
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
 
-            # 1️⃣ **PDFs für jede Instanz generieren und zur ZIP-Datei hinzufügen**
+            # **1️⃣ PDFs für jede Instanz generieren**
             for i in range(1, num_instances + 1):
                 accounts = request.session.get(f"accounts_{i}", [])
                 name = request.session.get(f"names_{i}", f"Instance-{i}")
                 app_template = request.session.get("app_template", [])
                 created = request.session.get("created", [])
 
-                pdf_content = generate_pdf(accounts, name, app_template, created)
+                pdf_content = generate_pdf(accounts, name, app_template, created)  # **Fix: Direkt als Bytes**
                 zip_file.writestr(f"{name}.pdf", pdf_content)
 
-            # 2️⃣ **Private Keys zur ZIP hinzufügen**
+            # **2️⃣ Private Keys zur ZIP hinzufügen**
             if not separate_keys:
-                # Ein gemeinsamer Schlüssel für alle Instanzen
                 private_key = request.session.get("private_key")
                 keypair_name = request.session.get("keypair_name", "instance_key")
 
@@ -719,7 +722,6 @@ class InstanceSuccessView(generic.TemplateView):
                     zip_file.writestr(f"{keypair_name}.pem", private_key)
 
             else:
-                # Separater Schlüssel für jede Instanz
                 for i in range(1, num_instances + 1):
                     private_key = request.session.get(f"private_key_{i}")
                     keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
@@ -732,7 +734,7 @@ class InstanceSuccessView(generic.TemplateView):
         response = HttpResponse(zip_buffer, content_type="application/zip")
         response["Content-Disposition"] = 'attachment; filename="instances_data.zip"'
 
-        # 3️⃣ **Session-Daten bereinigen nach dem Download**
+        # **Session-Daten löschen**
         for i in range(1, num_instances + 1):
             request.session.pop(f"accounts_{i}", None)
             request.session.pop(f"names_{i}", None)
@@ -747,3 +749,4 @@ class InstanceSuccessView(generic.TemplateView):
         request.session.pop("created", None)
 
         return response
+
