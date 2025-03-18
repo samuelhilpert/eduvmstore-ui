@@ -344,8 +344,8 @@ def generate_pdf(accounts, name, app_template, created):
     :type accounts: list
     :param name: The name of the created instance.
     :type name: str
-    :return: An HTTP response containing the generated PDF file.
-    :rtype: HttpResponse
+    :return: PDF-Datei als Bytes (nicht als HttpResponse!)
+    :rtype: bytes
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
@@ -356,7 +356,11 @@ def generate_pdf(accounts, name, app_template, created):
     elements.append(title)
     elements.append(Spacer(1, 0.2 * inch))
 
-    subtitle = Paragraph(f"Instantiation Attributes for the created instance {name} from the EduVMStore. This instance was created with the app template {app_template} on {created}.", styles['Normal'])
+    subtitle = Paragraph(
+        f"Instantiation Attributes for the created instance {name} from the EduVMStore. "
+        f"This instance was created with the app template {app_template} on {created}.",
+        styles['Normal']
+    )
     elements.append(subtitle)
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -382,11 +386,11 @@ def generate_pdf(accounts, name, app_template, created):
     ]))
 
     elements.append(table)
-
     doc.build(elements)
     buffer.seek(0)
 
-    return buffer.getvalue()
+    return buffer.getvalue()  # Gibt nur den Binärinhalt zurück
+
 
 def generate_cloud_config(accounts,backend_script):
     """
@@ -705,10 +709,10 @@ class InstanceSuccessView(generic.TemplateView):
         """
 
     def post(self, request, *args, **kwargs):
-        num_instances = request.session.get("num_instances", 1)
+        num_instances = int(request.session.get("num_instances", 1))
         separate_keys = request.session.get("separate_keys", False)
 
-        zip_buffer = BytesIO()
+        zip_buffer = io.BytesIO()
 
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
 
@@ -719,8 +723,9 @@ class InstanceSuccessView(generic.TemplateView):
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
 
-                if accounts:  # **Nur PDFs erstellen, wenn es Accounts gibt**
-                    pdf_content = generate_pdf(accounts, name, app_template, created)
+                pdf_content = generate_pdf(accounts, name, app_template, created)
+
+                if pdf_content:  # **Nur PDFs hinzufügen, wenn Daten vorhanden sind**
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             # **2️⃣ Private Keys zur ZIP hinzufügen**
