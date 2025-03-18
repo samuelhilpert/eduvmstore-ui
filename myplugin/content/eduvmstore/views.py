@@ -498,7 +498,7 @@ class InstancesView(generic.TemplateView):
                 description = self.format_description(app_template_description)
 
 
-                user_data = generate_cloud_config(accounts, script)
+                user_datas = generate_cloud_config(accounts, script)
 
 
 
@@ -518,7 +518,7 @@ class InstancesView(generic.TemplateView):
 
                 for index, account in enumerate(accounts):
                     user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                    metadata[f"user_{index+1}"] = user_data
+                    metadata[f"user_{index+1}"] = user_datas
 
 
                 nova.server_create(
@@ -527,7 +527,7 @@ class InstancesView(generic.TemplateView):
                     image=image_id,
                     flavor=flavor_id,
                     key_name=keypair_name,
-                    user_data=user_data,
+                    user_data=user_datas,
                     security_groups=security_groups,
                     nics=nics,
                     meta=metadata,
