@@ -179,13 +179,13 @@
 <div class="form-group">
     <label for="flavor_id_{{ i }}">{{ _("Select Flavor") }}</label>
     <select class="form-control flavor-dropdown" id="flavor_id_{{ i }}" name="flavor_id_{{ i }}" required>
-        {% if flavors|length == 1 %}
-            {% for flavor_id, flavor_name in flavors.items %}
+        {% if flavors.suitable_flavors|length == 1 %}
+            {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
                 <option value="{{ flavor_id }}" selected>{{ flavor_name }}</option>
             {% endfor %}
         {% else %}
             <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-            {% for flavor_id, flavor_name in flavors.items %}
+            {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
                 <option value="{{ flavor_id }}">{{ flavor_name }}</option>
             {% endfor %}
         {% endif %}
@@ -196,9 +196,9 @@
 <div class="alert alert-info">
     <p><strong>{{ _("Resource Requirements") }}:</strong></p>
     <ul>
-        <li>{{ _("RAM") }}: {{ required_ram }} GB ({{ _("Available") }}: {{ available_ram }} GB)</li>
-        <li>{{ _("Disk") }}: {{ required_disk }} GB ({{ _("Available") }}: {{ available_disk }} GB)</li>
-        <li>{{ _("CPU Cores") }}: {{ required_cores }} ({{ _("Available") }}: {{ available_cores }})</li>
+        <li>{{ _("RAM") }}: {{ flavors.required_ram }} GB ({{ _("Available") }}: {{ flavors.available_ram }} GB)</li>
+        <li>{{ _("Disk") }}: {{ flavors.required_disk }} GB ({{ _("Available") }}: {{ flavors.available_disk }} GB)</li>
+        <li>{{ _("CPU Cores") }}: {{ flavors.required_cores }} ({{ _("Available") }}: {{ flavors.available_cores }})</li>
     </ul>
 </div>
 
