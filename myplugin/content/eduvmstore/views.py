@@ -483,7 +483,7 @@ class InstancesView(generic.TemplateView):
 
 
             security_groups = ["default"]
-            metadata = {"app_template": app_template_name}
+
 
             instances = []
             shared_keypair_name = f"{base_name}_shared_key"
@@ -499,10 +499,12 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
-                no_additional_users = request.POST.get(f'no_additional_users_{i}')
-
                 accounts = []
-                if no_additional_users != "on":
+
+
+                no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
+
+                if no_additional_users is None:
                     try:
                         accounts = self.extract_accounts_from_form_new(request, i)
                     except Exception:
@@ -537,7 +539,7 @@ class InstancesView(generic.TemplateView):
                 else:
                     keypair_name = shared_keypair_name
 
-
+                metadata = {"app_template": app_template_name}
                 for index, account in enumerate(accounts):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
                     metadata[f"user_{index+1}"] = user_data_account
