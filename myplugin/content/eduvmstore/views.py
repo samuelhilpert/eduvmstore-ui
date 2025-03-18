@@ -497,16 +497,9 @@ class InstancesView(generic.TemplateView):
 
                 description = self.format_description(app_template_description)
 
-                if not script and not accounts:
-                    user_data = None
-                elif not script and accounts:
-                    user_data = generate_cloud_config(accounts, None)
-                elif script and no_additional_users == "on":
-                    user_data = f"#cloud-config\n{script}"
-                elif script and no_additional_users is None and not accounts:
-                    user_data = f"#cloud-config\n{script}"
-                else:
-                    user_data = generate_cloud_config(accounts, script)
+
+                user_data = generate_cloud_config(accounts, script)
+
 
                 nics = [{"net-id": network_id}]
                 keypair_name = f"{instance_name}_keypair"
