@@ -319,6 +319,27 @@ class EditView(generic.TemplateView):
         })
         return context
 
+    def get_app_template(self):
+        """
+            Fetch a specific app template from the external database using token authentication.
+            :param token_id: Authentication token for API access.
+            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :rtype: dict
+        """
+        token_id = get_token_id(self.request)
+        headers = {"X-Auth-Token": token_id}
+
+        try:
+            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                template_id=self.kwargs['template_id']),
+                headers=headers, timeout=10))
+
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
+
     def put(self, request, *args, **kwargs):
         """
         Handle PUT requests to update an app template by sending data to the backend API.
