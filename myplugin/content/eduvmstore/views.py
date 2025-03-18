@@ -496,6 +496,7 @@ class InstancesView(generic.TemplateView):
 
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
+                request.session["separate_keys"] = "false"
 
                 description = self.format_description(app_template_description)
 
@@ -724,9 +725,8 @@ class InstanceSuccessView(generic.TemplateView):
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
 
-                pdf_content = generate_pdf(accounts, name, app_template, created)
-
-                if pdf_content:  # **Nur PDFs hinzufügen, wenn Daten vorhanden sind**
+                if accounts:
+                    pdf_content = generate_pdf(accounts, name, app_template, created)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             # **2️⃣ Private Keys zur ZIP hinzufügen**
@@ -734,9 +734,8 @@ class InstanceSuccessView(generic.TemplateView):
                 # **Ein gemeinsames Schlüsselpaar für alle Instanzen**
                 private_key = request.session.get("private_key")
                 keypair_name = request.session.get("keypair_name", "shared_instance_key")
+                zip_file.writestr(f"{keypair_name}.pem", private_key)
 
-                if private_key:
-                    zip_file.writestr(f"{keypair_name}.pem", private_key)
 
             else:
                 # **Individuelle Schlüsselpaare für jede Instanz**
@@ -744,6 +743,7 @@ class InstanceSuccessView(generic.TemplateView):
                     private_key = request.session.get(f"private_key_{i}")
                     keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
                     zip_file.writestr(f"{keypair_name}.pem", private_key)
+
 
         zip_buffer.seek(0)
 
