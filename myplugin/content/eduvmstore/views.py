@@ -613,9 +613,9 @@ class InstancesView(generic.TemplateView):
             total_available_disk = total_disk_limit - used_disk  # Calculate available disk
 
             # Extract fixed resource requirements from the app template
-            fixed_ram_gb = int(app_template.get('fixed_ram_gb', 0))
-            fixed_disk_gb = int(app_template.get('fixed_disk_gb', 0))
-            fixed_cores = int(app_template.get('fixed_cores', 0))
+            fixed_ram_gb = app_template.get('fixed_ram_gb', 0)
+            fixed_disk_gb = app_template.get('fixed_disk_gb', 0)
+            fixed_cores = app_template.get('fixed_cores', 0)
 
             # Convert fixed RAM from GB to MB (OpenStack uses MB for RAM)
             fixed_ram_mb = fixed_ram_gb * 1024

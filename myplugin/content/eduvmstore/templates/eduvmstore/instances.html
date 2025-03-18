@@ -179,13 +179,13 @@
 <div class="form-group">
     <label for="flavor_id_{{ i }}">{{ _("Select Flavor") }}</label>
     <select class="form-control flavor-dropdown" id="flavor_id_{{ i }}" name="flavor_id_{{ i }}" required>
-        {% if suitable_flavors|length == 1 %}
-            {% for flavor_id, flavor_name in suitable_flavors.items %}
+        {% if flavors|length == 1 %}
+            {% for flavor_id, flavor_name in flavors.items %}
                 <option value="{{ flavor_id }}" selected>{{ flavor_name }}</option>
             {% endfor %}
         {% else %}
             <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-            {% for flavor_id, flavor_name in suitable_flavors.items %}
+            {% for flavor_id, flavor_name in flavors.items %}
                 <option value="{{ flavor_id }}">{{ flavor_name }}</option>
             {% endfor %}
         {% endif %}
@@ -352,17 +352,18 @@
         {% endif %}
 
 
- function selectAutomaticFlavor(instanceId) {
+function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
 
-    // Prüfe, ob nur ein Flavor verfügbar ist
-    if (flavorDropdown.options.length === 2) { // Die erste Option ist "Choose a flavor"
-        flavorDropdown.selectedIndex = 1; // Wähle den einzigen Flavor automatisch aus
-        flavorDropdown.disabled = true;   // Deaktiviere das Dropdown, wenn nur ein Flavor verfügbar ist
+    // Check if there is only one selectable flavor
+    if (flavorDropdown.options.length === 2) { // One valid option + the default "Choose a flavor"
+        flavorDropdown.selectedIndex = 1; // Automatically select the only available flavor
+        if (flavorDropdown.value) {
+            flavorDropdown.disabled = true; // Disable the dropdown if a valid flavor is selected
+        }
     }
 }
-
     </script>
 
 
