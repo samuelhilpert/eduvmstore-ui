@@ -605,29 +605,6 @@ class InstancesView(generic.TemplateView):
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
 
-            # Fetch available resources from Nova (limits)
-            nova_limits = api.nova.tenant_absolute_limits(self.request)
-            total_available_ram = nova_limits.get('maxTotalRAMSize', 0)  # MB
-            total_available_cores = nova_limits.get('maxTotalCores', 0)
-            total_available_instances = nova_limits.get('maxTotalInstances', 0)
-            total_used_ram = nova_limits.get('totalRAMUsed', 0)
-            total_used_cores = nova_limits.get('totalCoresUsed', 0)
-
-            # Calculate remaining resources
-            available_ram = total_available_ram - total_used_ram  # in MB
-            available_cores = total_available_cores - total_used_cores
-
-            logging.info(
-                f"Available resources - RAM: {available_ram} MB, Cores: {available_cores}, Instances: {total_available_instances}")
-
-            # Fetch used storage from Cinder (limits)
-            cinder_limits = api.cinder.tenant_absolute_limits(self.request)
-            used_disk = cinder_limits.get('totalGigabytesUsed')
-            total_disk_limit = cinder_limits.get('maxTotalVolumeGigabytes')
-            available_disk = total_disk_limit - used_disk  # in GB
-
-            logging.info(f"Available Disk: {available_disk} GB")
-
             # Extract system requirements from app_template
             required_ram_gb = app_template.get('fixed_ram_gb')
             required_disk_gb = app_template.get('fixed_disk_gb')
@@ -643,10 +620,7 @@ class InstancesView(generic.TemplateView):
                 if (
                         flavor.ram >= required_ram_mb and
                         flavor.disk >= required_disk_gb and
-                        flavor.vcpus >= required_cores and
-                        flavor.ram <= available_ram and
-                        flavor.vcpus <= available_cores and
-                        flavor.disk <= available_disk
+                        flavor.vcpus >= required_cores
                 ):
                     suitable_flavors[flavor_id] = flavor.name
 
@@ -665,17 +639,13 @@ class InstancesView(generic.TemplateView):
                 'required_ram': required_ram_gb,
                 'required_disk': required_disk_gb,
                 'required_cores': required_cores,
-                'available_ram': available_ram // 1024,  # Convert MB to GB for display
-                'available_disk': available_disk,
-                'available_cores': available_cores,
             }
 
             logging.info(f"Returning flavor data: {result}")
             return result
 
         except Exception as e:
-            logging.error(f"Error in get_flavors: {e}")
-            exceptions.handle(self.request, ignore=True)
+            logging.error(f"An error occurred while fetching flavors: {e}")
             return {}
 
     def extract_accounts_from_form(self, request):
