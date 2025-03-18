@@ -344,9 +344,11 @@ class EditView(generic.TemplateView):
         if not app_template_id:
             return JsonResponse({"error": "App Template ID is required"}, status=400)
 
+        update_url = API_ENDPOINTS['app_templates_update'].format(template_id=app_template_id)
+
         try:
             response = requests.put(
-                    f"{API_ENDPOINTS['app_templates_update']}{app_template_id}/",
+                    update_url,
                     json=data,
                     headers=headers,
                     timeout=10,
