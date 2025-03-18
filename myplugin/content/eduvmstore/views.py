@@ -339,7 +339,7 @@ class EditView(generic.TemplateView):
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
         }
-        app_template_id = kwargs.get("pk")  # ID aus der URL holen
+        app_template_id = kwargs.get("template_id")  # ID aus der URL holen
 
         if not app_template_id:
             return JsonResponse({"error": "App Template ID is required"}, status=400)

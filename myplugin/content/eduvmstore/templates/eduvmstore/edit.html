@@ -119,10 +119,12 @@
  </style>
 
  <div class="form-container">
-     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}">
+     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
          {% csrf_token %}
 
          <h3>App-Template Details</h3>
+     <input  name="app_template_id" value="{{ app_template.id }}">
+
          <div class="form-group row">
              <div class="col-md-4">
                  <label for="image_id">Select Image:</label>
