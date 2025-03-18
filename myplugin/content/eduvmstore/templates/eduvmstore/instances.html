@@ -181,7 +181,7 @@
     <select class="form-control flavor-dropdown" id="flavor_id_{{ i }}" name="flavor_id_{{ i }}" required>
         {% if flavors.suitable_flavors %}
             <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-            {% for flavor_id, flavor_name in flavors.suitable_flavors.items() %}
+            {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
                 <option value="{{ flavor_id }}"
                     {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
                     {{ flavor_name }}
