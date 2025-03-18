@@ -500,6 +500,12 @@ class InstancesView(generic.TemplateView):
 
                 user_data = generate_cloud_config(accounts, script)
 
+                if user_data is None:
+                    metadata["user_data"] = "No user data provided."
+                else:
+                    metadata["user_data"] = user_data
+
+
 
                 nics = [{"net-id": network_id}]
                 keypair_name = f"{instance_name}_keypair"
