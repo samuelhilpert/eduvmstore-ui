@@ -501,10 +501,12 @@ class InstancesView(generic.TemplateView):
                 network_id = request.POST.get(f'network_id_{i}')
                 no_additional_users = request.POST.get(f'no_additional_users_{i}')
 
-                try:
-                    accounts = self.extract_accounts_from_form_new(request, i)
-                except Exception:
-                    accounts = []
+                accounts = []
+                if no_additional_users != "on":
+                    try:
+                        accounts = self.extract_accounts_from_form_new(request, i)
+                    except Exception:
+                        accounts = []
 
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
