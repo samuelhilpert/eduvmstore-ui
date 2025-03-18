@@ -18,12 +18,23 @@
 
 {% block main %}
 
+    <style>
+    .clickable {
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: underline;
+    }
+    .clickable:hover {
+        text-decoration: none;
+    }
+</style>
+
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
 
-      <div class="form-group">
-        <label for="app_template_id">{{ _("App Template ID") }}</label>
-        <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly data-toggle="modal" data-target="#appTemplateDetailsModal">
+ <div class="form-group">
+        <label for="app_template_name">{{ _("App Template Name") }}</label>
+        <input type="text" class="form-control clickable" id="app_template_name" name="app_template_name" value="{{  app_template.name }}" readonly data-toggle="modal" data-target="#appTemplateDetailsModal">
     </div>
 
     <!-- App Template Details Modal -->
@@ -54,6 +65,7 @@
                         <tr><th>Image Owner</th><td>{{ image_owner }}</td></tr>
                         <tr><th>Available For</th><td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td></tr>
                         <tr><th>Script</th><td><pre>{{ app_template.script }}</pre></td></tr>
+                         <tr><th>Instantiation Attributes</th><td><pre>{{ app_template.instantiation_attributes }}</pre></td></tr>
                         </tbody>
                     </table>
                 </div>
