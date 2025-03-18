@@ -495,7 +495,16 @@ class InstancesView(generic.TemplateView):
                 description = self.format_description(app_template_description)
 
 
-                user_data = generate_cloud_config(accounts, script)
+                if not script and not accounts:
+                    user_data = None
+                elif not script and accounts:
+                    user_data = generate_cloud_config(accounts, None)
+                elif script and no_additional_users == "on":
+                    user_data = f"#cloud-config\n{script}"
+                elif script and no_additional_users is None and not accounts:
+                    user_data = f"#cloud-config\n{script}"
+                else:
+                    user_data = generate_cloud_config(accounts, script)
 
 
 
@@ -707,21 +716,24 @@ class InstanceSuccessView(generic.TemplateView):
             for i in range(1, num_instances + 1):
                 accounts = request.session.get(f"accounts_{i}", [])
                 name = request.session.get(f"names_{i}", f"Instance-{i}")
-                app_template = request.session.get("app_template", [])
-                created = request.session.get("created", [])
+                app_template = request.session.get("app_template", "Unknown")
+                created = request.session.get("created", "Unknown Date")
 
-                pdf_content = generate_pdf(accounts, name, app_template, created)  # **Fix: Direkt als Bytes**
-                zip_file.writestr(f"{name}.pdf", pdf_content)
+                if accounts:  # **Nur PDFs erstellen, wenn es Accounts gibt**
+                    pdf_content = generate_pdf(accounts, name, app_template, created)
+                    zip_file.writestr(f"{name}.pdf", pdf_content)
 
             # **2️⃣ Private Keys zur ZIP hinzufügen**
             if not separate_keys:
+                # **Ein gemeinsames Schlüsselpaar für alle Instanzen**
                 private_key = request.session.get("private_key")
-                keypair_name = request.session.get("keypair_name", "instance_key")
+                keypair_name = request.session.get("keypair_name", "shared_instance_key")
 
                 if private_key:
                     zip_file.writestr(f"{keypair_name}.pem", private_key)
 
             else:
+                # **Individuelle Schlüsselpaare für jede Instanz**
                 for i in range(1, num_instances + 1):
                     private_key = request.session.get(f"private_key_{i}")
                     keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
@@ -731,10 +743,10 @@ class InstanceSuccessView(generic.TemplateView):
 
         zip_buffer.seek(0)
 
-        response = HttpResponse(zip_buffer, content_type="application/zip")
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
         response["Content-Disposition"] = 'attachment; filename="instances_data.zip"'
 
-        # **Session-Daten löschen**
+        # **Session-Daten nach Download löschen**
         for i in range(1, num_instances + 1):
             request.session.pop(f"accounts_{i}", None)
             request.session.pop(f"names_{i}", None)
