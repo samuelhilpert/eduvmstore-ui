@@ -21,9 +21,47 @@
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
 
-    <div class="form-group">
+      <div class="form-group">
         <label for="app_template_id">{{ _("App Template ID") }}</label>
-        <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
+        <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly data-toggle="modal" data-target="#appTemplateDetailsModal">
+    </div>
+
+    <!-- App Template Details Modal -->
+    <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("App Template Details") }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr><th>App-Template Name</th><td>{{ app_template.name }}</td></tr>
+                        <tr><th>App-Template ID</th><td>{{ app_template.id }}</td></tr>
+                        <tr><th>Image ID</th><td>{{ app_template.image_id }}</td></tr>
+                        <tr><th>Short Description</th><td>{{ app_template.short_description }}</td></tr>
+                        <tr><th>Description</th><td>{{ app_template.description }}</td></tr>
+                        <tr><th>Instantiation Notice</th><td>{{ app_template.instantiation_notice }}</td></tr>
+                        <tr><th>Fixed RAM (GB)</th><td>{{ app_template.fixed_ram_gb }}</td></tr>
+                        <tr><th>Fixed Disk (GB)</th><td>{{ app_template.fixed_disk_gb }}</td></tr>
+                        <tr><th>Fixed Cores</th><td>{{ app_template.fixed_cores }}</td></tr>
+                        <tr><th>Per User RAM (GB)</th><td>{{ app_template.per_user_ram_gb }}</td></tr>
+                        <tr><th>Per User Disk (GB)</th><td>{{ app_template.per_user_disk_gb }}</td></tr>
+                        <tr><th>Per User Cores</th><td>{{ app_template.per_user_cores }}</td></tr>
+                        <tr><th>Image Owner</th><td>{{ image_owner }}</td></tr>
+                        <tr><th>Available For</th><td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td></tr>
+                        <tr><th>Script</th><td><pre>{{ app_template.script }}</pre></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Basis-Instanzname -->
