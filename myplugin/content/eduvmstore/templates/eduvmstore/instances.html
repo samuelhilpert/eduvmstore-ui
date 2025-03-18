@@ -19,10 +19,6 @@
 {% block main %}
 
     <style>
-    /* General Styling */
-    body {
-        background-color: #f8f9fa;
-    }
     .clickable {
         cursor: pointer;
         color: #007bff;
@@ -31,110 +27,12 @@
     .clickable:hover {
         text-decoration: none;
     }
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    .form-control {
-        border-radius: 5px;
-        border: 1px solid #ced4da;
-        padding: 0.5rem 0.75rem;
-        transition: border-color 0.3s ease;
-    }
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-    .card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        padding: 1rem;
-    }
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-        border-radius: 5px;
-        padding: 0.5rem 1rem;
-        transition: background-color 0.3s ease;
-    }
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
-    .btn-secondary {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        border-radius: 5px;
-        padding: 0.5rem 1rem;
-        transition: background-color 0.3s ease;
-    }
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-    .alert-info {
-        background-color: #e9f5ff;
-        border-color: #b8daff;
-        color: #004085;
-        border-radius: 5px;
-        padding: 1rem;
-    }
-    .nav-tabs {
-        border-bottom: 1px solid #e0e0e0;
-    }
-    .nav-link {
-        border-radius: 5px 5px 0 0;
-        margin-right: 5px;
-        color: #495057;
-        transition: background-color 0.3s ease;
-    }
-    .nav-link.active {
-        background-color: #f8f9fa;
-        border-color: #e0e0e0 #e0e0e0 #f8f9fa;
-        color: #007bff;
-    }
-    .nav-link:hover {
-        background-color: #f1f1f1;
-    }
-    .modal-content {
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .modal-header {
-        background-color: #007bff;
-        color: #fff;
-        border-radius: 8px 8px 0 0;
-    }
-    .modal-title {
-        font-weight: bold;
-    }
-    .modal-footer {
-        border-top: 1px solid #e0e0e0;
-    }
-    .table {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .table th, .table td {
-        padding: 0.75rem;
-    }
-    .table th {
-        background-color: #007bff;
-        color: #fff;
-    }
-    .table tbody tr:nth-child(odd) {
-        background-color: #f8f9fa;
-    }
-    .table tbody tr:hover {
-        background-color: #e9ecef;
-    }
 </style>
 
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
 
-    <!-- App Template Name Display -->
+ <!-- App Template Name Display -->
     <div class="form-group">
         <label>{{ _("App Template Name") }}</label>
         <div class="card">
@@ -143,7 +41,6 @@
             </p>
         </div>
     </div>
-
     <!-- App Template Details Modal -->
     <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -172,7 +69,7 @@
                         <tr><th>Image Owner</th><td>{{ image_owner }}</td></tr>
                         <tr><th>Available For</th><td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td></tr>
                         <tr><th>Script</th><td><pre>{{ app_template.script }}</pre></td></tr>
-                        <tr><th>Instantiation Attributes</th><td><pre>{{ app_template.instantiation_attributes }}</pre></td></tr>
+                         <tr><th>Instantiation Attributes</th><td><pre>{{ app_template.instantiation_attributes }}</pre></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -201,11 +98,14 @@
     <!-- Container für Instanzen -->
     <div class="tab-content mt-3" id="instancesContainer"></div>
 
-    <div style="margin-top: 20px; margin-bottom: 20px;">
-        <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-secondary">{{ _("Cancel") }}</a>
-    </div>
+     <div style="margin-top: 20px; margin-bottom: 20px;">
+            <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
+           <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+        </div>
+
 </form>
+
+
 
 <!-- Modal for Success or Failure -->
 <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
@@ -230,8 +130,45 @@
     </div>
 </div>
 
+    <!-- Modal for Success or Failure -->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">{{ _("Instance Creation Status") }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>{{ modal_message }}</p>
+            </div>
+            <div class="modal-footer">
+                {% if modal_message == "Instance created successfully." %}
+                    <a href="/dashboard/project/instances/" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                {% endif %}
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-     <script>
+    <style>
+        /* Alle Instanzen außer der aktiven komplett unsichtbar */
+        .tab-pane {
+            display: none;
+            position: absolute;
+            left: -9999px; /* Aus dem Sichtfeld */
+        }
+
+        /* Aktive Instanz sichtbar machen */
+        .tab-pane.show.active {
+            display: block;
+            position: static;
+        }
+    </style>
+
+    <script>
         window.onload = function () {
             let numInstancesInput = document.getElementById("num_instances");
             let instancesNameInput = document.getElementById("instances_name");
@@ -483,6 +420,5 @@ function selectAutomaticFlavor(instanceId) {
     }
 }
     </script>
-
 
 {% endblock %}
