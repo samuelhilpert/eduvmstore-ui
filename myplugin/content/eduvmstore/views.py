@@ -19,6 +19,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.views import View
 
 
@@ -300,62 +301,60 @@ class CreateView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return []
 
+
 class EditView(generic.TemplateView):
+    """
+    View to handle editing an app template.
+    """
+    template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        app_template = self.get_app_template()
+        image_data = self.get_image_data(app_template.get('image_id', ''))
+        context.update({
+            'app_template': app_template,
+            'image_visibility': image_data.get('visibility', 'N/A'),
+            'image_owner': image_data.get('owner', 'N/A'),
+        })
+        return context
+
+    def put(self, request, *args, **kwargs):
         """
-            View to handle the edit of app template with specified details.
+        Handle PUT requests to update an app template by sending data to the backend API.
         """
-        template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
+        token_id = get_token_id(request)
+        headers = {"X-Auth-Token": token_id, "Content-Type": "application/json"}
 
-        def get_context_data(self, **kwargs):
-            """
-                Add app template and image data to the context.
-                :param kwargs: Additional context parameters.
-                :return: Context dictionary with app template and image details.
-                :rtype: dict
-            """
-            context = super().get_context_data(**kwargs)
-            app_template = self.get_app_template()
-            image_data = self.get_image_data(app_template.get('image_id', ''))
-            context["app_template"] = app_template
-            context["new_app_template_id"] = app_template.id  # Pass app template ID
-            context["app_template_update_url"] = API_ENDPOINTS["app_template_update"].format(
-                new_app_template_id=app_template.id)
-            return context
+        # JSON-Daten aus der Anfrage parsen
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
 
-        def get_app_template(self):
-            """
-                Fetch a specific app template from the external database using token authentication.
-                :param token_id: Authentication token for API access.
-                :return: JSON response of app template details if successful, otherwise an empty dict.
-                :rtype: dict
-            """
-            token_id = get_token_id(self.request)
-            headers = {"X-Auth-Token": token_id}
+        app_template_id = kwargs.get("pk")  # ID aus der URL holen
 
-            try:
-                response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
-                    template_id=self.kwargs['template_id']),
-                    headers=headers, timeout=10))
+        if not app_template_id:
+            return JsonResponse({"error": "App Template ID is required"}, status=400)
 
-                response.raise_for_status()
-                return response.json()
-            except requests.RequestException as e:
-                logging.error("Unable to retrieve app template details: %s", e)
-                return {}
+        try:
+            response = requests.put(
+                f"{API_ENDPOINTS['app_templates_update']}{app_template_id}/",
+                json=data,
+                headers=headers,
+                timeout=10,
+            )
 
-        def get_image_data(self, image_id):
-            """
-                Fetch image details from Glance based on the image_id.
-                :param image_id: ID of the image to retrieve.
-                :return: Dictionary with visibility and owner details of the image.
-                :rtype: dict
-            """
-            try:
-                image = glance.image_get(self.request, image_id)
-                return {'visibility': image.visibility, 'owner': image.owner}
-            except Exception as e:
-                exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
-                return {}
+            if response.status_code in [200, 204]:
+                return JsonResponse({"message": "App-Template updated successfully."}, status=200)
+            else:
+                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
+                return JsonResponse({"error": response.text}, status=response.status_code)
+
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request error: {e}")
+            return JsonResponse({"error": "Failed to update App-Template. Please try again."}, status=500)
+
 
 def generate_pdf(accounts, name):
     """Erstellt eine PDF mit den Benutzern und Passwörtern."""
