@@ -255,41 +255,100 @@ write_files:
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("edit-app-template-form");
+    function openModal() {
+        document.getElementById('scriptModal').style.display = 'block';
+    }
 
-    form.addEventListener("submit", function (event) {
-        event.preventDefault();
+    function closeModal() {
+        document.getElementById('scriptModal').style.display = 'none';
+    }
 
-        const formData = new FormData(form);
-        const jsonData = {};
+    function saveScript() {
+        // Get the script text from the textarea
+        var scriptText = document.getElementById('scriptText').value;
+        // Store it in the hidden input field
+        document.getElementById('hiddenScriptField').value = scriptText;
+        // Close the modal
+        closeModal();
+    }
 
-        formData.forEach((value, key) => {
-            jsonData[key] = value;
-        });
-
-        fetch("{% url 'app_template_update' app_template.id %}", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
-            },
-            body: JSON.stringify(jsonData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                alert(data.message);
-                window.location.href = "{% url 'app_template_list' %}";
-            } else {
-                alert("Fehler: " + data.error);
-            }
-        })
-        .catch(error => {
-            alert("Fehler beim Speichern: " + error.message);
-        });
+    // Close the modal if the user clicks anywhere outside of it
+    window.onclick = function(event) {
+        var modal = document.getElementById('scriptModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+     // Automatically show the modal if modal_message is set
+    {% if modal_message %}
+    $(document).ready(function() {
+        $('#responseModal').modal('show');
     });
-});
+    {% endif %}
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split("; ");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+
+    async function checkName() {
+        const inputField = document.getElementById("name");
+        const name = inputField.value;
+        const url = inputField.dataset.url;
+        const feedback = document.getElementById("name-feedback");
+        const submitButton = document.getElementById("submit-button");
+
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify({ name: name })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP-Fehler: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.valid) {
+                inputField.classList.remove("is-invalid");
+                inputField.classList.add("is-valid");
+                feedback.textContent = "Name available";
+                feedback.style.color = "green";
+                submitButton.disabled = false;
+            } else {
+                inputField.classList.remove("is-valid");
+                inputField.classList.add("is-invalid");
+                feedback.textContent = "Name already taken";
+                feedback.style.color = "red";
+                submitButton.disabled = true;
+            }
+        } catch (error) {
+            console.error("Fehler bei der Validierung:", error);
+        }
+    }
+
+
+
+
 </script>
 
 

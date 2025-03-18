@@ -308,65 +308,37 @@ class EditView(generic.TemplateView):
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        app_template = self.get_app_template()
-        image_data = self.get_image_data(app_template.get('image_id', ''))
-        context.update({
-            'app_template': app_template,
-            'image_visibility': image_data.get('visibility', 'N/A'),
-            'image_owner': image_data.get('owner', 'N/A'),
-        })
-        return context
-
-    def get_image_data(self, image_id):
+    def get(self, request, *args, **kwargs):
         """
-            Fetch image details from Glance based on the image_id.
-            :param image_id: ID of the image to retrieve.
-            :return: Dictionary with visibility and owner details of the image.
-            :rtype: dict
+            Render the template on GET request.
+            :param HttpRequest request: The incoming HTTP GET request.
+            :return: Rendered HTML response.
         """
-        try:
-            image = glance.image_get(self.request, image_id)
-            return {'visibility': image.visibility, 'owner': image.owner}
-        except Exception as e:
-            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
-            return {}
+        context = self.get_context_data()
+        return render(request, self.template_name, context)
 
-    def get_app_template(self):
+    def post(self, request, *args, **kwargs):
         """
-            Fetch a specific app template from the external database using token authentication.
-            :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
-            :rtype: dict
-        """
-        token_id = get_token_id(self.request)
-        headers = {"X-Auth-Token": token_id}
-
-        try:
-            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
-                template_id=self.kwargs['template_id']),
-                headers=headers, timeout=10))
-
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            logging.error("Unable to retrieve app template details: %s", e)
-            return {}
-
-    def put(self, request, *args, **kwargs):
-        """
-        Handle PUT requests to update an app template by sending data to the backend API.
+        Handle POST requests to create a new app template by sending data to the backend API.
         """
         token_id = get_token_id(request)
-        headers = {"X-Auth-Token": token_id, "Content-Type": "application/json"}
+        headers = {"X-Auth-Token": token_id}
 
-        # JSON-Daten aus der Anfrage parsen
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format"}, status=400)
-
+        data = {
+            'image_id': request.POST.get('image_id'),
+            'name': request.POST.get('name'),
+            'description': request.POST.get('description'),
+            'short_description': request.POST.get('short_description'),
+            'instantiation_notice': request.POST.get('instantiation_notice'),
+            'public': request.POST.get('public'),
+            'version': request.POST.get('version'),
+            'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
+            'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
+            'fixed_cores': request.POST.get('fixed_cores'),
+            'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
+            'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
+            'per_user_cores': request.POST.get('per_user_cores'),
+        }
         app_template_id = kwargs.get("pk")  # ID aus der URL holen
 
         if not app_template_id:
@@ -374,21 +346,55 @@ class EditView(generic.TemplateView):
 
         try:
             response = requests.put(
-                f"{API_ENDPOINTS['app_templates_update']}{app_template_id}/",
-                json=data,
-                headers=headers,
-                timeout=10,
+                    f"{API_ENDPOINTS['app_templates_update']}{app_template_id}/",
+                    json=data,
+                    headers=headers,
+                    timeout=10,
             )
-
-            if response.status_code in [200, 204]:
-                return JsonResponse({"message": "App-Template updated successfully."}, status=200)
+            if response.status_code == 201:
+                modal_message = _("App-Template created successfully.")
+                messages.success(request, f"App Template created successfully.")
             else:
+                modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                return JsonResponse({"error": response.text}, status=response.status_code)
-
+                messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            return JsonResponse({"error": "Failed to update App-Template. Please try again."}, status=500)
+            modal_message = _("Failed to create App-Template. Please try again.")
+
+        context = self.get_context_data(modal_message=modal_message)
+        return render(request, self.template_name, context)
+
+    def get_context_data(self, **kwargs):
+        """
+            Add available images to the context for template selection.
+            :param kwargs: Additional context parameters.
+            :return: Context dictionary with available images.
+            :rtype: dict
+        """
+        context = {}
+        glance_images = self.get_images_data()
+        context['images'] = [(image.id, image.name) for image in glance_images]
+        return context
+
+    def get_images_data(self):
+        """
+        Fetch the images from the Glance API using the Horizon API.
+
+        :return: List of images retrieved from Glance, or an empty list if retrieval fails.
+        :rtype: list
+        """
+        try:
+            filters = {}
+            images, has_more_data, has_prev_data = glance.image_list_detailed(
+                self.request,
+                filters=filters,
+                paginate=True
+            )
+            return images
+        except Exception as e:
+            logging.error(f"Unable to retrieve images: {e}")
+            return []
 
 
 def generate_pdf(accounts, name):
