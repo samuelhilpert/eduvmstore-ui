@@ -526,6 +526,7 @@ class InstancesView(generic.TemplateView):
                     user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
                     metadata[f"user_{index+1}"] = user_data
 
+
                 nova.server_create(
                     request,
                     name=instance_name,
@@ -614,24 +615,19 @@ class InstancesView(generic.TemplateView):
         return instantiation_attribute
 
     def extract_accounts_from_form_new(self, request, instance_id):
-        """ Extrahiert Accounts für eine bestimmte Instanz aus dem POST-Request. """
         accounts = []
-        expected_fields = self.get_expected_fields()  # Erwartete Felder aus dem App-Template
+        expected_fields = self.get_expected_fields()
 
-        # Holt alle relevanten Felder aus dem Request für die spezifische Instanz
-        extracted_data = {
-            field: request.POST.getlist(f"{field}_{instance_id}") for field in expected_fields
-        }
+        extracted_data = {field: request.POST.getlist(f"{field}_{instance_id}[]") for field in expected_fields}
 
-        # Anzahl der Accounts bestimmen (nimmt die längste Liste als Referenz)
-        num_accounts = max(len(values) for values in extracted_data.values() if values)
+        num_entries = len(next(iter(extracted_data.values()), []))
 
-        # Accounts zusammenstellen
-        for i in range(num_accounts):
-            account = {field: extracted_data[field][i] if i < len(extracted_data[field]) else "N/A" for field in expected_fields}
+        for i in range(num_entries):
+            account = {field: extracted_data[field][i] for field in expected_fields}
             accounts.append(account)
 
         return accounts
+
 
 
 
