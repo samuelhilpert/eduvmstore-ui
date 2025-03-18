@@ -476,6 +476,7 @@ class InstancesView(generic.TemplateView):
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
+            request.session["num_instances"] = num_instances
 
 
             security_groups = ["default"]
@@ -742,9 +743,7 @@ class InstanceSuccessView(generic.TemplateView):
                 for i in range(1, num_instances + 1):
                     private_key = request.session.get(f"private_key_{i}")
                     keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
-
-                    if private_key:
-                        zip_file.writestr(f"{keypair_name}.pem", private_key)
+                    zip_file.writestr(f"{keypair_name}.pem", private_key)
 
         zip_buffer.seek(0)
 
