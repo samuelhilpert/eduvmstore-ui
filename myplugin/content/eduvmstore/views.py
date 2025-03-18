@@ -22,7 +22,8 @@ from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import io
-import os
+import zipfile
+from io import BytesIO
 
 from django.urls import reverse
 from django.views import View
@@ -608,20 +609,28 @@ class InstancesView(generic.TemplateView):
         instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
         return instantiation_attribute
 
-    def extract_accounts_from_form_new(self, request):
+    def extract_accounts_from_form_new(self, request, instance_id):
+        """ Extrahiert Accounts für eine bestimmte Instanz aus dem POST-Request. """
         accounts = []
-        expected_fields = self.get_expected_fields()  # Erwartete Felder holen
+        expected_fields = self.get_expected_fields()  # Erwartete Felder aus dem App-Template
 
-        extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
-        # extracted_data = {"account_name": ["Alice", "Bob"],"account_password": ["pass123", "secure456"]}
+        # Holt alle relevanten Felder aus dem Request für die spezifische Instanz
+        extracted_data = {field: request.POST.getlist(f"{field}_{instance_id}[]") for field in expected_fields}
 
-        num_entries = len(next(iter(extracted_data.values())))
+        # Prüfen, ob überhaupt Account-Daten für diese Instanz existieren
+        if not extracted_data or not any(extracted_data.values()):
+            return accounts  # Leere Liste zurückgeben, wenn keine Accounts existieren
 
+        # Anzahl der Accounts berechnen (alle Arrays haben die gleiche Länge)
+        num_entries = len(next(iter(extracted_data.values()), []))
+
+        # Accounts zusammenstellen
         for i in range(num_entries):
             account = {field: extracted_data[field][i] for field in expected_fields}
             accounts.append(account)
 
         return accounts
+
 
     def get_networks(self):
         """Fetch networks from Neutron for the current tenant."""
@@ -690,46 +699,58 @@ class InstanceSuccessView(generic.TemplateView):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to generate and return a PDF with user account information.
+        num_instances = request.session.get("num_instances", 1)
+        separate_keys = request.session.get("separate_keys", False)
 
-        :param request: The incoming HTTP POST request.
-        :type request: HttpRequest
-        :param args: Additional positional arguments.
-        :param kwargs: Additional keyword arguments.
-        :return: HTTP response containing the generated PDF file.
-        :rtype: HttpResponse
-        """
-        accounts = request.session.get("accounts", [])
-        name = request.session.get("instance_name", [])
-        app_template = request.session.get("app_template", [])
-        created = request.session.get("created", [])
-        pdf_response = generate_pdf(accounts, name, app_template, created)
-        del request.session["accounts"]
-        del request.session["instance_name"]
-        del request.session["app_template"]
-        del request.session["created"]
-        return pdf_response
+        zip_buffer = BytesIO()
 
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
 
-class DownloadPrivateKeyView(generic.View):
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to download the private key file.
+            # 1️⃣ **PDFs für jede Instanz generieren und zur ZIP-Datei hinzufügen**
+            for i in range(1, num_instances + 1):
+                accounts = request.session.get(f"accounts_{i}", [])
+                name = request.session.get(f"names_{i}", f"Instance-{i}")
+                app_template = request.session.get("app_template", [])
+                created = request.session.get("created", [])
 
-        The private key is stored in the session and returned as a file download.
-        """
-        private_key = request.session.get("private_key")
-        keypair_name = request.session.get("keypair_name", "instance_key")
+                pdf_content = generate_pdf(accounts, name, app_template, created)
+                zip_file.writestr(f"{name}.pdf", pdf_content)
 
-        if not private_key:
-            return HttpResponse("No private key found.", status=404)
+            # 2️⃣ **Private Keys zur ZIP hinzufügen**
+            if not separate_keys:
+                # Ein gemeinsamer Schlüssel für alle Instanzen
+                private_key = request.session.get("private_key")
+                keypair_name = request.session.get("keypair_name", "instance_key")
 
-        response = HttpResponse(private_key, content_type="application/x-pem-file")
-        response["Content-Disposition"] = f'attachment; filename="{keypair_name}.pem"'
+                if private_key:
+                    zip_file.writestr(f"{keypair_name}.pem", private_key)
 
+            else:
+                # Separater Schlüssel für jede Instanz
+                for i in range(1, num_instances + 1):
+                    private_key = request.session.get(f"private_key_{i}")
+                    keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
 
-        del request.session["private_key"]
-        del request.session["keypair_name"]
+                    if private_key:
+                        zip_file.writestr(f"{keypair_name}.pem", private_key)
+
+        zip_buffer.seek(0)
+
+        response = HttpResponse(zip_buffer, content_type="application/zip")
+        response["Content-Disposition"] = 'attachment; filename="instances_data.zip"'
+
+        # 3️⃣ **Session-Daten bereinigen nach dem Download**
+        for i in range(1, num_instances + 1):
+            request.session.pop(f"accounts_{i}", None)
+            request.session.pop(f"names_{i}", None)
+            request.session.pop(f"private_key_{i}", None)
+            request.session.pop(f"keypair_name_{i}", None)
+
+        request.session.pop("private_key", None)
+        request.session.pop("keypair_name", None)
+        request.session.pop("separate_keys", None)
+        request.session.pop("num_instances", None)
+        request.session.pop("app_template", None)
+        request.session.pop("created", None)
 
         return response
