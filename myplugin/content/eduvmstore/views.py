@@ -367,34 +367,55 @@ class EditView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-            Add available images to the context for template selection.
+            Add app template and image data to the context.
             :param kwargs: Additional context parameters.
-            :return: Context dictionary with available images.
+            :return: Context dictionary with app template and image details.
             :rtype: dict
         """
-        context = {}
-        glance_images = self.get_images_data()
-        context['images'] = [(image.id, image.name) for image in glance_images]
+        context = super().get_context_data(**kwargs)
+        app_template = self.get_app_template()
+        image_data = self.get_image_data(app_template.get('image_id', ''))
+        context.update({
+            'app_template': app_template,
+            'image_visibility': image_data.get('visibility', 'N/A'),
+            'image_owner': image_data.get('owner', 'N/A'),
+        })
         return context
 
-    def get_images_data(self):
+    def get_app_template(self):
         """
-        Fetch the images from the Glance API using the Horizon API.
+            Fetch a specific app template from the external database using token authentication.
+            :param token_id: Authentication token for API access.
+            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :rtype: dict
+        """
+        token_id = get_token_id(self.request)
+        headers = {"X-Auth-Token": token_id}
 
-        :return: List of images retrieved from Glance, or an empty list if retrieval fails.
-        :rtype: list
+        try:
+            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                template_id=self.kwargs['template_id']),
+                headers=headers, timeout=10))
+
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
+
+    def get_image_data(self, image_id):
+        """
+            Fetch image details from Glance based on the image_id.
+            :param image_id: ID of the image to retrieve.
+            :return: Dictionary with visibility and owner details of the image.
+            :rtype: dict
         """
         try:
-            filters = {}
-            images, has_more_data, has_prev_data = glance.image_list_detailed(
-                self.request,
-                filters=filters,
-                paginate=True
-            )
-            return images
+            image = glance.image_get(self.request, image_id)
+            return {'visibility': image.visibility, 'owner': image.owner}
         except Exception as e:
-            logging.error(f"Unable to retrieve images: {e}")
-            return []
+            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+            return {}
 
 
 def generate_pdf(accounts, name):
