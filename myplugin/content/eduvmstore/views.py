@@ -331,6 +331,12 @@ class EditView(generic.TemplateView):
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
+            'approved': True,
+            'script': "blabla",
+            'account_attributes': [
+                {"name": "Username"},
+                {"name": "Password"},
+            ],
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
