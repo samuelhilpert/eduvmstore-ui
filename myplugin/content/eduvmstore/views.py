@@ -518,7 +518,7 @@ class InstancesView(generic.TemplateView):
 
                 for index, account in enumerate(accounts):
                     user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                    metadata[f"user_{index+1}"] = user_datas
+                    metadata[f"user_{index+1}"] = user_data
 
 
                 nova.server_create(
