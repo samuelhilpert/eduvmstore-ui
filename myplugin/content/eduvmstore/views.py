@@ -522,6 +522,10 @@ class InstancesView(generic.TemplateView):
                     request.session[f"private_key_{i}"] = private_key
                     request.session[f"keypair_name_{i}"] = keypair_name
 
+                for index, account in enumerate(accounts):
+                    user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
+                    metadata[f"user_{index+1}"] = user_data
+
                 nova.server_create(
                     request,
                     name=instance_name,
