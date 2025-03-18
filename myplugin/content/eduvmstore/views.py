@@ -478,11 +478,23 @@ class InstancesView(generic.TemplateView):
             request.session["created"] = created
             request.session["num_instances"] = num_instances
 
+            separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
+            request.session["separate_keys"] = separate_keys
+
 
             security_groups = ["default"]
             metadata = {"app_template": app_template_name}
 
             instances = []
+            shared_keypair_name = f"{base_name}_shared_key"
+            shared_private_key = None
+
+            if not separate_keys:
+                keypair = nova.keypair_create(request, name=shared_keypair_name)
+                shared_private_key = keypair.private_key
+                request.session["private_key"] = shared_private_key
+                request.session["keypair_name"] = shared_keypair_name
+
             for i in range(1, num_instances + 1):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
@@ -496,7 +508,6 @@ class InstancesView(generic.TemplateView):
 
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
-                request.session["separate_keys"] = "false"
 
                 description = self.format_description(app_template_description)
 
@@ -513,20 +524,17 @@ class InstancesView(generic.TemplateView):
                     user_data = generate_cloud_config(accounts, script)
 
 
-
                 nics = [{"net-id": network_id}]
-                keypair_name = f"{instance_name}_keypair"
-
-                # Check existing keys to prevent duplicate creation
-                existing_keys = nova.keypair_list(request)
-                existing_key_names = [key.name for key in existing_keys]
-
-                if keypair_name not in existing_key_names:
+                if separate_keys:
+                    keypair_name = f"{instance_name}_keypair"
                     keypair = nova.keypair_create(request, name=keypair_name)
                     private_key = keypair.private_key
 
                     request.session[f"private_key_{i}"] = private_key
                     request.session[f"keypair_name_{i}"] = keypair_name
+                else:
+                    keypair_name = shared_keypair_name
+
 
                 for index, account in enumerate(accounts):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])

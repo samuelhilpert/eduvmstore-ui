@@ -38,6 +38,14 @@
         <input type="number" class="form-control" id="num_instances" name="num_instances" min="1" value="1" required>
     </div>
 
+    <div class="form-group">
+        <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}</label>
+        <select class="form-control" id="separate_keys" name="separate_keys">
+            <option value="false" selected>{{ _("No, use one key for all") }}</option>
+            <option value="true">{{ _("Yes, generate separate keys") }}</option>
+        </select>
+    </div>
+
     <!-- Navigation für Instanzen -->
     <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
 
