@@ -353,22 +353,22 @@ class EditView(generic.TemplateView):
         update_url = API_ENDPOINTS['app_templates_update'].format(template_id=app_template_id)
 
         try:
-            response = requests.put(
+            response = requests.post(
                     update_url,
                     json=data,
                     headers=headers,
                     timeout=10,
             )
             if response.status_code == 201:
-                modal_message = _("App-Template created successfully.")
-                messages.success(request, f"App Template created successfully.")
+                modal_message = _("App-Template updated successfully.")
+                messages.success(request, f"App Template updated successfully.")
             else:
-                modal_message = _("Failed to create App-Template. Please try again.")
+                modal_message = _("Failed to update App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                messages.error(request, f"Failed to create App-Template. {response.text}")
+                messages.error(request, f"Failed to update App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            modal_message = _("Failed to create App-Template. Please try again.")
+            modal_message = _("Failed to update App-Template. Please try again.")
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
