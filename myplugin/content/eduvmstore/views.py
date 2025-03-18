@@ -319,6 +319,20 @@ class EditView(generic.TemplateView):
         })
         return context
 
+    def get_image_data(self, image_id):
+        """
+            Fetch image details from Glance based on the image_id.
+            :param image_id: ID of the image to retrieve.
+            :return: Dictionary with visibility and owner details of the image.
+            :rtype: dict
+        """
+        try:
+            image = glance.image_get(self.request, image_id)
+            return {'visibility': image.visibility, 'owner': image.owner}
+        except Exception as e:
+            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+            return {}
+
     def get_app_template(self):
         """
             Fetch a specific app template from the external database using token authentication.
