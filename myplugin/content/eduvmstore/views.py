@@ -598,52 +598,80 @@ class InstancesView(generic.TemplateView):
         try:
             # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
+            if not flavors:
+                logging.error("No flavors returned from Nova API.")
+                return {}
+
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
+            logging.info(f"Found {len(flavors)} flavors.")
 
             # Fetch available resources from Nova (limits)
             nova_limits = api.nova.tenant_absolute_limits(self.request)
-            total_available_ram = nova_limits.get('maxTotalRAMSize', 0)  # Total available RAM in MB
-            total_available_cores = nova_limits.get('maxTotalCores', 0)  # Total available CPU cores
-            total_available_instances = nova_limits.get('maxTotalInstances', 0)  # Total available instances
+            total_available_ram = nova_limits.get('maxTotalRAMSize', 0)  # MB
+            total_available_cores = nova_limits.get('maxTotalCores', 0)
+            total_available_instances = nova_limits.get('maxTotalInstances', 0)
+            total_used_ram = nova_limits.get('totalRAMUsed', 0)
+            total_used_cores = nova_limits.get('totalCoresUsed', 0)
+
+            # Calculate remaining resources
+            available_ram = total_available_ram - total_used_ram  # in MB
+            available_cores = total_available_cores - total_used_cores
+
+            logging.info(
+                f"Available resources - RAM: {available_ram} MB, Cores: {available_cores}, Instances: {total_available_instances}")
 
             # Fetch used storage from Cinder (limits)
             cinder_limits = api.cinder.tenant_absolute_limits(self.request)
-            used_disk = cinder_limits.get('totalGigabytesUsed', 0)  # Total used disk in GB
-            total_disk_limit = cinder_limits.get('maxTotalVolumeGigabytes', 0)  # Total available disk limit in GB
-            total_available_disk = total_disk_limit - used_disk  # Calculate available disk
+            used_disk = cinder_limits.get('totalGigabytesUsed')
+            total_disk_limit = cinder_limits.get('maxTotalVolumeGigabytes')
+            available_disk = total_disk_limit - used_disk  # in GB
 
-            # Extract fixed resource requirements from the app template
-            fixed_ram_gb = app_template.get('fixed_ram_gb', 0)
-            fixed_disk_gb = app_template.get('fixed_disk_gb', 0)
-            fixed_cores = app_template.get('fixed_cores', 0)
+            logging.info(f"Available Disk: {available_disk} GB")
 
-            # Convert fixed RAM from GB to MB (OpenStack uses MB for RAM)
-            fixed_ram_mb = fixed_ram_gb * 1024
+            # Extract system requirements from app_template
+            required_ram_gb = app_template.get('fixed_ram_gb')
+            required_disk_gb = app_template.get('fixed_disk_gb')
+            required_cores = app_template.get('fixed_cores')
 
-            # Collect all flavors that meet the fixed requirements and do not exceed available resources
+            # Convert required RAM to MB (as Nova uses MB)
+            required_ram_mb = required_ram_gb * 1024
+
+            # Store suitable flavors
             suitable_flavors = {}
+
             for flavor_id, flavor in flavor_dict.items():
                 if (
-                        flavor.ram >= fixed_ram_mb and
-                        flavor.disk >= fixed_disk_gb and
-                        flavor.vcpus >= fixed_cores and
-                        flavor.ram <= total_available_ram and
-                        flavor.disk <= total_available_disk and
-                        flavor.vcpus <= total_available_cores
+                        flavor.ram >= required_ram_mb and
+                        flavor.disk >= required_disk_gb and
+                        flavor.vcpus >= required_cores and
+                        flavor.ram <= available_ram and
+                        flavor.vcpus <= available_cores and
+                        flavor.disk <= available_disk
                 ):
                     suitable_flavors[flavor_id] = flavor.name
 
-            # Return all flavors, suitable flavors, and resource information
-            return {
-                'all_flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
+            # Check if at least one suitable flavor is found
+            if not suitable_flavors:
+                logging.warning("No suitable flavors found for the given requirements.")
+
+            # Automatically select the first suitable flavor if exists
+            selected_flavor = next(iter(suitable_flavors.keys()), None)
+
+            # Return flavor information
+            result = {
+                'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
                 'suitable_flavors': suitable_flavors,
-                'required_ram': fixed_ram_gb,
-                'required_disk': fixed_disk_gb,
-                'required_cores': fixed_cores,
-                'available_ram': total_available_ram // 1024,  # Convert MB back to GB for display
-                'available_disk': total_available_disk,
-                'available_cores': total_available_cores,
+                'selected_flavor': selected_flavor,
+                'required_ram': required_ram_gb,
+                'required_disk': required_disk_gb,
+                'required_cores': required_cores,
+                'available_ram': available_ram // 1024,  # Convert MB to GB for display
+                'available_disk': available_disk,
+                'available_cores': available_cores,
             }
+
+            logging.info(f"Returning flavor data: {result}")
+            return result
 
         except Exception as e:
             logging.error(f"Error in get_flavors: {e}")
