@@ -29,14 +29,13 @@
     <!-- Basis-Instanzname -->
     <div class="form-group">
         <label for="instances_name">{{ _("Instance Name") }}</label>
-        <input type="text" class="form-control" id="instances_name" name="instances_name"
-               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
+        <input type="text" class="form-control" id="instances_name" name="instances_name" placeholder="{{ _('Enter instance name') }}" required>
     </div>
 
     <!-- Anzahl der Instanzen -->
     <div class="form-group">
         <label for="num_instances">{{ _("Number of Instances") }}</label>
-        <input type="text" class="form-control" id="num_instances" name="num_instances" pattern="^[1-9][0-9]?$|^100$" placeholder="1-100" required>
+        <input type="number" class="form-control" id="num_instances" name="num_instances" min="1" value="1" required>
     </div>
 
     <div class="form-group">
@@ -47,41 +46,11 @@
         </select>
     </div>
 
-    <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="generalTab" data-toggle="tab" href="#generalContent" role="tab">
-                {{ _("General Settings") }}
-            </a>
-        </li>
-    </ul>
-
     <!-- Navigation für Instanzen -->
-    <div class="tab-content mt-3" id="instancesContainer">
-        <div class="tab-pane show active" id="generalContent" role="tabpanel">
-            <h4>{{ _("General Settings") }}</h4>
-            <p>{{ _("These settings will be applied to all instances by default. You can overwrite them in each instance tab.") }}</p>
+    <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
 
-            <div class="form-group">
-                <label for="general_flavor">{{ _("Select Flavor") }}</label>
-                <select class="form-control" id="general_flavor">
-                    <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-                    {% for flavor_id, flavor_name in flavors.items %}
-                        <option value="{{ flavor_id }}">{{ flavor_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="general_network">{{ _("Select Network") }}</label>
-                <select class="form-control" id="general_network">
-                    <option value="" disabled selected>{{ _("Choose a network") }}</option>
-                    {% for network_id, network_name in networks.items %}
-                        <option value="{{ network_id }}">{{ network_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-    </div>
+    <!-- Container für Instanzen -->
+    <div class="tab-content mt-3" id="instancesContainer"></div>
 
      <div style="margin-top: 20px; margin-bottom: 20px;">
             <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
@@ -174,27 +143,33 @@
                 instanceTabs.innerHTML += `
             <li class="nav-item">
                 <a class="nav-link ${i === 1 ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
-                    ${instanceName}
+                    Instance ${i}
                 </a>
             </li>
         `;
 
                 instancesContainer.innerHTML += `
             <div class="tab-pane ${i === 1 ? 'show active' : ''}" id="${contentId}" role="tabpanel">
-                <h4>${instanceName}</h4>
+                <h4 id="instanceTitle_${i}">${instanceName}</h4> <!-- Dynamischer Titel -->
                 <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
 
                 <div class="form-group">
                     <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
                     <select class="form-control" id="flavor_id_${i}" name="flavor_id_${i}" required>
-                        ${document.getElementById("general_flavor").innerHTML}
+                        <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+                        {% for flavor_id, flavor_name in flavors.items %}
+                            <option value="{{ flavor_id }}">{{ flavor_name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label for="network_id_${i}">{{ _("Select Network") }}</label>
                     <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
-                        ${document.getElementById("general_network").innerHTML}
+                        <option value="" disabled selected>{{ _("Choose a network") }}</option>
+                        {% for network_id, network_name in networks.items %}
+                            <option value="{{ network_id }}">{{ network_name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
