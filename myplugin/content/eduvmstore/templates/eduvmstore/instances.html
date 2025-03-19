@@ -262,8 +262,8 @@
 
 <!-- Flavor Selection -->
 <div class="form-group">
-    <label for="flavor_id_{{ i }}">{{ _("Select Flavor") }}</label>
-    <select class="form-control flavor-dropdown" id="flavor_id_{{ i }}" name="flavor_id_{{ i }}" required>
+    <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
+    <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
         {% if flavors.suitable_flavors %}
             <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
             {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
