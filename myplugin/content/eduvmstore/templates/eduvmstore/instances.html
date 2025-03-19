@@ -254,7 +254,6 @@
                 let instanceName = baseName ? `${baseName}-${i}` : "";
                 const tabId = `instanceTab_${i}`;
                 const contentId = `instanceContent_${i}`;
-                addInstanceFields(i);
 
                 instanceTabs.innerHTML += `
             <li class="nav-item">
@@ -319,9 +318,11 @@
                     <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                 </div>
 
-                <div id="instantiation_section_${i}" style="disyplay: none;">
+                <div id="instantiation_section_${i}">
                     <h4>{{ _("Instantiation Attributes") }}</h4>
-                    <div id="dynamic_instantiation_container_${i}"></div>
+                    <div id="dynamic_instantiation_container_${i}" class="card p-3" style="border: 1px solid #ccc; border-radius: 5px;">
+                        ${generateInstantiationFields(i)}
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-3">
@@ -448,33 +449,19 @@
             });
         }
 
-        function addInstanceFields(instanceId) {
-            let instanceContainer = document.getElementById(`dynamic_instantiation_container_${instanceId}`);
-            if (!instanceContainer) return;
-
-            let instanceCounter = instanceContainer.childElementCount + 1;
-            let instanceSection = document.createElement("div");
-            instanceSection.classList.add("card", "p-3", "mb-3");
-            instanceSection.setAttribute("id", `account_${instanceId}_${accountCounter}`);
-            instanceSection.style.border = "1px solid #ccc";
-            instanceSection.style.borderRadius = "5px";
-            instanceSection.style.padding = "15px";
-
-            let fieldsHtmlInstance = `<h5>Instantiation Attributes</h5>`;
+        function generateInstantiationFields(instanceId) {
+            let fieldsHtmlInstance = ``;
             instantiationAttribute.forEach(attr => {
                 fieldsHtmlInstance += `
             <div class="form-group md-5">
-                <label for="${attr}_${instanceId}_${instanceCounter}">${attr}</label>
-                <input type="text" class="form-control" id="${attr}_${instanceId}_${instanceCounter}_instantiation" name="${attr}_${instanceId}_instantiation[]" required>
+                <label for="${attr}_${instanceId}">${attr}</label>
+                <input type="text" class="form-control" id="${attr}_${instanceId}" name="${attr}_${instanceId}" required>
             </div>
         `;
             });
-
-
-            instanceSection.innerHTML = fieldsHtmlInstance;
-            instanceContainer.appendChild(instanceSection);
-
+            return fieldsHtmlInstance;
         }
+
         {% if modal_message %}
             $(document).ready(function () {
                 $('#responseModal').modal('show');
