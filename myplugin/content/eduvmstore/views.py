@@ -365,8 +365,22 @@ class EditView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle PUT requests to update an app template by sending data to the backend API.
+        Handle POST requests to update an existing app template.
+
+        This method processes the form data submitted via POST request to update an existing app template
+        by sending the updated data to the backend API. It handles the extraction of instantiation and account
+        attributes, constructs the data payload, and makes a PUT request to the API endpoint.
+
+        :param request: The incoming HTTP request containing form data.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return: Rendered HTML response with the updated app template details or an error message.
+        :rtype: HttpResponse
         """
+
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
