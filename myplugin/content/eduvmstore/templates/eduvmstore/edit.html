@@ -302,6 +302,16 @@ write_files:
  </div>
 
 <script>
+
+    function saveScript() {
+        // Get the script text from the textarea
+        scriptTextArea = document.getElementById('scriptText').value;
+        // Store it in the hidden input field
+        document.getElementById('hiddenScriptField').value = scriptTextArea;
+        // Close the modal
+        closeModal();
+    }
+
     let accountAttributes = {{ app_template.account_attributes|safe }};
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("account_attributes").value = formattedAccounts;
@@ -341,14 +351,6 @@ write_files:
         document.getElementById('scriptModal').style.display = 'none';
     }
 
-    function saveScript() {
-        // Get the script text from the textarea
-        scriptTextArea = document.getElementById('scriptText').value;
-        // Store it in the hidden input field
-        document.getElementById('hiddenScriptField').value = scriptTextArea;
-        // Close the modal
-        closeModal();
-    }
 
 
 
