@@ -225,6 +225,10 @@
                 <label for="instantiation_attributes">Instantiation Attributes:</label>
                 <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" >
             </div>
+            <div class="col-md-4">
+                <label for="account_attributes">Account Attributes:</label>
+                <input type="text" id="account_attributes" name="account_attributes" class="form-control" >
+            </div>
 
             <div class="col-md-4">
                 <label for="script_file">Upload Script:</label>
@@ -310,7 +314,7 @@ write_files:
 
 
     function openModal() {
-        let accountStructure = document.getElementById("instantiation_attributes").value;
+        let accountStructure = document.getElementById("account_attributes").value;
         document.getElementById("scriptContent").innerText = accountStructure;
         document.getElementById('scriptModal').style.display = 'block';
     }

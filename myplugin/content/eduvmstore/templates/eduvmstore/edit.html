@@ -234,8 +234,8 @@
              </div>
 
              <div class="col-md-4">
-                 <label for="script_file">Upload Script:</label>
-                 <input type="file" id="script_file" value="{{ app_template.script}}" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
+                 <label for="account_attributes">Account Attributes:</label>
+                 <input type="text" id="account_attributes" name="account_attributes" class="form-control" >
              </div>
 
              <div class="col-md-4 d-flex align-items-end">
@@ -405,8 +405,12 @@
     }
 
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-    let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
-    document.getElementById("instantiation_attributes").value = formattedAccounts;
+    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("instantiation_attributes").value = formattedInstantiation;
+
+    let accountAttributes = {{ app_template.account_attributes|safe }};
+    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+    document.getElementById("account_attributes").value = formattedAccounts;
 
 
 

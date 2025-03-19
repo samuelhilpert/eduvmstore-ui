@@ -219,6 +219,10 @@ write_files:
             <div class="col-md-6">
                 <div class="detail-group">
                     <strong>Instantiation Attributes:</strong>
+                    <p id="structured-instantiation"></p>
+                </div>
+                <div class="detail-group">
+                    <strong>Account Attributes:</strong>
                     <p id="structured-accounts"></p>
                 </div>
             </div>
@@ -226,10 +230,14 @@ write_files:
     </div>
 
     <script>
-        let accountAttributes = {{ app_template.instantiation_attributes|safe }};
+        let accountAttributes = {{ app_template.account_attributes|safe }};
         let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
         document.getElementById("formatted-accounts").textContent = formattedAccounts;
         document.getElementById("structured-accounts").textContent = formattedAccounts;
+
+        let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+        let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
+        document.getElementById("structured-instantiation").textContent = formattedInstatiation;
     </script>
 
 

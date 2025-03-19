@@ -264,6 +264,16 @@ class CreateView(generic.TemplateView):
         else:
             instantiation_attributes = []
 
+        account_attribute_raw = request.POST.get('account_attributes', '').strip()
+        if account_attribute_raw:
+            account_attributes = [
+                {"name": attr.strip()}
+                for attr in account_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            account_attributes = []
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -272,6 +282,7 @@ class CreateView(generic.TemplateView):
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'script': request.POST.get('hiddenScriptField'),
             'instantiation_attributes' : instantiation_attributes,
+            'account_attributes' : account_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -369,6 +380,16 @@ class EditView(generic.TemplateView):
         else:
             instantiation_attributes = []
 
+        account_attribute_raw = request.POST.get('account_attributes', '').strip()
+        if account_attribute_raw:
+            account_attributes = [
+                {"name": attr.strip()}
+                for attr in account_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            account_attributes = []
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -379,6 +400,7 @@ class EditView(generic.TemplateView):
             'approved': request.POST.get('approved'),
             'script': request.POST.get('script'),
             'instantiation_attributes': instantiation_attributes,
+            'account_attributes': account_attributes,
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
@@ -468,7 +490,7 @@ class EditView(generic.TemplateView):
             return {}
 
 
-def generate_pdf(accounts, name, app_template, created):
+def generate_pdf(accounts, name, app_template, created, instantiation):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
 
@@ -490,8 +512,9 @@ def generate_pdf(accounts, name, app_template, created):
 
     subtitle = Paragraph(
         f"Instantiation Attributes for the created instance {name} from the EduVMStore. "
-        f"This instance was created with the app template {app_template} on {created}.",
+        f"This instance was created with the app template {app_template} on {created}. {instantiation}",
         styles['Normal']
+
     )
     elements.append(subtitle)
     elements.append(Spacer(1, 0.2 * inch))
@@ -642,6 +665,7 @@ class InstancesView(generic.TemplateView):
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
                 accounts = []
+                instantiations = []
 
 
                 no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
@@ -655,7 +679,11 @@ class InstancesView(generic.TemplateView):
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
 
+                instantiations = self.extract_accounts_from_form_instantiation(request, i)
+                request.session[f"instantiations_{i}"] = instantiations
+
                 description = self.format_description(app_template_description)
+
 
 
                 if not script and not accounts:
@@ -737,6 +765,8 @@ class InstancesView(generic.TemplateView):
 
         context['expected_account_fields'] = self.get_expected_fields()
 
+        context['expected_instantiation_fields'] = self.get_expected_fields_instantiation()
+
         return context
 
     #def get_flavors(self, ):
@@ -815,7 +845,7 @@ class InstancesView(generic.TemplateView):
         """
         Retrieve the expected fields for account creation from the app template.
 
-        This function fetches the app template and extracts the instantiation attributes,
+        This function fetches the app template and extracts the account attributes,
         which are the expected fields for account creation.
 
         :return: A list of expected field names for account creation.
@@ -823,10 +853,10 @@ class InstancesView(generic.TemplateView):
         """
         app_template = self.get_app_template()
 
-        instantiation_attributes = app_template.get('instantiation_attributes')
+        account_attributes = app_template.get('account_attributes')
 
-        instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
-        return instantiation_attribute
+        account_attribute = [attr['name'] for attr in account_attributes]
+        return account_attribute
 
     def extract_accounts_from_form_new(self, request, instance_id):
         """
@@ -859,6 +889,55 @@ class InstancesView(generic.TemplateView):
             accounts.append(account)
 
         return accounts
+
+    def get_expected_fields_instantiation(self):
+        """
+        Retrieve the expected fields for account creation from the app template.
+
+        This function fetches the app template and extracts the instantiation attributes,
+        which are the expected fields for account creation.
+
+        :return: A list of expected field names for account creation.
+        :rtype: list
+        """
+        app_template = self.get_app_template()
+
+        instantiation_attributes = app_template.get('instantiation_attributes')
+
+        instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
+        return instantiation_attribute
+
+    def extract_accounts_from_form_instantiation(self, request, instance_id):
+        """
+        Extract account information from the form data for a specific instance.
+
+        This function retrieves the expected fields for account creation, extracts the corresponding
+        data from the POST request for the specified instance, and compiles it into a list of account
+        dictionaries.
+
+        :param request: The incoming HTTP request containing form data.
+        :type request: HttpRequest
+        :param instance_id: The ID of the instance for which to extract account data.
+        :type instance_id: int
+        :return: A list of dictionaries, each containing account information for the specified instance.
+        :rtype: list
+        """
+        instantiations = []
+        expected_fields = self.get_expected_fields_instantiation()
+
+        extracted_data = {
+            field: request.POST.getlist(f"{field}_{instance_id}[]")
+            for field in expected_fields
+        }
+
+
+        num_entries = len(next(iter(extracted_data.values()), []))
+
+        for i in range(num_entries):
+            instantiation = {field: extracted_data[field][i] for field in expected_fields}
+            instantiations.append(instantiation)
+
+        return instantiations
 
 
 
@@ -972,9 +1051,10 @@ class InstanceSuccessView(generic.TemplateView):
                 name = request.session.get(f"names_{i}", f"Instance-{i}")
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
+                instantiation = request.session.get(f"instantiations_{i}", [])
 
                 if accounts:
-                    pdf_content = generate_pdf(accounts, name, app_template, created)
+                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             if not separate_keys:
@@ -997,6 +1077,7 @@ class InstanceSuccessView(generic.TemplateView):
 
         for i in range(1, num_instances + 1):
             request.session.pop(f"accounts_{i}", None)
+            request.session.pop(f"instantiations_{i}", None)
             request.session.pop(f"names_{i}", None)
             request.session.pop(f"private_key_{i}", None)
             request.session.pop(f"keypair_name_{i}", None)
