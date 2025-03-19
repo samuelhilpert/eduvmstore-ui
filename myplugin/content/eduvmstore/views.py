@@ -396,11 +396,12 @@ def generate_cloud_config(accounts,backend_script):
     """
         Generate a cloud-config file for user account creation and backend script execution.
 
-        This function creates a cloud-config file that includes user account information and a backend script.
+        This function creates a cloud-config file that includes user account information
+        and a backend script.
 
         :param accounts: A list of dictionaries, where each dictionary contains user account details.
         :type accounts: list
-        :param backend_script: A string containing the backend script to be included in the cloud-config file.
+        :param backend_script: string containing backend script to be included in the cloud-config file.
         :type backend_script: str
         :return: A string representing the complete cloud-config file.
         :rtype: str
@@ -460,7 +461,9 @@ class InstancesView(generic.TemplateView):
         """
         Handle POST requests to create multiple instances.
 
-        This method processes the form data submitted via POST request to create multiple instances based on the provided app template. It handles the creation of key pairs, user data, and metadata for each instance, and initiates the instance creation process using the Nova API.
+        This method processes the form data submitted via POST request to create multiple instances
+        based on the provided app template. It handles the creation of key pairs, user data,
+        and metadata for each instance, and initiates the instance creation process using the Nova API.
 
         :param request: The incoming HTTP request.
         :type request: HttpRequest
@@ -468,7 +471,7 @@ class InstancesView(generic.TemplateView):
         :type args: tuple
         :param kwargs: Additional keyword arguments.
         :type kwargs: dict
-        :return: An HTTP response redirecting to the success page or rendering the form with an error message.
+        :return:HTTP response redirecting to the success page or rendering the form with error message.
         :rtype: HttpResponse
         """
         try:
@@ -812,8 +815,9 @@ class InstanceSuccessView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to generate and return a ZIP file containing PDFs with instance user account information
-        and private keys (either one shared key or separate keys per instance).
+        Handle POST requests to generate and return a ZIP file containing PDFs with
+        instance user account information and private keys (either one shared key or
+        separate keys per instance).
 
         :param request: The incoming HTTP request.
         :type request: HttpRequest
