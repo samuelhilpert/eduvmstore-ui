@@ -16,105 +16,104 @@
  {% block main %}
  <style>
      .form-container {
-         margin: auto;
-     }
-     .form-group {
-         margin-bottom: 20px;
-     }
-     .form-group label {
-         display: block;
-         margin-bottom: 5px;
-         font-weight: bold;
-         color: #495057;
-         font-size: small;
-     }
-     .form-control, .select-box {
-         width: 100%;
-         padding: 10px;
-         border: 1px solid #ccc;
-         border-radius: 4px;
-         font-size: 13px;
-         color: #333;
-     }
- .select-box {
-         appearance: none;
-         background-color: #fff;
-         background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
-         background-repeat: no-repeat;
-         background-position: right 10px center;
-         background-size: 16px 16px;
-         height: 35px;
-         line-height: 1.5;
-         padding-right: 25px;
-         text-align: start;
-         -ms-text-justify: auto;
-     }
-     .select-box:focus, .form-control:focus {
-         border-color: #007bff;
-         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-     }
+        margin: auto;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #495057;
+        font-size: small;
+    }
+    .form-control, .select-box {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #333;
+    }
+.select-box {
+        appearance: none;
+        background-color: #fff;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px 16px;
+        height: 35px;
+        line-height: 1.5;
+        padding-right: 25px;
+        text-align: start;
+        -ms-text-justify: auto;
+    }
+    .select-box:focus, .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
 
-     .modal {
-         display: none;
-         position: fixed;
-         z-index: 1;
-         left: 0;
-         top: 0;
-         width: 100%;
-         height: 100%;
-         overflow: auto;
-         background-color: rgba(0, 0, 0, 0.4);
-         padding-top: 60px;
-     }
-     .modal-content {
-         background-color: #fefefe;
-         margin: 5% auto;
-         padding: 20px;
-         border: 1px solid #888;
-         width: 80%;
-     }
-     .close {
-         color: #aaa;
-         float: right;
-         font-size: 28px;
-         font-weight: bold;
-     }
-     .close:hover, .close:focus {
-         color: black;
-         text-decoration: none;
-         cursor: pointer;
-     }
-     .form-check {
-         display: flex;
-         align-items: center;
-     }
-     .form-check-input {
-         margin-left: 10px;
-     }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+    .form-check-input {
+        margin-left: 10px;
+    }
 
-     .is-valid {
-         border: 2px solid green !important;
-     }
+    .is-valid {
+        border: 2px solid green !important;
+    }
 
-     .is-invalid {
-         border: 2px solid red !important;
-     }
+    .is-invalid {
+        border: 2px solid red !important;
+    }
 
-     .select-box, .form-control {
-         height: auto;
-         line-height: 1.5;
-         padding: 8px 12px;
-         font-size: 14px;
-         box-sizing: border-box;
-         appearance: none;
-     }
+    .select-box, .form-control {
+        height: auto;
+        line-height: 1.5;
+        padding: 8px 12px;
+        font-size: 14px;
+        box-sizing: border-box;
+        appearance: none;
+    }
 
-     .select-box:focus, .form-control:focus {
-         outline: none;
-         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-         border-color: #007bff;
-     }
-
+    .select-box:focus, .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #007bff;
+    }
 
  </style>
 
@@ -123,31 +122,22 @@
          {% csrf_token %}
 
          <h3>App-Template Details</h3>
-     <input hidden="hidden"  name="app_template_id" value="{{ app_template.id }}">
 
+        <div class="col-md-6" hidden="hidden">
+                 <label for="image_id">Image ID:</label>
+                 <input type="text" hidden="hidden"  name="app_template_id" value="{{ app_template.id }}">
+             </div>
         <div class="col-md-6" hidden="hidden">
                  <label for="image_id">Image ID:</label>
                  <input type="text" id="image_id" name="image_id" class="form-control" value="{{ app_template.image_id }}" required>
              </div>
-            <div class="col-md-4">
-                 <label for="script_file">Upload Script:</label>
-                 <input type="file" id="script_file" name="script_file" accept=".csv, .txt" class="form-control-file" >
+     <div class="col-md-6" hidden="hidden">
+                 <label for="approved">Approved:</label>
+                 <input type="text" id="approved" name="approved" class="form-control" value="{{ app_template.approved }}" required>
              </div>
 
-             <div class="col-md-4 d-flex align-items-end">
-                 <button type="button" class="btn btn-primary" onclick="openModal()">Write Script</button>
-             </div>
-         </div>
 
-         <!-- Modal for script input -->
-         <div id="scriptModal" class="modal mt-5">
-             <div class="modal-content">
-                 <span class="close" onclick="closeModal()">×</span>
-                 <h5>Write Script</h5>
-                 <textarea id="scriptText" class="form-control " rows="10"></textarea>
-                 <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
-             </div>
-         </div>
+
 
          <!-- Hidden input to store the script text -->
          <input type="hidden" id="hiddenScriptField" name="script_text" />
@@ -245,7 +235,7 @@
 
              <div class="col-md-4">
                  <label for="script_file">Upload Script:</label>
-                 <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
+                 <input type="file" id="script_file" value="{{ app_template.script}}" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
              </div>
 
              <div class="col-md-4 d-flex align-items-end">
@@ -352,12 +342,7 @@
             modal.style.display = 'none';
         }
     }
-     // Automatically show the modal if modal_message is set
-    {% if modal_message %}
-    $(document).ready(function() {
-        $('#responseModal').modal('show');
-    });
-    {% endif %}
+
 
     function getCookie(name) {
         let cookieValue = null;

@@ -304,7 +304,7 @@ class CreateView(generic.TemplateView):
 
 class EditView(generic.TemplateView):
     """
-    View to handle editing an app template.
+    View to handle editing of an app template.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
 
@@ -317,9 +317,9 @@ class EditView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
-    def post(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         """
-        Handle POST requests to create a new app template by sending data to the backend API.
+        Handle PUT requests to update an app template by sending data to the backend API.
         """
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
@@ -331,12 +331,9 @@ class EditView(generic.TemplateView):
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
-            'approved': True,
-            'script': "blabla",
-            'account_attributes': [
-                {"name": "Username"},
-                {"name": "Password"},
-            ],
+            'approved': request.POST.get('approved'),
+            'script': request.POST.get('script_file'),
+            'account_attributes': request.POST.get('account_attributes'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
