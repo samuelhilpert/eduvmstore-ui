@@ -317,7 +317,7 @@ class EditView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
-    def put(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """
         Handle PUT requests to update an app template by sending data to the backend API.
         """
@@ -332,7 +332,7 @@ class EditView(generic.TemplateView):
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
             'approved': request.POST.get('approved'),
-            'script': request.POST.get('script_file'),
+            'script': request.POST.get('script'),
             'account_attributes': request.POST.get('account_attributes'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
