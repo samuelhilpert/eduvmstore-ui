@@ -359,6 +359,16 @@ class EditView(generic.TemplateView):
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
+        instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
+        if instantiation_attribute_raw:
+            instantiation_attributes = [
+                {"name": attr.strip()}
+                for attr in instantiation_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            instantiation_attributes = []
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -368,7 +378,7 @@ class EditView(generic.TemplateView):
             'public': request.POST.get('public'),
             'approved': request.POST.get('approved'),
             'script': request.POST.get('script'),
-            'instantiation_attributes': request.POST.get('instantiation_attributes'),
+            'instantiation_attributes': instantiation_attributes,
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
