@@ -686,7 +686,11 @@ class InstancesView(generic.TemplateView):
         accounts = []
         expected_fields = self.get_expected_fields()
 
-        extracted_data = {field: request.POST.getlist(f"{field}_{instance_id}[]") for field in expected_fields}
+        extracted_data = {
+            field: request.POST.getlist(f"{field}_{instance_id}[]")
+            for field in expected_fields
+        }
+
 
         num_entries = len(next(iter(extracted_data.values()), []))
 
