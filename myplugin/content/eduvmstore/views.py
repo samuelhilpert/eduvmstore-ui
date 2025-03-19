@@ -368,7 +368,7 @@ class EditView(generic.TemplateView):
             'public': request.POST.get('public'),
             'approved': request.POST.get('approved'),
             'script': request.POST.get('script'),
-            'account_attributes': request.POST.get('account_attributes'),
+            'instantiation_attributes': request.POST.get('instantiation_attributes'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
