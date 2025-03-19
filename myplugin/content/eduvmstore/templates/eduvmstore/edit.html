@@ -321,24 +321,6 @@ write_files:
     document.getElementById("instantiation_attributes").value = formattedInstatiation;
 
 
-    document.getElementById('script_file').addEventListener('change', function(event) {
-        var file = event.target.files[0];
-        if (file) {
-            var reader = new FileReader();
-
-            reader.onload = function(e) {
-                var fileContent = e.target.result;
-
-                document.getElementById('hiddenScriptField').value = fileContent;
-
-                document.getElementById('scriptText').value = fileContent;
-            };
-
-            reader.readAsText(file);
-        }
-    });
-
-
     function openModal() {
         let accountStructure = document.getElementById("account_attributes").value;
         let instantiationStructure = document.getElementById("instantiation_attributes").value;
