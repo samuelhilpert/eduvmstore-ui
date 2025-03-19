@@ -254,6 +254,7 @@
                 let instanceName = baseName ? `${baseName}-${i}` : "";
                 const tabId = `instanceTab_${i}`;
                 const contentId = `instanceContent_${i}`;
+                addInstanceFields(i);
 
                 instanceTabs.innerHTML += `
             <li class="nav-item">
