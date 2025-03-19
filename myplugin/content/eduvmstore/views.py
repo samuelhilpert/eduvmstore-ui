@@ -353,7 +353,7 @@ class EditView(generic.TemplateView):
         update_url = API_ENDPOINTS['app_templates_update'].format(template_id=app_template_id)
 
         try:
-            response = requests.post(
+            response = requests.put(
                     update_url,
                     json=data,
                     headers=headers,
