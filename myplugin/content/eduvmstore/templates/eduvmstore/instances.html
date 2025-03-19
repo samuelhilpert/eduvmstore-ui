@@ -311,6 +311,13 @@
                     <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
                 </div>
 
+                <div id="instantiation_section_${i}">
+                    <h4>{{ _("Instantiation Attributes") }}</h4>
+                    <div id="dynamic_instantiation_container_${i}">
+                        ${generateInstantiationFields(i)}
+                    </div>
+                </div>
+
                 <!-- Dynamische Accounts -->
                 <div id="accounts_section_${i}" style="display: none;">
                     <h4>{{ _("Accounts") }}</h4>
@@ -318,12 +325,7 @@
                     <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                 </div>
 
-                <div id="instantiation_section_${i}">
-                    <h4>{{ _("Instantiation Attributes") }}</h4>
-                    <div id="dynamic_instantiation_container_${i}">
-                        ${generateInstantiationFields(i)}
-                    </div>
-                </div>
+
 
                 <div class="d-flex justify-content-between mt-3">
                     ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous") }}</button>` : ""}
