@@ -146,7 +146,7 @@
         <label for="num_instances">{{ _("Number of Instances") }}</label>
         <input type="text" class="form-control" id="num_instances" name="num_instances"
                placeholder="1-100" required
-               oninput="validateNumInstances(this)" onblur="ensureValidNumInstances(this)">
+               oninput="validateNumInstances(this)">
 
 
 
@@ -229,12 +229,6 @@
             }
         }
 
-        function ensureValidNumInstances(input) {
-            // Falls das Feld leer bleibt und der Nutzer es verlässt, setze auf 1
-            if (input.value.trim() === "" || parseInt(input.value, 10) < 1) {
-                input.value = "1";
-            }
-        }
 
 
 
