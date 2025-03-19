@@ -296,6 +296,15 @@
  </div>
 
 <script>
+    let accountAttributes = {{ app_template.account_attributes|safe }};
+    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+    document.getElementById("account_attributes").textContent = formattedAccounts;
+
+    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+    let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("instantiation_attributes").textContent = formattedInstatiation;
+
+
     document.getElementById('script_file').addEventListener('change', function(event) {
         var file = event.target.files[0];
         if (file) {
@@ -404,13 +413,6 @@
         }
     }
 
-    let instantiationAttributes = JSON.parse('{{ app_template.instantiation_attributes|safe }}');
-    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
-    document.getElementById("instantiation_attributes").value = formattedInstantiation;
-
-    let accountAttributes = JSON.parse('{{ app_template.account_attributes|safe }}');
-    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-    document.getElementById("account_attributes").value = formattedAccounts;
 
 
 
