@@ -444,10 +444,6 @@ def generate_indented_content(content, indent_level=6):
     return "\n".join([indent + line for line in content.split("\n")])
 
 
-
-
-
-
 class InstancesView(generic.TemplateView):
     """
         View for displaying instances, including form input for instance creation.
@@ -582,7 +578,7 @@ class InstancesView(generic.TemplateView):
         app_template = self.get_app_template()
 
         # Fetch available flavors from Nova
-        context['flavors'] = self.get_flavors()
+        context['flavors'] = self.get_flavors(app_template)
 
         #Context for the selected App-Template --> Display system infos
         context['app_template'] = app_template
@@ -597,13 +593,67 @@ class InstancesView(generic.TemplateView):
 
         return context
 
-    def get_flavors(self, ):
-        """Fetch flavors from Nova to correlate instances."""
+    #def get_flavors(self, ):
+      #  """Fetch flavors from Nova to correlate instances."""
+       # try:
+       #     flavors = api.nova.flavor_list(self.request)
+       #     return {str(flavor.id): flavor.name for flavor in flavors}
+       # except Exception:
+       #     exceptions.handle(self.request, ignore=True)
+       #     return {}
+
+    def get_flavors(self, app_template):
         try:
+            # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
-            return {str(flavor.id): flavor.name for flavor in flavors}
-        except Exception:
-            exceptions.handle(self.request, ignore=True)
+            if not flavors:
+                logging.error("No flavors returned from Nova API.")
+                return {}
+
+            flavor_dict = {str(flavor.id): flavor for flavor in flavors}
+            logging.info(f"Found {len(flavors)} flavors.")
+
+            # Extract system requirements from app_template
+            required_ram_gb = app_template.get('fixed_ram_gb')
+            required_disk_gb = app_template.get('fixed_disk_gb')
+            required_cores = app_template.get('fixed_cores')
+
+            # Convert required RAM to MB (as Nova uses MB)
+            required_ram_mb = required_ram_gb * 1024
+
+            # Store suitable flavors
+            suitable_flavors = {}
+
+            for flavor_id, flavor in flavor_dict.items():
+                if (
+                        flavor.ram >= required_ram_mb and
+                        flavor.disk >= required_disk_gb and
+                        flavor.vcpus >= required_cores
+                ):
+                    suitable_flavors[flavor_id] = flavor.name
+
+            # Check if at least one suitable flavor is found
+            if not suitable_flavors:
+                logging.warning("No suitable flavors found for the given requirements.")
+
+            # Automatically select the first suitable flavor if exists
+            selected_flavor = next(iter(suitable_flavors.keys()), None)
+
+            # Return flavor information
+            result = {
+                'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
+                'suitable_flavors': suitable_flavors,
+                'selected_flavor': selected_flavor,
+                'required_ram': required_ram_gb,
+                'required_disk': required_disk_gb,
+                'required_cores': required_cores,
+            }
+
+            logging.info(f"Returning flavor data: {result}")
+            return result
+
+        except Exception as e:
+            logging.error(f"An error occurred while fetching flavors: {e}")
             return {}
 
     def extract_accounts_from_form(self, request):

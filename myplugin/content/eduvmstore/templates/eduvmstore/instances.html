@@ -18,12 +18,119 @@
 
 {% block main %}
 
+    <style>
+ /* General Styling */
+    .clickable {
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: underline;
+    }
+    .clickable:hover {
+        text-decoration: none;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-control {
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        transition: border-color 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .modal-content {
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .modal-header {
+        color: #fff;
+        border-radius: 8px 8px 0 0;
+    }
+    .modal-title {
+        font-weight: bold;
+    }
+    .modal-footer {
+        border-top: 1px solid #e0e0e0;
+    }
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .table th, .table td {
+        padding: 0.75rem;
+        color: #333333;
+    }
+    h5 {
+       color: #333333;
+    }
+
+    /* Button Alignment */
+    .button-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    /* Dynamic Accounts Spacing */
+    #dynamic_accounts_container_${i} .card {
+        margin-bottom: 15px;
+    }
+</style>
+
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
 
+ <!-- App Template Name Display -->
     <div class="form-group">
-        <label for="app_template_id">{{ _("App Template ID") }}</label>
-        <input type="text" class="form-control" id="app_template_id" name="app_template_id" value="{{ app_template_id }}" readonly>
+        <label>{{ _("App Template Name") }}</label>
+        <div class="card">
+            <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
+                {{ app_template.name }}
+            </p>
+        </div>
+    </div>
+    <!-- App Template Details Modal -->
+    <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("App Template Details") }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr><th>App-Template Name</th><td>{{ app_template.name }}</td></tr>
+                        <tr><th>App-Template ID</th><td>{{ app_template.id }}</td></tr>
+                        <tr><th>Image ID</th><td>{{ app_template.image_id }}</td></tr>
+                        <tr><th>Short Description</th><td>{{ app_template.short_description }}</td></tr>
+                        <tr><th>Description</th><td>{{ app_template.description }}</td></tr>
+                        <tr><th>Instantiation Notice</th><td>{{ app_template.instantiation_notice }}</td></tr>
+                        <tr><th>Fixed RAM (GB)</th><td>{{ app_template.fixed_ram_gb }}</td></tr>
+                        <tr><th>Fixed Disk (GB)</th><td>{{ app_template.fixed_disk_gb }}</td></tr>
+                        <tr><th>Fixed Cores</th><td>{{ app_template.fixed_cores }}</td></tr>
+                        <tr><th>Per User RAM (GB)</th><td>{{ app_template.per_user_ram_gb }}</td></tr>
+                        <tr><th>Per User Disk (GB)</th><td>{{ app_template.per_user_disk_gb }}</td></tr>
+                        <tr><th>Per User Cores</th><td>{{ app_template.per_user_cores }}</td></tr>
+                        <tr><th>Image Owner</th><td>{{ image_owner }}</td></tr>
+                        <tr><th>Available For</th><td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td></tr>
+                        <tr><th>Script</th><td><pre>{{ app_template.script }}</pre></td></tr>
+                         <tr><th>Instantiation Attributes</th><td> <pre id="structured-accounts"></pre></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Basis-Instanzname -->
@@ -153,15 +260,33 @@
                 <h4 id="instanceTitle_${i}">${instanceName}</h4> <!-- Dynamischer Titel -->
                 <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
 
-                <div class="form-group">
-                    <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-                    <select class="form-control" id="flavor_id_${i}" name="flavor_id_${i}" required>
-                        <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-                        {% for flavor_id, flavor_name in flavors.items %}
-                            <option value="{{ flavor_id }}">{{ flavor_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+<!-- Flavor Selection -->
+<div class="form-group">
+    <label for="flavor_id_{{ i }}">{{ _("Select Flavor") }}</label>
+    <select class="form-control flavor-dropdown" id="flavor_id_{{ i }}" name="flavor_id_{{ i }}" required>
+        {% if flavors.suitable_flavors %}
+            <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+            {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
+                <option value="{{ flavor_id }}"
+                    {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+                    {{ flavor_name }}
+                </option>
+            {% endfor %}
+        {% else %}
+            <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
+        {% endif %}
+    </select>
+</div>
+
+<!-- Display Fixed Resource Requirements and Available Resources -->
+<div class="alert alert-info mt-3">
+    <p><strong>{{ _("Resource Requirements") }}:</strong></p>
+    <ul>
+        <li>{{ _("RAM") }}: {{ flavors.required_ram }} GB </li>
+        <li>{{ _("Disk") }}: {{ flavors.required_disk }} GB </li>
+        <li>{{ _("CPU Cores") }}: {{ flavors.required_cores }}</li>
+    </ul>
+</div>
 
                 <div class="form-group">
                     <label for="network_id_${i}">{{ _("Select Network") }}</label>
@@ -315,8 +440,23 @@
         {% endif %}
 
 
+function selectAutomaticFlavor(instanceId) {
+    const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
+    if (!flavorDropdown) return;
+
+    // Check if there is only one selectable flavor
+    if (flavorDropdown.options.length === 2) { // One valid option + the default "Choose a flavor"
+        flavorDropdown.selectedIndex = 1; // Automatically select the only available flavor
+        if (flavorDropdown.value) {
+            flavorDropdown.disabled = true; // Disable the dropdown if a valid flavor is selected
+        }
+    }
+}
+
+// Combine the values from instantiation_attributes
+    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+    let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("structured-accounts").textContent = formattedAccounts;
     </script>
-
-
 
 {% endblock %}
