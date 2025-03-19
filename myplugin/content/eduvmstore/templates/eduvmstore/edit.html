@@ -265,7 +265,7 @@ write_files:
     owner: root:root
          </pre>
 
-                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
+                 <textarea id="scriptText" name="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
                  <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
 
              </div>
@@ -343,9 +343,9 @@ write_files:
 
     function saveScript() {
         // Get the script text from the textarea
-        var scriptText = document.getElementById('scriptText').value;
+        scriptTextArea = document.getElementById('scriptText').value;
         // Store it in the hidden input field
-        document.getElementById('hiddenScriptField').value = scriptText;
+        document.getElementById('hiddenScriptField').value = scriptTextArea;
         // Close the modal
         closeModal();
     }
