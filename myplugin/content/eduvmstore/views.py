@@ -398,7 +398,7 @@ class EditView(generic.TemplateView):
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
             'approved': request.POST.get('approved'),
-            'script': request.POST.get('script'),
+            'script': request.POST.get('hiddenScriptField'),
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
@@ -746,13 +746,13 @@ class InstancesView(generic.TemplateView):
                 else:
                     keypair_name = shared_keypair_name
 
-                metadata = {"app_template": app_template_name}
+                metadata = {"App_Template": app_template_name}
                 for index, account in enumerate(accounts):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                    metadata[f"user_{index+1}"] = user_data_account
+                    metadata[f"User_{index+1}"] = user_data_account
                 for index, instantiation in enumerate(instantiations):
                     user_data_instantiation = ", ".join([f"{key}: {value}" for key, value in instantiation.items()])
-                    metadata[f"instantiation_{index+1}"] = user_data_instantiation
+                    metadata[f"Instantiation_Attributes_{index+1}"] = user_data_instantiation
 
 
                 nova.server_create(
