@@ -359,7 +359,7 @@ class EditView(generic.TemplateView):
                     headers=headers,
                     timeout=10,
             )
-            if response.status_code == 201:
+            if response.status_code == 200:
                 modal_message = _("App-Template updated successfully.")
                 messages.success(request, f"App Template updated successfully.")
             else:
