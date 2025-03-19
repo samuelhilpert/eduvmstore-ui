@@ -490,7 +490,7 @@ class EditView(generic.TemplateView):
             return {}
 
 
-def generate_pdf(accounts, name, app_template, created, instantiation):
+def generate_pdf(accounts, name, app_template, created, instantiations):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
 
@@ -512,7 +512,7 @@ def generate_pdf(accounts, name, app_template, created, instantiation):
 
     subtitle = Paragraph(
         f"Instantiation Attributes for the created instance {name} from the EduVMStore. "
-        f"This instance was created with the app template {app_template} on {created}. {instantiation}",
+        f"This instance was created with the app template {app_template} on {created}.",
         styles['Normal']
 
     )
@@ -524,10 +524,20 @@ def generate_pdf(accounts, name, app_template, created, instantiation):
     else:
         all_keys = []
 
+    if instantiations:
+        all_keys_instantiation = list(instantiations[0].keys())
+    else:
+        all_keys_instantiation = []
+
     table_data = [all_keys]
     for account in accounts:
         row_values = [account.get(key, "N/A") for key in all_keys]
         table_data.append(row_values)
+
+    table_data_instantiation = [all_keys_instantiation]
+    for instantiation in instantiations:
+        row_values_instantiation = [instantiation.get(key, "N/A") for key in all_keys_instantiation]
+        table_data_instantiation.append(row_values_instantiation)
 
     table = Table(table_data, repeatRows=1)
     table.setStyle(TableStyle([
@@ -540,14 +550,27 @@ def generate_pdf(accounts, name, app_template, created, instantiation):
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
 
+    table_instantiation = Table(table_data_instantiation, repeatRows=1)
+    table_instantiation.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
     elements.append(table)
+    elements.append(Spacer(1, 0.2 * inch))
+    elements.append(table_instantiation)
     doc.build(elements)
     buffer.seek(0)
 
     return buffer.getvalue()
 
 
-def generate_cloud_config(accounts,backend_script):
+def generate_cloud_config(accounts,backend_script, instantiations):
     """
         Generate a cloud-config file for user account creation and backend script execution.
 
@@ -563,9 +586,15 @@ def generate_cloud_config(accounts,backend_script):
         """
 
     sorted_keys = list(accounts[0].keys())
+    sorted_keys_instantiation = list(instantiations[0].keys())
+
 
     users_content = "\n".join(
         [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
+    )
+
+    instantiations_content = "\n".join(
+        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation]) for instantiation in instantiations]
     )
 
     cloud_config = f"""#cloud-config
@@ -575,6 +604,14 @@ write_files:
 {generate_indented_content(users_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
+    
+  - path: /etc/users.txt
+    content: |
+{generate_indented_content(instantiations_content, indent_level=6)}
+    permissions: '0644'
+    owner: root:root
+    
+    
 
 {backend_script}
 """
@@ -689,13 +726,13 @@ class InstancesView(generic.TemplateView):
                 if not script and not accounts:
                     user_data = None
                 elif not script and accounts:
-                    user_data = generate_cloud_config(accounts, None)
+                    user_data = generate_cloud_config(accounts, None, instantiations)
                 elif script and no_additional_users == "on":
                     user_data = f"#cloud-config\n{script}"
                 elif script and no_additional_users is None and not accounts:
                     user_data = f"#cloud-config\n{script}"
                 else:
-                    user_data = generate_cloud_config(accounts, script)
+                    user_data = generate_cloud_config(accounts, script, instantiations)
 
 
                 nics = [{"net-id": network_id}]
@@ -713,6 +750,9 @@ class InstancesView(generic.TemplateView):
                 for index, account in enumerate(accounts):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
                     metadata[f"user_{index+1}"] = user_data_account
+                for index, instantiation in enumerate(instantiations):
+                    user_data_instantiation = ", ".join([f"{key}: {value}" for key, value in instantiation.items()])
+                    metadata[f"instantiation_{index+1}"] = user_data_instantiation
 
 
                 nova.server_create(

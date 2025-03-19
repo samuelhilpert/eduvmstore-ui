@@ -250,13 +250,19 @@
                  <span class="close" onclick="closeModal()">×</span>
                  <h5>Write Script</h5>
                  <pre class="p-2 border rounded bg-light">
- #cloud-config
- write_files:
-   - path: /etc/users.txt
-     content: |
-       <span id="scriptContent"></span>
-     permissions: '0644'
-     owner: root:root
+#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      <span id="accountContent"></span>
+    permissions: '0644'
+    owner: root:root
+
+  - path: /etc/users.txt
+    content: |
+      <span id="instantiationContent"></span>
+    permissions: '0644'
+    owner: root:root
          </pre>
 
                  <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
@@ -325,7 +331,9 @@
 
     function openModal() {
         let accountStructure = document.getElementById("account_attributes").value;
-        document.getElementById("scriptContent").innerText = accountStructure;
+        let instantiationStructure = document.getElementById("instantiation_attributes").value;
+        document.getElementById("accountContent").innerText = accountStructure;
+        document.getElementById("instantiationContent").innerText = instantiationStructure;
         document.getElementById('scriptModal').style.display = 'block';
     }
 
