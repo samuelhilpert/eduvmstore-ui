@@ -404,11 +404,11 @@
         }
     }
 
-    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+    let instantiationAttributes = JSON.parse('{{ app_template.instantiation_attributes|safe }}');
     let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
     document.getElementById("instantiation_attributes").value = formattedInstantiation;
 
-    let accountAttributes = {{ app_template.account_attributes|safe }};
+    let accountAttributes = JSON.parse('{{ app_template.account_attributes|safe }}');
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("account_attributes").value = formattedAccounts;
 
