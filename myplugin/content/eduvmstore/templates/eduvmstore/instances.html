@@ -227,7 +227,7 @@
             numInstancesInput.addEventListener("input", generateInstanceFields);
             instancesNameInput.addEventListener("input", generateInstanceFields);
 
-            switchToInstance(1);
+            document.getElementById("generalTab").click();
         };
 
         let accountAttributes = {{ expected_account_fields|safe }};
@@ -243,8 +243,38 @@
             const baseNameInput = document.getElementById("instances_name");
             let baseName = baseNameInput ? baseNameInput.value.trim() : "";
 
-            instanceTabs.innerHTML = "";
-            instancesContainer.innerHTML = "";
+            instanceTabs.innerHTML = `
+        <li class="nav-item">
+            <a class="nav-link active" id="generalTab" data-toggle="tab" href="#generalContent" role="tab">
+                {{ _("General Settings") }}
+            </a>
+        </li>
+    `;
+
+            instancesContainer.innerHTML = `
+        <div class="tab-pane show active" id="generalContent" role="tabpanel">
+            <h4>{{ _("General Settings") }}</h4>
+            <p>{{ _("These settings will be applied to all instances by default. You can overwrite them in each instance tab.") }}</p>
+
+            <div class="form-group">
+                <label for="general_flavor">{{ _("Select Flavor") }}</label>
+                <select class="form-control" id="general_flavor">
+                    {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
+                        <option value="{{ flavor_id }}">{{ flavor_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="general_network">{{ _("Select Network") }}</label>
+                <select class="form-control" id="general_network">
+                    {% for network_id, network_name in networks.items %}
+                        <option value="{{ network_id }}">{{ network_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    `;
 
             for (let i = 1; i <= numInstances; i++) {
                 let instanceName = baseName ? `${baseName}-${i}` : "";
@@ -268,18 +298,8 @@
 <div class="form-group">
     <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
     <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
-        {% if flavors.suitable_flavors %}
-            <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-            {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
-                <option value="{{ flavor_id }}"
-                    {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                    {{ flavor_name }}
-                </option>
-            {% endfor %}
-        {% else %}
-            <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
-        {% endif %}
-    </select>
+    ${document.getElementById("general_flavor").innerHTML}
+</select>
 </div>
 
 <!-- Display Fixed Resource Requirements and Available Resources -->
@@ -295,11 +315,9 @@
                 <div class="form-group">
                     <label for="network_id_${i}">{{ _("Select Network") }}</label>
                     <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
-                        <option value="" disabled selected>{{ _("Choose a network") }}</option>
-                        {% for network_id, network_name in networks.items %}
-                            <option value="{{ network_id }}">{{ network_name }}</option>
-                        {% endfor %}
-                    </select>
+    ${document.getElementById("general_network").innerHTML}
+</select>
+
                 </div>
 
                 <div class="form-group form-check">
