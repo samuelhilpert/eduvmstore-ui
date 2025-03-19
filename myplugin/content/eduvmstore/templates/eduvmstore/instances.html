@@ -144,9 +144,10 @@
     <!-- Anzahl der Instanzen -->
     <div class="form-group">
         <label for="num_instances">{{ _("Number of Instances") }}</label>
-        <<input type="text" class="form-control" id="num_instances" name="num_instances"
-                placeholder="1-100" pattern="^(100|[1-9][0-9]?)$" required
-                oninput="validateNumInstances(this)">
+        <input type="text" class="form-control" id="num_instances" name="num_instances"
+               placeholder="1-100" pattern="^(100|[1-9][0-9]?)$" required
+               oninput="validateNumInstances(this)" onblur="checkEmptyNumInstances(this)">
+
 
 
     </div>
@@ -218,14 +219,19 @@
 
             let value = parseInt(input.value, 10);
 
-            // Falls das Feld leer ist, beende die Funktion
-            if (isNaN(value)) return;
+            // Falls das Feld leer ist, lassen wir es leer
+            if (input.value === "") return;
 
             // Setze Werte über 100 automatisch auf 100
             if (value > 100) {
                 input.value = "100";
-            } else if (value < 1) {
-                input.value = "1"; // Optional: Wenn leere Eingabe nicht erlaubt ist, min. 1 setzen
+            }
+        }
+
+        function checkEmptyNumInstances(input) {
+            // Falls das Feld leer bleibt und der Nutzer es verlässt, setze auf 1
+            if (input.value.trim() === "") {
+                input.value = "1";
             }
         }
 
