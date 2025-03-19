@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+ {% load static %}
+ {% block title %}Edit App-Template{% endblock %}
+
+ {% block page_header %}
+     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
+         <div style="margin-right: 15px;">
+             <h1 class="page-title mb-0">Edit App-Template</h1>
+         </div>
+         <div>
+             <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+         </div>
+     </div>
+ {% endblock %}
+
+ {% block main %}
+ <style>
+     .form-container {
+        margin: auto;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #495057;
+        font-size: small;
+    }
+    .form-control, .select-box {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #333;
+    }
+.select-box {
+        appearance: none;
+        background-color: #fff;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px 16px;
+        height: 35px;
+        line-height: 1.5;
+        padding-right: 25px;
+        text-align: start;
+        -ms-text-justify: auto;
+    }
+    .select-box:focus, .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+    .form-check-input {
+        margin-left: 10px;
+    }
+
+    .is-valid {
+        border: 2px solid green !important;
+    }
+
+    .is-invalid {
+        border: 2px solid red !important;
+    }
+
+    .select-box, .form-control {
+        height: auto;
+        line-height: 1.5;
+        padding: 8px 12px;
+        font-size: 14px;
+        box-sizing: border-box;
+        appearance: none;
+    }
+
+    .select-box:focus, .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #007bff;
+    }
+
+ </style>
+
+ <div class="form-container">
+     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
+         {% csrf_token %}
+
+         <h3>App-Template Details</h3>
+
+        <div class="col-md-6" hidden="hidden">
+                 <label for="image_id">Image ID:</label>
+                 <input type="text" hidden="hidden"  name="app_template_id" value="{{ app_template.id }}">
+             </div>
+        <div class="col-md-6" hidden="hidden">
+                 <label for="image_id">Image ID:</label>
+                 <input type="text" id="image_id" name="image_id" class="form-control" value="{{ app_template.image_id }}" required>
+             </div>
+     <div class="col-md-6" hidden="hidden">
+                 <label for="approved">Approved:</label>
+                 <input type="text" id="approved" name="approved" class="form-control" value="{{ app_template.approved }}" required>
+             </div>
+
+
+
+
+         <!-- Hidden input to store the script text -->
+         <input type="hidden" id="hiddenScriptField" name="script_text" />
+
+         <div class="form-group row">
+             <div class="col-md-6">
+                 <label for="name">App-Template Name:</label>
+                 <input type="text" id="name" name="name" class="form-control" required
+                        data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:validate_name' %}"
+                        oninput="checkName()" value="{{ app_template.name }}">
+                 <small id="name-feedback" class="form-text"></small>
+             </div>
+             <div class="col-md-6">
+                 <label for="short_description">Short Description:</label>
+                 <input type="text" id="short_description" name="short_description" class="form-control" value="{{ app_template.short_description }}" required>
+             </div>
+         </div>
+         <div class="form-group">
+             <label for="description">Description:</label>
+             <textarea id="description" name="description" class="form-control"  required> {{ app_template.description }}</textarea>
+         </div>
+         <div class="form-group">
+             <label for="instantiation_notice">Instantiation Notice:</label>
+             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required>{{ app_template.instantiation_notice }}</textarea>
+         </div>
+
+
+        <div class="form-group row">
+             <div class="col-md-4">
+                 <label for="version">Version:</label>
+                  <input type="text" id="version" name="version" value="{{ app_template.version }}" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+
+             </div>
+         <div class="col-md-4">
+             <label for="public">Visibility:</label>
+             <select name="public" id="public" class="form-control select-box" required>
+                 <option value="True" {% if app_template.visibility == "True" %}selected{% endif %}>Public</option>
+                 <option value="False" {% if app_template.visibility == "False" %}selected{% endif %}>Private</option>
+              </select>
+         </div>
+
+         </div>
+
+         <h3>System Requirements</h3>
+         <div class="row">
+             <div class="col-md-6">
+                 <h4>Fixed Resources</h4>
+                 <div class="form-group mt-5">
+                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
+                     <input type="text" id="fixed_ram_gb" value="{{ app_template.fixed_ram_gb }}"
+                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');"
+                            name="fixed_ram_gb" class="form-control" value="{{ app_template.fixed_ram_gb }}"
+                            name="fixed_ram_gb" class="form-control"
+                            required>
+                 </div>
+                 <div class="form-group">
+                     <label for="fixed_disk_gb">Fixed Disk (GB):</label>
+                     <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" value="{{ app_template.fixed_disk_gb }}" class="form-control" required
+                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                 </div>
+                 <div class="form-group">
+                     <label for="fixed_cores">Fixed Cores:</label>
+                     <input type="text" id="fixed_cores" name="fixed_cores" value="{{ app_template.fixed_cores }}" class="form-control" required
+                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                 </div>
+             </div>
+
+             <div class="col-md-6">
+                 <h4>Resources per User</h4>
+                 <div class="form-group mt-5">
+                     <label for="per_user_ram_gb">Per User RAM (GB):</label>
+                     <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" value="{{ app_template.per_user_ram_gb }}" class="form-control" required
+                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                 </div>
+                 <div class="form-group">
+                     <label for="per_user_disk_gb">Per User Disk (GB):</label>
+
+                     <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" value="{{ app_template.per_user_disk_gb }}" class="form-control" required
+                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                 </div>
+                 <div class="form-group">
+                     <label for="per_user_cores">Per User Cores:</label>
+                     <input type="text" id="per_user_cores" name="per_user_cores" value="{{ app_template.per_user_cores }}" class="form-control" required
+                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                 </div>
+             </div>
+
+         </div>
+         <h3>Script</h3>
+         <div class="form-group row">
+             <div class="col-md-4">
+                 <label for="instantiation_attributes">Instantiation Attributes:</label>
+                 <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" >
+             </div>
+
+             <div class="col-md-4">
+                 <label for="script_file">Upload Script:</label>
+                 <input type="file" id="script_file" value="{{ app_template.script}}" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
+             </div>
+
+             <div class="col-md-4 d-flex align-items-end">
+                 <button type="button" class="btn btn-primary" id="writeScriptButton" onclick="openModal()">Write Script</button>
+             </div>
+
+         </div>
+
+         <!-- Modal for script input -->
+         <div id="scriptModal" class="modal mt-5">
+             <div class="modal-content">
+                 <span class="close" onclick="closeModal()">×</span>
+                 <h5>Write Script</h5>
+                 <pre class="p-2 border rounded bg-light">
+ #cloud-config
+ write_files:
+   - path: /etc/users.txt
+     content: |
+       <span id="scriptContent"></span>
+     permissions: '0644'
+     owner: root:root
+         </pre>
+
+                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
+                 <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
+
+             </div>
+         </div>
+
+         <!-- Hidden input to store the script text -->
+         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
+         <button type="submit" class="btn btn-primary" id="submit-button" >Edit</button>
+          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+     </form>
+ </div>
+
+ <!-- Modal for Success or Failure -->
+ <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+     <div class="modal-dialog" role="document">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h5 class="modal-title" id="responseModalLabel">{{ _("App-Template Creation Status") }}</h5>
+                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                     <span aria-hidden="true">&times;</span>
+                 </button>
+             </div>
+             <div class="modal-body">
+                 <p>{{ modal_message }}</p>
+             </div>
+             <div class="modal-footer">
+                 {% if modal_message == "App-Template created successfully." %}
+                     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Show Overview") }}</a>
+                 {% endif %}
+                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+             </div>
+         </div>
+     </div>
+ </div>
+
+<script>
+    document.getElementById('script_file').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var fileContent = e.target.result;
+
+                document.getElementById('hiddenScriptField').value = fileContent;
+
+                document.getElementById('scriptText').value = fileContent;
+            };
+
+            reader.readAsText(file);
+        }
+    });
+
+
+    function openModal() {
+        let accountStructure = document.getElementById("account_structure").value;
+        document.getElementById("scriptContent").innerText = accountStructure;
+        document.getElementById('scriptModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('scriptModal').style.display = 'none';
+    }
+
+    function saveScript() {
+        // Get the script text from the textarea
+        var scriptText = document.getElementById('scriptText').value;
+        // Store it in the hidden input field
+        document.getElementById('hiddenScriptField').value = scriptText;
+        // Close the modal
+        closeModal();
+    }
+
+
+
+    // Close the modal if the user clicks anywhere outside of it
+    window.onclick = function(event) {
+        var modal = document.getElementById('scriptModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split("; ");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+
+    async function checkName() {
+        const inputField = document.getElementById("name");
+        const name = inputField.value;
+        const url = inputField.dataset.url;
+        const feedback = document.getElementById("name-feedback");
+        const submitButton = document.getElementById("submit-button");
+
+
+        try {
+            const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify({ name: name })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP-Fehler: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.valid) {
+                inputField.classList.remove("is-invalid");
+                inputField.classList.add("is-valid");
+                feedback.textContent = "Name available";
+                feedback.style.color = "green";
+                submitButton.disabled = false;
+            } else {
+                inputField.classList.remove("is-valid");
+                inputField.classList.add("is-invalid");
+                feedback.textContent = "Name already taken";
+                feedback.style.color = "red";
+                submitButton.disabled = true;
+            }
+        } catch (error) {
+            console.error("Fehler bei der Validierung:", error);
+        }
+    }
+
+    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+    let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("instantiation_attributes").value = formattedAccounts;
+
+
+
+
+</script>
+
+
+{% endblock %}
