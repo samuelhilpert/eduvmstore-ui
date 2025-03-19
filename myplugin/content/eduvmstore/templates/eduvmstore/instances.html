@@ -136,13 +136,17 @@
     <!-- Basis-Instanzname -->
     <div class="form-group">
         <label for="instances_name">{{ _("Instance Name") }}</label>
-        <input type="text" class="form-control" id="instances_name" name="instances_name" placeholder="{{ _('Enter instance name') }}" required>
+        <input type="text" class="form-control" id="instances_name" name="instances_name"
+               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
+
     </div>
 
     <!-- Anzahl der Instanzen -->
     <div class="form-group">
         <label for="num_instances">{{ _("Number of Instances") }}</label>
-        <input type="number" class="form-control" id="num_instances" name="num_instances" min="1" value="1" required>
+        <input type="number" class="form-control" id="num_instances" name="num_instances"
+               min="1" max="100" placeholder="1-100" required>
+
     </div>
 
     <div class="form-group">
