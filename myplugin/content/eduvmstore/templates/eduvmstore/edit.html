@@ -230,7 +230,7 @@
          <div class="form-group row">
              <div class="col-md-4">
                  <label for="instantiation_attributes">Instantiation Attributes:</label>
-                 <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" value="{{ app_template.instantiation_attributes }}" >
+                 <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" >
              </div>
 
              <div class="col-md-4">
@@ -406,7 +406,7 @@
 
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
     let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
-    document.getElementById("instantiation_attributes").textContent = formattedAccounts;
+    document.getElementById("instantiation_attributes").value = formattedAccounts;
 
 
 
