@@ -170,12 +170,12 @@
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Visibility:</strong>
+                <strong>Available for:</strong>
                 <p>
                     {% if app_template.public %}
-                    Public
+                    Everyone
                 {% else %}
-                    Private
+                    Creator only
                 {% endif %}
                 </p>
 
@@ -218,7 +218,7 @@ write_files:
             </div>
             <div class="col-md-6">
                 <div class="detail-group">
-                    <strong>Account Structure:</strong>
+                    <strong>Instantiation Attributes:</strong>
                     <p id="structured-accounts"></p>
                 </div>
             </div>
@@ -226,7 +226,7 @@ write_files:
     </div>
 
     <script>
-        let accountAttributes = {{ app_template.account_attributes|safe }};
+        let accountAttributes = {{ app_template.instantiation_attributes|safe }};
         let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
         document.getElementById("formatted-accounts").textContent = formattedAccounts;
         document.getElementById("structured-accounts").textContent = formattedAccounts;
