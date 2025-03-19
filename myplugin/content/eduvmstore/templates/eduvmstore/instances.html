@@ -145,6 +145,14 @@
         <input type="number" class="form-control" id="num_instances" name="num_instances" min="1" value="1" required>
     </div>
 
+    <div class="form-group">
+        <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}</label>
+        <select class="form-control" id="separate_keys" name="separate_keys">
+            <option value="false" selected>{{ _("No, use one key for all") }}</option>
+            <option value="true">{{ _("Yes, generate separate keys") }}</option>
+        </select>
+    </div>
+
     <!-- Navigation für Instanzen -->
     <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
 
@@ -183,38 +191,14 @@
     </div>
 </div>
 
-    <!-- Modal for Success or Failure -->
-<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="responseModalLabel">{{ _("Instance Creation Status") }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>{{ modal_message }}</p>
-            </div>
-            <div class="modal-footer">
-                {% if modal_message == "Instance created successfully." %}
-                    <a href="/dashboard/project/instances/" class="btn btn-primary">{{ _("Show Instance") }}</a>
-                {% endif %}
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
-            </div>
-        </div>
-    </div>
-</div>
 
     <style>
-        /* Alle Instanzen außer der aktiven komplett unsichtbar */
         .tab-pane {
             display: none;
             position: absolute;
-            left: -9999px; /* Aus dem Sichtfeld */
+            left: -9999px;
         }
 
-        /* Aktive Instanz sichtbar machen */
         .tab-pane.show.active {
             display: block;
             position: static;
@@ -238,36 +222,31 @@
 
             numInstancesInput.addEventListener("input", generateInstanceFields);
             instancesNameInput.addEventListener("input", generateInstanceFields);
+
+            switchToInstance(1);
         };
 
-        // Dynamische Account-Felder
         let accountAttributes = {{ expected_account_fields|safe }};
 
         function generateInstanceFields() {
             let instanceTabs = document.getElementById("instanceTabs");
             let instancesContainer = document.getElementById("instancesContainer");
 
-            if (!instanceTabs || !instancesContainer) {
-                console.error("Fehlende Elemente: 'instanceTabs' oder 'instancesContainer' nicht gefunden.");
-                return;
-            }
-
             let numInstancesInput = document.getElementById("num_instances");
             let numInstances = parseInt(numInstancesInput.value, 10) || 1;
             numInstancesInput.value = numInstances;
 
             const baseNameInput = document.getElementById("instances_name");
-            const baseName = baseNameInput ? baseNameInput.value.trim() : "instance";
+            let baseName = baseNameInput ? baseNameInput.value.trim() : "";
 
             instanceTabs.innerHTML = "";
             instancesContainer.innerHTML = "";
 
             for (let i = 1; i <= numInstances; i++) {
-                const instanceName = `${baseName}-${i}`;
+                let instanceName = baseName ? `${baseName}-${i}` : "";
                 const tabId = `instanceTab_${i}`;
                 const contentId = `instanceContent_${i}`;
 
-                // Tabs für Navigation
                 instanceTabs.innerHTML += `
             <li class="nav-item">
                 <a class="nav-link ${i === 1 ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
@@ -276,10 +255,9 @@
             </li>
         `;
 
-                // Instanz-Container mit dynamischen Accounts
                 instancesContainer.innerHTML += `
-            <div class="tab-pane fade ${i === 1 ? 'show active' : 'd-none'}" id="${contentId}" role="tabpanel">
-                <h4>${instanceName}</h4>
+            <div class="tab-pane ${i === 1 ? 'show active' : ''}" id="${contentId}" role="tabpanel">
+                <h4 id="instanceTitle_${i}">${instanceName}</h4> <!-- Dynamischer Titel -->
                 <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
 
 <!-- Flavor Selection -->
@@ -344,7 +322,8 @@
             attachAccountButtonListeners();
         }
 
-        // **Fix: Event-Listener für Navigation**
+
+
         function attachInstanceEventListeners() {
             document.querySelectorAll(".next-instance").forEach(button => {
                 button.addEventListener("click", function () {
@@ -369,17 +348,17 @@
             });
         }
 
-        // **Fix: Tabs vollständig anzeigen**
+
         function switchToInstance(instanceId) {
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
-                el.style.display = "none"; // **Verhindert leeren Platz**
+                el.style.display = "none";
             });
 
             let newContent = document.getElementById(`instanceContent_${instanceId}`);
             if (newContent) {
                 newContent.classList.add("show", "active");
-                newContent.style.display = "block"; // **Sichtbar machen**
+                newContent.style.display = "block";
             }
 
             document.querySelectorAll(".nav-link").forEach(tab => {
@@ -389,10 +368,12 @@
             let newTab = document.getElementById(`instanceTab_${instanceId}`);
             if (newTab) {
                 newTab.classList.add("active");
+                newTab.click();
             }
         }
 
-        // **Fix: Event-Listener für Account-Felder**
+
+
         function attachAccountButtonListeners() {
             document.querySelectorAll(".no_additional_users").forEach(checkbox => {
                 checkbox.addEventListener("change", function () {
@@ -448,7 +429,6 @@
             accountSection.innerHTML = fieldsHtml;
             accountsContainer.appendChild(accountSection);
 
-            // **Event-Listener für Remove-Button**
             accountSection.querySelector(".remove-account").addEventListener("click", function () {
                 accountSection.remove();
             });

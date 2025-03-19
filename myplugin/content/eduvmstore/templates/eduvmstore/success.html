@@ -21,12 +21,6 @@
         <button type="submit" class="btn btn-primary">Download PDF</button>
     </form>
 
-    {% if request.session.private_key %}
-        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:download_private_key' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-secondary">Download Private Key</button>
-        </form>
-    {% endif %}
 
     <a href="{% url 'horizon:project:instances:index' %}" class="btn btn-primary">Continue to instance overview</a>
 {% endblock %}

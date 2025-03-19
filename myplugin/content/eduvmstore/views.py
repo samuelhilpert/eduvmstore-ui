@@ -22,7 +22,8 @@ from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import io
-import os
+import zipfile
+from io import BytesIO
 
 from django.urls import reverse
 from django.views import View
@@ -343,8 +344,8 @@ def generate_pdf(accounts, name, app_template, created):
     :type accounts: list
     :param name: The name of the created instance.
     :type name: str
-    :return: An HTTP response containing the generated PDF file.
-    :rtype: HttpResponse
+    :return: PDF-Datei als Bytes (nicht als HttpResponse!)
+    :rtype: bytes
     """
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
@@ -355,7 +356,11 @@ def generate_pdf(accounts, name, app_template, created):
     elements.append(title)
     elements.append(Spacer(1, 0.2 * inch))
 
-    subtitle = Paragraph(f"Instantiation Attributes for the created instance {name} from the EduVMStore. This instance was created with the app template {app_template} on {created}.", styles['Normal'])
+    subtitle = Paragraph(
+        f"Instantiation Attributes for the created instance {name} from the EduVMStore. "
+        f"This instance was created with the app template {app_template} on {created}.",
+        styles['Normal']
+    )
     elements.append(subtitle)
     elements.append(Spacer(1, 0.2 * inch))
 
@@ -381,13 +386,10 @@ def generate_pdf(accounts, name, app_template, created):
     ]))
 
     elements.append(table)
-
     doc.build(elements)
     buffer.seek(0)
 
-    response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=instantiation_attributes_{name}.pdf'
-    return response
+    return buffer.getvalue()  # Gibt nur den Binärinhalt zurück
 
 
 def generate_cloud_config(accounts,backend_script):
@@ -456,102 +458,108 @@ class InstancesView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-     Handle POST requests to create a new instance with specified details.
-
-     This method extracts necessary data from the POST request, generates a cloud-config script,
-     and creates a new instance using the Nova API. It also handles session data for accounts
-     and instance name, and formats the instance description.
-
-     :param request: The incoming HTTP POST request.
-     :type request: HttpRequest
-     :param args: Additional positional arguments.
-     :param kwargs: Additional keyword arguments.
-     :return: An HTTP redirect to the success page or a rendered template with an error message.
-     :rtype: HttpResponse
-     """
-
+        Handle POST requests to create multiple instances.
+        """
         try:
-
-            flavor_id = request.POST.get('flavor_id')
-            name = request.POST.get('instances_name')
-            network_id = request.POST.get('network_id')
-
-            no_additional_users = request.POST.get('no_additional_users')
-
+            num_instances = int(request.POST.get('num_instances', 1))
+            base_name = request.POST.get('instances_name')
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
             script = app_template.get('script')
             app_template_name = app_template.get('name')
-            app_template_descritpion = app_template.get('description')
+            app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
 
-            try:
-                accounts = self.extract_accounts_from_form_new(request)
-            except Exception:
-                accounts = []
-
-            request.session["accounts"] = accounts
-            request.session["instance_name"] = name
             request.session["app_template"] = app_template_name
             request.session["created"] = created
+            request.session["num_instances"] = num_instances
 
-            description = self.format_description(app_template_descritpion)
+            separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
+            request.session["separate_keys"] = separate_keys
 
-
-            if not script and not accounts:
-                user_datas = None
-            elif not script and accounts:
-                user_datas = generate_cloud_config(accounts, None)
-            elif script and no_additional_users == "on":
-                user_datas = f"#cloud-config\n{script}"
-            elif script and no_additional_users is None and not accounts:
-                user_datas = f"#cloud-config\n{script}"
-            else:
-                user_datas = generate_cloud_config(accounts, script)
-
-            nics = [{"net-id": network_id}]
 
             security_groups = ["default"]
 
-            metadata = {"app_template": app_template_name}
 
-            for index, account in enumerate(accounts):
-                user_data = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                metadata[f"user_{index+1}"] = user_data
+            instances = []
+            shared_keypair_name = f"{base_name}_shared_key"
+            shared_private_key = None
 
-            keypair_name = f"{name}_keypair"
+            if not separate_keys:
+                keypair = nova.keypair_create(request, name=shared_keypair_name)
+                shared_private_key = keypair.private_key
+                request.session["private_key"] = shared_private_key
+                request.session["keypair_name"] = shared_keypair_name
 
-            existing_keys = nova.keypair_list(request)
-            existing_key_names = [key.name for key in existing_keys]
-
-            if keypair_name not in existing_key_names:
-                keypair = nova.keypair_create(request, name=keypair_name)
-                private_key = keypair.private_key
-
-                request.session["private_key"] = private_key
-                request.session["keypair_name"] = keypair_name
-
+            for i in range(1, num_instances + 1):
+                instance_name = f"{base_name}-{i}"
+                flavor_id = request.POST.get(f'flavor_id_{i}')
+                network_id = request.POST.get(f'network_id_{i}')
+                accounts = []
 
 
-            nova.server_create(
-                request,
-                name=name,
-                image=image_id,
-                flavor=flavor_id,
-                key_name=keypair_name,
-                user_data=user_datas,
-                security_groups=security_groups,
-                nics=nics,
-                meta=metadata,
-                description=description,
-            )
+                no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
+
+                if no_additional_users is None:
+                    try:
+                        accounts = self.extract_accounts_from_form_new(request, i)
+                    except Exception:
+                        accounts = []
+
+                request.session[f"accounts_{i}"] = accounts
+                request.session[f"names_{i}"] = instance_name
+
+                description = self.format_description(app_template_description)
+
+
+                if not script and not accounts:
+                    user_data = None
+                elif not script and accounts:
+                    user_data = generate_cloud_config(accounts, None)
+                elif script and no_additional_users == "on":
+                    user_data = f"#cloud-config\n{script}"
+                elif script and no_additional_users is None and not accounts:
+                    user_data = f"#cloud-config\n{script}"
+                else:
+                    user_data = generate_cloud_config(accounts, script)
+
+
+                nics = [{"net-id": network_id}]
+                if separate_keys:
+                    keypair_name = f"{instance_name}_keypair"
+                    keypair = nova.keypair_create(request, name=keypair_name)
+                    private_key = keypair.private_key
+
+                    request.session[f"private_key_{i}"] = private_key
+                    request.session[f"keypair_name_{i}"] = keypair_name
+                else:
+                    keypair_name = shared_keypair_name
+
+                metadata = {"app_template": app_template_name}
+                for index, account in enumerate(accounts):
+                    user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
+                    metadata[f"user_{index+1}"] = user_data_account
+
+
+                nova.server_create(
+                    request,
+                    name=instance_name,
+                    image=image_id,
+                    flavor=flavor_id,
+                    key_name=keypair_name,
+                    user_data=user_data,
+                    security_groups=security_groups,
+                    nics=nics,
+                    meta=metadata,
+                    description=description,
+                )
+                instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
 
         except Exception as e:
-            logging.error(f"Failed to create instance: {e}")
-            modal_message = _(f"Failed to create instance. Error: {e}")
-
+            logging.error(f"Failed to create instances: {e}")
+            modal_message = _(f"Failed to create instances. Error: {e}")
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
@@ -674,20 +682,22 @@ class InstancesView(generic.TemplateView):
         instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
         return instantiation_attribute
 
-    def extract_accounts_from_form_new(self, request):
+    def extract_accounts_from_form_new(self, request, instance_id):
         accounts = []
-        expected_fields = self.get_expected_fields()  # Erwartete Felder holen
+        expected_fields = self.get_expected_fields()
 
-        extracted_data = {field: request.POST.getlist(field) for field in expected_fields}
-        # extracted_data = {"account_name": ["Alice", "Bob"],"account_password": ["pass123", "secure456"]}
+        extracted_data = {field: request.POST.getlist(f"{field}_{instance_id}[]") for field in expected_fields}
 
-        num_entries = len(next(iter(extracted_data.values())))
+        num_entries = len(next(iter(extracted_data.values()), []))
 
         for i in range(num_entries):
             account = {field: extracted_data[field][i] for field in expected_fields}
             accounts.append(account)
 
         return accounts
+
+
+
 
     def get_networks(self):
         """Fetch networks from Neutron for the current tenant."""
@@ -755,47 +765,66 @@ class InstanceSuccessView(generic.TemplateView):
         """
         return render(request, self.template_name)
 
+    class DownloadInstanceDataView(generic.View):
+        """
+        View to generate and return a ZIP file containing:
+        - PDFs with instance user account information
+        - Private keys (either one shared key or separate keys per instance)
+        """
+
     def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to generate and return a PDF with user account information.
+        num_instances = int(request.session.get("num_instances", 1))
+        separate_keys = request.session.get("separate_keys", False)
 
-        :param request: The incoming HTTP POST request.
-        :type request: HttpRequest
-        :param args: Additional positional arguments.
-        :param kwargs: Additional keyword arguments.
-        :return: HTTP response containing the generated PDF file.
-        :rtype: HttpResponse
-        """
-        accounts = request.session.get("accounts", [])
-        name = request.session.get("instance_name", [])
-        app_template = request.session.get("app_template", [])
-        created = request.session.get("created", [])
-        pdf_response = generate_pdf(accounts, name, app_template, created)
-        del request.session["accounts"]
-        del request.session["instance_name"]
-        del request.session["app_template"]
-        del request.session["created"]
-        return pdf_response
+        zip_buffer = io.BytesIO()
 
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
 
-class DownloadPrivateKeyView(generic.View):
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to download the private key file.
+            # **1️⃣ PDFs für jede Instanz generieren**
+            for i in range(1, num_instances + 1):
+                accounts = request.session.get(f"accounts_{i}", [])
+                name = request.session.get(f"names_{i}", f"Instance-{i}")
+                app_template = request.session.get("app_template", "Unknown")
+                created = request.session.get("created", "Unknown Date")
 
-        The private key is stored in the session and returned as a file download.
-        """
-        private_key = request.session.get("private_key")
-        keypair_name = request.session.get("keypair_name", "instance_key")
+                if accounts:
+                    pdf_content = generate_pdf(accounts, name, app_template, created)
+                    zip_file.writestr(f"{name}.pdf", pdf_content)
 
-        if not private_key:
-            return HttpResponse("No private key found.", status=404)
-
-        response = HttpResponse(private_key, content_type="application/x-pem-file")
-        response["Content-Disposition"] = f'attachment; filename="{keypair_name}.pem"'
+            # **2️⃣ Private Keys zur ZIP hinzufügen**
+            if not separate_keys:
+                # **Ein gemeinsames Schlüsselpaar für alle Instanzen**
+                private_key = request.session.get("private_key")
+                keypair_name = request.session.get("keypair_name", "shared_instance_key")
+                zip_file.writestr(f"{keypair_name}.pem", private_key)
 
 
-        del request.session["private_key"]
-        del request.session["keypair_name"]
+            else:
+                # **Individuelle Schlüsselpaare für jede Instanz**
+                for i in range(1, num_instances + 1):
+                    private_key = request.session.get(f"private_key_{i}")
+                    keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
+                    zip_file.writestr(f"{keypair_name}.pem", private_key)
+
+
+        zip_buffer.seek(0)
+
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = 'attachment; filename="instances_data.zip"'
+
+        # **Session-Daten nach Download löschen**
+        for i in range(1, num_instances + 1):
+            request.session.pop(f"accounts_{i}", None)
+            request.session.pop(f"names_{i}", None)
+            request.session.pop(f"private_key_{i}", None)
+            request.session.pop(f"keypair_name_{i}", None)
+
+        request.session.pop("private_key", None)
+        request.session.pop("keypair_name", None)
+        request.session.pop("separate_keys", None)
+        request.session.pop("num_instances", None)
+        request.session.pop("app_template", None)
+        request.session.pop("created", None)
 
         return response
+
