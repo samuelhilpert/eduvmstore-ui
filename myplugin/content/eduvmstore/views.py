@@ -389,7 +389,7 @@ def generate_pdf(accounts, name, app_template, created):
     doc.build(elements)
     buffer.seek(0)
 
-    return buffer.getvalue()  # Gibt nur den Binärinhalt zurück
+    return buffer.getvalue()
 
 
 def generate_cloud_config(accounts,backend_script):
@@ -459,6 +459,17 @@ class InstancesView(generic.TemplateView):
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create multiple instances.
+
+        This method processes the form data submitted via POST request to create multiple instances based on the provided app template. It handles the creation of key pairs, user data, and metadata for each instance, and initiates the instance creation process using the Nova API.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return: An HTTP response redirecting to the success page or rendering the form with an error message.
+        :rtype: HttpResponse
         """
         try:
             num_instances = int(request.POST.get('num_instances', 1))
@@ -603,6 +614,15 @@ class InstancesView(generic.TemplateView):
        #     return {}
 
     def get_flavors(self, app_template):
+        """
+        Fetch all available flavors from Nova and filter them based on the system requirements
+        specified in the app template.
+
+        :param app_template: The app template containing system requirements.
+        :type app_template: dict
+        :return: A dictionary containing all flavors, suitable flavors, and the selected flavor.
+        :rtype: dict
+        """
         try:
             # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
@@ -656,25 +676,16 @@ class InstancesView(generic.TemplateView):
             logging.error(f"An error occurred while fetching flavors: {e}")
             return {}
 
-    def extract_accounts_from_form(self, request):
-        """Extract account details from the POST
-        form and format them as dictionaries with matching usernames and passwords."""
-        accounts = []
-
-        account_names = request.POST.getlist('account_name')
-        account_passwords = request.POST.getlist('account_password')
-
-        for name, password in zip(account_names, account_passwords):
-            if name and password:
-                accounts.append({
-                    "username": name,
-                    "password": password
-                })
-
-        return accounts
-
     def get_expected_fields(self):
+        """
+        Retrieve the expected fields for account creation from the app template.
 
+        This function fetches the app template and extracts the instantiation attributes,
+        which are the expected fields for account creation.
+
+        :return: A list of expected field names for account creation.
+        :rtype: list
+        """
         app_template = self.get_app_template()
         
         instantiation_attributes = app_template.get('instantiation_attributes')
@@ -683,6 +694,20 @@ class InstancesView(generic.TemplateView):
         return instantiation_attribute
 
     def extract_accounts_from_form_new(self, request, instance_id):
+        """
+        Extract account information from the form data for a specific instance.
+
+        This function retrieves the expected fields for account creation, extracts the corresponding
+        data from the POST request for the specified instance, and compiles it into a list of account
+        dictionaries.
+
+        :param request: The incoming HTTP request containing form data.
+        :type request: HttpRequest
+        :param instance_id: The ID of the instance for which to extract account data.
+        :type instance_id: int
+        :return: A list of dictionaries, each containing account information for the specified instance.
+        :rtype: list
+        """
         accounts = []
         expected_fields = self.get_expected_fields()
 
@@ -704,7 +729,16 @@ class InstancesView(generic.TemplateView):
 
 
     def get_networks(self):
-        """Fetch networks from Neutron for the current tenant."""
+        """
+        Fetch networks from Neutron for the current tenant.
+
+        This function retrieves the list of networks available to the current tenant
+        by making a call to the Neutron API. It returns a dictionary mapping network
+        IDs to network names.
+
+        :return: A dictionary where the keys are network IDs and the values are network names.
+        :rtype: dict
+        """
         try:
             tenant_id = self.request.user.tenant_id
             networks = api.neutron.network_list_for_tenant(self.request, tenant_id)
@@ -777,6 +811,19 @@ class InstanceSuccessView(generic.TemplateView):
         """
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to generate and return a ZIP file containing PDFs with instance user account information
+        and private keys (either one shared key or separate keys per instance).
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return: An HTTP response with the generated ZIP file.
+        :rtype: HttpResponse
+        """
         num_instances = int(request.session.get("num_instances", 1))
         separate_keys = request.session.get("separate_keys", False)
 
