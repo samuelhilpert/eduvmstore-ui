@@ -605,7 +605,7 @@ write_files:
     permissions: '0644'
     owner: root:root
     
-  - path: /etc/users.txt
+  - path: /etc/attributes.txt
     content: |
 {generate_indented_content(instantiations_content, indent_level=6)}
     permissions: '0644'
