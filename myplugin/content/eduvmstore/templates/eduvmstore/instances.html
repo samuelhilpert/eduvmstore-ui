@@ -19,7 +19,6 @@
 {% block main %}
 
     <style>
- /* General Styling */
     .clickable {
         cursor: pointer;
         color: #007bff;
@@ -68,7 +67,6 @@
        color: #333333;
     }
 
-    /* Button Alignment */
     .button-container {
         display: flex;
         justify-content: flex-end;
@@ -133,23 +131,17 @@
         </div>
     </div>
 
-    <!-- Basis-Instanzname -->
+
     <div class="form-group">
         <label for="instances_name">{{ _("Instance Name") }}</label>
         <input type="text" class="form-control" id="instances_name" name="instances_name"
                placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
-
     </div>
 
-    <!-- Anzahl der Instanzen -->
     <div class="form-group">
         <label for="num_instances">{{ _("Number of Instances") }}</label>
-        <input type="text" class="form-control" id="num_instances" name="num_instances"
-               placeholder="1-100" required>
-
-
-
-
+        <input type="number" class="form-control" id="num_instances" name="num_instances"
+               min="1" max="100" placeholder="1-100" required>
     </div>
 
     <div class="form-group">
@@ -160,10 +152,8 @@
         </select>
     </div>
 
-    <!-- Navigation für Instanzen -->
     <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
 
-    <!-- Container für Instanzen -->
     <div class="tab-content mt-3" id="instancesContainer"></div>
 
      <div style="margin-top: 20px; margin-bottom: 20px;">
@@ -213,23 +203,6 @@
     </style>
 
     <script>
-        function validateNumInstances(input) {
-            // Entferne alle nicht-numerischen Zeichen
-            input.value = input.value.replace(/\D/g, '');
-
-            // Falls das Feld leer ist, lassen wir es leer (erlaubt das Löschen der 1)
-            if (input.value === "") return;
-
-            let value = parseInt(input.value, 10);
-
-            // Falls der Wert über 100 liegt, setze ihn auf 100
-            if (value > 100) {
-                input.value = "100";
-            }
-        }
-
-
-
 
         window.onload = function () {
             let numInstancesInput = document.getElementById("num_instances");
@@ -469,16 +442,14 @@ function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
 
-    // Check if there is only one selectable flavor
-    if (flavorDropdown.options.length === 2) { // One valid option + the default "Choose a flavor"
-        flavorDropdown.selectedIndex = 1; // Automatically select the only available flavor
+    if (flavorDropdown.options.length === 2) {
+        flavorDropdown.selectedIndex = 1;
         if (flavorDropdown.value) {
-            flavorDropdown.disabled = true; // Disable the dropdown if a valid flavor is selected
+            flavorDropdown.disabled = true;
         }
     }
 }
 
-// Combine the values from instantiation_attributes
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
     let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-accounts").textContent = formattedAccounts;
