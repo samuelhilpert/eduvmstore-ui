@@ -923,18 +923,18 @@ class InstancesView(generic.TemplateView):
         :rtype: list
         """
         instantiations = []
-        expected_fields = self.get_expected_fields_instantiation()
+        expected_fields_instantiation = self.get_expected_fields_instantiation()
 
-        extracted_data = {
-            field: request.POST.getlist(f"{field}_{instance_id}[]")
-            for field in expected_fields
+        extracted_data_instantiations= {
+            field: request.POST.getlist(f"{field}_{instance_id}_instantiation[]")
+            for field in expected_fields_instantiation
         }
 
 
-        num_entries = len(next(iter(extracted_data.values()), []))
+        num_entries = len(next(iter(extracted_data_instantiations.values()), []))
 
         for i in range(num_entries):
-            instantiation = {field: extracted_data[field][i] for field in expected_fields}
+            instantiation = {field: extracted_data_instantiations[field][i] for field in expected_fields_instantiation}
             instantiations.append(instantiation)
 
         return instantiations

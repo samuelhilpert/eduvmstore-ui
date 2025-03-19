@@ -456,8 +456,8 @@
             instantiationAttribute.forEach(attr => {
                 fieldsHtmlInstance += `
             <div class="form-group md-5">
-                <label for="${attr}_${instanceId}">${attr}</label>
-                <input type="text" class="form-control" id="${attr}_${instanceId}" name="${attr}_${instanceId}" required>
+                <label for="${attr}_${instanceId}_instantiation">${attr}</label>
+                <input type="text" class="form-control" id="${attr}_${instanceId}_instantiation" name="${attr}_${instanceId}_instantiation[]" required>
             </div>
         `;
             });
