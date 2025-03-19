@@ -314,6 +314,9 @@ write_files:
         console.log(test);
         // Close the modal
         closeModal();
+
+        danach = document.getElementById('hiddenScriptField').value
+        console.log(test)
     }
 
     let accountAttributes = {{ app_template.account_attributes|safe }};
@@ -335,6 +338,8 @@ write_files:
 
     function closeModal() {
         document.getElementById('scriptModal').style.display = 'none';
+        test = document.getElementById('hiddenScriptField').value
+        console.log(test)
     }
 
 
