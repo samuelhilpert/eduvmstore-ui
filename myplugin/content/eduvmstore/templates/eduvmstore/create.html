@@ -225,6 +225,10 @@
                 <label for="instantiation_attributes">Instantiation Attributes:</label>
                 <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" >
             </div>
+            <div class="col-md-4">
+                <label for="account_attributes">Account Attributes:</label>
+                <input type="text" id="account_attributes" name="account_attributes" class="form-control" >
+            </div>
 
             <div class="col-md-4">
                 <label for="script_file">Upload Script:</label>
@@ -247,9 +251,16 @@
 write_files:
   - path: /etc/users.txt
     content: |
-      <span id="scriptContent"></span>
+      <span id="accountContent"></span>
     permissions: '0644'
     owner: root:root
+
+  - path: /etc/attributes.txt
+    content: |
+      <span id="instantiationContent"></span>
+    permissions: '0644'
+    owner: root:root
+
         </pre>
 
                 <textarea id="scriptText" class="form-control " rows="10"></textarea>
@@ -310,8 +321,10 @@ write_files:
 
 
     function openModal() {
-        let accountStructure = document.getElementById("instantiation_attributes").value;
-        document.getElementById("scriptContent").innerText = accountStructure;
+        let accountStructure = document.getElementById("account_attributes").value;
+        let instantiationStructure = document.getElementById("instantiation_attributes").value;
+        document.getElementById("accountContent").innerText = accountStructure;
+        document.getElementById("instantiationContent").innerText = instantiationStructure;
         document.getElementById('scriptModal').style.display = 'block';
     }
 

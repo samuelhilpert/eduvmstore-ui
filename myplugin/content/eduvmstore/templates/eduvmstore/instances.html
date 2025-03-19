@@ -120,7 +120,8 @@
                         <tr><th>Image Owner</th><td>{{ image_owner }}</td></tr>
                         <tr><th>Available For</th><td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td></tr>
                         <tr><th>Script</th><td><pre>{{ app_template.script }}</pre></td></tr>
-                         <tr><th>Instantiation Attributes</th><td> <pre id="structured-accounts"></pre></td></tr>
+                         <tr><th>Instantiation Attributes</th><td> <pre id="structured-instantiation"></pre></td></tr>
+                        <tr><th>Account Attributes</th><td> <pre id="structured-accounts"></pre></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -233,6 +234,7 @@
         };
 
         let accountAttributes = {{ expected_account_fields|safe }};
+        let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
         function generateInstanceFields() {
             let instanceTabs = document.getElementById("instanceTabs");
@@ -309,12 +311,21 @@
                     <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
                 </div>
 
+                <div id="instantiation_section_${i}">
+                    <h4>{{ _("Instantiation Attributes") }}</h4>
+                    <div id="dynamic_instantiation_container_${i}">
+                        ${generateInstantiationFields(i)}
+                    </div>
+                </div>
+
                 <!-- Dynamische Accounts -->
                 <div id="accounts_section_${i}" style="display: none;">
                     <h4>{{ _("Accounts") }}</h4>
                     <div id="dynamic_accounts_container_${i}"></div>
                     <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                 </div>
+
+
 
                 <div class="d-flex justify-content-between mt-3">
                     ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous") }}</button>` : ""}
@@ -439,6 +450,20 @@
                 accountSection.remove();
             });
         }
+
+        function generateInstantiationFields(instanceId) {
+            let fieldsHtmlInstance = ``;
+            instantiationAttribute.forEach(attr => {
+                fieldsHtmlInstance += `
+            <div class="form-group md-5">
+                <label for="${attr}_${instanceId}_instantiation">${attr}</label>
+                <input type="text" class="form-control" id="${attr}_${instanceId}_instantiation" name="${attr}_${instanceId}_instantiation[]" required>
+            </div>
+        `;
+            });
+            return fieldsHtmlInstance;
+        }
+
         {% if modal_message %}
             $(document).ready(function () {
                 $('#responseModal').modal('show');
@@ -459,7 +484,11 @@ function selectAutomaticFlavor(instanceId) {
 }
 
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-    let formattedAccounts = instantiationAttributes.map(acc => acc.name).join(":");
+    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("structured-instantiation").textContent = formattedInstantiation;
+
+    let accountAttribute = {{ app_template.account_attributes|safe }}
+    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-accounts").textContent = formattedAccounts;
     </script>
 

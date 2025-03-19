@@ -14,11 +14,11 @@
 {% endblock %}
 
 {% block main %}
-    <p>The instance was successfully created. You can now download the associated PDF.</p>
+    <p>The instance was successfully created. You can now download the associated Zip-File.</p>
 
     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:success' %}">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Download PDF</button>
+        <button type="submit" class="btn btn-primary">Download ZIP</button>
     </form>
 
 

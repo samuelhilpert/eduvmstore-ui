@@ -1,0 +1,18 @@
+runcmd:
+  - cat /etc/users.txt > /etc/testtesttest
+  - |
+    while IFS=':' read -r username password; do
+      if ! id "$username" &>/dev/null; then
+        echo "Creating user $username..."
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+      fi
+      
+      homedir="/home/$username"
+      if [ -d "$homedir" ]; then
+        cp /etc/attributes.txt "$homedir/attributes.txt"
+        chown "$username:$username" "$homedir/attributes.txt"
+      else
+        echo "Home directory for $username does not exist!" >> /var/log/cloud-init-user.log
+      fi
+    done < /etc/users.txt
