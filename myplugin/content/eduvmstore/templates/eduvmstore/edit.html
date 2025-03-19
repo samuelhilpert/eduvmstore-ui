@@ -308,6 +308,10 @@ write_files:
         var scriptText = document.getElementById('scriptText').value;
         // Store it in the hidden input field
         document.getElementById('hiddenScriptField').value = scriptText;
+
+        console.log(scriptText);
+        test = document.getElementById('hiddenScriptField').value
+        console.log(test);
         // Close the modal
         closeModal();
     }
