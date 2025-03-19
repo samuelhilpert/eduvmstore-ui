@@ -139,9 +139,6 @@
 
 
 
-         <!-- Hidden input to store the script text -->
-         <input type="hidden" id="hiddenScriptField" name="script_text" />
-
          <div class="form-group row">
              <div class="col-md-6">
                  <label for="name">App-Template Name:</label>
@@ -272,7 +269,7 @@ write_files:
          </div>
 
          <!-- Hidden input to store the script text -->
-         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" value="{{ app_template.script }}" />
+         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
          <button type="submit" class="btn btn-primary" id="submit-button" >Edit</button>
           <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
      </form>
@@ -309,14 +306,8 @@ write_files:
         // Store it in the hidden input field
         document.getElementById('hiddenScriptField').value = scriptText;
 
-        console.log(scriptText);
-        test = document.getElementById('hiddenScriptField').value
-        console.log(test);
         // Close the modal
         closeModal();
-
-        danach = document.getElementById('hiddenScriptField').value
-        console.log(test)
     }
 
     let accountAttributes = {{ app_template.account_attributes|safe }};
@@ -338,8 +329,6 @@ write_files:
 
     function closeModal() {
         document.getElementById('scriptModal').style.display = 'none';
-        test = document.getElementById('hiddenScriptField').value
-        console.log(test)
     }
 
 
