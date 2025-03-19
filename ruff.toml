@@ -1,11 +1,11 @@
 line-length = 110
 exclude = ["migrations", "tests/"]
 
-# Aktivieren spezifischer Regelkategorien
-# E: Pyflakes (Syntax-Fehler, undefinierte Namen, etc.)
-# F: Flake8 (Standard-Python-Fehler)
-# N: PEP 8 Namenskonventionen (z.B. CamelCase für Klassen, snake_case für Funktionen)
-# I: Import-Check (unbenutzte Importe, Import-Reihenfolge)
+# Enable specific rule categories
+# E: Pyflakes (syntax errors, undefined names, etc.)
+# F: Flake8 (standard Python errors)
+# N: PEP 8 naming conventions (e.g., CamelCase for classes, snake_case for functions)
+# I: Import check (unused imports, import order)
 select = ["E", "F", "N", "I"]
 
 

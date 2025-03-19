@@ -17,10 +17,20 @@ from myplugin.content.api_endpoints import API_ENDPOINTS
 from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 import io
+import zipfile
+from io import BytesIO
+
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.views import View
+import base64
+import re
+
 
 
 
@@ -69,22 +79,34 @@ def fetch_app_templates(request):
 
 
 def validate_name(request):
+    """
+    Validate the uniqueness of a name by checking for collisions via an external API.
+
+    This function handles POST requests to validate a name by sending it to an external API
+    and checking for any name collisions. It uses the token ID from the request for authentication.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: JsonResponse indicating whether the name is valid or an error message
+            if the request method is invalid.
+    :rtype: JsonResponse
+    """
     if request.method == "POST":
         try:
-            # JSON-Body auslesen
+            # Read JSON-Body
             body = json.loads(request.body)
             name = body.get('name', '').strip()
 
-            # Token-ID abrufen
+            # Retrieve Token-ID
             token_id = get_token_id(request)
             headers = {"X-Auth-Token": token_id}
 
-            # API-Aufruf an das Backend
+            # API-Calls to Backend
             url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
 
-            # Antwort verarbeiten
+            # Process Response
             data = response.json()
             is_valid = not data.get('collisions', True)
 
@@ -232,12 +254,24 @@ class CreateView(generic.TemplateView):
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
+        instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
+        if instantiation_attribute_raw:
+            instantiation_attributes = [
+                {"name": attr.strip()}
+                for attr in instantiation_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            instantiation_attributes = []
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
+            'script': request.POST.get('hiddenScriptField'),
+            'instantiation_attributes' : instantiation_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -246,6 +280,7 @@ class CreateView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+
         }
 
         try:
@@ -423,28 +458,113 @@ class EditView(generic.TemplateView):
             return {}
 
 
-def generate_pdf(accounts, name):
-    """Erstellt eine PDF mit den Benutzern und Passwörtern."""
+def generate_pdf(accounts, name, app_template, created):
+    """
+    Generate a well-formatted PDF document containing user account information in a table format.
+
+    :param accounts: A list of dictionaries, where each dictionary contains user account details.
+    :type accounts: list
+    :param name: The name of the created instance.
+    :type name: str
+    :return: PDF-Datei als Bytes (nicht als HttpResponse!)
+    :rtype: bytes
+    """
     buffer = io.BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
-    pdf.setTitle("User Credentials")
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
 
-    pdf.drawString(100, 750, f"Benutzerkonten für die erstellte Instanz {name}:")
-    y = 730
+    title = Paragraph(f"<b>{name}</b>", styles['Title'])
+    elements.append(title)
+    elements.append(Spacer(1, 0.2 * inch))
+
+    subtitle = Paragraph(
+        f"Instantiation Attributes for the created instance {name} from the EduVMStore. "
+        f"This instance was created with the app template {app_template} on {created}.",
+        styles['Normal']
+    )
+    elements.append(subtitle)
+    elements.append(Spacer(1, 0.2 * inch))
+
+    if accounts:
+        all_keys = list(accounts[0].keys())
+    else:
+        all_keys = []
+
+    table_data = [all_keys]
     for account in accounts:
-        pdf.drawString(100, y, f"Benutzername: {account['username']} - Passwort: {account['password']}")
-        y -= 20
+        row_values = [account.get(key, "N/A") for key in all_keys]
+        table_data.append(row_values)
 
-    pdf.showPage()
-    pdf.save()
+    table = Table(table_data, repeatRows=1)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
 
+    elements.append(table)
+    doc.build(elements)
     buffer.seek(0)
-    response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=benutzerkonten.pdf"
-    return response
+
+    return buffer.getvalue()
 
 
+def generate_cloud_config(accounts,backend_script):
+    """
+        Generate a cloud-config file for user account creation and backend script execution.
 
+        This function creates a cloud-config file that includes user account information
+        and a backend script.
+
+        :param accounts: A list of dictionaries, where each dictionary contains user account details.
+        :type accounts: list
+        :param backend_script: string containing backend script to be included in the cloud-config file.
+        :type backend_script: str
+        :return: A string representing the complete cloud-config file.
+        :rtype: str
+        """
+
+    sorted_keys = list(accounts[0].keys())
+
+    users_content = "\n".join(
+        [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
+    )
+
+    cloud_config = f"""#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+{generate_indented_content(users_content, indent_level=6)}
+    permissions: '0644'
+    owner: root:root
+
+{backend_script}
+"""
+    return cloud_config
+
+
+def generate_indented_content(content, indent_level=6):
+    """
+    Indent each line of the given content by a specified number of spaces.
+
+    This function takes a multi-line string and indents each line by a specified number of spaces.
+    It is useful for formatting content that needs to be indented consistently.
+
+    :param content: The multi-line string to be indented.
+    :type content: str
+    :param indent_level: The number of spaces to indent each line.
+    :type indent_level: int
+    :return: The indented multi-line string.
+    :rtype: str
+    """
+
+    indent = " " * indent_level
+    return "\n".join([indent + line for line in content.split("\n")])
 
 
 class InstancesView(generic.TemplateView):
@@ -452,53 +572,130 @@ class InstancesView(generic.TemplateView):
         View for displaying instances, including form input for instance creation.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
-   # success_url = reverse_lazy('/')  # Redirect to the index page upon success
+
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
+
     def post(self, request, *args, **kwargs):
-        """Handle POST requests to create a new instance."""
+        """
+        Handle POST requests to create multiple instances.
+
+        This method processes the form data submitted via POST request to create multiple instances
+        based on the provided app template. It handles the creation of key pairs, user data,
+        and metadata for each instance, and initiates the instance creation process using the Nova API.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return:HTTP response redirecting to the success page or rendering the form with error message.
+        :rtype: HttpResponse
+        """
         try:
-
-            flavor_id = request.POST.get('flavor_id')
-            name = request.POST.get('name')
-            network_id = request.POST.get('network_id')
-
-
+            num_instances = int(request.POST.get('num_instances', 1))
+            base_name = request.POST.get('instances_name')
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
-            accounts = self.extract_accounts_from_form(request)
-            request.session["accounts"] = accounts
-            request.session["instance_name"] = name
+            script = app_template.get('script')
+            app_template_name = app_template.get('name')
+            app_template_description = app_template.get('description')
+            created = app_template.get('created_at', '').split('T')[0]
 
-            nics = [{"net-id": network_id}]
+            request.session["app_template"] = app_template_name
+            request.session["created"] = created
+            request.session["num_instances"] = num_instances
 
-            key_name = None
-            user_data = None
+            separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
+            request.session["separate_keys"] = separate_keys
+
+
             security_groups = ["default"]
 
-            print(f" name: {name}, image: {image_id}, flavor: {flavor_id}, network: {network_id}")
+
+            instances = []
+            shared_keypair_name = f"{base_name}_shared_key"
+            shared_private_key = None
+
+            if not separate_keys:
+                keypair = nova.keypair_create(request, name=shared_keypair_name)
+                shared_private_key = keypair.private_key
+                request.session["private_key"] = shared_private_key
+                request.session["keypair_name"] = shared_keypair_name
+
+            for i in range(1, num_instances + 1):
+                instance_name = f"{base_name}-{i}"
+                flavor_id = request.POST.get(f'flavor_id_{i}')
+                network_id = request.POST.get(f'network_id_{i}')
+                accounts = []
 
 
-            nova.server_create(
-                request,
-                name=name,
-                image=image_id,
-                flavor=flavor_id,
-                key_name=key_name,
-                user_data=user_data,
-                security_groups=security_groups,
-                nics=nics,
-            )
+                no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
+
+                if no_additional_users is None:
+                    try:
+                        accounts = self.extract_accounts_from_form_new(request, i)
+                    except Exception:
+                        accounts = []
+
+                request.session[f"accounts_{i}"] = accounts
+                request.session[f"names_{i}"] = instance_name
+
+                description = self.format_description(app_template_description)
+
+
+                if not script and not accounts:
+                    user_data = None
+                elif not script and accounts:
+                    user_data = generate_cloud_config(accounts, None)
+                elif script and no_additional_users == "on":
+                    user_data = f"#cloud-config\n{script}"
+                elif script and no_additional_users is None and not accounts:
+                    user_data = f"#cloud-config\n{script}"
+                else:
+                    user_data = generate_cloud_config(accounts, script)
+
+
+                nics = [{"net-id": network_id}]
+                if separate_keys:
+                    keypair_name = f"{instance_name}_keypair"
+                    keypair = nova.keypair_create(request, name=keypair_name)
+                    private_key = keypair.private_key
+
+                    request.session[f"private_key_{i}"] = private_key
+                    request.session[f"keypair_name_{i}"] = keypair_name
+                else:
+                    keypair_name = shared_keypair_name
+
+                metadata = {"app_template": app_template_name}
+                for index, account in enumerate(accounts):
+                    user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
+                    metadata[f"user_{index+1}"] = user_data_account
+
+
+                nova.server_create(
+                    request,
+                    name=instance_name,
+                    image=image_id,
+                    flavor=flavor_id,
+                    key_name=keypair_name,
+                    user_data=user_data,
+                    security_groups=security_groups,
+                    nics=nics,
+                    meta=metadata,
+                    description=description,
+                )
+                instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
 
         except Exception as e:
-            logging.error(f"Failed to create instance: {e}")
-            modal_message = _(f"Failed to create instance. Error: {e}")
-
+            logging.error(f"Failed to create instances: {e}")
+            modal_message = _(f"Failed to create instances. Error: {e}")
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
@@ -517,7 +714,7 @@ class InstancesView(generic.TemplateView):
         app_template = self.get_app_template()
 
         # Fetch available flavors from Nova
-        context['flavors'] = self.get_flavors()
+        context['flavors'] = self.get_flavors(app_template)
 
         #Context for the selected App-Template --> Display system infos
         context['app_template'] = app_template
@@ -528,38 +725,145 @@ class InstancesView(generic.TemplateView):
         # Include the app_template_id in the context
         context['app_template_id'] = app_template_id
 
+        context['expected_account_fields'] = self.get_expected_fields()
+
         return context
 
-    def get_flavors(self, ):
-        """Fetch flavors from Nova to correlate instances."""
+    #def get_flavors(self, ):
+      #  """Fetch flavors from Nova to correlate instances."""
+       # try:
+       #     flavors = api.nova.flavor_list(self.request)
+       #     return {str(flavor.id): flavor.name for flavor in flavors}
+       # except Exception:
+       #     exceptions.handle(self.request, ignore=True)
+       #     return {}
+
+    def get_flavors(self, app_template):
+        """
+        Fetch all available flavors from Nova and filter them based on the system requirements
+        specified in the app template.
+
+        :param app_template: The app template containing system requirements.
+        :type app_template: dict
+        :return: A dictionary containing all flavors, suitable flavors, and the selected flavor.
+        :rtype: dict
+        """
         try:
+            # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
-            return {str(flavor.id): flavor.name for flavor in flavors}
-        except Exception:
-            exceptions.handle(self.request, ignore=True)
+            if not flavors:
+                logging.error("No flavors returned from Nova API.")
+                return {}
+
+            flavor_dict = {str(flavor.id): flavor for flavor in flavors}
+            logging.info(f"Found {len(flavors)} flavors.")
+
+            # Extract system requirements from app_template
+            required_ram_gb = app_template.get('fixed_ram_gb')
+            required_disk_gb = app_template.get('fixed_disk_gb')
+            required_cores = app_template.get('fixed_cores')
+
+            # Convert required RAM to MB (as Nova uses MB)
+            required_ram_mb = required_ram_gb * 1024
+
+            # Store suitable flavors
+            suitable_flavors = {}
+
+            for flavor_id, flavor in flavor_dict.items():
+                if (
+                        flavor.ram >= required_ram_mb and
+                        flavor.disk >= required_disk_gb and
+                        flavor.vcpus >= required_cores
+                ):
+                    suitable_flavors[flavor_id] = flavor.name
+
+            # Check if at least one suitable flavor is found
+            if not suitable_flavors:
+                logging.warning("No suitable flavors found for the given requirements.")
+
+            # Automatically select the first suitable flavor if exists
+            selected_flavor = next(iter(suitable_flavors.keys()), None)
+
+            # Return flavor information
+            result = {
+                'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
+                'suitable_flavors': suitable_flavors,
+                'selected_flavor': selected_flavor,
+                'required_ram': required_ram_gb,
+                'required_disk': required_disk_gb,
+                'required_cores': required_cores,
+            }
+
+            logging.info(f"Returning flavor data: {result}")
+            return result
+
+        except Exception as e:
+            logging.error(f"An error occurred while fetching flavors: {e}")
             return {}
 
-    def extract_accounts_from_form(self, request):
-        """Extract account details from the POST
-        form and format them as dictionaries with matching usernames and passwords."""
+    def get_expected_fields(self):
+        """
+        Retrieve the expected fields for account creation from the app template.
+
+        This function fetches the app template and extracts the instantiation attributes,
+        which are the expected fields for account creation.
+
+        :return: A list of expected field names for account creation.
+        :rtype: list
+        """
+        app_template = self.get_app_template()
+
+        instantiation_attributes = app_template.get('instantiation_attributes')
+
+        instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
+        return instantiation_attribute
+
+    def extract_accounts_from_form_new(self, request, instance_id):
+        """
+        Extract account information from the form data for a specific instance.
+
+        This function retrieves the expected fields for account creation, extracts the corresponding
+        data from the POST request for the specified instance, and compiles it into a list of account
+        dictionaries.
+
+        :param request: The incoming HTTP request containing form data.
+        :type request: HttpRequest
+        :param instance_id: The ID of the instance for which to extract account data.
+        :type instance_id: int
+        :return: A list of dictionaries, each containing account information for the specified instance.
+        :rtype: list
+        """
         accounts = []
+        expected_fields = self.get_expected_fields()
 
-        # Get account names and passwords from the POST request
-        account_names = request.POST.getlist('account_name')
-        account_passwords = request.POST.getlist('account_password')
+        extracted_data = {
+            field: request.POST.getlist(f"{field}_{instance_id}[]")
+            for field in expected_fields
+        }
 
-        # Create a dictionary for each account
-        for name, password in zip(account_names, account_passwords):
-            if name and password:
-                accounts.append({
-                    "username": name,
-                    "password": password
-                })
+
+        num_entries = len(next(iter(extracted_data.values()), []))
+
+        for i in range(num_entries):
+            account = {field: extracted_data[field][i] for field in expected_fields}
+            accounts.append(account)
 
         return accounts
 
+
+
+
     def get_networks(self):
-        """Fetch networks from Neutron for the current tenant."""
+        """
+        Fetch networks from Neutron for the current tenant.
+
+        This function retrieves the list of networks available to the current tenant
+        by making a call to the Neutron API. It returns a dictionary mapping network
+        IDs to network names.
+
+        :return: A dictionary where the keys are network IDs and the values are network names.
+        :rtype: dict
+        """
         try:
             tenant_id = self.request.user.tenant_id
             networks = api.neutron.network_list_for_tenant(self.request, tenant_id)
@@ -590,18 +894,109 @@ class InstancesView(generic.TemplateView):
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
 
+    def format_description(self,description):
+        """
+    Format the given description by removing extra whitespace and truncating it to a maximum length.
+
+    This function removes any extra whitespace from the description and ensures that the resulting
+    string does not exceed 255 characters in length.
+
+    :param description: The description string to be formatted.
+    :type description: str
+    :return: The formatted description string.
+    :rtype: str
+    """
+        description = re.sub(r'\s+', ' ', description)
+        description = description[:255]
+        return description
+
+
 class InstanceSuccessView(generic.TemplateView):
 
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
 
     def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to render the success template.
+
+        :param request: The incoming HTTP GET request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: Rendered HTML response.
+        :rtype: HttpResponse
+        """
         return render(request, self.template_name)
 
+    class DownloadInstanceDataView(generic.View):
+        """
+        View to generate and return a ZIP file containing:
+        - PDFs with instance user account information
+        - Private keys (either one shared key or separate keys per instance)
+        """
+
     def post(self, request, *args, **kwargs):
-        accounts = request.session.get("accounts", [])
-        name = request.session.get("instance_name", [])
-        pdf_response = generate_pdf(accounts, name)
-        del request.session["accounts"]
-        del request.session["instance_name"]
-        return pdf_response
+        """
+        Handle POST requests to generate and return a ZIP file containing PDFs with
+        instance user account information and private keys (either one shared key or
+        separate keys per instance).
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return: An HTTP response with the generated ZIP file.
+        :rtype: HttpResponse
+        """
+        num_instances = int(request.session.get("num_instances", 1))
+        separate_keys = request.session.get("separate_keys", False)
+
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+
+            for i in range(1, num_instances + 1):
+                accounts = request.session.get(f"accounts_{i}", [])
+                name = request.session.get(f"names_{i}", f"Instance-{i}")
+                app_template = request.session.get("app_template", "Unknown")
+                created = request.session.get("created", "Unknown Date")
+
+                if accounts:
+                    pdf_content = generate_pdf(accounts, name, app_template, created)
+                    zip_file.writestr(f"{name}.pdf", pdf_content)
+
+            if not separate_keys:
+                private_key = request.session.get("private_key")
+                keypair_name = request.session.get("keypair_name", "shared_instance_key")
+                zip_file.writestr(f"{keypair_name}.pem", private_key)
+
+
+            else:
+                for i in range(1, num_instances + 1):
+                    private_key = request.session.get(f"private_key_{i}")
+                    keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
+                    zip_file.writestr(f"{keypair_name}.pem", private_key)
+
+
+        zip_buffer.seek(0)
+
+        response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
+        response["Content-Disposition"] = 'attachment; filename="instances_data.zip"'
+
+        for i in range(1, num_instances + 1):
+            request.session.pop(f"accounts_{i}", None)
+            request.session.pop(f"names_{i}", None)
+            request.session.pop(f"private_key_{i}", None)
+            request.session.pop(f"keypair_name_{i}", None)
+
+        request.session.pop("private_key", None)
+        request.session.pop("keypair_name", None)
+        request.session.pop("separate_keys", None)
+        request.session.pop("num_instances", None)
+        request.session.pop("app_template", None)
+        request.session.pop("created", None)
+
+        return response
 

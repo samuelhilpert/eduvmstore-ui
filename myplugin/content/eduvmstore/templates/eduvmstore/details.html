@@ -37,7 +37,7 @@
         margin-bottom: 20px;
         color: #343a40;
     }
-    .system-requirements, .image-info {
+    .system-requirements, .image-info, .script-details {
         background-color: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
@@ -170,12 +170,12 @@
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Visibility:</strong>
+                <strong>Available for:</strong>
                 <p>
                     {% if app_template.public %}
-                    Public
+                    Everyone
                 {% else %}
-                    Private
+                    Creator only
                 {% endif %}
                 </p>
 
@@ -190,6 +190,47 @@
     </div>
 </div>
 
-    <div>{{ token_id }}</div>
+    <h4>Script</h4>
+    <div class="script-details">
+        <div class="row">
+            <div class="col-md-6">
+
+                <div class="detail-group">
+                    <strong>Script:</strong>
+                    {% if app_template.script %}
+                        <pre>
+#cloud-config
+write_files:
+  - path: /etc/users.txt
+    content: |
+      <span id="formatted-accounts"></span>
+    permissions: '0644'
+    owner: root:root
+                        </pre>
+                        <pre>{{ app_template.script }}</pre>
+
+
+
+                    {% else %}
+                        <p>No script uploaded.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-group">
+                    <strong>Instantiation Attributes:</strong>
+                    <p id="structured-accounts"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let accountAttributes = {{ app_template.instantiation_attributes|safe }};
+        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+        document.getElementById("formatted-accounts").textContent = formattedAccounts;
+        document.getElementById("structured-accounts").textContent = formattedAccounts;
+    </script>
+
 
 {% endblock %}
