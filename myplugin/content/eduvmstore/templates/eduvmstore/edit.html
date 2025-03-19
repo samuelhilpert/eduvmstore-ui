@@ -408,8 +408,7 @@
     let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
     document.getElementById("instantiation_attributes").value = formattedInstantiation;
 
-    let accountAttributes = JSON.parse('{{ app_template.account_attributes|safe }}');
-
+    let accountAttributes = {{ app_template.account_attributes|safe }};
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("account_attributes").value = formattedAccounts;
 
