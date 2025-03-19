@@ -144,8 +144,10 @@
     <!-- Anzahl der Instanzen -->
     <div class="form-group">
         <label for="num_instances">{{ _("Number of Instances") }}</label>
-        <input type="number" class="form-control" id="num_instances" name="num_instances"
-               min="1" max="100" placeholder="1-100" required>
+        <<input type="text" class="form-control" id="num_instances" name="num_instances"
+                placeholder="1-100" pattern="^(100|[1-9][0-9]?)$" required
+                oninput="validateNumInstances(this)">
+
 
     </div>
 
@@ -210,6 +212,24 @@
     </style>
 
     <script>
+        function validateNumInstances(input) {
+            // Entferne alle nicht-numerischen Zeichen
+            input.value = input.value.replace(/\D/g, '');
+
+            let value = parseInt(input.value, 10);
+
+            // Falls das Feld leer ist, beende die Funktion
+            if (isNaN(value)) return;
+
+            // Setze Werte über 100 automatisch auf 100
+            if (value > 100) {
+                input.value = "100";
+            } else if (value < 1) {
+                input.value = "1"; // Optional: Wenn leere Eingabe nicht erlaubt ist, min. 1 setzen
+            }
+        }
+
+
         window.onload = function () {
             let numInstancesInput = document.getElementById("num_instances");
             let instancesNameInput = document.getElementById("instances_name");
