@@ -311,6 +311,12 @@
                     <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
                 </div>
 
+                <div class="form-group">
+    <label for="csvUpload_{{ i }}">{{ _("Upload CSV") }}</label>
+    <input type="file" class="form-control-file csv-upload" id="csvUpload_{{ i }}" data-instance="{{ i }}" accept=".csv">
+</div>
+
+
                 <div id="instantiation_section_${i}">
                     <h4>{{ _("Instantiation Attributes") }}</h4>
                     <div id="dynamic_instantiation_container_${i}">
@@ -490,6 +496,62 @@ function selectAutomaticFlavor(instanceId) {
     let accountAttribute = {{ app_template.account_attributes|safe }}
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-accounts").textContent = formattedAccounts;
+
+
+        document.querySelectorAll(".csv-upload").forEach(input => {
+            input.addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const instanceId = event.target.getAttribute("data-instance");
+                const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+                const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+
+                if (!addAccountButton) {
+                    console.error("Fehler: Add-Account-Button nicht gefunden!");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const text = e.target.result;
+                    const lines = text.trim().split("\n");
+
+                    // Prüfen, ob eine Kopfzeile existiert (optional)
+                    const firstLine = lines[0].split(",");
+                    let hasHeader = firstLine.some(header => accountAttributes.includes(header.trim()));
+
+                    let startIndex = hasHeader ? 1 : 0;
+                    for (let i = startIndex; i < lines.length; i++) {
+                        let values = lines[i].split(",");
+
+                        if (values.length !== accountAttributes.length) {
+                            alert(`Fehler: Zeile ${i + 1} hat nicht die richtige Anzahl an Werten.`);
+                            continue;
+                        }
+
+                        // Simuliere Klick auf "Add Account", um die Felder zu erstellen
+                        addAccountButton.click();
+
+                        // Warte kurz, um sicherzustellen, dass die Felder existieren
+                        setTimeout(() => {
+                            let lastAccount = accountsContainer.lastElementChild;
+                            if (!lastAccount) return;
+
+                            let inputs = lastAccount.querySelectorAll("input");
+                            accountAttributes.forEach((attr, index) => {
+                                let inputField = inputs[index];
+                                if (inputField) {
+                                    inputField.value = values[index].trim();
+                                }
+                            });
+                        }, 100);
+                    }
+                };
+                reader.readAsText(file);
+            });
+        });
+
     </script>
 
 {% endblock %}
