@@ -183,6 +183,16 @@ class IndexView(generic.TemplateView):
                 template['size'] = _('Unknown')
                 template['visibility'] = _('Unknown')
 
+        for favorite_app_template in favorite_app_templates:
+            image_id = favorite_app_template.get('image_id')
+            glance_image = glance_images.get(image_id)
+            if glance_image:
+                favorite_app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
+                favorite_app_template['visibility'] = glance_image.visibility
+            else:
+                favorite_app_template['size'] = _('Unknown')
+                favorite_app_template['visibility'] = _('Unknown')
+
         context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
 
@@ -1162,4 +1172,43 @@ class InstanceSuccessView(generic.TemplateView):
         request.session.pop("created", None)
 
         return response
+
+class GetFavoriteAppTemplateView(generic.View):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to delete a template via the external API.
+        """
+        favorite_app_template_id = request.POST.get("template_id")
+        favorite_app_template_name = request.POST.get("template_name")
+        token_id = get_token_id(request)
+
+        if not favorite_app_template_id:
+            messages.error(request, "App Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+        try:
+            # Prepare API call
+            api_url = f"{API_ENDPOINTS['favorite']}"
+
+            headers = {"X-Auth-Token": token_id}
+
+            payload = {
+                "app_template_id": favorite_app_template_id
+            }
+
+
+            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
+
+            if response.status_code == 201:
+                created_role = response.json()
+                role_id = created_role.get("id")
+                messages.success(request, f"App Template '{favorite_app_template_name}' is now a favorite.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to favorite app template: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:admin:index')
 

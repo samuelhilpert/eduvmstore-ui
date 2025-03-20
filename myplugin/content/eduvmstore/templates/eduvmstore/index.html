@@ -18,6 +18,22 @@
 
 
 {% block main %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".favorite-form").forEach(form => {
+                form.addEventListener("submit", function () {
+                    let button = this.querySelector(".favorite-btn i");
+                    button.classList.add("favorite");  // Herz sofort rot färben
+
+                    setTimeout(() => {
+                        button.classList.remove("favorite");  // Herz nach kurzer Zeit wieder grau machen
+                    }, 1000);  // 1 Sekunde Verzögerung
+
+                    // Das Formular wird direkt abgeschickt
+                });
+            });
+        });
+    </script>
 <style>
     .table {
             width: 100%;
@@ -67,6 +83,22 @@
          background-color: #E8E8E8;
    }
 
+    .favorite-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .favorite-btn i {
+        font-size: 20px;
+        color: gray;
+        transition: color 0.3s ease-in-out;
+    }
+
+    .favorite-btn i.favorite {
+        color: red;
+    }
+
     </style>
 
 <div class="button-container">
@@ -82,7 +114,6 @@
         <tr>
             <th>App Template Name</th>
             <th>Short Description</th>
-            <th>Version</th>
             <th>Size (MB)</th>
             <th>Visibility</th>
             <th>Action</th>
@@ -98,7 +129,6 @@
                     </a>
                 </td>
                 <td>{{ favorite_template.short_description }}</td>
-                <td>{{ favorite_template.version }}</td>
                 <td>{{ favorite_template.size }} </td>
                 <td>
                     {% if favorite_template.public %}
@@ -136,10 +166,10 @@
         <tr>
             <th>App Template Name</th>
             <th>Short Description</th>
-            <th>Version</th>
             <th>Size (MB)</th>
             <th>Visibility</th>
-            <th>Action</th>
+            <th>Launch</th>
+            <th>Favorite</th>
         </tr>
     </thead>
     <tbody>
@@ -152,7 +182,6 @@
                     </a>
                 </td>
             <td>{{ template.short_description }}</td>
-            <td>{{ template.version }}</td>
             <td>{{ template.size }} </td>
            <td>
                 {% if template.public %}
@@ -178,6 +207,16 @@
         </ul>
     </div>
               </td>
+                  <td>
+                      <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
+                          {% csrf_token %}
+                          <input type="hidden" name="template_id" value="{{ template.id }}">
+                          <input type="hidden" name="template_name" value="{{ template.name }}">
+                          <button type="submit" class="favorite-btn">
+                              <i class="fa fa-heart"></i>
+                          </button>
+                      </form>
+                  </td>
         </tr>
         {% endfor %}
     </tbody>

@@ -12,5 +12,6 @@ urlpatterns = [
     path('instances/<str:image_id>/', views.InstancesView.as_view(), name='instances'),
     path('validate-name/', views.validate_name, name='validate_name'),
     path('success/', views.InstanceSuccessView.as_view(), name='success'),
+    path('favorite_template/', views.GetFavoriteAppTemplateView.as_view(), name='favorite_template'),
 
 ]
