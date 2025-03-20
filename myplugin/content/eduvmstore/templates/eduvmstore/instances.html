@@ -498,77 +498,78 @@ function selectAutomaticFlavor(instanceId) {
     document.getElementById("structured-accounts").textContent = formattedAccounts;
 
 
-        document.querySelectorAll(".csv-upload").forEach(input => {
-            input.addEventListener("change", function (event) {
-                const file = event.target.files[0];
-                if (!file) {
-                    console.error("⚠️ Keine Datei ausgewählt!");
-                    return;
-                }
+        document.addEventListener("change", function (event) {
+            if (!event.target.classList.contains("csv-upload")) return; // Nur für CSV-Uploads
 
-                const instanceId = event.target.getAttribute("data-instance");
-                console.log(`📂 Datei hochgeladen für Instanz: ${instanceId}`);
+            const file = event.target.files[0];
+            if (!file) {
+                console.error("⚠️ Keine Datei ausgewählt!");
+                return;
+            }
 
-                const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-                const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+            const instanceId = event.target.getAttribute("data-instance");
+            console.log(`📂 Datei hochgeladen für Instanz: ${instanceId}`);
 
-                if (!addAccountButton) {
-                    console.error("❌ Fehler: Add-Account-Button nicht gefunden!");
-                    return;
-                }
+            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+            const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
 
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const text = e.target.result;
-                    console.log("📜 Eingelesener CSV-Inhalt:\n", text);
+            if (!addAccountButton) {
+                console.error(`❌ Fehler: Add-Account-Button nicht gefunden für Instanz ${instanceId}!`);
+                return;
+            }
 
-                    const lines = text.trim().split("\n");
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const text = e.target.result;
+                console.log("📜 Eingelesener CSV-Inhalt:\n", text);
 
-                    // Prüft, ob eine Kopfzeile existiert (optional)
-                    const firstLine = lines[0].split(",");
-                    let hasHeader = firstLine.some(header => accountAttributes.includes(header.trim()));
+                const lines = text.trim().split("\n");
 
-                    console.log(`🛠️ Kopfzeile erkannt: ${hasHeader}`);
+                // Prüft, ob eine Kopfzeile existiert (optional)
+                const firstLine = lines[0].split(",");
+                let hasHeader = firstLine.some(header => accountAttributes.includes(header.trim()));
 
-                    let startIndex = hasHeader ? 1 : 0;
-                    for (let i = startIndex; i < lines.length; i++) {
-                        let values = lines[i].split(",");
+                console.log(`🛠️ Kopfzeile erkannt: ${hasHeader}`);
 
-                        if (values.length !== accountAttributes.length) {
-                            console.warn(`⚠️ Fehler: Zeile ${i + 1} hat nicht die richtige Anzahl an Werten!`);
-                            continue;
+                let startIndex = hasHeader ? 1 : 0;
+                for (let i = startIndex; i < lines.length; i++) {
+                    let values = lines[i].split(",");
+
+                    if (values.length !== accountAttributes.length) {
+                        console.warn(`⚠️ Fehler: Zeile ${i + 1} hat nicht die richtige Anzahl an Werten!`);
+                        continue;
+                    }
+
+                    console.log(`➕ Erstelle Account-Felder für Zeile ${i + 1}`);
+
+                    // Simuliere Klick auf "Add Account", um die Felder zu erstellen
+                    addAccountButton.click();
+
+                    // Verzögerung, um sicherzustellen, dass die Felder existieren
+                    setTimeout(() => {
+                        let lastAccount = accountsContainer.lastElementChild;
+                        if (!lastAccount) {
+                            console.error("❌ Fehler: Keine neuen Felder gefunden!");
+                            return;
                         }
 
-                        console.log(`➕ Erstelle Account-Felder für Zeile ${i + 1}`);
-
-                        // Simuliere Klick auf "Add Account", um die Felder zu erstellen
-                        addAccountButton.click();
-
-                        // Verzögerung, um sicherzustellen, dass die Felder existieren
-                        setTimeout(() => {
-                            let lastAccount = accountsContainer.lastElementChild;
-                            if (!lastAccount) {
-                                console.error("❌ Fehler: Keine neuen Felder gefunden!");
-                                return;
+                        let inputs = lastAccount.querySelectorAll("input");
+                        accountAttributes.forEach((attr, index) => {
+                            let inputField = inputs[index];
+                            if (inputField) {
+                                inputField.value = values[index].trim();
+                                console.log(`✅ Feld ${attr} gesetzt auf: ${values[index].trim()}`);
+                            } else {
+                                console.warn(`⚠️ Kein Input-Feld gefunden für Attribut: ${attr}`);
                             }
+                        });
+                    }, 200);
+                }
+            };
 
-                            let inputs = lastAccount.querySelectorAll("input");
-                            accountAttributes.forEach((attr, index) => {
-                                let inputField = inputs[index];
-                                if (inputField) {
-                                    inputField.value = values[index].trim();
-                                    console.log(`✅ Feld ${attr} gesetzt auf: ${values[index].trim()}`);
-                                } else {
-                                    console.warn(`⚠️ Kein Input-Feld gefunden für Attribut: ${attr}`);
-                                }
-                            });
-                        }, 200); // Etwas längere Verzögerung, um sicherzugehen
-                    }
-                };
-
-                reader.readAsText(file);
-            });
+            reader.readAsText(file);
         });
+
 
 
     </script>
