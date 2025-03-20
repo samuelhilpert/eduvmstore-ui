@@ -23,13 +23,12 @@
             document.querySelectorAll(".favorite-form").forEach(form => {
                 form.addEventListener("submit", function () {
                     let star = this.querySelector(".favorite-btn i");
-                    star.classList.add("temporary-favorite");  // Stern sofort gelb machen
+                    star.classList.add("temporary-favorite");
 
                     setTimeout(() => {
-                        star.classList.remove("temporary-favorite");  // Nach 1 Sekunde wieder grau
+                        star.classList.remove("temporary-favorite");
                     }, 1000);
 
-                    // Formular wird sofort abgeschickt
                 });
             });
         });
@@ -84,11 +83,11 @@
    }
 
     .favorite-btn {
-        background: none;  /* Kein Hintergrund */
-        border: none;      /* Keine Umrandung */
-        padding: 0;        /* Kein Abstand */
+        background: none;
+        border: none;
+        padding: 0;
         cursor: pointer;
-        display: inline-flex; /* Damit das Icon perfekt sitzt */
+        display: inline-flex;
         align-items: center;
         justify-content: center;
     }
@@ -99,12 +98,12 @@
         transition: color 0.3s ease-in-out;
     }
 
-    /* Temporär gelber Stern nach Klick */
+
     .favorite-btn i.temporary-favorite {
         color: gold;
     }
 
-    /* Sterne in "Favorite App-Templates" sind immer gelb */
+
     .favorite-app-template .favorite-btn i {
         color: gold !important;
     }
