@@ -1188,8 +1188,7 @@ class GetFavoriteAppTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Prepare API call
-            api_url = f"{API_ENDPOINTS['favorite']}"
+
 
             headers = {"X-Auth-Token": token_id}
 
@@ -1198,13 +1197,12 @@ class GetFavoriteAppTemplateView(generic.View):
             }
 
 
-            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
+            response = requests.post(API_ENDPOINTS['favorite'], json=payload, headers=headers, timeout=10)
 
             if response.status_code == 201:
                 messages.success(request, f"App Template '{favorite_app_template_name}' is now a favorite.")
             else:
-                error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to favorite app template: {error_message}")
+                messages.error(request, f"Failed to favorite app template")
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
