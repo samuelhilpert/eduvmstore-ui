@@ -116,7 +116,7 @@
         Create App-Template
     </a>
 </div>
-
+{% if favorite_app_templates %}
     <h2>Favorite App-Templates</h2>
 
     <table class="table table-striped">
@@ -178,7 +178,7 @@
         {% endfor %}
         </tbody>
     </table>
-
+{% endif %}
     <h2>All App-Templates</h2>
 
 <table class="table table-striped">
