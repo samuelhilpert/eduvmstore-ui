@@ -507,11 +507,20 @@ function selectAutomaticFlavor(instanceId) {
                 return;
             }
 
-            let instanceId = parseInt(this.getAttribute("data-instance"));
+            const instanceId = event.target.getAttribute("data-instance");
+            if (!instanceId) {
+                console.error("❌ Fehler: `data-instance` ist leer oder nicht gesetzt!");
+                return;
+            }
             console.log(`📂 Datei hochgeladen für Instanz: ${instanceId}`);
 
             const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
             const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+
+            if (!accountsContainer) {
+                console.error(`❌ Fehler: Accounts-Container nicht gefunden für Instanz ${instanceId}!`);
+                return;
+            }
 
             if (!addAccountButton) {
                 console.error(`❌ Fehler: Add-Account-Button nicht gefunden für Instanz ${instanceId}!`);
@@ -540,7 +549,7 @@ function selectAutomaticFlavor(instanceId) {
                         continue;
                     }
 
-                    console.log(`➕ Erstelle Account-Felder für Zeile ${i + 1}`);
+                    console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${i + 1}`);
 
                     // Simuliere Klick auf "Add Account", um die Felder zu erstellen
                     addAccountButton.click();
