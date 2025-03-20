@@ -333,13 +333,7 @@ class CreateView(generic.TemplateView):
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
                 messages.success(request, f"App Template created successfully.")
-                template_id = response.data.get('template_id')
 
-                if template_id:
-                    messages.success(request, "App Template created successfully.")
-                    return redirect('horizon:eduvmstore_dashboard:eduvmstore:details', template_id)
-                else:
-                    messages.error(request, "App Template created, but no ID returned.")
             else:
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
