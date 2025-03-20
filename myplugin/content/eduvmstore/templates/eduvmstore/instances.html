@@ -554,38 +554,43 @@ function selectAutomaticFlavor(instanceId) {
 
                     console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${index + 1}`);
 
-                    // Klicke auf "Add Account", um ein neues Feld zu erzeugen
+                    // Setze eine eindeutige ID für den neuen Account
+                    let accountId = `account_${instanceId}_${accountIndex}`;
+                    accountIndex++;
+
+                    // Simuliere Klick auf "Add Account"
                     addAccountButton.click();
 
-                    // Wartezeit (300ms für das erste Feld, 200ms für weitere)
-                    let delay = accountIndex === 0 ? 300 : 200;
-                    accountIndex++;  // Erhöhe die Zählung für das nächste Feld
-
+                    // Warte, bis das neue Account-Feld verfügbar ist
                     setTimeout(() => {
-                        // Suche den zuletzt hinzugefügten Account-Container
                         let accounts = accountsContainer.querySelectorAll(".card");
                         let lastAccount = accounts[accounts.length - 1]; // Letztes hinzugefügtes Element
+
                         if (!lastAccount) {
                             console.error("❌ Fehler: Keine neuen Felder gefunden!");
                             return;
                         }
+
+                        // Setze eine eindeutige ID für den Account
+                        lastAccount.setAttribute("data-account-id", accountId);
 
                         let inputs = lastAccount.querySelectorAll("input");
                         accountAttributes.forEach((attr, attrIndex) => {
                             let inputField = inputs[attrIndex];
                             if (inputField) {
                                 inputField.value = values[attrIndex].trim();
-                                console.log(`✅ Feld ${attr} gesetzt auf: ${values[attrIndex].trim()}`);
+                                console.log(`✅ Feld ${attr} in ${accountId} gesetzt auf: ${values[attrIndex].trim()}`);
                             } else {
                                 console.warn(`⚠️ Kein Input-Feld gefunden für Attribut: ${attr}`);
                             }
                         });
-                    }, delay);
+                    }, 250);
                 });
             };
 
             reader.readAsText(file);
         });
+
 
 
 
