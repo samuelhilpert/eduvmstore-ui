@@ -542,7 +542,7 @@ function selectAutomaticFlavor(instanceId) {
                 console.log(`🛠️ Kopfzeile erkannt: ${hasHeader}`);
 
                 let startIndex = hasHeader ? 1 : 0;
-                let accountIndex = 0;  // Zählt, wie viele Accounts bereits hinzugefügt wurden
+                let accountIndex = 0;
 
                 lines.slice(startIndex).forEach((line, index) => {
                     let values = line.split(",");
@@ -554,14 +554,13 @@ function selectAutomaticFlavor(instanceId) {
 
                     console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${index + 1}`);
 
-                    // Setze eine eindeutige ID für den neuen Account
-                    let accountId = `account_${instanceId}_${accountIndex}`;
-                    accountIndex++;
-
                     // Simuliere Klick auf "Add Account"
                     addAccountButton.click();
 
-                    // Warte, bis das neue Account-Feld verfügbar ist
+                    // Wartezeit für das erste Feld erhöhen
+                    let delay = accountIndex === 0 ? 500 : 250;
+                    accountIndex++;
+
                     setTimeout(() => {
                         let accounts = accountsContainer.querySelectorAll(".card");
                         let lastAccount = accounts[accounts.length - 1]; // Letztes hinzugefügtes Element
@@ -571,25 +570,23 @@ function selectAutomaticFlavor(instanceId) {
                             return;
                         }
 
-                        // Setze eine eindeutige ID für den Account
-                        lastAccount.setAttribute("data-account-id", accountId);
-
                         let inputs = lastAccount.querySelectorAll("input");
                         accountAttributes.forEach((attr, attrIndex) => {
                             let inputField = inputs[attrIndex];
                             if (inputField) {
                                 inputField.value = values[attrIndex].trim();
-                                console.log(`✅ Feld ${attr} in ${accountId} gesetzt auf: ${values[attrIndex].trim()}`);
+                                console.log(`✅ Feld ${attr} in Account ${index + 1} gesetzt auf: ${values[attrIndex].trim()}`);
                             } else {
                                 console.warn(`⚠️ Kein Input-Feld gefunden für Attribut: ${attr}`);
                             }
                         });
-                    }, 250);
+                    }, delay);
                 });
             };
 
             reader.readAsText(file);
         });
+
 
 
 
