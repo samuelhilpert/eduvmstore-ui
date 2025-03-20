@@ -500,7 +500,7 @@ function selectAutomaticFlavor(instanceId) {
 
 
         document.addEventListener("change", function (event) {
-            if (!event.target.classList.contains("csv-upload")) return; // Nur für CSV-Uploads
+            if (!event.target.classList.contains("csv-upload")) return;
 
             const file = event.target.files[0];
             if (!file) {
@@ -510,7 +510,7 @@ function selectAutomaticFlavor(instanceId) {
 
             const instanceId = event.target.getAttribute("data-instance");
             if (!instanceId) {
-                console.error("❌ Fehler: `data-instance` ist leer oder nicht gesetzt!");
+                console.error("❌ Fehler: `data-instance` ist leer oder nicht gesetzt!", event.target);
                 return;
             }
             console.log(`📂 Datei hochgeladen für Instanz: ${instanceId}`);
@@ -530,32 +530,34 @@ function selectAutomaticFlavor(instanceId) {
 
             const reader = new FileReader();
             reader.onload = function (e) {
-                const text = e.target.result;
+                let text = e.target.result;
                 console.log("📜 Eingelesener CSV-Inhalt:\n", text);
 
                 const lines = text.trim().split("\n");
 
-                // Prüft, ob eine Kopfzeile existiert (optional)
+                // Prüfen, ob eine Kopfzeile existiert
                 const firstLine = lines[0].split(",");
                 let hasHeader = firstLine.some(header => accountAttributes.includes(header.trim()));
 
                 console.log(`🛠️ Kopfzeile erkannt: ${hasHeader}`);
 
                 let startIndex = hasHeader ? 1 : 0;
-                for (let i = startIndex; i < lines.length; i++) {
-                    let values = lines[i].split(",");
+                lines.slice(startIndex).forEach((line, index) => {
+                    let values = line.split(",");
 
                     if (values.length !== accountAttributes.length) {
-                        console.warn(`⚠️ Fehler: Zeile ${i + 1} hat nicht die richtige Anzahl an Werten!`);
-                        continue;
+                        console.warn(`⚠️ Fehler: Zeile ${index + 1} hat nicht die richtige Anzahl an Werten!`, values);
+                        return;
                     }
 
-                    console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${i + 1}`);
+                    console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${index + 1}`);
 
-                    // Simuliere Klick auf "Add Account", um die Felder zu erstellen
+                    // Simuliere Klick auf "Add Account"
                     addAccountButton.click();
 
-                    // Verzögerung, um sicherzustellen, dass die Felder existieren
+                    // Erste Instanz wartet etwas länger (300ms), danach 200ms
+                    let delay = index === 0 ? 300 : 200;
+
                     setTimeout(() => {
                         let lastAccount = accountsContainer.lastElementChild;
                         if (!lastAccount) {
@@ -573,12 +575,13 @@ function selectAutomaticFlavor(instanceId) {
                                 console.warn(`⚠️ Kein Input-Feld gefunden für Attribut: ${attr}`);
                             }
                         });
-                    }, 200);
-                }
+                    }, delay);
+                });
             };
 
             reader.readAsText(file);
         });
+
 
 
 
