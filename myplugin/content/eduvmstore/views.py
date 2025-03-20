@@ -1253,12 +1253,10 @@ class DeleteFavoriteAppTemplateView(generic.View):
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
 class DeleteTemplateView(generic.View):
-
-    def post(self, request, *args, **kwargs):
+    def post(self, request, template_id, *args, **kwargs):
         """
         Handle POST requests to delete a template via the external API.
         """
-        template_id = request.POST.get("template_id")
         token_id = get_token_id(request)
 
         if not template_id:
@@ -1268,11 +1266,10 @@ class DeleteTemplateView(generic.View):
         try:
             # Prepare API call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/"
-
             headers = {"X-Auth-Token": token_id}
 
             # API DELETE call
-            response = requests.delete(api_url, headers=headers,timeout=10)
+            response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"Template {template_id} deleted successfully.")
