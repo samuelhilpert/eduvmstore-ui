@@ -542,7 +542,7 @@ function selectAutomaticFlavor(instanceId) {
                 console.log(`🛠️ Kopfzeile erkannt: ${hasHeader}`);
 
                 let startIndex = hasHeader ? 1 : 0;
-                let accountIndex = 0;
+                let accountsList = [];
 
                 lines.slice(startIndex).forEach((line, index) => {
                     let values = line.split(",");
@@ -554,23 +554,32 @@ function selectAutomaticFlavor(instanceId) {
 
                     console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${index + 1}`);
 
-                    // Simuliere Klick auf "Add Account"
+                    // Klicke auf "Add Account", um ein neues Feld zu erzeugen
                     addAccountButton.click();
 
-                    // Wartezeit für das erste Feld erhöhen
-                    let delay = accountIndex === 0 ? 500 : 250;
-                    accountIndex++;
+                    // Speichere die Werte für späteres Befüllen
+                    accountsList.push(values);
+                });
 
-                    setTimeout(() => {
-                        let accounts = accountsContainer.querySelectorAll(".card");
-                        let lastAccount = accounts[accounts.length - 1]; // Letztes hinzugefügtes Element
+                // Warte, bis alle Accounts existieren, bevor wir sie füllen
+                setTimeout(() => {
+                    let accounts = accountsContainer.querySelectorAll(".card");
 
-                        if (!lastAccount) {
-                            console.error("❌ Fehler: Keine neuen Felder gefunden!");
+                    if (accounts.length !== accountsList.length) {
+                        console.error("❌ Fehler: Anzahl generierter Accounts stimmt nicht mit CSV-Zeilen überein!");
+                        return;
+                    }
+
+                    // Richtig herum befüllen
+                    accountsList.forEach((values, index) => {
+                        let account = accounts[index]; // Das N-te Account-Feld
+
+                        if (!account) {
+                            console.error(`❌ Fehler: Account ${index + 1} nicht gefunden!`);
                             return;
                         }
 
-                        let inputs = lastAccount.querySelectorAll("input");
+                        let inputs = account.querySelectorAll("input");
                         accountAttributes.forEach((attr, attrIndex) => {
                             let inputField = inputs[attrIndex];
                             if (inputField) {
@@ -580,12 +589,13 @@ function selectAutomaticFlavor(instanceId) {
                                 console.warn(`⚠️ Kein Input-Feld gefunden für Attribut: ${attr}`);
                             }
                         });
-                    }, delay);
-                });
+                    });
+                }, 500); // Wartezeit, um sicherzustellen, dass alle Felder existieren
             };
 
             reader.readAsText(file);
         });
+
 
 
 
