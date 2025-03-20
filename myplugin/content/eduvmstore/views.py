@@ -753,6 +753,7 @@ class InstancesView(generic.TemplateView):
             request.session["app_template"] = app_template_name
             request.session["created"] = created
             request.session["num_instances"] = num_instances
+            request.session["base_name"] = base_name
 
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
@@ -1157,6 +1158,7 @@ class InstanceSuccessView(generic.TemplateView):
         """
         num_instances = int(request.session.get("num_instances", 1))
         separate_keys = request.session.get("separate_keys", False)
+        base_name = request.session.get("base_name", "instance")
 
         zip_buffer = io.BytesIO()
 
@@ -1189,7 +1191,7 @@ class InstanceSuccessView(generic.TemplateView):
         zip_buffer.seek(0)
 
         response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
-        response["Content-Disposition"] = 'attachment; filename="instances_data.zip"'
+        response["Content-Disposition"] = f'attachment; filename="{base_name}_data.zip"'
 
         for i in range(1, num_instances + 1):
             request.session.pop(f"accounts_{i}", None)
@@ -1204,6 +1206,7 @@ class InstanceSuccessView(generic.TemplateView):
         request.session.pop("num_instances", None)
         request.session.pop("app_template", None)
         request.session.pop("created", None)
+        request.session.pop("base_name", None)
 
         return response
 
