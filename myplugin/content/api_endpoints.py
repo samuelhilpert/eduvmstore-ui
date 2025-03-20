@@ -15,5 +15,5 @@ API_ENDPOINTS = {
     'roles_list': BASE_URL + 'roles',  # For roles list
     'get_to_approve': BASE_URL + 'app-templates/?public=True&approved=False', # For approving app templates
     'check_name': BASE_URL + 'app-templates/name/',  # For checking if a name is valid
-    'favorite': BASE_URL + 'app-templates/favorite/',  # For favoriting app templates
+    'favorite': BASE_URL + 'app-templates/favorites',  # For favoriting app templates
 }
