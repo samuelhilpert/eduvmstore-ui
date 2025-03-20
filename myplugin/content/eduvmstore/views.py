@@ -1181,7 +1181,7 @@ class GetFavoriteAppTemplateView(generic.View):
         """
         favorite_app_template_id = request.POST.get("template_id")
         favorite_app_template_name = request.POST.get("template_name")
-        token_id = get_token_id(self.request)
+        token_id = get_token_id(request)
 
         if not favorite_app_template_id:
             messages.error(request, "App Template ID is required.")
