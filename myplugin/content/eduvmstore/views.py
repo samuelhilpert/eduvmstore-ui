@@ -1201,8 +1201,6 @@ class GetFavoriteAppTemplateView(generic.View):
             response = requests.post(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 201:
-                created_role = response.json()
-                role_id = created_role.get("id")
                 messages.success(request, f"App Template '{favorite_app_template_name}' is now a favorite.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
@@ -1210,5 +1208,5 @@ class GetFavoriteAppTemplateView(generic.View):
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
-        return redirect('horizon:eduvmstore_dashboard:admin:index')
+        return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
