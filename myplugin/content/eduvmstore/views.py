@@ -593,6 +593,8 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
     elements.append(Spacer(1, 0.2 * inch))
 
     if accounts:
+        elements.append(Paragraph("<b>Account Attributes</b>", styles['Heading2']))
+        elements.append(Spacer(1, 0.1 * inch))
         all_keys = list(accounts[0].keys())
         table_data = [all_keys]
         for account in accounts:
@@ -613,6 +615,8 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
 
 
     if instantiations:
+        elements.append(Paragraph("<b>Instantiation Attributes</b>", styles['Heading2']))
+        elements.append(Spacer(1, 0.1 * inch))
         all_keys_instantiation = list(instantiations[0].keys())
         table_data_instantiation = [all_keys_instantiation]
         for instantiation in instantiations:
