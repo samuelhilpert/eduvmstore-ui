@@ -77,6 +77,22 @@ def fetch_app_templates(request):
         logging.error("Failed to fetch app templates: %s", e)
         return []
 
+def fetch_favorite_app_templates(request):
+    """
+    Fetches app templates from the external API using a provided token ID.
+    """
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    try:
+        response = requests.get(API_ENDPOINTS['favorite'],
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to fetch favorite app templates: %s", e)
+        return []
+
 
 def validate_name(request):
     """
@@ -153,6 +169,7 @@ class IndexView(generic.TemplateView):
         #token_id = self.request.GET.get('token_id')
 
         app_templates = fetch_app_templates(self.request)
+        favorite_app_templates = fetch_favorite_app_templates(self.request)
 
         glance_images = self.get_images_data()
 
@@ -166,7 +183,18 @@ class IndexView(generic.TemplateView):
                 template['size'] = _('Unknown')
                 template['visibility'] = _('Unknown')
 
+        for favorite_app_template in favorite_app_templates:
+            image_id = favorite_app_template.get('image_id')
+            glance_image = glance_images.get(image_id)
+            if glance_image:
+                favorite_app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
+                favorite_app_template['visibility'] = glance_image.visibility
+            else:
+                favorite_app_template['size'] = _('Unknown')
+                favorite_app_template['visibility'] = _('Unknown')
+
         context['app_templates'] = app_templates
+        context['favorite_app_templates'] = favorite_app_templates
 
         return context
 
@@ -608,7 +636,8 @@ def generate_cloud_config(accounts,backend_script, instantiations):
     )
 
     instantiations_content = "\n".join(
-        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation]) for instantiation in instantiations]
+        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation])
+         for instantiation in instantiations]
     )
 
     cloud_config = f"""#cloud-config
@@ -765,7 +794,8 @@ class InstancesView(generic.TemplateView):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
                     metadata[f"User_{index+1}"] = user_data_account
                 for index, instantiation in enumerate(instantiations):
-                    user_data_instantiation = ", ".join([f"{key}: {value}" for key, value in instantiation.items()])
+                    user_data_instantiation = ", ".join(
+                        [f"{key}: {value}" for key, value in instantiation.items()])
                     metadata[f"Instantiation_Attributes_{index+1}"] = user_data_instantiation
 
 
@@ -988,7 +1018,8 @@ class InstancesView(generic.TemplateView):
         num_entries = len(next(iter(extracted_data_instantiations.values()), []))
 
         for i in range(num_entries):
-            instantiation = {field: extracted_data_instantiations[field][i] for field in expected_fields_instantiation}
+            instantiation = {field: extracted_data_instantiations[field][i]
+                             for field in expected_fields_instantiation}
             instantiations.append(instantiation)
 
         return instantiations
@@ -1145,3 +1176,76 @@ class InstanceSuccessView(generic.TemplateView):
 
         return response
 
+class GetFavoriteAppTemplateView(generic.View):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to delete a template via the external API.
+        """
+        favorite_app_template_id = request.POST.get("template_id")
+        favorite_name = request.POST.get("template_name")
+        token_id = get_token_id(request)
+
+        if not favorite_app_template_id:
+            messages.error(request, "App Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        try:
+            api_url = f"{API_ENDPOINTS['to_be_favorite']}"
+
+
+            headers = {"X-Auth-Token": token_id}
+
+            payload = {
+                "app_template_id": favorite_app_template_id
+            }
+
+
+            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
+
+            if response.status_code == 201:
+                messages.success(request, f"App Template '{favorite_name}' is now a favorite.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to favorite app template: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+class DeleteFavoriteAppTemplateView(generic.View):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to delete a template via the external API.
+        """
+        favorite_app_template_id = request.POST.get("template_id")
+        favorite_name = request.POST.get("template_name")
+        token_id = get_token_id(request)
+
+        if not favorite_app_template_id:
+            messages.error(request, "App Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        try:
+            api_url = f"{API_ENDPOINTS['delete_favorite']}"
+
+
+            headers = {"X-Auth-Token": token_id}
+
+            payload = {
+                "app_template_id": favorite_app_template_id
+            }
+
+
+            response = requests.delete(api_url, json=payload, headers=headers, timeout=10)
+
+            if response.status_code == 204:
+                messages.success(request, f"'{favorite_name}' is not a favorite now.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to delete  as a favorite: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
