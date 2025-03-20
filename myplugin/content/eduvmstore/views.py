@@ -1237,7 +1237,7 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
             response = requests.delete(api_url, json=payload, headers=headers, timeout=10)
 
-            if response.status_code == 201:
+            if response.status_code == 204:
                 messages.success(request, f"App Template '{favorite_app_template_name}' is not a favorite now.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
