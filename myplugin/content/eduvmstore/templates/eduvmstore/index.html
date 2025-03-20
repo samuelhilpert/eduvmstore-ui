@@ -212,11 +212,7 @@
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">Edit App-Template</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="template_id" value="{{ temp.id }}">
-                                    <button class="btn btn-danger" type="submit">Delete</button>
-                                </form></li>
+                            <li><a href="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' template.id %}">Delete App-Template</a></li>
                         </ul>
                     </div>
                 </td>
@@ -274,9 +270,9 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a href="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' template.id %}">Edit App-Template</a></li>
+                        <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">Edit App-Template</a></li>
                         <li role="separator" class="divider"></li>
-                        <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}" class="text-danger">Delete App-Template</a></li>
+                        <li><a href="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' template.id %}" class="text-danger">Delete App-Template</a></li>
                     </ul>
                 </div>
             </td>
