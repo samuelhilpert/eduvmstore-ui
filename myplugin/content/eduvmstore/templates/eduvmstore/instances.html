@@ -507,7 +507,7 @@ function selectAutomaticFlavor(instanceId) {
                 return;
             }
 
-            const instanceId = event.target.getAttribute("data-instance");
+            let instanceId = parseInt(this.getAttribute("data-instance"));
             console.log(`📂 Datei hochgeladen für Instanz: ${instanceId}`);
 
             const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
