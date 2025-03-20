@@ -183,7 +183,6 @@
                         <th>Short Description</th>
                         <th>ID</th>
                         <th>Updated At</th>
-                        <th>Version</th>
                         <th>Public</th>
                         <th></th>
 
@@ -198,7 +197,6 @@
                             <td>{{ temp.short_description }}</td>
                             <td>{{ temp.id }}</td>
                             <td>{{ temp.updated_at }}</td>
-                            <td>{{ temp.version }}</td>
                             <td>{{ temp.public }}</td>
                             <td>
                                 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}">

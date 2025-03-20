@@ -161,22 +161,19 @@
              <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required>{{ app_template.instantiation_notice }}</textarea>
          </div>
 
-
         <div class="form-group row">
-             <div class="col-md-4">
-                 <label for="version">Version:</label>
-                  <input type="text" id="version" name="version" value="{{ app_template.version }}" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+            <div class="col-md-4">
 
-             </div>
-         <div class="col-md-4">
-             <label for="public">Visibility:</label>
-             <select name="public" id="public" class="form-control select-box" required>
-                 <option value="True" {% if app_template.visibility == "True" %}selected{% endif %}>Public</option>
-                 <option value="False" {% if app_template.visibility == "False" %}selected{% endif %}>Private</option>
-              </select>
-         </div>
 
-         </div>
+            <label for="public">Available for:</label>
+            <select name="public" id="public" class="form-control select-box" required>
+                <option value="True" {% if app_template.visibility == "True" %}selected{% endif %}>Everyone</option>
+                 <option value="False" {% if app_template.visibility == "False" %}selected{% endif %}>Creator only</option>
+            </select>
+
+            </div>
+        </div>
+g
 
          <h3>System Requirements</h3>
          <div class="row">
