@@ -77,6 +77,22 @@ def fetch_app_templates(request):
         logging.error("Failed to fetch app templates: %s", e)
         return []
 
+def fetch_favorite_app_templates(request):
+    """
+    Fetches app templates from the external API using a provided token ID.
+    """
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    try:
+        response = requests.get(API_ENDPOINTS['favorite'],
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to fetch favorite app templates: %s", e)
+        return []
+
 
 def validate_name(request):
     """
@@ -153,6 +169,7 @@ class IndexView(generic.TemplateView):
         #token_id = self.request.GET.get('token_id')
 
         app_templates = fetch_app_templates(self.request)
+        favorite_app_templates = fetch_favorite_app_templates(self.request)
 
         glance_images = self.get_images_data()
 
@@ -167,6 +184,7 @@ class IndexView(generic.TemplateView):
                 template['visibility'] = _('Unknown')
 
         context['app_templates'] = app_templates
+        context['favorite_app_templates'] = favorite_app_templates
 
         return context
 

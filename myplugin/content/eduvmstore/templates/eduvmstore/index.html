@@ -75,6 +75,58 @@
     </a>
 </div>
 
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>App Template Name</th>
+            <th>Short Description</th>
+            <th>Version</th>
+            <th>Size (MB)</th>
+            <th>Visibility</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for favorite_template in favorite_app_templates %}
+            <tr>
+            <tr>
+                <td>
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' favorite_template.id %}" class="template-link">
+                        {{ favorite_template.name }}
+                    </a>
+                </td>
+                <td>{{ favorite_template.short_description }}</td>
+                <td>{{ favorite_template.version }}</td>
+                <td>{{ favorite_template.size }} </td>
+                <td>
+                    {% if favorite_template.public %}
+                        Public
+                    {% else %}
+                        Private
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' favorite_template.id %}" class="btn btn-launch">
+                            Launch
+                        </a>
+
+                        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">Edit App-Template</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#" class="text-danger">Delete App-Template</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
 
 <table class="table table-striped">
     <thead>
