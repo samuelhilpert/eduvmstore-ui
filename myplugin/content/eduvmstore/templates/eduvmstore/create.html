@@ -183,19 +183,19 @@
                 <div class="form-group mt-5">
                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
                     <input type="text" id="fixed_ram_gb"
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');"
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
                            name="fixed_ram_gb" class="form-control"
                            required>
                 </div>
                 <div class="form-group">
                     <label for="fixed_disk_gb">Fixed Disk (GB):</label>
                     <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="fixed_cores">Fixed Cores:</label>
                     <input type="text" id="fixed_cores" name="fixed_cores" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
             </div>
 
@@ -204,17 +204,17 @@
                 <div class="form-group mt-5">
                     <label for="per_user_ram_gb">Per User RAM (GB):</label>
                     <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_disk_gb">Per User Disk (GB):</label>
                     <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_cores">Per User Cores:</label>
                     <input type="text" id="per_user_cores" name="per_user_cores" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
             </div>
 
