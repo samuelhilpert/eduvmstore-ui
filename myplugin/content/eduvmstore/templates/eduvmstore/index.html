@@ -20,18 +20,70 @@
 {% block main %}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".favorite-form").forEach(form => {
-                form.addEventListener("submit", function () {
-                    let star = this.querySelector(".favorite-btn i");
-                    star.classList.add("temporary-favorite");
+        let currentIndex = 10;
+        let allTemplates = [
+            {% for template in app_templates %}
+                {
+                    id: "{{ template.id }}",
+                    name: "{{ template.name }}",
+                    short_description: "{{ template.short_description }}",
+                    size: "{{ template.size }}",
+                    public: "{{ template.public }}",
+                    details_url: "{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}",
+                    launch_url: "{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}",
+                    edit_url: "{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}",
+                    favorite_url: "{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}"
+                },
+            {% endfor %}
+        ];
 
-                    setTimeout(() => {
-                        star.classList.remove("temporary-favorite");
-                    }, 1000);
+        let tableBody = document.getElementById("app-templates-body");
+        let loadMoreBtn = document.getElementById("load-more");
 
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener("click", function () {
+                let nextItems = allTemplates.slice(currentIndex, currentIndex + 10);
+                nextItems.forEach(template => {
+                    let newRow = `
+                        <tr class="app-template-row">
+                            <td><a href="${template.details_url}" class="template-link">${template.name}</a></td>
+                            <td>${template.short_description}</td>
+                            <td>${template.size}</td>
+                            <td>${template.public === "True" ? "Everyone" : "Creator only"}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="${template.launch_url}" class="btn btn-launch">Launch</a>
+                                    <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="${template.edit_url}">Edit App-Template</a></li>
+                                        <li role="separator" class="divider"></li>
+                                        <li><a href="#" class="text-danger">Delete App-Template</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td>
+                                <form method="post" action="${template.favorite_url}" class="favorite-form">
+                                    <input type="hidden" name="template_id" value="${template.id}">
+                                    <input type="hidden" name="template_name" value="${template.name}">
+                                    <button type="submit" class="favorite-btn">
+                                        <i class="fa fa-star"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>`;
+                    tableBody.innerHTML += newRow;
                 });
+
+                currentIndex += 10;
+
+                if (currentIndex >= allTemplates.length) {
+                    loadMoreBtn.style.display = "none";
+                }
             });
-        });
+        }
+    });
     </script>
 <style>
     .table {
@@ -181,7 +233,7 @@
 {% endif %}
     <h2>All App-Templates</h2>
 
-<table class="table table-striped">
+<table class="table table-striped" id="app-templates-table">
     <thead>
         <tr>
             <th>App Template Name</th>
@@ -192,54 +244,58 @@
             <th>Favorite</th>
         </tr>
     </thead>
-    <tbody>
-        {% for template in app_templates %}
-        <tr>
-                <td>
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
-                        {{ template.name }}
-                    </a>
-                </td>
+    <tbody id="app-templates-body">
+        {% for template in app_templates|slice:":10" %}
+        <tr class="app-template-row">
+            <td>
+                <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
+                    {{ template.name }}
+                </a>
+            </td>
             <td>{{ template.short_description }}</td>
             <td>{{ template.size }} </td>
-           <td>
+            <td>
                 {% if template.public %}
                     Everyone
                 {% else %}
                     Creator only
                 {% endif %}
             </td>
-              <td>
-    <div class="btn-group">
-                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
-            Launch
-        </a>
-
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">Edit App-Template</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#" class="text-danger">Delete App-Template</a></li>
-        </ul>
-    </div>
-              </td>
-                  <td>
-                      <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
-                          {% csrf_token %}
-                          <input type="hidden" name="template_id" value="{{ template.id }}">
-                          <input type="hidden" name="template_name" value="{{ template.name }}">
-                          <button type="submit" class="favorite-btn">
-                              <i class="fa fa-star"></i>
-                          </button>
-                      </form>
-                  </td>
+            <td>
+                <div class="btn-group">
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
+                        Launch
+                    </a>
+                    <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">Edit App-Template</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#" class="text-danger">Delete App-Template</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td>
+                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="template_id" value="{{ template.id }}">
+                    <input type="hidden" name="template_name" value="{{ template.name }}">
+                    <button type="submit" class="favorite-btn">
+                        <i class="fa fa-star"></i>
+                    </button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+{% if app_templates|length > 10 %}
+    <div style="text-align: center; margin-top: 15px;">
+        <button id="load-more" class="btn btn-primary">Load More</button>
+    </div>
+{% endif %}
 
 
   {% endblock %}
