@@ -1188,7 +1188,7 @@ class GetFavoriteAppTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            api_url = f"{API_ENDPOINTS['get_favorite']}"
+            api_url = f"{API_ENDPOINTS['to_be_favorite']}"
 
 
             headers = {"X-Auth-Token": token_id}
@@ -1210,3 +1210,39 @@ class GetFavoriteAppTemplateView(generic.View):
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
+class DeleteFavoriteAppTemplateView(generic.View):
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to delete a template via the external API.
+        """
+        favorite_app_template_id = request.POST.get("template_id")
+        favorite_app_template_name = request.POST.get("template_name")
+        token_id = get_token_id(request)
+
+        if not favorite_app_template_id:
+            messages.error(request, "App Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+        try:
+            api_url = f"{API_ENDPOINTS['delete_favorite']}"
+
+
+            headers = {"X-Auth-Token": token_id}
+
+            payload = {
+                "app_template_id": favorite_app_template_id
+            }
+
+
+            response = requests.delete(api_url, json=payload, headers=headers, timeout=10)
+
+            if response.status_code == 201:
+                messages.success(request, f"App Template '{favorite_app_template_name}' is not a favorite now.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to delete app template as a favorite: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')

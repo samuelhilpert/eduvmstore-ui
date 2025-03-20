@@ -22,14 +22,14 @@
         document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll(".favorite-form").forEach(form => {
                 form.addEventListener("submit", function () {
-                    let button = this.querySelector(".favorite-btn i");
-                    button.classList.add("favorite");  // Herz sofort rot färben
+                    let star = this.querySelector(".favorite-btn i");
+                    star.classList.add("temporary-favorite");  // Stern sofort gelb machen
 
                     setTimeout(() => {
-                        button.classList.remove("favorite");  // Herz nach kurzer Zeit wieder grau machen
-                    }, 1000);  // 1 Sekunde Verzögerung
+                        star.classList.remove("temporary-favorite");  // Nach 1 Sekunde wieder grau
+                    }, 1000);
 
-                    // Das Formular wird direkt abgeschickt
+                    // Formular wird sofort abgeschickt
                 });
             });
         });
@@ -83,20 +83,21 @@
          background-color: #E8E8E8;
    }
 
-    .favorite-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-
+    /* Standardmäßiger grauer Stern */
     .favorite-btn i {
         font-size: 20px;
         color: gray;
         transition: color 0.3s ease-in-out;
     }
 
-    .favorite-btn i.favorite {
-        color: red;
+    /* Temporär gelber Stern nach Klick */
+    .favorite-btn i.temporary-favorite {
+        color: gold;
+    }
+
+    /* Sterne in "Favorite App-Templates" sind immer gelb */
+    .favorite-app-template .favorite-btn i {
+        color: gold !important;
     }
 
     </style>
@@ -117,12 +118,12 @@
             <th>Size (MB)</th>
             <th>Visibility</th>
             <th>Action</th>
+            <th>Favorite</th>
         </tr>
         </thead>
         <tbody>
         {% for favorite_template in favorite_app_templates %}
-            <tr>
-            <tr>
+            <tr class="favorite-app-template">
                 <td>
                     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' favorite_template.id %}" class="template-link">
                         {{ favorite_template.name }}
@@ -154,6 +155,16 @@
                         </ul>
                     </div>
                 </td>
+                <td>
+                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_favorite_template' %}" class="favorite-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="template_id" value="{{ template.id }}">
+                        <input type="hidden" name="template_name" value="{{ template.name }}">
+                        <button type="submit" class="favorite-btn">
+                            <i class="fa fa-star"></i>
+                        </button>
+                    </form>
+                </td>
             </tr>
         {% endfor %}
         </tbody>
@@ -175,7 +186,6 @@
     <tbody>
         {% for template in app_templates %}
         <tr>
-              <tr>
                 <td>
                     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
                         {{ template.name }}

@@ -13,5 +13,6 @@ urlpatterns = [
     path('validate-name/', views.validate_name, name='validate_name'),
     path('success/', views.InstanceSuccessView.as_view(), name='success'),
     path('favorite_template/', views.GetFavoriteAppTemplateView.as_view(), name='favorite_template'),
+    path('delete_favorite_template', views.DeleteFavoriteAppTemplateView.as_view(), name='delete_favorite_template'),
 
 ]
