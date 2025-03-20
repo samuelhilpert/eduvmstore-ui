@@ -83,7 +83,16 @@
          background-color: #E8E8E8;
    }
 
-    /* Standardmäßiger grauer Stern */
+    .favorite-btn {
+        background: none;  /* Kein Hintergrund */
+        border: none;      /* Keine Umrandung */
+        padding: 0;        /* Kein Abstand */
+        cursor: pointer;
+        display: inline-flex; /* Damit das Icon perfekt sitzt */
+        align-items: center;
+        justify-content: center;
+    }
+
     .favorite-btn i {
         font-size: 20px;
         color: gray;
@@ -100,7 +109,8 @@
         color: gold !important;
     }
 
-    </style>
+
+</style>
 
 <div class="button-container">
     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">
