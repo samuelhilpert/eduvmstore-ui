@@ -1185,7 +1185,7 @@ class GetFavoriteAppTemplateView(generic.View):
 
         if not favorite_app_template_id:
             messages.error(request, "App Template ID is required.")
-            return redirect('horizon:eduvmstore_dashboard:admin:index')
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         try:
             api_url = f"{API_ENDPOINTS['to_be_favorite']}"
@@ -1222,7 +1222,7 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
         if not favorite_app_template_id:
             messages.error(request, "App Template ID is required.")
-            return redirect('horizon:eduvmstore_dashboard:admin:index')
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         try:
             api_url = f"{API_ENDPOINTS['delete_favorite']}"

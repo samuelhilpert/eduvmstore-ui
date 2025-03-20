@@ -168,8 +168,8 @@
                 <td>
                     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_favorite_template' %}" class="favorite-form">
                         {% csrf_token %}
-                        <input type="hidden" name="template_id" value="{{ template.id }}">
-                        <input type="hidden" name="template_name" value="{{ template.name }}">
+                        <input type="hidden" name="template_id" value="{{ favorite_template.id }}">
+                        <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
                         <button type="submit" class="favorite-btn">
                             <i class="fa fa-star"></i>
                         </button>
