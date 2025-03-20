@@ -56,15 +56,35 @@ def get_host_ip():
 
 def get_token_id(request):
     """
-    Retrieves the token ID from the request object.
+    Retrieve the token ID from the request object.
+
+    This function extracts the token ID from the user attribute of the request object.
+    If the user or token attribute is not present, it returns None.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: The token ID if available, otherwise None.
+    :rtype: str or None
     """
+
     return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
 
 
 def fetch_app_templates(request):
     """
     Fetches app templates from the external API using a provided token ID.
+
+    This function retrieves the token ID from the request, constructs the headers,
+    and makes a GET request to the external API to fetch app templates. If the request
+    is successful, it returns the JSON response. In case of an error, it logs the error
+    and returns an empty list.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :rtype: list
     """
+
     token_id = get_token_id(request)
     headers = {"X-Auth-Token": token_id}
 
@@ -79,8 +99,19 @@ def fetch_app_templates(request):
 
 def fetch_favorite_app_templates(request):
     """
-    Fetches app templates from the external API using a provided token ID.
+    Fetches favorite app templates from the external API using a provided token ID.
+
+    This function retrieves the token ID from the request, constructs the headers,
+    and makes a GET request to the external API to fetch favorite app templates.
+    If the request is successful, it returns the JSON response. In case of an error,
+    it logs the error and returns an empty list.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: A list of favorite app templates in JSON format or an empty list if the request fails.
+    :rtype: list
     """
+
     token_id = get_token_id(request)
     headers = {"X-Auth-Token": token_id}
 
@@ -1180,8 +1211,22 @@ class GetFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to delete a template via the external API.
+        Handle POST requests to mark an app template as a favorite via the external API.
+
+        This method retrieves the app template ID and name from the POST request,
+        constructs the API URL and payload, and sends a POST request to the external API.
+        It handles the response and displays appropriate success or error messages.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return: HTTP response redirecting to the index page.
+        :rtype: HttpResponse
         """
+
         favorite_app_template_id = request.POST.get("template_id")
         favorite_name = request.POST.get("template_name")
         token_id = get_token_id(request)
@@ -1217,8 +1262,22 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to delete a template via the external API.
+        Handle POST requests to delete a favorite app template via the external API.
+
+        This method retrieves the app template ID and name from the POST request,
+        constructs the API URL and payload, and sends a DELETE request to the external API.
+        It handles the response and displays appropriate success or error messages.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return: HTTP response redirecting to the index page.
+        :rtype: HttpResponse
         """
+
         favorite_app_template_id = request.POST.get("template_id")
         favorite_name = request.POST.get("template_name")
         token_id = get_token_id(request)
