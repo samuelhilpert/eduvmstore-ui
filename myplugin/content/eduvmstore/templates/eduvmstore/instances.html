@@ -542,6 +542,8 @@ function selectAutomaticFlavor(instanceId) {
                 console.log(`🛠️ Kopfzeile erkannt: ${hasHeader}`);
 
                 let startIndex = hasHeader ? 1 : 0;
+                let accountIndex = 0;  // Zählt, wie viele Accounts bereits hinzugefügt wurden
+
                 lines.slice(startIndex).forEach((line, index) => {
                     let values = line.split(",");
 
@@ -552,25 +554,28 @@ function selectAutomaticFlavor(instanceId) {
 
                     console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${index + 1}`);
 
-                    // Simuliere Klick auf "Add Account"
+                    // Klicke auf "Add Account", um ein neues Feld zu erzeugen
                     addAccountButton.click();
 
-                    // Erste Instanz wartet etwas länger (300ms), danach 200ms
-                    let delay = index === 0 ? 300 : 200;
+                    // Wartezeit (300ms für das erste Feld, 200ms für weitere)
+                    let delay = accountIndex === 0 ? 300 : 200;
+                    accountIndex++;  // Erhöhe die Zählung für das nächste Feld
 
                     setTimeout(() => {
-                        let lastAccount = accountsContainer.lastElementChild;
+                        // Suche den zuletzt hinzugefügten Account-Container
+                        let accounts = accountsContainer.querySelectorAll(".card");
+                        let lastAccount = accounts[accounts.length - 1]; // Letztes hinzugefügtes Element
                         if (!lastAccount) {
                             console.error("❌ Fehler: Keine neuen Felder gefunden!");
                             return;
                         }
 
                         let inputs = lastAccount.querySelectorAll("input");
-                        accountAttributes.forEach((attr, index) => {
-                            let inputField = inputs[index];
+                        accountAttributes.forEach((attr, attrIndex) => {
+                            let inputField = inputs[attrIndex];
                             if (inputField) {
-                                inputField.value = values[index].trim();
-                                console.log(`✅ Feld ${attr} gesetzt auf: ${values[index].trim()}`);
+                                inputField.value = values[attrIndex].trim();
+                                console.log(`✅ Feld ${attr} gesetzt auf: ${values[attrIndex].trim()}`);
                             } else {
                                 console.warn(`⚠️ Kein Input-Feld gefunden für Attribut: ${attr}`);
                             }
@@ -581,6 +586,7 @@ function selectAutomaticFlavor(instanceId) {
 
             reader.readAsText(file);
         });
+
 
 
 
