@@ -594,49 +594,42 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
 
     if accounts:
         all_keys = list(accounts[0].keys())
-    else:
-        all_keys = []
+        table_data = [all_keys]
+        for account in accounts:
+            row_values = [account.get(key, "N/A") for key in all_keys]
+            table_data.append(row_values)
+        table = Table(table_data, repeatRows=1)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(table)
+        elements.append(Spacer(1, 0.2 * inch))
+
 
     if instantiations:
         all_keys_instantiation = list(instantiations[0].keys())
-    else:
-        all_keys_instantiation = []
+        table_data_instantiation = [all_keys_instantiation]
+        for instantiation in instantiations:
+            row_values_instantiation = [instantiation.get(key, "N/A") for key in all_keys_instantiation]
+            table_data_instantiation.append(row_values_instantiation)
+        table_instantiation = Table(table_data_instantiation, repeatRows=1)
+        table_instantiation.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(table_instantiation)
 
-    table_data = [all_keys]
-    for account in accounts:
-        row_values = [account.get(key, "N/A") for key in all_keys]
-        table_data.append(row_values)
-
-    table_data_instantiation = [all_keys_instantiation]
-    for instantiation in instantiations:
-        row_values_instantiation = [instantiation.get(key, "N/A") for key in all_keys_instantiation]
-        table_data_instantiation.append(row_values_instantiation)
-
-    table = Table(table_data, repeatRows=1)
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-
-    table_instantiation = Table(table_data_instantiation, repeatRows=1)
-    table_instantiation.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-
-    elements.append(table)
-    elements.append(Spacer(1, 0.2 * inch))
-    elements.append(table_instantiation)
     doc.build(elements)
     buffer.seek(0)
 
