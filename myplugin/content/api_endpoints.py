@@ -17,5 +17,5 @@ API_ENDPOINTS = {
     'check_name': BASE_URL + 'app-templates/name/',  # For checking if a name is valid
     'favorite': BASE_URL + 'app-templates/favorites',  # For favoriting app templates
     'to_be_favorite': BASE_URL + 'favorites/',  # For getting a app template favorited
-    'delete_favorite': BASE_URL + 'favorites/delete_by_app_template/', # For deleting a favorited app template
+    'delete_favorite': BASE_URL + 'favorites/delete_by_app_template', # For deleting a favorited app template
 }
