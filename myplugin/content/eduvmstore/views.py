@@ -636,7 +636,8 @@ def generate_cloud_config(accounts,backend_script, instantiations):
     )
 
     instantiations_content = "\n".join(
-        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation]) for instantiation in instantiations]
+        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation])
+         for instantiation in instantiations]
     )
 
     cloud_config = f"""#cloud-config
@@ -793,7 +794,8 @@ class InstancesView(generic.TemplateView):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
                     metadata[f"User_{index+1}"] = user_data_account
                 for index, instantiation in enumerate(instantiations):
-                    user_data_instantiation = ", ".join([f"{key}: {value}" for key, value in instantiation.items()])
+                    user_data_instantiation = ", ".join(
+                        [f"{key}: {value}" for key, value in instantiation.items()])
                     metadata[f"Instantiation_Attributes_{index+1}"] = user_data_instantiation
 
 
@@ -1016,7 +1018,8 @@ class InstancesView(generic.TemplateView):
         num_entries = len(next(iter(extracted_data_instantiations.values()), []))
 
         for i in range(num_entries):
-            instantiation = {field: extracted_data_instantiations[field][i] for field in expected_fields_instantiation}
+            instantiation = {field: extracted_data_instantiations[field][i]
+                             for field in expected_fields_instantiation}
             instantiations.append(instantiation)
 
         return instantiations
@@ -1180,7 +1183,7 @@ class GetFavoriteAppTemplateView(generic.View):
         Handle POST requests to delete a template via the external API.
         """
         favorite_app_template_id = request.POST.get("template_id")
-        favorite_app_template_name = request.POST.get("template_name")
+        favorite_name = request.POST.get("template_name")
         token_id = get_token_id(request)
 
         if not favorite_app_template_id:
@@ -1201,7 +1204,7 @@ class GetFavoriteAppTemplateView(generic.View):
             response = requests.post(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 201:
-                messages.success(request, f"App Template '{favorite_app_template_name}' is now a favorite.")
+                messages.success(request, f"App Template '{favorite_name}' is now a favorite.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
                 messages.error(request, f"Failed to favorite app template: {error_message}")
@@ -1217,7 +1220,7 @@ class DeleteFavoriteAppTemplateView(generic.View):
         Handle POST requests to delete a template via the external API.
         """
         favorite_app_template_id = request.POST.get("template_id")
-        favorite_app_template_name = request.POST.get("template_name")
+        favorite_name = request.POST.get("template_name")
         token_id = get_token_id(request)
 
         if not favorite_app_template_id:
@@ -1238,10 +1241,10 @@ class DeleteFavoriteAppTemplateView(generic.View):
             response = requests.delete(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 204:
-                messages.success(request, f"App Template '{favorite_app_template_name}' is not a favorite now.")
+                messages.success(request, f"'{favorite_name}' is not a favorite now.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to delete app template as a favorite: {error_message}")
+                messages.error(request, f"Failed to delete  as a favorite: {error_message}")
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
