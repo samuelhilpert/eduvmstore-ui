@@ -115,6 +115,15 @@
         border-color: #007bff;
     }
 
+    .custom-topmargin{
+        margin-top: 10px;
+    }
+
+    .custom-bottommargin{
+        margin-bottom: 30px;
+    }
+
+
 
 </style>
 
@@ -162,18 +171,15 @@
 
        <div class="form-group row">
             <div class="col-md-4">
-                <label for="version">Version:</label>
-                 <input type="text" id="version" name="version" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
 
-            </div>
-   <div class="col-md-4">
+
             <label for="public">Available for:</label>
             <select name="public" id="public" class="form-control select-box" required>
                 <option value="True">Everyone</option>
                 <option value="False">Creator only</option>
             </select>
-        </div>
 
+            </div>
         </div>
 
         <h3>System Requirements</h3>
@@ -183,19 +189,19 @@
                 <div class="form-group mt-5">
                     <label for="fixed_ram_gb">Fixed RAM (GB):</label>
                     <input type="text" id="fixed_ram_gb"
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');"
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
                            name="fixed_ram_gb" class="form-control"
                            required>
                 </div>
                 <div class="form-group">
                     <label for="fixed_disk_gb">Fixed Disk (GB):</label>
                     <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="fixed_cores">Fixed Cores:</label>
                     <input type="text" id="fixed_cores" name="fixed_cores" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
             </div>
 
@@ -204,17 +210,17 @@
                 <div class="form-group mt-5">
                     <label for="per_user_ram_gb">Per User RAM (GB):</label>
                     <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_disk_gb">Per User Disk (GB):</label>
                     <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
                     <label for="per_user_cores">Per User Cores:</label>
                     <input type="text" id="per_user_cores" name="per_user_cores" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
             </div>
 
@@ -233,10 +239,7 @@
             <div class="col-md-4">
                 <label for="script_file">Upload Script:</label>
                 <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
-            </div>
-
-            <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn btn-primary" id="writeScriptButton" onclick="openModal()">Write Script</button>
+                <button type="button" class="btn btn-primary custom-topmargin" id="writeScriptButton" onclick="openModal()">Write Script</button>
             </div>
 
         </div>
@@ -271,9 +274,10 @@ write_files:
 
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
-
+        <div class="custom-bottommargin">
         <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+        </div>
     </form>
 </div>
 

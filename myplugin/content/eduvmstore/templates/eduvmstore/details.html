@@ -82,10 +82,9 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="#">Create Volume</a></li>
-            <li><a href="#">Edit Image</a></li>
+            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">Edit App-Template</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="#" class="text-danger">Delete Image</a></li>
+            <li><a href="#" class="text-danger">Delete App-Template</a></li>
         </ul>
     </div>
 </div>
@@ -185,6 +184,12 @@
             <div class="detail-group">
                 <strong>Owner:</strong>
                 <p>{{ image_owner }}</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="detail-group">
+                <strong>Created at:</strong>
+                <p>{{ image_created_at }}</p>
             </div>
         </div>
     </div>

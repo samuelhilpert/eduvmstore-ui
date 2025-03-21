@@ -31,11 +31,9 @@ from django.views import View
 import base64
 import re
 
-
-
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
 
 def get_host_ip():
     """
@@ -53,6 +51,7 @@ def get_host_ip():
     finally:
         s.close()
     return ip
+
 
 def get_token_id(request):
     """
@@ -96,6 +95,7 @@ def fetch_app_templates(request):
     except requests.RequestException as e:
         logging.error("Failed to fetch app templates: %s", e)
         return []
+
 
 def fetch_favorite_app_templates(request):
     """
@@ -164,6 +164,7 @@ def validate_name(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+
 class IndexView(generic.TemplateView):
     """
         Display the main index page with available app templates and associated image data.
@@ -202,7 +203,6 @@ class IndexView(generic.TemplateView):
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        #token_id = self.request.GET.get('token_id')
 
         app_templates = fetch_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
@@ -229,10 +229,15 @@ class IndexView(generic.TemplateView):
                 favorite_app_template['size'] = _('Unknown')
                 favorite_app_template['visibility'] = _('Unknown')
 
+        # Add favorite template IDs to context
+        favorite_template_ids = [template['id'] for template in favorite_app_templates]
+
         context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
+        context['favorite_template_ids'] = favorite_template_ids  # Add this line
 
         return context
+
 
 class DetailsPageView(generic.TemplateView):
     """
@@ -257,7 +262,6 @@ class DetailsPageView(generic.TemplateView):
             'image_owner': image_data.get('owner', 'N/A'),
         })
         return context
-
 
     def get_app_template(self):
         """
@@ -300,7 +304,8 @@ class CreateView(generic.TemplateView):
         View to handle the creation of a new app template with specified details.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    #success_url = reverse_lazy('/eduvmstore_dashboard/')
+
+    # success_url = reverse_lazy('/eduvmstore_dashboard/')
 
     def get(self, request, *args, **kwargs):
         """
@@ -345,8 +350,8 @@ class CreateView(generic.TemplateView):
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'script': request.POST.get('hiddenScriptField'),
-            'instantiation_attributes' : instantiation_attributes,
-            'account_attributes' : account_attributes,
+            'instantiation_attributes': instantiation_attributes,
+            'account_attributes': account_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -355,6 +360,7 @@ class CreateView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+            'created_at': request.POST.get('created_at')
 
         }
 
@@ -368,6 +374,7 @@ class CreateView(generic.TemplateView):
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
                 messages.success(request, f"App Template created successfully.")
+
             else:
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
@@ -375,7 +382,6 @@ class CreateView(generic.TemplateView):
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
             modal_message = _("Failed to create App-Template. Please try again.")
-
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
@@ -496,10 +502,10 @@ class EditView(generic.TemplateView):
 
         try:
             response = requests.put(
-                    update_url,
-                    json=data,
-                    headers=headers,
-                    timeout=10,
+                update_url,
+                json=data,
+                headers=headers,
+                timeout=10,
             )
             if response.status_code == 200:
                 modal_message = _("App-Template updated successfully.")
@@ -654,7 +660,7 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
     return buffer.getvalue()
 
 
-def generate_cloud_config(accounts,backend_script, instantiations):
+def generate_cloud_config(accounts, backend_script, instantiations):
     """
         Generate a cloud-config file for user account creation and backend script execution.
 
@@ -672,7 +678,6 @@ def generate_cloud_config(accounts,backend_script, instantiations):
     sorted_keys = list(accounts[0].keys())
     sorted_keys_instantiation = list(instantiations[0].keys())
 
-
     users_content = "\n".join(
         [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
     )
@@ -689,14 +694,14 @@ write_files:
 {generate_indented_content(users_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
-    
+
   - path: /etc/attributes.txt
     content: |
 {generate_indented_content(instantiations_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
-    
-    
+
+
 
 {backend_script}
 """
@@ -728,11 +733,9 @@ class InstancesView(generic.TemplateView):
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
 
-
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
         return render(request, self.template_name, context)
-
 
     def post(self, request, *args, **kwargs):
         """
@@ -769,9 +772,7 @@ class InstancesView(generic.TemplateView):
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
 
-
             security_groups = ["default"]
-
 
             instances = []
             shared_keypair_name = f"{base_name}_shared_key"
@@ -795,7 +796,6 @@ class InstancesView(generic.TemplateView):
                 accounts = []
                 instantiations = []
 
-
                 no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
 
                 if no_additional_users is None:
@@ -812,8 +812,6 @@ class InstancesView(generic.TemplateView):
 
                 description = self.format_description(app_template_description)
 
-
-
                 if not script and not accounts:
                     user_data = None
                 elif not script and accounts:
@@ -824,7 +822,6 @@ class InstancesView(generic.TemplateView):
                     user_data = f"#cloud-config\n{script}"
                 else:
                     user_data = generate_cloud_config(accounts, script, instantiations)
-
 
                 nics = [{"net-id": network_id}]
                 if separate_keys:
@@ -845,8 +842,9 @@ class InstancesView(generic.TemplateView):
                 metadata = {"App_Template": app_template_name}
                 for index, account in enumerate(accounts):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
-                    metadata[f"User_{index+1}"] = user_data_account
+                    metadata[f"User_{index + 1}"] = user_data_account
                 for index, instantiation in enumerate(instantiations):
+
                     parts = []
                     current_part = ""
                     for kv_pair in [f"{key}: {value}" for key, value in instantiation.items()]:
@@ -861,6 +859,7 @@ class InstancesView(generic.TemplateView):
                     for part_index, part_content in enumerate(parts):
                         key = f"Instantiation_{index+1}_Part{part_index+1}"
                         metadata[key] = part_content
+
 
 
                 nova.server_create(
@@ -886,7 +885,6 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
 
-
     def get_context_data(self, **kwargs):
         """
             Add form and optional image ID to the context for rendering the template.
@@ -902,7 +900,7 @@ class InstancesView(generic.TemplateView):
         # Fetch available flavors from Nova
         context['flavors'] = self.get_flavors(app_template)
 
-        #Context for the selected App-Template --> Display system infos
+        # Context for the selected App-Template --> Display system infos
         context['app_template'] = app_template
 
         # Fetch available networks
@@ -917,14 +915,14 @@ class InstancesView(generic.TemplateView):
 
         return context
 
-    #def get_flavors(self, ):
-      #  """Fetch flavors from Nova to correlate instances."""
-       # try:
-       #     flavors = api.nova.flavor_list(self.request)
-       #     return {str(flavor.id): flavor.name for flavor in flavors}
-       # except Exception:
-       #     exceptions.handle(self.request, ignore=True)
-       #     return {}
+    # def get_flavors(self, ):
+    #  """Fetch flavors from Nova to correlate instances."""
+    # try:
+    #     flavors = api.nova.flavor_list(self.request)
+    #     return {str(flavor.id): flavor.name for flavor in flavors}
+    # except Exception:
+    #     exceptions.handle(self.request, ignore=True)
+    #     return {}
 
     def get_flavors(self, app_template):
         """
@@ -1029,7 +1027,6 @@ class InstancesView(generic.TemplateView):
             for field in expected_fields
         }
 
-
         num_entries = len(next(iter(extracted_data.values()), []))
 
         for i in range(num_entries):
@@ -1073,11 +1070,10 @@ class InstancesView(generic.TemplateView):
         instantiations = []
         expected_fields_instantiation = self.get_expected_fields_instantiation()
 
-        extracted_data_instantiations= {
+        extracted_data_instantiations = {
             field: request.POST.getlist(f"{field}_{instance_id}_instantiation[]")
             for field in expected_fields_instantiation
         }
-
 
         num_entries = len(next(iter(extracted_data_instantiations.values()), []))
 
@@ -1087,9 +1083,6 @@ class InstancesView(generic.TemplateView):
             instantiations.append(instantiation)
 
         return instantiations
-
-
-
 
     def get_networks(self):
         """
@@ -1110,7 +1103,7 @@ class InstancesView(generic.TemplateView):
             logging.error(f"Unable to fetch networks: {e}")
             return {}
 
-    #Get App Template Details to display while launching an instance
+    # Get App Template Details to display while launching an instance
     def get_app_template(self):
         """
             Fetch a specific app template from the external database using token authentication.
@@ -1132,7 +1125,7 @@ class InstancesView(generic.TemplateView):
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
 
-    def format_description(self,description):
+    def format_description(self, description):
         """
     Format the given description by removing extra whitespace and truncating it to a maximum length.
 
@@ -1150,7 +1143,6 @@ class InstancesView(generic.TemplateView):
 
 
 class InstanceSuccessView(generic.TemplateView):
-
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
 
     def get(self, request, *args, **kwargs):
@@ -1221,7 +1213,6 @@ class InstanceSuccessView(generic.TemplateView):
                     if private_key:
                         zip_file.writestr(f"{keypair_name}.pem", private_key)
 
-
         zip_buffer.seek(0)
 
         response = HttpResponse(zip_buffer.getvalue(), content_type="application/zip")
@@ -1243,6 +1234,7 @@ class InstanceSuccessView(generic.TemplateView):
         request.session.pop("base_name", None)
 
         return response
+
 
 class GetFavoriteAppTemplateView(generic.View):
 
@@ -1275,13 +1267,11 @@ class GetFavoriteAppTemplateView(generic.View):
         try:
             api_url = f"{API_ENDPOINTS['to_be_favorite']}"
 
-
             headers = {"X-Auth-Token": token_id}
 
             payload = {
                 "app_template_id": favorite_app_template_id
             }
-
 
             response = requests.post(api_url, json=payload, headers=headers, timeout=10)
 
@@ -1294,6 +1284,7 @@ class GetFavoriteAppTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
 
 class DeleteFavoriteAppTemplateView(generic.View):
 
@@ -1326,13 +1317,11 @@ class DeleteFavoriteAppTemplateView(generic.View):
         try:
             api_url = f"{API_ENDPOINTS['delete_favorite']}"
 
-
             headers = {"X-Auth-Token": token_id}
 
             payload = {
                 "app_template_id": favorite_app_template_id
             }
-
 
             response = requests.delete(api_url, json=payload, headers=headers, timeout=10)
 

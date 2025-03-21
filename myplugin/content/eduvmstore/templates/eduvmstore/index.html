@@ -108,6 +108,11 @@
         color: gold !important;
     }
 
+    .favorite-btn i.temporary-favorite {
+    color: gold;
+}
+
+
 
 </style>
 
@@ -116,7 +121,7 @@
         Create App-Template
     </a>
 </div>
-
+{% if favorite_app_templates %}
     <h2>Favorite App-Templates</h2>
 
     <table class="table table-striped">
@@ -178,7 +183,7 @@
         {% endfor %}
         </tbody>
     </table>
-
+{% endif %}
     <h2>All App-Templates</h2>
 
 <table class="table table-striped">
@@ -187,7 +192,7 @@
             <th>App Template Name</th>
             <th>Short Description</th>
             <th>Size (MB)</th>
-            <th>Visibility</th>
+            <th>Available for</th>
             <th>Launch</th>
             <th>Favorite</th>
         </tr>
@@ -204,9 +209,9 @@
             <td>{{ template.size }} </td>
            <td>
                 {% if template.public %}
-                    Public
+                    Everyone
                 {% else %}
-                    Private
+                    Creator only
                 {% endif %}
             </td>
               <td>
@@ -232,7 +237,7 @@
                           <input type="hidden" name="template_id" value="{{ template.id }}">
                           <input type="hidden" name="template_name" value="{{ template.name }}">
                           <button type="submit" class="favorite-btn">
-                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star {% for fav_template in favorite_app_templates %}{% if fav_template.id == template.id %}temporary-favorite{% endif %}{% endfor %}"></i>
                           </button>
                       </form>
                   </td>
