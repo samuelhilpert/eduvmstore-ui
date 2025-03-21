@@ -842,7 +842,6 @@ class InstancesView(generic.TemplateView):
                 else:
                     keypair_name = shared_keypair_name
 
-                max_meta_value_length = 255
                 metadata = {"App_Template": app_template_name}
                 for index, account in enumerate(accounts):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
@@ -851,15 +850,14 @@ class InstancesView(generic.TemplateView):
                     parts = []
                     current_part = ""
                     for kv_pair in [f"{key}: {value}" for key, value in instantiation.items()]:
-                        # Wenn Hinzufügen des nächsten Paares die Grenze überschreiten würde
-                        if len(current_part) + len(kv_pair) + 2 > MAX_META_VALUE_LENGTH:  # +2 für ", "
+
+                        if len(current_part) + len(kv_pair) + 2 > 255:  # limit for metadata length
                             parts.append(current_part.rstrip(", "))
                             current_part = ""
                         current_part += kv_pair + ", "
                     if current_part:
                         parts.append(current_part.rstrip(", "))
 
-                    # In metadata speichern
                     for part_index, part_content in enumerate(parts):
                         key = f"Instantiation_{index+1}_Part{part_index+1}"
                         metadata[key] = part_content
