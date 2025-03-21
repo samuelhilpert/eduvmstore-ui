@@ -578,8 +578,9 @@ function selectAutomaticFlavor(instanceId) {
 
                     console.log(`📥 Verarbeite Zeile ${index + 1}:`, values);
 
-                    if (values.length !== csvHeaders.length) {
-                        console.warn(`⚠️ Fehler: Zeile ${index + 1} hat nicht die richtige Anzahl an Werten!`, values);
+                    if (values.length !== accountAttributes.length) {
+                        console.error(`❌ Fehler: Zeile ${index + 1} hat ${values.length} Spalten, erwartet: ${accountAttributes.length}.`, values);
+                        alert(`❌ Fehler in Zeile ${index + 1}: Anzahl der Spalten stimmt nicht überein! Erwartet: ${accountAttributes.length}, gefunden: ${values.length}`);
                         return;
                     }
 
