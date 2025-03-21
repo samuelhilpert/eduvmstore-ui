@@ -824,7 +824,7 @@ class InstancesView(generic.TemplateView):
 
                     if keypair_name in existing_keypairs:
                         request.session[f"keypair_name_{i}"] = keypair_name
-                        request.session[f"private_key_{i}"] = None  # private_key nicht verfügbar
+                        request.session[f"private_key_{i}"] = None
                     else:
                         keypair = nova.keypair_create(request, name=keypair_name)
                         private_key = keypair.private_key
@@ -1190,14 +1190,16 @@ class InstanceSuccessView(generic.TemplateView):
             if not separate_keys:
                 private_key = request.session.get("private_key")
                 keypair_name = request.session.get("keypair_name", "shared_instance_key")
-                zip_file.writestr(f"{keypair_name}.pem", private_key)
+                if private_key:
+                    zip_file.writestr(f"{keypair_name}.pem", private_key)
 
 
             else:
                 for i in range(1, num_instances + 1):
                     private_key = request.session.get(f"private_key_{i}")
                     keypair_name = request.session.get(f"keypair_name_{i}", f"instance_key_{i}")
-                    zip_file.writestr(f"{keypair_name}.pem", private_key)
+                    if private_key:
+                        zip_file.writestr(f"{keypair_name}.pem", private_key)
 
 
         zip_buffer.seek(0)

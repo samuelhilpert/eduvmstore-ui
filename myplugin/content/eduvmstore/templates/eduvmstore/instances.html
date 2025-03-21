@@ -251,7 +251,14 @@
             instancesContainer.innerHTML = "";
 
             for (let i = 1; i <= numInstances; i++) {
-                let instanceName = baseName ? `${baseName}-${i}` : "";
+                let instanceName = "";
+                if (baseName) {
+                    if (numInstances === 1) {
+                        instanceName = baseName;
+                    } else {
+                        instanceName = `${baseName}-${i}`;
+                    }
+                }
                 const tabId = `instanceTab_${i}`;
                 const contentId = `instanceContent_${i}`;
 
