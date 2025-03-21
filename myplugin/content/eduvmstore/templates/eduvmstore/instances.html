@@ -311,11 +311,6 @@
                     <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
                 </div>
 
-                <div class="form-group">
-    <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
-    <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}" data-instance="${i}" accept=".csv">
-</div>
-
 
 
                 <div id="instantiation_section_${i}">
@@ -328,6 +323,10 @@
                 <!-- Dynamische Accounts -->
                 <div id="accounts_section_${i}" style="display: none;">
                     <h4>{{ _("Accounts") }}</h4>
+                    <div class="form-group">
+    <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
+    <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}" data-instance="${i}" accept=".csv">
+</div>
                     <div id="dynamic_accounts_container_${i}"></div>
                     <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                 </div>
