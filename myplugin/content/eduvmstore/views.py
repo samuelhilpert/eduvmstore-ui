@@ -1265,7 +1265,7 @@ class DeleteTemplateView(generic.View):
 
         try:
             # Prepare API call
-            api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/"
+            api_url = API_ENDPOINTS['app_templates_delete'].format(template_id=template_id)
             headers = {"X-Auth-Token": token_id}
 
             # API DELETE call

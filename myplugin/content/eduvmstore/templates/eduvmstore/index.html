@@ -20,6 +20,7 @@
 {% block main %}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+        let csrfToken = "{{ csrf_token }}";
         let currentIndex = 10;
         let allTemplates = [
             {% for template in app_templates %}
@@ -78,7 +79,7 @@
 
                 currentIndex += 10;
 
-                if (currentIndex >= allTemplates.length) {
+                if (currentIndex >= allTemplates.length - 1) {
                     loadMoreBtn.style.display = "none";
                 }
             });
@@ -212,7 +213,7 @@
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">Edit App-Template</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' template.id %}">Delete App-Template</a></li>
+                            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' favorite_template.id %}">Delete App-Template</a></li>
                         </ul>
                     </div>
                 </td>
@@ -284,7 +285,7 @@
                     <button type="submit" class="favorite-btn">
                         <i class="fa fa-star"></i>
                     </button>
-                </form>s
+                </form>
             </td>
         </tr>
         {% endfor %}
