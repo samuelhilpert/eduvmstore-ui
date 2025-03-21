@@ -191,10 +191,15 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-            Add app templates and image data to the context.
-            :param kwargs: Additional context parameters.
-            :return: Context dictionary with app templates and image details.
-            :rtype: dict
+        Add app templates, favorite app templates, and associated image data to the context.
+
+        This method fetches app templates and favorite app templates from the external API,
+        retrieves image data from the Glance API, and adds this information to the context
+        for rendering the template.
+
+        :param kwargs: Additional context parameters.
+        :return: Context dictionary with app templates, favorite app templates, and image details.
+        :rtype: dict
         """
         context = super().get_context_data(**kwargs)
         #token_id = self.request.GET.get('token_id')
