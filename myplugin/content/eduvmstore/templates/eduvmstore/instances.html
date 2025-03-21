@@ -503,129 +503,93 @@ function selectAutomaticFlavor(instanceId) {
 
             const file = event.target.files[0];
             if (!file) {
-                console.error("⚠️ Keine Datei ausgewählt!");
                 return;
             }
 
             const instanceId = event.target.getAttribute("data-instance");
             if (!instanceId) {
-                console.error("❌ Fehler: `data-instance` ist leer oder nicht gesetzt!", event.target);
                 return;
             }
-            console.log(`📂 Datei hochgeladen für Instanz: ${instanceId}`);
 
             const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
             const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
 
-            if (!accountsContainer) {
-                console.error(`❌ Fehler: Accounts-Container nicht gefunden für Instanz ${instanceId}!`);
-                return;
-            }
-
-            if (!addAccountButton) {
-                console.error(`❌ Fehler: Add-Account-Button nicht gefunden für Instanz ${instanceId}!`);
-                return;
-            }
-
             const reader = new FileReader();
             reader.onload = function (e) {
                 let text = e.target.result;
-                console.log("📜 Eingelesener CSV-Inhalt:\n", text);
 
                 const lines = text.trim().split("\n");
 
                 if (lines.length < 1) {
-                    console.error("❌ Fehler: CSV enthält keine Daten!");
                     return;
                 }
 
-                // **Bestehende Accounts löschen**
                 accountsContainer.innerHTML = "";
 
-                // **CSV-Parser, der auch Werte in Anführungszeichen unterstützt**
                 function parseCSVLine(line) {
-                    const regex = /(?:\"([^\"]+)\"|([^,]+))/g;  // Erfasst Werte in Anführungszeichen ODER normale Werte
+                    const regex = /(?:\"([^\"]+)\"|([^,]+))/g;
                     let matches, results = [];
                     while ((matches = regex.exec(line)) !== null) {
-                        results.push(matches[1] || matches[2]);  // Falls es in Anführungszeichen ist, nimm das Innere, sonst den normalen Wert
+                        results.push(matches[1] || matches[2]);
                     }
                     return results;
                 }
 
-                // **Kopfzeile auslesen und validieren**
                 let csvHeaders = parseCSVLine(lines[0]).map(header => header.trim().toLowerCase());
 
-                // **Prüfen, ob die Kopfzeile Account-Attribute enthält**
                 let isHeaderValid = accountAttributes.every(attr => csvHeaders.includes(attr.toLowerCase()));
 
-                console.log(`🛠️ CSV-Header erkannt: ${csvHeaders}, Gültig: ${isHeaderValid}`);
 
-                let startIndex = 1; // Daten ab Zeile 2 verarbeiten
+                let startIndex = 1;
                 let attributeIndexMap = {};
 
                 if (isHeaderValid) {
-                    // **Fall 2: Die erste Zeile ist eine Kopfzeile mit Attributen**
                     accountAttributes.forEach(attr => {
                         attributeIndexMap[attr] = csvHeaders.indexOf(attr.toLowerCase());
                     });
                 } else {
-                    // **Fall 1: Die erste Zeile ist bereits eine Nutzerdatenzeile → Einfach der Reihenfolge nach einfügen**
-                    console.warn("⚠️ Erste Zeile wird als Nutzerdaten behandelt.");
-                    startIndex = 0; // Starte direkt mit der ersten Zeile
+                    startIndex = 0;
                     attributeIndexMap = accountAttributes.reduce((map, attr, index) => {
-                        map[attr] = index; // Werte in Standard-Reihenfolge
+                        map[attr] = index;
                         return map;
                     }, {});
                 }
-
-                console.log("🔄 Attribut-Zuordnung:", attributeIndexMap);
 
                 let accountsList = [];
 
                 lines.slice(startIndex).forEach((line, index) => {
                     let values = parseCSVLine(line).map(value => value.trim());
 
-                    console.log(`📥 Verarbeite Zeile ${index + 1}:`, values);
-
-                    // **Fehlerprüfung für falsche Spaltenanzahl**
                     if (values.length !== accountAttributes.length) {
-                        console.error(`❌ Fehler: Zeile ${index + 1} hat ${values.length} Spalten, erwartet: ${accountAttributes.length}.`, values);
-                        alert(`❌ Fehler in Zeile ${index + 1}: Anzahl der Spalten stimmt nicht überein! Erwartet: ${accountAttributes.length}, gefunden: ${values.length}`);
+                        alert(`Error in row ${index + 1}: Number of columns does not match! Expected: ${accountAttributes.length}, found: ${values.length}`);
                         return;
                     }
 
-                    console.log(`➕ Simuliere Klick auf "Add Account" für Zeile ${index + 1}`);
                     addAccountButton.click();
                     accountsList.push(values);
                 });
 
-                // Wartezeit, um sicherzustellen, dass die Felder existieren
                 setTimeout(() => {
                     let accounts = accountsContainer.querySelectorAll(".card");
 
                     if (accounts.length !== accountsList.length) {
-                        console.error("❌ Fehler: Anzahl generierter Accounts stimmt nicht mit CSV-Zeilen überein!");
                         return;
                     }
 
                     accountsList.forEach((values, index) => {
-                        let account = accounts[index]; // Das N-te Account-Feld
+                        let account = accounts[index];
 
                         if (!account) {
-                            console.error(`❌ Fehler: Account ${index + 1} nicht gefunden!`);
                             return;
                         }
 
                         let inputs = account.querySelectorAll("input");
                         accountAttributes.forEach(attr => {
-                            let csvIndex = attributeIndexMap[attr]; // Richtiger Index in der CSV
-                            let inputField = inputs[accountAttributes.indexOf(attr)]; // Richtiger Index im HTML
+                            let csvIndex = attributeIndexMap[attr];
+                            let inputField = inputs[accountAttributes.indexOf(attr)];
 
                             if (csvIndex !== -1 && inputField) {
                                 inputField.value = values[csvIndex];
-                                console.log(`✅ Feld ${attr} in Account ${index + 1} gesetzt auf: ${values[csvIndex]}`);
-                            } else {
-                                console.warn(`⚠️ Kein passendes Input-Feld für Attribut: ${attr}`);
                             }
                         });
                     });
@@ -634,14 +598,6 @@ function selectAutomaticFlavor(instanceId) {
 
             reader.readAsText(file);
         });
-
-
-
-
-
-
-
-
 
     </script>
 
