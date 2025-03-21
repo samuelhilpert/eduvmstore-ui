@@ -118,7 +118,7 @@
                                     <input type="hidden" name="template_id" value="${template.id}">
                                     <input type="hidden" name="template_name" value="${template.name}">
                                     <button type="submit" class="favorite-btn">
-                                        <i class="fa fa-star"></i>
+                                        <i class="fa fa-star {% if template.id in favorite_template_ids %}temporary-favorite{% endif %}"></i>
                                     </button>
                                 </form>
                             </td>
@@ -274,7 +274,7 @@
                         <input type="hidden" name="template_id" value="{{ favorite_template.id }}">
                         <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
                         <button type="submit" class="favorite-btn">
-                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star {% if template.id in favorite_template_ids %}temporary-favorite{% endif %}"></i>
                         </button>
                     </form>
                 </td>
@@ -334,7 +334,7 @@
                     <input type="hidden" name="template_id" value="{{ template.id }}">
                     <input type="hidden" name="template_name" value="{{ template.name }}">
                     <button type="submit" class="favorite-btn">
-                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star {% if template.id in favorite_template_ids %}temporary-favorite{% endif %}"></i>
                     </button>
                 </form>
             </td>

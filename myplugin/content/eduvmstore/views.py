@@ -30,6 +30,7 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 import base64
 import re
+from django.core.paginator import Paginator
 
 
 
@@ -166,13 +167,23 @@ class IndexView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        #token_id = self.request.GET.get('token_id')
 
         app_templates = fetch_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
 
         glance_images = self.get_images_data()
 
+        # Paginate app_templates
+        paginator = Paginator(app_templates, 10)  # Show 10 app templates per page
+        page_number = self.request.GET.get('page')  # Get current page number from GET
+        page_obj = paginator.get_page(page_number)
+
+        # Paginate favorite_app_templates
+        favorite_paginator = Paginator(favorite_app_templates, 10)  # Show 10 favorite templates per page
+        favorite_page_number = self.request.GET.get('favorite_page')  # Get current page number from GET for favorites
+        favorite_page_obj = favorite_paginator.get_page(favorite_page_number)
+
+        # Attach image details to app templates
         for template in app_templates:
             image_id = template.get('image_id')
             glance_image = glance_images.get(image_id)
@@ -193,8 +204,8 @@ class IndexView(generic.TemplateView):
                 favorite_app_template['size'] = _('Unknown')
                 favorite_app_template['visibility'] = _('Unknown')
 
-        context['app_templates'] = app_templates
-        context['favorite_app_templates'] = favorite_app_templates
+        context['app_templates'] = page_obj  # Use paginated result
+        context['favorite_app_templates'] = favorite_page_obj  # Use paginated result
 
         return context
 
@@ -1251,26 +1262,3 @@ class DeleteFavoriteAppTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
-class DeleteTemplateView(View):
-    def delete(self, request, template_id, *args, **kwargs):
-        """ Handle DELETE requests to delete a template via the external API. """
-        token_id = get_token_id(request)
-
-        if not template_id:
-            return JsonResponse({"error": "Template ID is required."}, status=400)
-
-        try:
-            # API call
-            api_url = API_ENDPOINTS['app_templates_delete'].format(template_id=template_id)
-            headers = {"X-Auth-Token": token_id}
-
-            response = requests.delete(api_url, headers=headers, timeout=10)
-
-            if response.status_code == 204:
-                return JsonResponse({"message": f"Template {template_id} deleted successfully."}, status=200)
-            else:
-                error_message = response.json().get("error", "Unknown error occurred.")
-                return JsonResponse({"error": error_message}, status=response.status_code)
-        except requests.RequestException as e:
-            return JsonResponse({"error": f"Error during API call: {str(e)}"}, status=500)
