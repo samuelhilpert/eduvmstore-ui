@@ -20,6 +20,55 @@
 {% block main %}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+        function attachDeleteEventListeners() {
+            document.querySelectorAll(".delete-template-btn, .delete-template-link").forEach(element => {
+                element.addEventListener("click", function (event) {
+                    event.preventDefault();  // Prevent default link action
+
+                    let templateId = this.getAttribute("data-template-id");
+                    if (!confirm(`Are you sure you want to delete template ${templateId}?`)) {
+                        return;
+                    }
+
+                    fetch(`/eduvmstore/delete_template/${templateId}/`, {  // Adjust URL if needed
+                        method: "DELETE",
+                        headers: {
+                            "X-CSRFToken": getCSRFToken(),
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert(data.message);
+                            location.reload(); // Refresh the page
+                        } else {
+                            alert(`Error: ${data.error || "Failed to delete template."}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("An error occurred while deleting the template.");
+                    });
+                });
+            });
+        }
+
+        function getCSRFToken() {
+            let cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+                let [name, value] = cookie.trim().split("=");
+                if (name === "csrftoken") {
+                    return value;
+                }
+            }
+            return "";
+        }
+
+        attachDeleteEventListeners();
+    });
+
+        document.addEventListener("DOMContentLoaded", function () {
         let csrfToken = "{{ csrf_token }}";
         let currentIndex = 10;
         let allTemplates = [
@@ -213,7 +262,9 @@
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">Edit App-Template</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' favorite_template.id %}">Delete App-Template</a></li>
+                            <li> <a href="#" class="delete-template-link text-danger" data-template-id="{{ favorite_template.id }}">
+                                  Delete App-Template
+                                </a></li>
                         </ul>
                     </div>
                 </td>

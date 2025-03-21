@@ -1252,31 +1252,25 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-class DeleteTemplateView(generic.View):
-    def post(self, request, template_id, *args, **kwargs):
-        """
-        Handle POST requests to delete a template via the external API.
-        """
+class DeleteTemplateView(View):
+    def delete(self, request, template_id, *args, **kwargs):
+        """ Handle DELETE requests to delete a template via the external API. """
         token_id = get_token_id(request)
 
         if not template_id:
-            messages.error(request, "Template ID is required.")
-            return redirect('horizon:eduvmstore_dashboard:admin:index')
+            return JsonResponse({"error": "Template ID is required."}, status=400)
 
         try:
-            # Prepare API call
+            # API call
             api_url = API_ENDPOINTS['app_templates_delete'].format(template_id=template_id)
             headers = {"X-Auth-Token": token_id}
 
-            # API DELETE call
             response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
-                messages.success(request, f"Template {template_id} deleted successfully.")
+                return JsonResponse({"message": f"Template {template_id} deleted successfully."}, status=200)
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to delete template: {error_message}")
+                return JsonResponse({"error": error_message}, status=response.status_code)
         except requests.RequestException as e:
-            messages.error(request, f"Error during API call: {str(e)}")
-
-        return redirect('horizon:eduvmstore_dashboard:admin:index')
+            return JsonResponse({"error": f"Error during API call: {str(e)}"}, status=500)
