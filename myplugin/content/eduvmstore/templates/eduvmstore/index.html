@@ -108,6 +108,11 @@
         color: gold !important;
     }
 
+    .favorite-btn i.temporary-favorite {
+    color: gold;
+}
+
+
 
 </style>
 
@@ -232,7 +237,7 @@
                           <input type="hidden" name="template_id" value="{{ template.id }}">
                           <input type="hidden" name="template_name" value="{{ template.name }}">
                           <button type="submit" class="favorite-btn">
-                              <i class="fa fa-star"></i>
+                              <i class="fa fa-star {% for fav_template in favorite_app_templates %}{% if fav_template.id == template.id %}temporary-favorite{% endif %}{% endfor %}"></i>
                           </button>
                       </form>
                   </td>

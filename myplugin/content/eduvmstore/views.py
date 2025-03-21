@@ -167,7 +167,6 @@ class IndexView(generic.TemplateView):
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        # token_id = self.request.GET.get('token_id')
 
         app_templates = fetch_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
@@ -194,8 +193,12 @@ class IndexView(generic.TemplateView):
                 favorite_app_template['size'] = _('Unknown')
                 favorite_app_template['visibility'] = _('Unknown')
 
+        # Add favorite template IDs to context
+        favorite_template_ids = [template['id'] for template in favorite_app_templates]
+
         context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
+        context['favorite_template_ids'] = favorite_template_ids  # Add this line
 
         return context
 
