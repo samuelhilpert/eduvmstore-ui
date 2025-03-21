@@ -10,7 +10,7 @@ API_ENDPOINTS = {
     'app_templates': BASE_URL + 'app-templates/',  # For app template list
     'app_templates_update': BASE_URL + 'app-templates/{template_id}/',
     'app_template_detail': BASE_URL + 'app-templates/{template_id}/',  # For a specific app template
-    'app_template_delete': BASE_URL + 'app-templates/{template_id}',
+    #'app_template_delete': BASE_URL + 'app-templates/{template_id}',
     'instances_launch': BASE_URL + 'instances/launch/',  # For instance launch
     'user_list': BASE_URL + 'users/',  # For user list
     'roles_list': BASE_URL + 'roles',  # For roles list
