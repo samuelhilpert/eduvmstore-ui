@@ -622,11 +622,19 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
     if instantiations:
         elements.append(Paragraph("<b>Instantiation Attributes</b>", styles['Heading2']))
         elements.append(Spacer(1, 0.1 * inch))
-        all_keys_instantiation = list(instantiations[0].keys())
-        table_data_instantiation = [all_keys_instantiation]
-        for instantiation in instantiations:
-            row_values_instantiation = [instantiation.get(key, "N/A") for key in all_keys_instantiation]
-            table_data_instantiation.append(row_values_instantiation)
+
+        keys = list(instantiations[0].keys())
+        table_data_instantiation = []
+
+        header_row = ["Attributes"] + ["Values"]
+        table_data_instantiation.append(header_row)
+
+        for key in keys:
+            row = [key]
+            for inst in instantiations:
+                row.append(inst.get(key, "N/A"))
+            table_data_instantiation.append(row)
+
         table_instantiation = Table(table_data_instantiation, repeatRows=1)
         table_instantiation.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -638,6 +646,7 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ]))
         elements.append(table_instantiation)
+
 
     doc.build(elements)
     buffer.seek(0)
@@ -833,14 +842,27 @@ class InstancesView(generic.TemplateView):
                 else:
                     keypair_name = shared_keypair_name
 
+                max_meta_value_length = 255
                 metadata = {"App_Template": app_template_name}
                 for index, account in enumerate(accounts):
                     user_data_account = ", ".join([f"{key}: {value}" for key, value in account.items()])
                     metadata[f"User_{index+1}"] = user_data_account
                 for index, instantiation in enumerate(instantiations):
-                    user_data_instantiation = ", ".join(
-                        [f"{key}: {value}" for key, value in instantiation.items()])
-                    metadata[f"Instantiation_Attributes_{index+1}"] = user_data_instantiation
+                    parts = []
+                    current_part = ""
+                    for kv_pair in [f"{key}: {value}" for key, value in instantiation.items()]:
+                        # Wenn Hinzufügen des nächsten Paares die Grenze überschreiten würde
+                        if len(current_part) + len(kv_pair) + 2 > MAX_META_VALUE_LENGTH:  # +2 für ", "
+                            parts.append(current_part.rstrip(", "))
+                            current_part = ""
+                        current_part += kv_pair + ", "
+                    if current_part:
+                        parts.append(current_part.rstrip(", "))
+
+                    # In metadata speichern
+                    for part_index, part_content in enumerate(parts):
+                        key = f"Instantiation_{index+1}_Part{part_index+1}"
+                        metadata[key] = part_content
 
 
                 nova.server_create(
