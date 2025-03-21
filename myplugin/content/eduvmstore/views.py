@@ -769,10 +769,15 @@ class InstancesView(generic.TemplateView):
             shared_private_key = None
 
             if not separate_keys:
-                keypair = nova.keypair_create(request, name=shared_keypair_name)
-                shared_private_key = keypair.private_key
-                request.session["private_key"] = shared_private_key
-                request.session["keypair_name"] = shared_keypair_name
+                existing_keypair = {kp.name for kp in nova.keypair_list(request)}
+                if shared_keypair_name in existing_keypair:
+                    request.session["keypair_name"] = shared_keypair_name
+                    request.session["private_key"] = None
+                else:
+                    keypair = nova.keypair_create(request, name=shared_keypair_name)
+                    shared_private_key = keypair.private_key
+                    request.session["keypair_name"] = shared_keypair_name
+                    request.session["private_key"] = shared_private_key
 
             for i in range(1, num_instances + 1):
                 instance_name = f"{base_name}-{i}"
@@ -815,11 +820,16 @@ class InstancesView(generic.TemplateView):
                 nics = [{"net-id": network_id}]
                 if separate_keys:
                     keypair_name = f"{instance_name}_keypair"
-                    keypair = nova.keypair_create(request, name=keypair_name)
-                    private_key = keypair.private_key
+                    existing_keypairs = {kp.name for kp in nova.keypair_list(request)}
 
-                    request.session[f"private_key_{i}"] = private_key
-                    request.session[f"keypair_name_{i}"] = keypair_name
+                    if keypair_name in existing_keypairs:
+                        request.session[f"keypair_name_{i}"] = keypair_name
+                        request.session[f"private_key_{i}"] = None  # private_key nicht verfügbar
+                    else:
+                        keypair = nova.keypair_create(request, name=keypair_name)
+                        private_key = keypair.private_key
+                        request.session[f"keypair_name_{i}"] = keypair_name
+                        request.session[f"private_key_{i}"] = private_key
                 else:
                     keypair_name = shared_keypair_name
 
