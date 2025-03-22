@@ -779,8 +779,8 @@ class InstancesView(generic.TemplateView):
             shared_private_key = None
 
             if not separate_keys:
-                existing_keypair = {kp.name for kp in nova.keypair_list(request)}
-                if shared_keypair_name in existing_keypair:
+                existing_keypairs = {kp.name for kp in nova.keypair_list(request)}
+                if shared_keypair_name in existing_keypairs:
                     request.session["keypair_name"] = shared_keypair_name
                     request.session["private_key"] = None
                 else:
