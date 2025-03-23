@@ -237,39 +237,13 @@
 
 
     <script>
-
-     document.getElementById("num_instances").addEventListener("input", function () {
+  document.getElementById("num_instances").addEventListener("input", function () {
         if (this.value > 100) {
             this.value = 100;
         } else if (this.value < 1) {
             this.value = 1;
         }
     });
-
-    window.onload = function () {
-        let numInstancesInput = document.getElementById("num_instances");
-        let instancesNameInput = document.getElementById("instances_name");
-        let instanceTabs = document.getElementById("instanceTabs");
-        let instancesContainer = document.getElementById("instancesContainer");
-
-        if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
-            console.error("Fehlende HTML-Elemente. IDs überprüfen.");
-            return;
-        }
-
-        numInstancesInput.value = "1";
-        generateInstanceFields();
-
-        // Automatically select flavors for all generated instances
-            for (let i = 1; i <= numInstances; i++) {
-                selectAutomaticFlavor(i);
-            }
-
-        numInstancesInput.addEventListener("input", generateInstanceFields);
-        instancesNameInput.addEventListener("input", generateInstanceFields);
-
-        switchToInstance(1);
-    };
 
     let accountAttributes = {{ expected_account_fields|safe }};
     let instantiationAttribute = {{ expected_instantiation_fields|safe }};
@@ -310,26 +284,26 @@
                     <div class="section-container">
                         <h5>{{ _("Resource Configuration") }}</h5>
 
-                       <!-- Flavor Selection -->
-                    <div class="form-group">
-                        <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-                       <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
-    {% if flavors.suitable_flavors %}
-        <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-        {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
-            <option value="{{ flavor_id }}"
-                    data-flavor-details='{"ram": {{ flavors.flavor_details.ram }}, "disk": {{ flavors.flavor_details.disk }}, "cores": {{ flavors.flavor_details.vcpus }}}'
-                    {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                {{ flavor_name }}
-            </option>
-        {% endfor %}
-    {% else %}
-        <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
-    {% endif %}
-</select>
-            </div>
+                        <!-- Flavor Selection -->
+                        <div class="form-group">
+                            <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
+                            <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
+                                {% if flavors.suitable_flavors %}
+                                    <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+                                    {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
+                                        <option value="{{ flavor_id }}"
+                                                data-flavor-details='{"ram": {{ flavors.flavor_details[flavor_id].ram }}, "disk": {{ flavors.flavor_details[flavor_id].disk }}, "cores": {{ flavors.flavor_details[flavor_id].vcpus }}}'
+                                                {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+                                            {{ flavor_name }}
+                                        </option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
+                                {% endif %}
+                            </select>
+                        </div>
 
-             <!-- Display Fixed Resource Requirements and Available Resources -->
+                        <!-- Display Fixed Resource Requirements and Available Resources -->
                         <div class="alert alert-info mt-3">
                             <p><strong>{{ _("Resource Requirements") }}:</strong></p>
                             <ul>
@@ -391,131 +365,121 @@
 
         attachInstanceEventListeners();
         attachAccountButtonListeners();
+        attachFlavorCalculationListeners();
     }
 
-
-
-        function attachInstanceEventListeners() {
-            document.querySelectorAll(".next-instance").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceId = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceId + 1);
-                });
+    function attachInstanceEventListeners() {
+        document.querySelectorAll(".next-instance").forEach(button => {
+            button.addEventListener("click", function () {
+                let instanceId = parseInt(this.getAttribute("data-instance"));
+                switchToInstance(instanceId + 1);
             });
+        });
 
-            document.querySelectorAll(".prev-instance").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceId = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceId - 1);
-                });
+        document.querySelectorAll(".prev-instance").forEach(button => {
+            button.addEventListener("click", function () {
+                let instanceId = parseInt(this.getAttribute("data-instance"));
+                switchToInstance(instanceId - 1);
             });
+        });
 
-            document.querySelectorAll(".nav-link").forEach(tab => {
-                tab.addEventListener("click", function (event) {
-                    event.preventDefault();
-                    let instanceId = parseInt(this.id.replace("instanceTab_", ""));
-                    switchToInstance(instanceId);
-                });
+        document.querySelectorAll(".nav-link").forEach(tab => {
+            tab.addEventListener("click", function (event) {
+                event.preventDefault();
+                let instanceId = parseInt(this.id.replace("instanceTab_", ""));
+                switchToInstance(instanceId);
             });
+        });
+    }
+
+    function switchToInstance(instanceId) {
+        document.querySelectorAll(".tab-pane").forEach(el => {
+            el.classList.remove("show", "active");
+            el.style.display = "none";
+        });
+
+        let newContent = document.getElementById(`instanceContent_${instanceId}`);
+        if (newContent) {
+            newContent.classList.add("show", "active");
+            newContent.style.display = "block";
         }
 
+        document.querySelectorAll(".nav-link").forEach(tab => {
+            tab.classList.remove("active");
+        });
 
-        function switchToInstance(instanceId) {
-            document.querySelectorAll(".tab-pane").forEach(el => {
-                el.classList.remove("show", "active");
-                el.style.display = "none";
-            });
-
-            let newContent = document.getElementById(`instanceContent_${instanceId}`);
-            if (newContent) {
-                newContent.classList.add("show", "active");
-                newContent.style.display = "block";
-            }
-
-            document.querySelectorAll(".nav-link").forEach(tab => {
-                tab.classList.remove("active");
-            });
-
-            let newTab = document.getElementById(`instanceTab_${instanceId}`);
-            if (newTab) {
-                newTab.classList.add("active");
-                newTab.click();
-            }
+        let newTab = document.getElementById(`instanceTab_${instanceId}`);
+        if (newTab) {
+            newTab.classList.add("active");
+            newTab.click();
         }
+    }
 
+    function attachAccountButtonListeners() {
+        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let instanceId = this.id.split("_").pop();
+                let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
+                let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+                let userCountSection = document.getElementById(`user_count_section_${instanceId}`);
+                let userCountInput = document.getElementById(`user_count_${instanceId}`);
 
+                if (this.checked) {
+                    accountsSection.style.display = "none";
+                    addAccountButton.style.display = "none";
+                    userCountSection.style.display = "none";
+                    document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
+                } else {
+                    accountsSection.style.display = "block";
+                    addAccountButton.style.display = "none";
+                    userCountSection.style.display = "block";
+                    let userCount = parseInt(userCountInput.value) || 1;
+                    generateMultipleAccountFields(instanceId, userCount);
+                }
+            });
+        });
 
-function attachAccountButtonListeners() {
-    document.querySelectorAll(".no_additional_users").forEach(checkbox => {
-        checkbox.addEventListener("change", function () {
-            let instanceId = this.id.split("_").pop();
-            let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
-            let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
-            let userCountSection = document.getElementById(`user_count_section_${instanceId}`);
-            let userCountInput = document.getElementById(`user_count_${instanceId}`);
-
-            if (this.checked) {
-                // If "No additional users" is checked, hide the accounts section and clear the container
-                accountsSection.style.display = "none";
-                addAccountButton.style.display = "none";
-                userCountSection.style.display = "none";
-                document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
-            } else {
-                // If "No additional users" is unchecked, show the accounts section and display the first account field
-                accountsSection.style.display = "block";
-                addAccountButton.style.display = "none";  // Hide manual add button
-                userCountSection.style.display = "block";
-
-                // Ensure the first account is displayed by default
-                let userCount = parseInt(userCountInput.value) || 1;
+        document.querySelectorAll(".user-count-input").forEach(input => {
+            input.addEventListener("input", function () {
+                let instanceId = this.id.split("_").pop();
+                let userCount = parseInt(this.value) || 1;
                 generateMultipleAccountFields(instanceId, userCount);
-            }
+            });
         });
-    });
-
-    document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function () {
-            let instanceId = this.id.split("_").pop();
-            let userCount = parseInt(this.value) || 1;
-            generateMultipleAccountFields(instanceId, userCount);
-        });
-    });
-}
-
-function generateMultipleAccountFields(instanceId, userCount) {
-    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-    if (!accountsContainer) return;
-
-    accountsContainer.innerHTML = "";  // Clear existing accounts
-
-    // Ensure at least one account is displayed
-    userCount = Math.max(userCount, 1);  // Set userCount to at least 1
-
-    for (let i = 1; i <= userCount; i++) {
-        let accountSection = document.createElement("div");
-        accountSection.classList.add("card", "p-3", "mb-3");
-        accountSection.setAttribute("id", `account_${instanceId}_${i}`);
-        accountSection.setAttribute("data-account-number", i);
-        accountSection.style.border = "1px solid #ccc";
-        accountSection.style.borderRadius = "5px";
-        accountSection.style.padding = "15px";
-
-        let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
-        accountAttributes.forEach(attr => {
-            fieldsHtml += `
-                <div class="form-group md-5">
-                    <label for="${attr}_${instanceId}_${i}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${instanceId}_${i}" name="${attr}_${instanceId}[]" required>
-                </div>
-            `;
-        });
-
-        accountSection.innerHTML = fieldsHtml;
-        accountsContainer.appendChild(accountSection);
     }
-}
 
- function generateInstantiationFields(instanceId) {
+    function generateMultipleAccountFields(instanceId, userCount) {
+        let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+        if (!accountsContainer) return;
+
+        accountsContainer.innerHTML = "";
+        userCount = Math.max(userCount, 1);
+
+        for (let i = 1; i <= userCount; i++) {
+            let accountSection = document.createElement("div");
+            accountSection.classList.add("card", "p-3", "mb-3");
+            accountSection.setAttribute("id", `account_${instanceId}_${i}`);
+            accountSection.setAttribute("data-account-number", i);
+            accountSection.style.border = "1px solid #ccc";
+            accountSection.style.borderRadius = "5px";
+            accountSection.style.padding = "15px";
+
+            let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
+            accountAttributes.forEach(attr => {
+                fieldsHtml += `
+                    <div class="form-group md-5">
+                        <label for="${attr}_${instanceId}_${i}">${attr}</label>
+                        <input type="text" class="form-control" id="${attr}_${instanceId}_${i}" name="${attr}_${instanceId}[]" required>
+                    </div>
+                `;
+            });
+
+            accountSection.innerHTML = fieldsHtml;
+            accountsContainer.appendChild(accountSection);
+        }
+    }
+
+    function generateInstantiationFields(instanceId) {
         let fieldsHtmlInstance = ``;
         instantiationAttribute.forEach(attr => {
             fieldsHtmlInstance += `
@@ -528,127 +492,94 @@ function generateMultipleAccountFields(instanceId, userCount) {
         return fieldsHtmlInstance;
     }
 
-        {% if modal_message %}
-            $(document).ready(function () {
-                $('#responseModal').modal('show');
-            });
-        {% endif %}
+    function selectAutomaticFlavor(instanceId) {
+        const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
+        if (!flavorDropdown) return;
 
+        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
+        const userCountInput = document.getElementById(`user_count_${instanceId}`);
 
-    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
-    document.getElementById("structured-instantiation").textContent = formattedInstantiation;
+        const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
+        const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
+        const requiredCores = parseInt("{{ app_template.fixed_cores }}");
 
-    let accountAttribute = {{ app_template.account_attributes|safe }}
-    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-    document.getElementById("structured-accounts").textContent = formattedAccounts;
+        let totalRAM = requiredRAM;
+        let totalDisk = requiredDisk;
+        let totalCores = requiredCores;
 
-   //Calculate Flavor based on user
-     function selectAutomaticFlavor(instanceId) {
-    const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
-    if (!flavorDropdown) return;
+        if (!noAdditionalUsersCheckbox.checked) {
+            const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
+            const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
+            const perUserCores = parseInt("{{ app_template.per_user_cores }}");
+            const userCount = parseInt(userCountInput.value) || 0;
 
-    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
-    const userCountInput = document.getElementById(`user_count_${instanceId}`);
-
-    // Get fixed resource requirements from the template
-    const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
-    const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
-    const requiredCores = parseInt("{{ app_template.fixed_cores }}");
-
-    let totalRAM = requiredRAM;
-    let totalDisk = requiredDisk;
-    let totalCores = requiredCores;
-
-    if (!noAdditionalUsersCheckbox.checked) {
-        const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
-        const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
-        const perUserCores = parseInt("{{ app_template.per_user_cores }}");
-        const userCount = parseInt(userCountInput.value) || 0;
-
-        totalRAM += userCount * perUserRAM;
-        totalDisk += userCount * perUserDisk;
-        totalCores += userCount * perUserCores;
-    }
-
-    let selectedFlavor = null;
-
-    // Find the first flavor that meets the requirements
-    Array.from(flavorDropdown.options).forEach(option => {
-        if (option.value) {
-            const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
-            const flavorRAM = flavorDetails.ram / 1024; // Convert MB to GB
-            const flavorDisk = flavorDetails.disk;
-            const flavorCores = flavorDetails.cores;
-
-            if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
-                selectedFlavor = option;
-            }
+            totalRAM += userCount * perUserRAM;
+            totalDisk += userCount * perUserDisk;
+            totalCores += userCount * perUserCores;
         }
-    });
 
-    if (selectedFlavor) {
-        flavorDropdown.value = selectedFlavor.value;
-    } else {
-        alert("⚠️ No suitable flavor found. Please select one manually.");
-    }
-}
+        let selectedFlavor = null;
 
+        Array.from(flavorDropdown.options).forEach(option => {
+            if (option.value) {
+                const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
+                const flavorRAM = flavorDetails.ram / 1024; // Convert MB to GB
+                const flavorDisk = flavorDetails.disk;
+                const flavorCores = flavorDetails.cores;
 
-     function attachFlavorCalculationListeners() {
-    document.querySelectorAll(".no_additional_users").forEach(checkbox => {
-        checkbox.addEventListener("change", function () {
-            let instanceId = this.id.split("_").pop();
-            selectAutomaticFlavor(instanceId);
+                if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+                    selectedFlavor = option;
+                }
+            }
         });
-    });
 
-    document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function () {
-            let instanceId = this.id.split("_").pop();
-            selectAutomaticFlavor(instanceId);
-        });
-    });
-}
-
-// Call this function in your `attachAccountButtonListeners` or similar initialization function
-attachFlavorCalculationListeners();
-
-    document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function () {
-            let instanceId = this.id.split("_").pop();
-            selectAutomaticFlavor(instanceId);
-        });
-    });
-
-
-// Call this function in your `attachAccountButtonListeners` or similar initialization function
-attachFlavorCalculationListeners();
-
-window.onload = function () {
-    let numInstancesInput = document.getElementById("num_instances");
-    let instancesNameInput = document.getElementById("instances_name");
-    let instanceTabs = document.getElementById("instanceTabs");
-    let instancesContainer = document.getElementById("instancesContainer");
-
-    if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
-        console.error("Missing HTML elements. Check IDs.");
-        return;
+        if (selectedFlavor) {
+            flavorDropdown.value = selectedFlavor.value;
+        } else {
+            alert("⚠️ No suitable flavor found. Please select one manually.");
+        }
     }
 
-    numInstancesInput.value = "1";
-    generateInstanceFields();
+    function attachFlavorCalculationListeners() {
+        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let instanceId = this.id.split("_").pop();
+                selectAutomaticFlavor(instanceId);
+            });
+        });
 
-    // Automatically select flavors for all generated instances
-    for (let i = 1; i <= numInstancesInput.value; i++) {
-        selectAutomaticFlavor(i);
+        document.querySelectorAll(".user-count-input").forEach(input => {
+            input.addEventListener("input", function () {
+                let instanceId = this.id.split("_").pop();
+                selectAutomaticFlavor(instanceId);
+            });
+        });
     }
 
-    numInstancesInput.addEventListener("input", generateInstanceFields);
-    instancesNameInput.addEventListener("input", generateInstanceFields);
+    window.onload = function () {
+        let numInstancesInput = document.getElementById("num_instances");
+        let instancesNameInput = document.getElementById("instances_name");
+        let instanceTabs = document.getElementById("instanceTabs");
+        let instancesContainer = document.getElementById("instancesContainer");
 
-    switchToInstance(1);
-};
-    </script>
+        if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+            console.error("Missing HTML elements. Check IDs.");
+            return;
+        }
+
+        numInstancesInput.value = "1";
+        generateInstanceFields();
+
+        for (let i = 1; i <= numInstancesInput.value; i++) {
+            selectAutomaticFlavor(i);
+        }
+
+        numInstancesInput.addEventListener("input", generateInstanceFields);
+        instancesNameInput.addEventListener("input", generateInstanceFields);
+
+        attachFlavorCalculationListeners();
+        switchToInstance(1);
+    };
+</script>
 
 {% endblock %}
