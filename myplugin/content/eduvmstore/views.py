@@ -888,7 +888,7 @@ class InstancesView(generic.TemplateView):
     #     exceptions.handle(self.request, ignore=True)
     #     return {}
 
-    def get_flavors(self, app_template, instance_id=None):
+    def get_flavors(self, app_template):
         """
         Fetch all available flavors from Nova and filter them based on the system requirements
         specified in the app template.
@@ -910,25 +910,15 @@ class InstancesView(generic.TemplateView):
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
 
-            # Check if no_additional_users is checked for this instance
-            no_additional_users = self.request.POST.get(f'no_additional_users_{instance_id}', None) == "on"
-
             # Initialize required resources with fixed values from the app template
             required_ram_gb = app_template.get('fixed_ram_gb', 0)
             required_disk_gb = app_template.get('fixed_disk_gb', 0)
             required_cores = app_template.get('fixed_cores', 0)
 
-            if not no_additional_users:
-                # Calculate additional resources based on the number of users
-                user_count = int(self.request.POST.get(f'user_count_{instance_id}', 0))  # Get the number of users
-                if user_count > 0:
-                    ram_per_user = app_template.get('per_user_ram_gb', 0)
-                    disk_per_user = app_template.get('per_user_disk_gb', 0)
-                    cores_per_user = app_template.get('per_user_cores', 0)
+            ram_per_user = app_template.get('per_user_ram_gb', 0)
+            disk_per_user = app_template.get('per_user_disk_gb', 0)
+            cores_per_user = app_template.get('per_user_cores', 0)
 
-                    required_ram_gb += ram_per_user * user_count
-                    required_disk_gb += disk_per_user * user_count
-                    required_cores += cores_per_user * user_count
 
             # Convert required RAM to MB (as Nova uses MB)
             required_ram_mb = required_ram_gb * 1024
@@ -954,11 +944,16 @@ class InstancesView(generic.TemplateView):
             # Return flavor information
             result = {
                 'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
+                'flavor_details': {flavor_id: {'ram': flavor.ram, 'disk': flavor.disk, 'vcpus': flavor.vcpus}
+                                   for flavor_id, flavor in flavor_dict.items()},
                 'suitable_flavors': suitable_flavors,
                 'selected_flavor': selected_flavor,
                 'required_ram': required_ram_gb,
                 'required_disk': required_disk_gb,
                 'required_cores': required_cores,
+                'ram_per_user' : ram_per_user,
+                'disk_per_user': disk_per_user,
+                'cores_per_user' : cores_per_user
             }
 
             logging.info(f"Returning flavor data: {result}")

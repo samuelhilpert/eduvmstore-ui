@@ -307,13 +307,14 @@
                         <div class="form-group">
 
                             <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-                            <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
+                           <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
                                 {% if flavors.suitable_flavors %}
                                     <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-                                    {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
+                                    {% for flavor_id, flavor_data in flavors.suitable_flavors.items %}
                                         <option value="{{ flavor_id }}"
-                                            {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                                            {{ flavor_name }}
+                                                data-flavor-details='{"ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "cores": {{ flavor_data.cores }}}'
+                                                {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+                                            {{ flavor_data.name }}
                                         </option>
                                     {% endfor %}
                                 {% else %}
@@ -528,18 +529,6 @@ function generateMultipleAccountFields(instanceId, userCount) {
         {% endif %}
 
 
-function selectAutomaticFlavor(instanceId) {
-    const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
-    if (!flavorDropdown) return;
-
-    if (flavorDropdown.options.length === 2) {
-        flavorDropdown.selectedIndex = 1;
-        if (flavorDropdown.value) {
-            flavorDropdown.disabled = true;
-        }
-    }
-}
-
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
     let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-instantiation").textContent = formattedInstantiation;
@@ -547,6 +536,58 @@ function selectAutomaticFlavor(instanceId) {
     let accountAttribute = {{ app_template.account_attributes|safe }}
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-accounts").textContent = formattedAccounts;
+
+   //Calculate Flavor based on user
+function selectAutomaticFlavor(instanceId) {
+    const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
+    if (!flavorDropdown) return;
+
+    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
+    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+
+    // Hole Ressourcenanforderungen aus dem Template
+    const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
+    const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
+    const requiredCores = parseInt("{{ app_template.fixed_cores }}");
+
+    let totalRAM = requiredRAM;
+    let totalDisk = requiredDisk;
+    let totalCores = requiredCores;
+
+    if (!noAdditionalUsersCheckbox.checked) {
+        const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
+        const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
+        const perUserCores = parseInt("{{ app_template.per_user_cores }}");
+        const userCount = parseInt(userCountInput.value) || 0;
+
+        totalRAM += userCount * perUserRAM;
+        totalDisk += userCount * perUserDisk;
+        totalCores += userCount * perUserCores;
+    }
+
+    let selectedFlavor = null;
+
+    // Suche nach dem ersten Flavor, der die Anforderungen erfüllt
+    Array.from(flavorDropdown.options).forEach(option => {
+        if (option.value) {
+            const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
+            const flavorRAM = flavorDetails.ram;
+            const flavorDisk = flavorDetails.disk;
+            const flavorCores = flavorDetails.cores;
+
+            if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+                selectedFlavor = option;
+            }
+        }
+    });
+
+    if (selectedFlavor) {
+        flavorDropdown.value = selectedFlavor.value;
+    } else {
+        alert("⚠️ Kein passender Flavor gefunden. Bitte wähle einen manuell aus.");
+    }
+}
+
     </script>
 
 {% endblock %}
