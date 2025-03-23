@@ -624,6 +624,31 @@ attachFlavorCalculationListeners();
 
 // Call this function in your `attachAccountButtonListeners` or similar initialization function
 attachFlavorCalculationListeners();
+
+window.onload = function () {
+    let numInstancesInput = document.getElementById("num_instances");
+    let instancesNameInput = document.getElementById("instances_name");
+    let instanceTabs = document.getElementById("instanceTabs");
+    let instancesContainer = document.getElementById("instancesContainer");
+
+    if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+        console.error("Missing HTML elements. Check IDs.");
+        return;
+    }
+
+    numInstancesInput.value = "1";
+    generateInstanceFields();
+
+    // Automatically select flavors for all generated instances
+    for (let i = 1; i <= numInstancesInput.value; i++) {
+        selectAutomaticFlavor(i);
+    }
+
+    numInstancesInput.addEventListener("input", generateInstanceFields);
+    instancesNameInput.addEventListener("input", generateInstanceFields);
+
+    switchToInstance(1);
+};
     </script>
 
 {% endblock %}
