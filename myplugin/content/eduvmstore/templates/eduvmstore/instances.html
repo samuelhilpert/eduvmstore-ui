@@ -322,6 +322,16 @@
                             </select>
                         </div>
 
+             <!-- Display Fixed Resource Requirements and Available Resources -->
+                        <div class="alert alert-info mt-3">
+                            <p><strong>{{ _("Resource Requirements") }}:</strong></p>
+                            <ul>
+                                <li>{{ _("RAM") }}: {{ flavors.required_ram }} GB </li>
+                                <li>{{ _("Disk") }}: {{ flavors.required_disk }} GB </li>
+                                <li>{{ _("CPU Cores") }}: {{ flavors.required_cores }}</li>
+                            </ul>
+                        </div>
+
                         <div class="form-group">
                             <label for="network_id_${i}">{{ _("Select Network") }}</label>
                             <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
