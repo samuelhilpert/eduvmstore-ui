@@ -428,23 +428,30 @@
 
 
 
-     function attachAccountButtonListeners() {
+function attachAccountButtonListeners() {
     document.querySelectorAll(".no_additional_users").forEach(checkbox => {
         checkbox.addEventListener("change", function () {
             let instanceId = this.id.split("_").pop();
             let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
             let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
             let userCountSection = document.getElementById(`user_count_section_${instanceId}`);
+            let userCountInput = document.getElementById(`user_count_${instanceId}`);
 
             if (this.checked) {
+                // If "No additional users" is checked, hide the accounts section and clear the container
                 accountsSection.style.display = "none";
                 addAccountButton.style.display = "none";
                 userCountSection.style.display = "none";
                 document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
             } else {
+                // If "No additional users" is unchecked, show the accounts section and display the first account
                 accountsSection.style.display = "block";
                 addAccountButton.style.display = "none";  // Hide manual add button
                 userCountSection.style.display = "block";
+
+                // Ensure the first account is displayed by default
+                let userCount = parseInt(userCountInput.value) || 1;
+                generateMultipleAccountFields(instanceId, userCount);
             }
         });
     });
@@ -463,6 +470,9 @@ function generateMultipleAccountFields(instanceId, userCount) {
     if (!accountsContainer) return;
 
     accountsContainer.innerHTML = "";  // Clear existing accounts
+
+    // Ensure at least one account is displayed
+    userCount = Math.max(userCount, 1);  // Set userCount to at least 1
 
     for (let i = 1; i <= userCount; i++) {
         let accountSection = document.createElement("div");
@@ -487,7 +497,6 @@ function generateMultipleAccountFields(instanceId, userCount) {
         accountsContainer.appendChild(accountSection);
     }
 }
-
 
  function generateInstantiationFields(instanceId) {
         let fieldsHtmlInstance = ``;
