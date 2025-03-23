@@ -222,7 +222,13 @@
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">Edit App-Template</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="#" class="delete-btn" data-template-id="{{ template.id }}">Delete App-Template</a></li>
+                            <li> <!-- DELETE Button Form -->
+                                        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' template.id %}"
+                                              onsubmit="return confirm('Are you sure you want to delete this App-Template?');">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="template_name" value="{{ template.name }}">
+                                            <button type="submit" class="btn btn-link text-danger">Delete App-Template</button>
+                                        </form></li>
                         </ul>
                     </div>
                 </td>
@@ -284,7 +290,13 @@
         <ul class="dropdown-menu dropdown-menu-right">
             <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">Edit App-Template</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="#" data-template-id="{{ template.id }}">Delete App-Template</a></li>
+            <li><!-- DELETE Button Form -->
+                                        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' template.id %}"
+                                              onsubmit="return confirm('Are you sure you want to delete this App-Template?');">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="template_name" value="{{ template.name }}">
+                                            <button type="submit" class="btn btn-link text-danger">Delete App-Template</button>
+                                        </form></li>
         </ul>
     </div>
               </td>

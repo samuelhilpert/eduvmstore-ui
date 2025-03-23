@@ -1296,22 +1296,33 @@ class DeleteFavoriteAppTemplateView(generic.View):
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
 class DeleteTemplateView(View):
-    def delete(self, request, template_id, *args, **kwargs):
-        api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
-        auth_token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    """Handles app template deletion."""
 
-        if not auth_token:
-            return JsonResponse({"error": "Unauthorized: Missing token"}, status=401)
+    def post(self, request, template_id):
+        token_id = get_token_id(request)  # Assuming you already have this method in views.py
+        template_name = request.POST.get("template_name")
 
-        headers = {
-                "Authorization": f"Bearer {auth_token}",
-                "Content-Type": "application/json",
-        }
+        if not token_id:
+            messages.error(request, "Authentication token not found.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        response = requests.delete(api_url, headers=headers)
+        if not template_id:
+            messages.error(request, "App Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        if response.status_code == 204:
-            return JsonResponse({"message": "Template deleted successfully"}, status=204)
-        else:
-            return JsonResponse({"error": "Failed to delete", "details": response.text},
-                                    status=response.status_code)
+        try:
+            api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
+            headers = {"X-Auth-Token": token_id}
+
+            response = requests.delete(api_url, headers=headers, timeout=10)
+
+            if response.status_code == 204:
+                messages.success(request, f"'{template_name}' has been deleted successfully.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to delete '{template_name}': {error_message}")
+
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
