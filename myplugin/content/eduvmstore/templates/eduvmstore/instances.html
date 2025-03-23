@@ -328,9 +328,9 @@
                         <div class="alert alert-warning mt-3">
                             <p><strong>{{ _("Calculated Resources") }}:</strong></p>
                             <ul>
-                                <li>{{ _("Total RAM") }}: <span id="total_ram_${i}">0</span> GB</li>
-                                <li>{{ _("Total Disk") }}: <span id="total_disk_${i}">0</span> GB</li>
-                                <li>{{ _("Total CPU Cores") }}: <span id="total_cores_${i}">0</span></li>
+                               <li>{{ _("RAM") }}: {{ flavors.ram_per_user }} GB </li>
+                                <li>{{ _("Disk") }}: {{ flavors.disk_per_user }} GB </li>
+                                <li>{{ _("CPU Cores") }}: {{ flavors.cores_per_user }}</li>
                             </ul>
                         </div>
 
