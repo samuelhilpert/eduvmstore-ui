@@ -256,6 +256,10 @@ class IndexView(generic.TemplateView):
         context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
 
+        # If the request is AJAX, return only the table partial
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return render(self.request, "eduvmstore_dashboard/eduvmstore/table.html", context)
+
         return context
 
 class DetailsPageView(generic.TemplateView):
