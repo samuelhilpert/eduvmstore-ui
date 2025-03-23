@@ -888,13 +888,15 @@ class InstancesView(generic.TemplateView):
     #     exceptions.handle(self.request, ignore=True)
     #     return {}
 
-    def get_flavors(self, app_template, instance_id):
+    def get_flavors(self, app_template, instance_id=None):
         """
         Fetch all available flavors from Nova and filter them based on the system requirements
         specified in the app template.
 
         :param app_template: The app template containing system requirements.
         :type app_template: dict
+        :param instance_id: The ID of the instance for which flavors are being fetched.
+        :type instance_id: str
         :return: A dictionary containing all flavors, suitable flavors, and the selected flavor.
         :rtype: dict
         """
@@ -908,18 +910,26 @@ class InstancesView(generic.TemplateView):
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
 
-            # Get the total number of accounts for this instance from the form data
-            total_accounts = int(self.request.POST.get(f'total_accounts_{instance_id}', 0))
-            total_user = total_accounts  # Total users is equal to the total number of accounts
+            # Check if no_additional_users is checked for this instance
+            no_additional_users = self.request.POST.get(f'no_additional_users_{instance_id}', None) == "on"
 
-            ram_per_user = app_template.get('per_user_ram_gb')
-            disk_per_user = app_template.get('per_user_disk_gb')
-            cores_per_user = app_template.get('per_user_cores')
+            # Initialize required resources with fixed values from the app template
+            required_ram_gb = app_template.get('fixed_ram_gb', 0)
+            required_disk_gb = app_template.get('fixed_disk_gb', 0)
+            required_cores = app_template.get('fixed_cores', 0)
 
-            # Extract system requirements from app_template
-            required_ram_gb = app_template.get('fixed_ram_gb') + (ram_per_user * total_user)
-            required_disk_gb = app_template.get('fixed_disk_gb')+ (disk_per_user * total_user)
-            required_cores = app_template.get('fixed_cores')+ (cores_per_user * total_user)
+            if not no_additional_users:
+                # Calculate additional resources based on the number of users
+                total_accounts = int(self.request.POST.get(f'total_accounts_{instance_id}', 0))
+                total_user = total_accounts  # Total users is equal to the total number of accounts
+
+                ram_per_user = app_template.get('per_user_ram_gb', 0)
+                disk_per_user = app_template.get('per_user_disk_gb', 0)
+                cores_per_user = app_template.get('per_user_cores', 0)
+
+                required_ram_gb += ram_per_user * total_user
+                required_disk_gb += disk_per_user * total_user
+                required_cores += cores_per_user * total_user
 
             # Convert required RAM to MB (as Nova uses MB)
             required_ram_mb = required_ram_gb * 1024

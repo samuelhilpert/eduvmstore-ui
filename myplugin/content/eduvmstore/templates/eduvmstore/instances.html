@@ -295,7 +295,6 @@
         <li>{{ _("CPU Cores") }}: {{ flavors.required_cores }}</li>
     </ul>
 </div>
-
                 <div class="form-group">
                     <label for="network_id_${i}">{{ _("Select Network") }}</label>
                     <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
@@ -415,7 +414,7 @@
             });
         }
 
-     function addAccountFields(instanceId) {
+function addAccountFields(instanceId) {
     let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
     if (!accountsContainer) return;
 
@@ -427,12 +426,13 @@
     let accountSection = document.createElement("div");
     accountSection.classList.add("card", "p-3", "mb-3");
     accountSection.setAttribute("id", `account_${instanceId}_${accountCounter}`);
+    accountSection.setAttribute("data-account-number", accountCounter);
     accountSection.style.border = "1px solid #ccc";
     accountSection.style.borderRadius = "5px";
     accountSection.style.padding = "15px";
 
     // Add account fields
-    let fieldsHtml = `<h5>Account ${accountCounter}</h5>`;
+    let fieldsHtml = `<h5 class="account-title">Account ${accountCounter}</h5>`;
     accountAttributes.forEach(attr => {
         fieldsHtml += `
             <div class="form-group md-5">
@@ -447,7 +447,6 @@
         <button type="button" class="btn btn-danger btn-sm mt-2 remove-account" data-instance="${instanceId}" data-id="${accountCounter}">Remove</button>
     `;
 
-    // Set the inner HTML of the account section
     accountSection.innerHTML = fieldsHtml;
     accountsContainer.appendChild(accountSection);
 
@@ -455,24 +454,69 @@
     if (totalAccountsInput) {
         totalAccountsInput.value = accountCounter;
     } else {
-        // Create the hidden input field if it doesn't exist
         let hiddenInput = document.createElement("input");
         hiddenInput.type = "hidden";
         hiddenInput.id = `total_accounts_${instanceId}`;
         hiddenInput.name = `total_accounts_${instanceId}`;
         hiddenInput.value = accountCounter;
-        accountsContainer.parentNode.insertBefore(hiddenInput, accountsContainer);
+        accountsContainer.appendChild(hiddenInput);
     }
 
-    // Add event listener to the remove button
-    accountSection.querySelector(".remove-account").addEventListener("click", function () {
-        accountSection.remove();
-        // Decrement the total number of accounts
-        let totalAccountsInput = document.getElementById(`total_accounts_${instanceId}`);
-        if (totalAccountsInput) {
-            totalAccountsInput.value = parseInt(totalAccountsInput.value) - 1;
-        }
+    attachRemoveAccountListener(instanceId);
+}
+
+
+function attachRemoveAccountListener(instanceId) {
+    document.querySelectorAll(`#dynamic_accounts_container_${instanceId} .remove-account`).forEach(button => {
+        button.addEventListener("click", function () {
+            let accountId = this.getAttribute("data-id");
+            let accountSection = document.getElementById(`account_${instanceId}_${accountId}`);
+            if (accountSection) {
+                accountSection.remove();
+                adjustAccountNumbers(instanceId);
+            }
+        });
     });
+}
+
+function adjustAccountNumbers(instanceId) {
+    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    if (!accountsContainer) return;
+
+    let accountSections = accountsContainer.querySelectorAll(".card");
+    let newCounter = 1;
+
+    accountSections.forEach(section => {
+        section.setAttribute("data-account-number", newCounter);
+        section.id = `account_${instanceId}_${newCounter}`;
+
+        // Update account title number
+        section.querySelector(".account-title").textContent = `Account ${newCounter}`;
+
+        // Update the input fields' IDs and names
+        section.querySelectorAll("input").forEach(input => {
+            let nameParts = input.name.split("_");
+            let newName = `${nameParts[0]}_${instanceId}[]`;
+            let newId = input.id.replace(/(_\d+)$/, `_${newCounter}`);
+
+            input.name = newName;
+            input.id = newId;
+        });
+
+        // Update the remove button data-id attribute
+        let removeButton = section.querySelector(".remove-account");
+        if (removeButton) {
+            removeButton.setAttribute("data-id", newCounter);
+        }
+
+        newCounter++;
+    });
+
+    // Update the total accounts hidden input value
+    let totalAccountsInput = document.getElementById(`total_accounts_${instanceId}`);
+    if (totalAccountsInput) {
+        totalAccountsInput.value = newCounter - 1;
+    }
 }
 
         function generateInstantiationFields(instanceId) {
