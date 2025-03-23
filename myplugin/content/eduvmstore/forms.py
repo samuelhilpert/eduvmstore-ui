@@ -181,7 +181,7 @@ class InstanceForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
+# TODO: might be useful for a search feature similiar to openstack images search
 # class AppTemplateSearchForm(forms.Form):
 #     query = forms.CharField(
 #         required=False,

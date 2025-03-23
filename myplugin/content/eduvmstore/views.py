@@ -97,14 +97,14 @@ def fetch_app_templates(request):
         logging.error("Failed to fetch app templates: %s", e)
         return []
 
-def search_app_templates(request):
+def search_app_templates(request) -> list:
     """
-    Search for app templates in the external API using a provided token ID.
+    Search for app templates via the backend API using a provided token ID.
 
     This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the external API to search for app templates.
-    If the request is successful, it returns the JSON response. In case of an error,
-    it logs the error and returns an empty list.
+    and makes a GET request to the EduVMStore Backend API to search for app templates.
+    If the request is successful, it returns the JSON response of AppTemplates.
+    In case of an error, it logs the error and returns an empty list.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
