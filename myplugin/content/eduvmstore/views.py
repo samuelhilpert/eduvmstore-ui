@@ -888,7 +888,7 @@ class InstancesView(generic.TemplateView):
     #     exceptions.handle(self.request, ignore=True)
     #     return {}
 
-    def get_flavors(self, app_template):
+    def get_flavors(self, app_template, instance_id):
         """
         Fetch all available flavors from Nova and filter them based on the system requirements
         specified in the app template.
@@ -908,10 +908,18 @@ class InstancesView(generic.TemplateView):
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
 
+            # Get the total number of accounts for this instance from the form data
+            total_accounts = int(self.request.POST.get(f'total_accounts_{instance_id}', 0))
+            total_user = total_accounts  # Total users is equal to the total number of accounts
+
+            ram_per_user = app_template.get('per_user_ram_gb')
+            disk_per_user = app_template.get('per_user_disk_gb')
+            cores_per_user = app_template.get('per_user_cores')
+
             # Extract system requirements from app_template
-            required_ram_gb = app_template.get('fixed_ram_gb')
-            required_disk_gb = app_template.get('fixed_disk_gb')
-            required_cores = app_template.get('fixed_cores')
+            required_ram_gb = app_template.get('fixed_ram_gb') + (ram_per_user * total_user)
+            required_disk_gb = app_template.get('fixed_disk_gb')+ (disk_per_user * total_user)
+            required_cores = app_template.get('fixed_cores')+ (cores_per_user * total_user)
 
             # Convert required RAM to MB (as Nova uses MB)
             required_ram_mb = required_ram_gb * 1024
