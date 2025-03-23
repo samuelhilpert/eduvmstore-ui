@@ -1246,26 +1246,16 @@ class GetFavoriteAppTemplateView(generic.View):
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
 
-class DeleteFavoriteAppTemplateView(generic.View):
+class DeleteFavoriteAppTemplateView(View):
+    """Handles deleting a favorite app template."""
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to delete a favorite app template via the external API.
+        Handle POST requests to delete a favorite app template.
 
-        This method retrieves the app template ID and name from the POST request,
-        constructs the API URL and payload, and sends a DELETE request to the external API.
-        It handles the response and displays appropriate success or error messages.
-
-        :param request: The incoming HTTP request.
-        :type request: HttpRequest
-        :param args: Additional positional arguments.
-        :type args: tuple
-        :param kwargs: Additional keyword arguments.
-        :type kwargs: dict
-        :return: HTTP response redirecting to the index page.
-        :rtype: HttpResponse
+        This method deletes the app template from the user's favorites
+        and also removes it from the system if necessary.
         """
-
         favorite_app_template_id = request.POST.get("template_id")
         favorite_name = request.POST.get("template_name")
         token_id = get_token_id(request)
@@ -1275,21 +1265,26 @@ class DeleteFavoriteAppTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         try:
+
+            user = request.user  
+            favorite_template = user.favorite_templates.filter(id=favorite_app_template_id).first()
+
+            if favorite_template:
+                user.favorite_templates.remove(favorite_template)
+                messages.success(request, f"'{favorite_name}' is no longer a favorite.")
+
+            # Call external API to delete from the system (optional)
             api_url = f"{API_ENDPOINTS['delete_favorite']}"
-
             headers = {"X-Auth-Token": token_id}
-
-            payload = {
-                "app_template_id": favorite_app_template_id
-            }
+            payload = {"app_template_id": favorite_app_template_id}
 
             response = requests.delete(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 204:
-                messages.success(request, f"'{favorite_name}' is not a favorite now.")
+                messages.success(request, f"'{favorite_name}' has been successfully removed from favorites.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to delete  as a favorite: {error_message}")
+                messages.error(request, f"Failed to delete from favorites: {error_message}")
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
@@ -1299,7 +1294,7 @@ class DeleteTemplateView(View):
     """Handles app template deletion."""
 
     def post(self, request, template_id):
-        token_id = get_token_id(request)  # Assuming you already have this method in views.py
+        token_id = get_token_id(request)
         template_name = request.POST.get("template_name")
 
         if not token_id:
@@ -1311,6 +1306,15 @@ class DeleteTemplateView(View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         try:
+            # First, remove it from the favorites if it's there
+            user = request.user  # Assuming you're using Django's user model
+            template_to_delete = user.favorite_templates.filter(id=template_id).first()
+
+            if template_to_delete:
+                user.favorite_templates.remove(template_to_delete)
+                messages.success(request, f"'{template_name}' has been removed from favorites.")
+
+            # Now delete the template from the system
             api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
             headers = {"X-Auth-Token": token_id}
 
