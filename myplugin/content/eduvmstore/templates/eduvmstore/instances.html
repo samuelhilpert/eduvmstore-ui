@@ -305,10 +305,15 @@
                     </select>
                 </div>
 
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
-                    <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
-                </div>
+                  <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
+                <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
+        </div>
+
+        <div class="form-group mt-3" id="user_count_section_${i}" style="display: none;">
+            <label for="user_count_${i}">{{ _("Number of Additional Users") }}</label>
+            <input type="number" class="form-control user-count-input" id="user_count_${i}" name="user_count_${i}" min="1" value="1">
+        </div>
 
                 <div id="instantiation_section_${i}">
                     <h4>{{ _("Instantiation Attributes") }}</h4>
@@ -388,31 +393,65 @@
 
 
 
-        function attachAccountButtonListeners() {
-            document.querySelectorAll(".no_additional_users").forEach(checkbox => {
-                checkbox.addEventListener("change", function () {
-                    let instanceId = this.id.split("_").pop();
-                    let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
-                    let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+     function attachAccountButtonListeners() {
+    document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+        checkbox.addEventListener("change", function () {
+            let instanceId = this.id.split("_").pop();
+            let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
+            let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+            let userCountSection = document.getElementById(`user_count_section_${instanceId}`);
 
-                    if (this.checked) {
-                        accountsSection.style.display = "none";
-                        addAccountButton.style.display = "none";
-                        document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
-                    } else {
-                        accountsSection.style.display = "block";
-                        addAccountButton.style.display = "block";
-                    }
-                });
-            });
+            if (this.checked) {
+                accountsSection.style.display = "none";
+                addAccountButton.style.display = "none";
+                userCountSection.style.display = "none";
+                document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
+            } else {
+                accountsSection.style.display = "block";
+                addAccountButton.style.display = "none";  // Hide manual add button
+                userCountSection.style.display = "block";
+            }
+        });
+    });
 
-            document.querySelectorAll(".add_account_btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceId = this.getAttribute("data-instance");
-                    addAccountFields(instanceId);
-                });
-            });
-        }
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let instanceId = this.id.split("_").pop();
+            let userCount = parseInt(this.value) || 1;
+            generateMultipleAccountFields(instanceId, userCount);
+        });
+    });
+}
+
+function generateMultipleAccountFields(instanceId, userCount) {
+    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    if (!accountsContainer) return;
+
+    accountsContainer.innerHTML = "";  // Clear existing accounts
+
+    for (let i = 1; i <= userCount; i++) {
+        let accountSection = document.createElement("div");
+        accountSection.classList.add("card", "p-3", "mb-3");
+        accountSection.setAttribute("id", `account_${instanceId}_${i}`);
+        accountSection.setAttribute("data-account-number", i);
+        accountSection.style.border = "1px solid #ccc";
+        accountSection.style.borderRadius = "5px";
+        accountSection.style.padding = "15px";
+
+        let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
+        accountAttributes.forEach(attr => {
+            fieldsHtml += `
+                <div class="form-group md-5">
+                    <label for="${attr}_${instanceId}_${i}">${attr}</label>
+                    <input type="text" class="form-control" id="${attr}_${instanceId}_${i}" name="${attr}_${instanceId}[]" required>
+                </div>
+            `;
+        });
+
+        accountSection.innerHTML = fieldsHtml;
+        accountsContainer.appendChild(accountSection);
+    }
+}
 
 function addAccountFields(instanceId) {
     let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
