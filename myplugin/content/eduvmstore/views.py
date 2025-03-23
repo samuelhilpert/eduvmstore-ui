@@ -97,6 +97,33 @@ def fetch_app_templates(request):
         logging.error("Failed to fetch app templates: %s", e)
         return []
 
+def search_app_templates(request):
+    """
+    Search for app templates in the external API using a provided token ID.
+
+    This function retrieves the token ID from the request, constructs the headers,
+    and makes a GET request to the external API to search for app templates.
+    If the request is successful, it returns the JSON response. In case of an error,
+    it logs the error and returns an empty list.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :rtype: list
+    """
+
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    try:
+        response = requests.get(API_ENDPOINTS['app_templates'] + f"?search={request.GET.get('search')}",
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to search app templates: %s", e)
+        return []
+
 def fetch_favorite_app_templates(request):
     """
     Fetches favorite app templates from the external API using a provided token ID.

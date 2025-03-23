@@ -181,3 +181,13 @@ class InstanceForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+
+# forms.py
+from django import forms
+
+class AppTemplateSearchForm(forms.Form):
+    query = forms.CharField(
+        required=False,
+        label='Search',
+        widget=forms.TextInput(attrs={'placeholder': 'Click here for filter or fulltext search'})
+    )

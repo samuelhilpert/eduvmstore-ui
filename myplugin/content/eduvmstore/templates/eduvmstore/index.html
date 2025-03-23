@@ -32,6 +32,29 @@
                 });
             });
         });
+
+        async function search_app_templates() {
+            const inputField = document.getElementById("query");
+            const query = inputField.value;
+            const url = inputField.dataset.url;
+
+            try {
+                const response = await fetch(url + query, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP-Fehler: ${response.status}`);
+                }
+
+            } catch (error) {
+                console.error("Error in Validation:", error);
+            }
+        }
     </script>
 <style>
     .table {
@@ -181,6 +204,15 @@
 
     <h2>All App-Templates</h2>
 
+
+<form method="get" action=".">
+    {{ form.as_p }}
+    <input type="text" id="query" name="query" class="form-control"
+                       data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:search_app_templates' %}"
+                       oninput="search_app_templates()">
+</form>
+
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -241,5 +273,37 @@
     </tbody>
 </table>
 
+
+
+<search-bar filter-facets="appTemplatesTable.columns"></search-bar>
+
+<hz-resource-table
+    resource-type-name="OS::AppTemplates::Template"
+    track-by="id"
+    id="appTemplatesTable">
+
+    <hz-table>
+        <thead>
+            <tr>
+                <th>App Template Name</th>
+                <th>Short Description</th>
+                <th>Size (MB)</th>
+                <th>Visibility</th>
+                <th>Action</th>
+                <th>Favorite</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="template in appTemplates track by template.id">
+                <td>{{ template.name }}</td>
+                <td>{{ template.description }}</td>
+                <td>{{ template.size }}</td>
+                <td>{{ template.visibility }}</td>
+                <td><!-- Actions --></td>
+                <td><!-- Favorite --></td>
+            </tr>
+        </tbody>
+    </hz-table>
+</hz-resource-table>
 
   {% endblock %}
