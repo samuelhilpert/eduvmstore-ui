@@ -1295,23 +1295,23 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-    class DeleteTemplateView(View):
-        def delete(self, request, template_id, *args, **kwargs):
-            api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
-            auth_token = request.headers.get("Authorization", "").replace("Bearer ", "")
+class DeleteTemplateView(View):
+    def delete(self, request, template_id, *args, **kwargs):
+        api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
+        auth_token = request.headers.get("Authorization", "").replace("Bearer ", "")
 
-            if not auth_token:
-                return JsonResponse({"error": "Unauthorized: Missing token"}, status=401)
+        if not auth_token:
+            return JsonResponse({"error": "Unauthorized: Missing token"}, status=401)
 
-            headers = {
+        headers = {
                 "Authorization": f"Bearer {auth_token}",
                 "Content-Type": "application/json",
-            }
+        }
 
-            response = requests.delete(api_url, headers=headers)
+        response = requests.delete(api_url, headers=headers)
 
-            if response.status_code == 204:
-                return JsonResponse({"message": "Template deleted successfully"}, status=204)
-            else:
-                return JsonResponse({"error": "Failed to delete", "details": response.text},
+        if response.status_code == 204:
+            return JsonResponse({"message": "Template deleted successfully"}, status=204)
+        else:
+            return JsonResponse({"error": "Failed to delete", "details": response.text},
                                     status=response.status_code)
