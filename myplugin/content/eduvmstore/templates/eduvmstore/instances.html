@@ -226,6 +226,7 @@
     </div>
 </div>
 
+
     <script>
 
         document.getElementById("num_instances").addEventListener("input", function () {
@@ -338,19 +339,18 @@
             <input type="number" class="form-control user-count-input" id="user_count_${i}" name="user_count_${i}" min="1" value="1">
         </div>
 
+                     <div id="accounts_section_${i}" style="display: none;">
+                <h4>{{ _("Accounts") }}</h4>
+                <div id="dynamic_accounts_container_${i}"></div>
+                <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
+            </div>
+
                 <div id="instantiation_section_${i}">
                     <h4>{{ _("Instantiation Attributes") }}</h4>
                     <div id="dynamic_instantiation_container_${i}">
                         ${generateInstantiationFields(i)}
                     </div>
                 </div>
-
-             <div id="accounts_section_${i}" style="display: none;">
-                <h4>{{ _("Accounts") }}</h4>
-                <div id="dynamic_accounts_container_${i}"></div>
-                <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
-            </div>
-
 
                 <div class="d-flex justify-content-between mt-3">
                     ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous") }}</button>` : ""}
