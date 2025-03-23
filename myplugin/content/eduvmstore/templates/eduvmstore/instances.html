@@ -260,6 +260,11 @@
         numInstancesInput.value = "1";
         generateInstanceFields();
 
+        // Automatically select flavors for all generated instances
+            for (let i = 1; i <= numInstances; i++) {
+                selectAutomaticFlavor(i);
+            }
+
         numInstancesInput.addEventListener("input", generateInstanceFields);
         instancesNameInput.addEventListener("input", generateInstanceFields);
 
@@ -455,7 +460,7 @@ function attachAccountButtonListeners() {
                 userCountSection.style.display = "none";
                 document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
             } else {
-                // If "No additional users" is unchecked, show the accounts section and display the first account
+                // If "No additional users" is unchecked, show the accounts section and display the first account field
                 accountsSection.style.display = "block";
                 addAccountButton.style.display = "none";  // Hide manual add button
                 userCountSection.style.display = "block";
