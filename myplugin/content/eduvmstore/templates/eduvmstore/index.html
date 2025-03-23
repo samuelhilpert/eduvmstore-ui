@@ -207,36 +207,4 @@
 <div id="table-container">
     {% include "eduvmstore_dashboard/eduvmstore/table.html" %}
 </div>
-
-<!--
-TODO: Check if Search function can be done similiar to Images Search
-<search-bar filter-facets="appTemplatesTable.columns"></search-bar>
-
-<hz-resource-table
-    resource-type-name="OS::AppTemplates::Template"
-    track-by="id"
-    id="appTemplatesTable">
-
-    <hz-table>
-        <thead>
-            <tr>
-                <th>App Template Name</th>
-                <th>Short Description</th>
-                <th>Size (MB)</th>
-                <th>Visibility</th>
-                <th>Action</th>
-                <th>Favorite</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="template in appTemplates track by template.id">
-                <td>{{ template.name }}</td>
-                <td>{{ template.description }}</td>
-                <td>{{ template.size }}</td>
-                <td>{{ template.visibility }}</td>
-            </tr>
-        </tbody>
-    </hz-table>
-</hz-resource-table>
--->
   {% endblock %}
