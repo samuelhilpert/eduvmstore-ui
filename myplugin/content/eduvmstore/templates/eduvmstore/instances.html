@@ -74,59 +74,24 @@
         margin-top: 20px;
         margin-bottom: 20px;
     }
-
-    /* Section Styling */
-    .section-container {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        background-color: #f9f9f9;
-    }
-
-    /* Account Fields Grid Layout */
-    #dynamic_accounts_container_${i} {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-
-    .account-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px;
-        background-color: #ffffff;
-    }
-
-    .account-card h5 {
+    /* Dynamic Accounts Spacing */
+    #dynamic_accounts_container_${i} .card {
         margin-bottom: 15px;
-        font-size: 16px;
-    }
-
-    .account-card .form-group {
-        margin-bottom: 10px;
-    }
-
-    .account-card .remove-account {
-        margin-top: 10px;
     }
 </style>
 
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
 
-    <!-- App Template Name Display -->
-    <div class="section-container">
-        <div class="form-group">
-            <label>{{ _("App Template Name") }}</label>
-            <div class="card">
-                <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
-                    {{ app_template.name }}
-                </p>
-            </div>
+ <!-- App Template Name Display -->
+    <div class="form-group">
+        <label>{{ _("App Template Name") }}</label>
+        <div class="card">
+            <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
+                {{ app_template.name }}
+            </p>
         </div>
     </div>
-
     <!-- App Template Details Modal -->
     <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -155,7 +120,7 @@
                         <tr><th>Image Owner</th><td>{{ image_owner }}</td></tr>
                         <tr><th>Available For</th><td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td></tr>
                         <tr><th>Script</th><td><pre>{{ app_template.script }}</pre></td></tr>
-                        <tr><th>Instantiation Attributes</th><td> <pre id="structured-instantiation"></pre></td></tr>
+                         <tr><th>Instantiation Attributes</th><td> <pre id="structured-instantiation"></pre></td></tr>
                         <tr><th>Account Attributes</th><td> <pre id="structured-accounts"></pre></td></tr>
                         </tbody>
                     </table>
@@ -167,41 +132,39 @@
         </div>
     </div>
 
-    <!-- Instance Name and Number of Instances -->
-    <div class="section-container">
-        <div class="form-group">
-            <label for="instances_name">{{ _("Instance Name") }}</label>
-            <input type="text" class="form-control" id="instances_name" name="instances_name"
-                   placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
-        </div>
 
-        <div class="form-group">
-            <label for="num_instances">{{ _("Number of Instances") }}</label>
-            <input type="number" class="form-control" id="num_instances" name="num_instances"
-                   min="1" max="100" placeholder="1-100" required>
-        </div>
-
-        <div class="form-group">
-            <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}</label>
-            <select class="form-control" id="separate_keys" name="separate_keys">
-                <option value="false" selected>{{ _("No, use one key for all") }}</option>
-                <option value="true">{{ _("Yes, generate separate keys") }}</option>
-            </select>
-        </div>
+    <div class="form-group">
+        <label for="instances_name">{{ _("Instance Name") }}</label>
+        <input type="text" class="form-control" id="instances_name" name="instances_name"
+               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
     </div>
 
-    <!-- Instance Tabs -->
+    <div class="form-group">
+        <label for="num_instances">{{ _("Number of Instances") }}</label>
+        <input type="number" class="form-control" id="num_instances" name="num_instances"
+               min="1" max="100" placeholder="1-100" required>
+    </div>
+
+    <div class="form-group">
+        <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}</label>
+        <select class="form-control" id="separate_keys" name="separate_keys">
+            <option value="false" selected>{{ _("No, use one key for all") }}</option>
+            <option value="true">{{ _("Yes, generate separate keys") }}</option>
+        </select>
+    </div>
+
     <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
 
-    <!-- Instance Content -->
     <div class="tab-content mt-3" id="instancesContainer"></div>
 
-    <!-- Launch and Cancel Buttons -->
-    <div class="button-container">
-        <button type="submit" class="btn btn-primary">{{ _("Launch Instance") }}</button>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
-    </div>
+     <div style="margin-top: 20px; margin-bottom: 20px;">
+            <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
+           <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+        </div>
+
 </form>
+
+
 
 <!-- Modal for Success or Failure -->
 <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
@@ -225,6 +188,20 @@
         </div>
     </div>
 </div>
+
+
+    <style>
+        .tab-pane {
+            display: none;
+            position: absolute;
+            left: -9999px;
+        }
+
+        .tab-pane.show.active {
+            display: block;
+            position: static;
+        }
+    </style>
 
     <script>
 
@@ -348,7 +325,7 @@
              <div id="accounts_section_${i}" style="display: none;">
                 <h4>{{ _("Accounts") }}</h4>
                 <div id="dynamic_accounts_container_${i}"></div>
-
+                    ${generateInstantiationFields(i)}
             </div>
 
 
