@@ -236,8 +236,8 @@
     </div>
 
 
-    <script>
-  document.getElementById("num_instances").addEventListener("input", function () {
+   <script>
+    document.getElementById("num_instances").addEventListener("input", function () {
         if (this.value > 100) {
             this.value = 100;
         } else if (this.value < 1) {
@@ -287,20 +287,20 @@
                         <!-- Flavor Selection -->
                         <div class="form-group">
                             <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-                           <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
-                            {% if flavors.suitable_flavors %}
-                                <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-                                {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
-                                    <option value="{{ flavor_id }}"
-                                            data-flavor-details='{"ram": "leer", "disk": {{ flavors.flavor_details[flavor_id].disk }}, "vcpus": {{ flavors.flavor_details[flavor_id].vcpus }}}'
-                                            {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                                        {{ flavor_name }}
-                                    </option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
-                            {% endif %}
-                        </select>
+                            <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
+                                {% if flavors.suitable_flavors %}
+                                    <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+                                    {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
+                                        <option value="{{ flavor_id }}"
+                                                data-flavor-details='{"ram": {{ flavors.flavor_details[flavor_id].ram }}, "disk": {{ flavors.flavor_details[flavor_id].disk }}, "vcpus": {{ flavors.flavor_details[flavor_id].vcpus }}}'
+                                                {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+                                            {{ flavor_name }}
+                                        </option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
+                                {% endif %}
+                            </select>
                         </div>
 
                         <!-- Display Fixed Resource Requirements and Available Resources -->
@@ -313,6 +313,16 @@
                             </ul>
                         </div>
 
+                        <!-- Debugging: Display calculated resources -->
+                        <div class="alert alert-warning mt-3">
+                            <p><strong>Calculated Resources:</strong></p>
+                            <ul>
+                                <li>{{ _("Total RAM") }}: <span id="total_ram_${i}">0</span> GB</li>
+                                <li>{{ _("Total Disk") }}: <span id="total_disk_${i}">0</span> GB</li>
+                                <li>{{ _("Total CPU Cores") }}: <span id="total_cores_${i}">0</span></li>
+                            </ul>
+                        </div>
+
                         <div class="form-group">
                             <label for="network_id_${i}">{{ _("Select Network") }}</label>
                             <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
@@ -322,16 +332,6 @@
                                 {% endfor %}
                             </select>
                         </div>
-                    </div>
-
-                                        <!-- Debugging: Display calculated resources -->
-                    <div class="alert alert-warning mt-3">
-                        <p><strong>Calculated Resources:</strong></p>
-                        <ul>
-                            <li>{{ _("Total RAM") }}: <span id="total_ram_${i}">0</span> GB</li>
-                            <li>{{ _("Total Disk") }}: <span id="total_disk_${i}">0</span> GB</li>
-                            <li>{{ _("Total CPU Cores") }}: <span id="total_cores_${i}">0</span></li>
-                        </ul>
                     </div>
 
                     <!-- Additional Users and Accounts Container -->
@@ -503,61 +503,59 @@
     }
 
     function selectAutomaticFlavor(instanceId) {
-    const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
-    if (!flavorDropdown) return;
+        const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
+        if (!flavorDropdown) return;
 
-    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
-    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
+        const userCountInput = document.getElementById(`user_count_${instanceId}`);
 
-    // Get fixed resource requirements from the template
-    const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
-    const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
-    const requiredCores = parseInt("{{ app_template.fixed_cores }}");
+        // Get fixed resource requirements from the template
+        const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
+        const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
+        const requiredCores = parseInt("{{ app_template.fixed_cores }}");
 
-    let totalRAM = requiredRAM;
-    let totalDisk = requiredDisk;
-    let totalCores = requiredCores;
+        let totalRAM = requiredRAM;
+        let totalDisk = requiredDisk;
+        let totalCores = requiredCores;
 
-    if (!noAdditionalUsersCheckbox.checked) {
-        const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
-        const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
-        const perUserCores = parseInt("{{ app_template.per_user_cores }}");
-        const userCount = parseInt(userCountInput.value) || 0;
+        if (!noAdditionalUsersCheckbox.checked) {
+            const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
+            const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
+            const perUserCores = parseInt("{{ app_template.per_user_cores }}");
+            const userCount = parseInt(userCountInput.value) || 0;
 
-        totalRAM += userCount * perUserRAM;
-        totalDisk += userCount * perUserDisk;
-        totalCores += userCount * perUserCores;
-    }
-
-    // Debugging: Display calculated resources
-    console.log("Total RAM:", totalRAM);
-    console.log("Total Disk:", totalDisk);
-    console.log("Total Cores:", totalCores);
-
-    let selectedFlavor = null;
-
-    // Find the first flavor that meets the requirements
-    Array.from(flavorDropdown.options).forEach(option => {
-        if (option.value) {
-            const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
-            console.log("Flavor Details:", flavorDetails); // Debugging: Display flavor details
-
-            const flavorRAM = flavorDetails.ram / 1024; // Convert MB to GB
-            const flavorDisk = flavorDetails.disk; // Already in GB
-            const flavorCores = flavorDetails.vcpus; // CPU cores
-
-            if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
-                selectedFlavor = option;
-            }
+            totalRAM += userCount * perUserRAM;
+            totalDisk += userCount * perUserDisk;
+            totalCores += userCount * perUserCores;
         }
-    });
 
-    if (selectedFlavor) {
-        flavorDropdown.value = selectedFlavor.value;
-    } else {
-        alert("No suitable flavor found. Please select one manually.");
+        // Debugging: Display calculated resources
+        document.getElementById(`total_ram_${instanceId}`).textContent = totalRAM.toFixed(2);
+        document.getElementById(`total_disk_${instanceId}`).textContent = totalDisk.toFixed(2);
+        document.getElementById(`total_cores_${instanceId}`).textContent = totalCores;
+
+        let selectedFlavor = null;
+
+        // Find the first flavor that meets the requirements
+        Array.from(flavorDropdown.options).forEach(option => {
+            if (option.value) {
+                const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
+                const flavorRAM = flavorDetails.ram / 1024; // Convert MB to GB
+                const flavorDisk = flavorDetails.disk; // Already in GB
+                const flavorCores = flavorDetails.vcpus; // CPU cores
+
+                if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+                    selectedFlavor = option;
+                }
+            }
+        });
+
+        if (selectedFlavor) {
+            flavorDropdown.value = selectedFlavor.value;
+        } else {
+            alert("No suitable flavor found. Please select one manually.");
+        }
     }
-}
 
     function attachFlavorCalculationListeners() {
         document.querySelectorAll(".no_additional_users").forEach(checkbox => {

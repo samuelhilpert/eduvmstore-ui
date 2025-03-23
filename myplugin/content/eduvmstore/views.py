@@ -895,8 +895,6 @@ class InstancesView(generic.TemplateView):
 
         :param app_template: The app template containing system requirements.
         :type app_template: dict
-        :param instance_id: The ID of the instance for which flavors are being fetched.
-        :type instance_id: str
         :return: A dictionary containing all flavors, suitable flavors, and the selected flavor.
         :rtype: dict
         """
@@ -908,11 +906,22 @@ class InstancesView(generic.TemplateView):
                 return {}
 
             # Create a dictionary of flavor details
-            flavor_dict = {str(flavor.id): flavor for flavor in flavors}
-            logging.info(f"Found {len(flavors)} flavors.")
+            flavor_dict = {}
+            for flavor in flavors:
+                try:
+                    # Fetch full flavor details using flavor_get
+                    full_flavor = api.nova.flavor_get(self.request, flavor.id)
+                    flavor_dict[str(full_flavor.id)] = {
+                        'name': full_flavor.name,
+                        'ram': full_flavor.ram,  # RAM in MB
+                        'disk': full_flavor.disk,  # Disk in GB
+                        'vcpus': full_flavor.vcpus  # CPU cores
+                    }
+                except Exception as e:
+                    logging.error(f"Failed to fetch details for flavor {flavor.id}: {e}")
+                    continue
 
-            # Debugging: Log flavor_dict
-            logging.info("Flavor Dict: %s", flavor_dict)
+            logging.info(f"Found {len(flavor_dict)} flavors with details.")
 
             # Initialize required resources with fixed values from the app template
             required_ram_gb = app_template.get('fixed_ram_gb', 0)
@@ -931,11 +940,11 @@ class InstancesView(generic.TemplateView):
 
             for flavor_id, flavor in flavor_dict.items():
                 if (
-                        flavor.ram >= required_ram_mb and
-                        flavor.disk >= required_disk_gb and
-                        flavor.vcpus >= required_cores
+                        flavor['ram'] >= required_ram_mb and
+                        flavor['disk'] >= required_disk_gb and
+                        flavor['vcpus'] >= required_cores
                 ):
-                    suitable_flavors[flavor_id] = flavor.name
+                    suitable_flavors[flavor_id] = flavor['name']
 
             # Check if at least one suitable flavor is found
             if not suitable_flavors:
@@ -946,11 +955,11 @@ class InstancesView(generic.TemplateView):
 
             # Return flavor information
             result = {
-                'flavors': {str(flavor_id): flavor.name for flavor_id, flavor in flavor_dict.items()},
-                'flavor_details': {str(flavor_id): {
-                    'ram': flavor.ram,  # RAM in MB
-                    'disk': flavor.disk,  # Disk in GB
-                    'vcpus': flavor.vcpus  # CPU cores
+                'flavors': {flavor_id: flavor['name'] for flavor_id, flavor in flavor_dict.items()},
+                'flavor_details': {flavor_id: {
+                    'ram': flavor['ram'],  # RAM in MB
+                    'disk': flavor['disk'],  # Disk in GB
+                    'vcpus': flavor['vcpus']  # CPU cores
                 } for flavor_id, flavor in flavor_dict.items()},
                 'suitable_flavors': suitable_flavors,
                 'selected_flavor': selected_flavor,
