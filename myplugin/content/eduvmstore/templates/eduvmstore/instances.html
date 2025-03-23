@@ -324,6 +324,16 @@
                         </div>
                     </div>
 
+                       <!-- Debugging Divs for Calculated Resources -->
+                        <div class="alert alert-warning mt-3">
+                            <p><strong>{{ _("Calculated Resources") }}:</strong></p>
+                            <ul>
+                                <li>{{ _("Total RAM") }}: <span id="total_ram_${i}">0</span> GB</li>
+                                <li>{{ _("Total Disk") }}: <span id="total_disk_${i}">0</span> GB</li>
+                                <li>{{ _("Total CPU Cores") }}: <span id="total_cores_${i}">0</span></li>
+                            </ul>
+                        </div>
+
                     <!-- Additional Users and Accounts Container -->
                     <div class="section-container">
                         <h5>{{ _("User Configuration") }}</h5>
@@ -536,7 +546,7 @@
         if (selectedFlavor) {
             flavorDropdown.value = selectedFlavor.value;
         } else {
-            alert("⚠️ No suitable flavor found. Please select one manually.");
+            alert("No suitable flavor found. Please select one manually.");
         }
     }
 
