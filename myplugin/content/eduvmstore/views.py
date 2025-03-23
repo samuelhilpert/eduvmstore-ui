@@ -907,8 +907,12 @@ class InstancesView(generic.TemplateView):
                 logging.error("No flavors returned from Nova API.")
                 return {}
 
+            # Create a dictionary of flavor details
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
+
+            # Debugging: Log flavor_dict
+            logging.info("Flavor Dict: %s", flavor_dict)
 
             # Initialize required resources with fixed values from the app template
             required_ram_gb = app_template.get('fixed_ram_gb', 0)
@@ -918,7 +922,6 @@ class InstancesView(generic.TemplateView):
             ram_per_user = app_template.get('per_user_ram_gb', 0)
             disk_per_user = app_template.get('per_user_disk_gb', 0)
             cores_per_user = app_template.get('per_user_cores', 0)
-
 
             # Convert required RAM to MB (as Nova uses MB)
             required_ram_mb = required_ram_gb * 1024
@@ -943,20 +946,23 @@ class InstancesView(generic.TemplateView):
 
             # Return flavor information
             result = {
-                'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
-                'flavor_details': {flavor_id: {'ram': flavor.ram, 'disk': flavor.disk, 'vcpus': flavor.vcpus}
-                                   for flavor_id, flavor in flavor_dict.items()},
+                'flavors': {str(flavor_id): flavor.name for flavor_id, flavor in flavor_dict.items()},
+                'flavor_details': {str(flavor_id): {
+                    'ram': flavor.ram,  # RAM in MB
+                    'disk': flavor.disk,  # Disk in GB
+                    'vcpus': flavor.vcpus  # CPU cores
+                } for flavor_id, flavor in flavor_dict.items()},
                 'suitable_flavors': suitable_flavors,
                 'selected_flavor': selected_flavor,
                 'required_ram': required_ram_gb,
                 'required_disk': required_disk_gb,
                 'required_cores': required_cores,
-                'ram_per_user' : ram_per_user,
+                'ram_per_user': ram_per_user,
                 'disk_per_user': disk_per_user,
-                'cores_per_user' : cores_per_user
+                'cores_per_user': cores_per_user
             }
 
-            logging.info(f"Returning flavor data: {result}")
+            logging.info("Flavor Result: %s", result)
             return result
 
         except Exception as e:
