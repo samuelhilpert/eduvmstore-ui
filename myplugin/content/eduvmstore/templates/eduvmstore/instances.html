@@ -318,7 +318,7 @@
         <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
         {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
             <option value="{{ flavor_id }}"
-                    data-flavor-details='{"ram": {{ flavors.flavor_details[flavor_id].ram }}, "disk": {{ flavors.flavor_details[flavor_id].disk }}, "cores": {{ flavors.flavor_details[flavor_id].vcpus }}}'
+                    data-flavor-details='{"ram": {{ flavors.flavor_details.ram }}, "disk": {{ flavors.flavor_details.disk }}, "cores": {{ flavors.flavor_details.vcpus }}}'
                     {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
                 {{ flavor_name }}
             </option>
