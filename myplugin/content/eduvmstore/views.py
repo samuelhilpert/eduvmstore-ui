@@ -920,16 +920,15 @@ class InstancesView(generic.TemplateView):
 
             if not no_additional_users:
                 # Calculate additional resources based on the number of users
-                total_accounts = int(self.request.POST.get(f'total_accounts_{instance_id}', 0))
-                total_user = total_accounts  # Total users is equal to the total number of accounts
+                user_count = int(self.request.POST.get(f'user_count_{instance_id}', 0))  # Get the number of users
+                if user_count > 0:
+                    ram_per_user = app_template.get('per_user_ram_gb', 0)
+                    disk_per_user = app_template.get('per_user_disk_gb', 0)
+                    cores_per_user = app_template.get('per_user_cores', 0)
 
-                ram_per_user = app_template.get('per_user_ram_gb', 0)
-                disk_per_user = app_template.get('per_user_disk_gb', 0)
-                cores_per_user = app_template.get('per_user_cores', 0)
-
-                required_ram_gb += ram_per_user * total_user
-                required_disk_gb += disk_per_user * total_user
-                required_cores += cores_per_user * total_user
+                    required_ram_gb += ram_per_user * user_count
+                    required_disk_gb += disk_per_user * user_count
+                    required_cores += cores_per_user * user_count
 
             # Convert required RAM to MB (as Nova uses MB)
             required_ram_mb = required_ram_gb * 1024
