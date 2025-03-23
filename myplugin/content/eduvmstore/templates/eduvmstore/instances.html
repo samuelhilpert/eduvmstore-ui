@@ -309,22 +309,24 @@
                     <!-- Flavor and Network Selection Container -->
                     <div class="section-container">
                         <h5>{{ _("Resource Configuration") }}</h5>
+
                        <!-- Flavor Selection -->
                     <div class="form-group">
                         <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-                        <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
-                            {% if flavors.suitable_flavors %}
-                                <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-                                {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
-                                    <option value="{{ flavor_id }}"
-                                        {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                                        {{ flavor_name }}
-                                    </option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
-                            {% endif %}
-                        </select>
+                       <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
+    {% if flavors.suitable_flavors %}
+        <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+        {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
+            <option value="{{ flavor_id }}"
+                    data-flavor-details='{"ram": {{ flavors.flavor_details[flavor_id].ram }}, "disk": {{ flavors.flavor_details[flavor_id].disk }}, "cores": {{ flavors.flavor_details[flavor_id].vcpus }}}'
+                    {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+                {{ flavor_name }}
+            </option>
+        {% endfor %}
+    {% else %}
+        <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
+    {% endif %}
+</select>
             </div>
 
              <!-- Display Fixed Resource Requirements and Available Resources -->
@@ -542,14 +544,14 @@ function generateMultipleAccountFields(instanceId, userCount) {
     document.getElementById("structured-accounts").textContent = formattedAccounts;
 
    //Calculate Flavor based on user
-function selectAutomaticFlavor(instanceId) {
+     function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
 
     const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
     const userCountInput = document.getElementById(`user_count_${instanceId}`);
 
-    // Hole Ressourcenanforderungen aus dem Template
+    // Get fixed resource requirements from the template
     const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
     const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
     const requiredCores = parseInt("{{ app_template.fixed_cores }}");
@@ -571,11 +573,11 @@ function selectAutomaticFlavor(instanceId) {
 
     let selectedFlavor = null;
 
-    // Suche nach dem ersten Flavor, der die Anforderungen erfüllt
+    // Find the first flavor that meets the requirements
     Array.from(flavorDropdown.options).forEach(option => {
         if (option.value) {
             const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
-            const flavorRAM = flavorDetails.ram;
+            const flavorRAM = flavorDetails.ram / 1024; // Convert MB to GB
             const flavorDisk = flavorDetails.disk;
             const flavorCores = flavorDetails.cores;
 
@@ -588,10 +590,40 @@ function selectAutomaticFlavor(instanceId) {
     if (selectedFlavor) {
         flavorDropdown.value = selectedFlavor.value;
     } else {
-        alert("⚠️ Kein passender Flavor gefunden. Bitte wähle einen manuell aus.");
+        alert("⚠️ No suitable flavor found. Please select one manually.");
     }
 }
 
+
+     function attachFlavorCalculationListeners() {
+    document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+        checkbox.addEventListener("change", function () {
+            let instanceId = this.id.split("_").pop();
+            selectAutomaticFlavor(instanceId);
+        });
+    });
+
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let instanceId = this.id.split("_").pop();
+            selectAutomaticFlavor(instanceId);
+        });
+    });
+}
+
+// Call this function in your `attachAccountButtonListeners` or similar initialization function
+attachFlavorCalculationListeners();
+
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let instanceId = this.id.split("_").pop();
+            selectAutomaticFlavor(instanceId);
+        });
+    });
+}
+
+// Call this function in your `attachAccountButtonListeners` or similar initialization function
+attachFlavorCalculationListeners();
     </script>
 
 {% endblock %}
