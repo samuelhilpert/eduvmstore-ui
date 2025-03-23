@@ -224,13 +224,6 @@
 
     <h2>All App-Templates</h2>
 
-<!--
-<form method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}">
-    <input type="text" id="search" name="search" class="form-control"
-                       oninput="search_app_templates()"
-                       placeholder="Search app templates"
-                       value="{{ request.GET.search }}">
-</form>-->
 <form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}">
     <input type="text" id="search" name="search" class="form-control"
            placeholder="Search app templates" value="{{ request.GET.search }}">
@@ -240,68 +233,8 @@
     {% include "eduvmstore_dashboard/eduvmstore/table.html" %}
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>App Template Name</th>
-            <th>Short Description</th>
-            <th>Size (MB)</th>
-            <th>Visibility</th>
-            <th>Launch</th>
-            <th>Favorite</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for template in app_templates %}
-        <tr>
-                <td>
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
-                        {{ template.name }}
-                    </a>
-                </td>
-            <td>{{ template.short_description }}</td>
-            <td>{{ template.size }} </td>
-           <td>
-                {% if template.public %}
-                    Public
-                {% else %}
-                    Private
-                {% endif %}
-            </td>
-              <td>
-    <div class="btn-group">
-                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
-            Launch
-        </a>
-
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">Edit App-Template</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#" class="text-danger">Delete App-Template</a></li>
-        </ul>
-    </div>
-              </td>
-                  <td>
-                      <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
-                          {% csrf_token %}
-                          <input type="hidden" name="template_id" value="{{ template.id }}">
-                          <input type="hidden" name="template_name" value="{{ template.name }}">
-                          <button type="submit" class="favorite-btn">
-                              <i class="fa fa-star"></i>
-                          </button>
-                      </form>
-                  </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
 <!--
+TODO: Check if Search function can be done similiar to Images Search
 <search-bar filter-facets="appTemplatesTable.columns"></search-bar>
 
 <hz-resource-table
