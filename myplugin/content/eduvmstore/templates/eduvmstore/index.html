@@ -205,11 +205,11 @@
     <h2>All App-Templates</h2>
 
 
-<form method="get" action=".">
-    {{ form.as_p }}
-    <input type="text" id="query" name="query" class="form-control"
-                       data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:search_app_templates' %}"
-                       oninput="search_app_templates()">
+<form method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}">
+    <input type="text" id="search" name="search" class="form-control"
+                       oninput="search_app_templates()"
+                       placeholder="Search app templates"
+                       value="{{ request.GET.search }}">
 </form>
 
 

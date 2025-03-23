@@ -115,8 +115,10 @@ def search_app_templates(request):
     token_id = get_token_id(request)
     headers = {"X-Auth-Token": token_id}
 
+    search = request.GET.get('search', '')
+
     try:
-        response = requests.get(API_ENDPOINTS['app_templates'] + f"?search={request.GET.get('search')}",
+        response = requests.get(f"{API_ENDPOINTS['app_templates']}?search={search}",
                                 headers=headers, timeout=10)
         response.raise_for_status()
         return response.json()
@@ -226,20 +228,20 @@ class IndexView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         #token_id = self.request.GET.get('token_id')
 
-        app_templates = fetch_app_templates(self.request)
+        app_templates = search_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
 
         glance_images = self.get_images_data()
 
-        for template in app_templates:
-            image_id = template.get('image_id')
+        for app_template in app_templates:
+            image_id = app_template.get('image_id')
             glance_image = glance_images.get(image_id)
             if glance_image:
-                template['size'] = round(glance_image.size / (1024 * 1024), 2)
-                template['visibility'] = glance_image.visibility
+                app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
+                app_template['visibility'] = glance_image.visibility
             else:
-                template['size'] = _('Unknown')
-                template['visibility'] = _('Unknown')
+                app_template['size'] = _('Unknown')
+                app_template['visibility'] = _('Unknown')
 
         for favorite_app_template in favorite_app_templates:
             image_id = favorite_app_template.get('image_id')
