@@ -341,14 +341,14 @@
                 <div id="instantiation_section_${i}">
                     <h4>{{ _("Instantiation Attributes") }}</h4>
                     <div id="dynamic_instantiation_container_${i}">
-
+                        ${generateInstantiationFields(i)}
                     </div>
                 </div>
 
              <div id="accounts_section_${i}" style="display: none;">
                 <h4>{{ _("Accounts") }}</h4>
                 <div id="dynamic_accounts_container_${i}"></div>
-                    ${generateInstantiationFields(i)}
+
             </div>
 
 
