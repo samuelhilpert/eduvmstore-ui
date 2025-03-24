@@ -294,7 +294,7 @@
         <option value="{{ flavor_id }}"
                 data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.cores }} }'
                 {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-            {{ flavor_data.name }}  {{ flavor_data.ram }}
+            {{ flavor_data.name }}
         </option>
     {% endfor %}
 {% else %}
@@ -307,18 +307,11 @@
                         <div class="alert alert-info mt-3">
                             <p><strong>{{ _("Resource Requirements") }}:</strong></p>
                             <ul>
-                                <li>{{ _("RAM") }}: {{ flavors.required_ram }} GB </li>
-                                <li>{{ _("Disk") }}: {{ flavors.required_disk }} GB </li>
-                                <li>{{ _("CPU Cores") }}: {{ flavors.required_cores }}</li>
+                                <li>{{ _("RAM") }}: <span id="total_ram_${i}"></span> GB </li>
+                                <li>{{ _("Disk") }}: <span id="total_disk_${i}"></span> GB </li>
+                                <li>{{ _("CPU Cores") }}:<span id="total_cores_${i}"></span></li>
                             </ul>
                         </div>
-
-<div class="calculated-resources">
-    <p>Total RAM: <span id="total_ram_${i}"></span> GB</p>
-    <p>Total Disk: <span id="total_disk_${i}"></span> GB</p>
-    <p>Total Cores: <span id="total_cores_${i}"></span></p>
-</div>
-
 
                         <div class="form-group">
                             <label for="network_id_${i}">{{ _("Select Network") }}</label>
