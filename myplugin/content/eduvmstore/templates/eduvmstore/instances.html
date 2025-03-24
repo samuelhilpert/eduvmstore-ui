@@ -515,6 +515,7 @@ function selectAutomaticFlavor(instanceId) {
     let totalDisk = requiredDisk;
     let totalCores = requiredCores;
 
+    // Add per-user resources if checkbox is unchecked
     if (!noAdditionalUsersCheckbox.checked) {
         const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
         const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
@@ -526,14 +527,14 @@ function selectAutomaticFlavor(instanceId) {
         totalCores += userCount * perUserCores;
     }
 
-    // Display calculated resources (Debugging purpose)
+    // Display calculated resources for debugging purpose
     document.getElementById(`total_ram_${instanceId}`).textContent = totalRAM.toFixed(2);
     document.getElementById(`total_disk_${instanceId}`).textContent = totalDisk.toFixed(2);
     document.getElementById(`total_cores_${instanceId}`).textContent = totalCores;
 
     let selectedFlavor = null;
 
-    // Find the first flavor that meets the requirements
+    // Find the smallest suitable flavor
     Array.from(flavorDropdown.options).forEach(option => {
         if (option.value) {
             const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
@@ -541,8 +542,13 @@ function selectAutomaticFlavor(instanceId) {
             const flavorDisk = flavorDetails.disk; // Already in GB
             const flavorCores = flavorDetails.vcpus; // CPU cores
 
+            // Check if flavor meets the total requirements
             if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
-                if (!selectedFlavor || (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores)) {
+                if (!selectedFlavor ||
+                    (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
+                     flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
+                     flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus))
+                {
                     selectedFlavor = option;
                 }
             }
