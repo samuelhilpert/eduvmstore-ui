@@ -1345,7 +1345,8 @@ class DeleteTemplateView(View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         # 3. Retrieve the logged-in user's ID from Keystone.
-        user_id = get_user_id_from_keystone(request)
+        #user_id = get_user_id_from_keystone(request)
+        user_id = request.user.id
         if not user_id:
             messages.error(request, "Could not verify logged-in user with Keystone.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
@@ -1396,7 +1397,7 @@ def get_user_id_from_keystone(request):
         return None
 
 
-    keystone_url = "http://141.72.12.222:5000/v3/auth/tokens"
+    keystone_url = "http://141.72.12.222/v3/auth/tokens"
     headers = {
         "X-Auth-Token": token_id,
         "X-Subject-Token": token_id
@@ -1407,6 +1408,7 @@ def get_user_id_from_keystone(request):
         response.raise_for_status()
         # The response contains token details under 'token' key.
         user_id = response.json()['token']['user']['id']
+        user
         return user_id
     except Exception as e:
         logging.error("Failed to get user id from Keystone: %s", e)
