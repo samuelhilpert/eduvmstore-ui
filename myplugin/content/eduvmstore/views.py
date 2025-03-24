@@ -1395,11 +1395,11 @@ def get_user_id_from_keystone(request):
     if not token_id:
         return None
 
-    # Keystone endpoint for token validation (adjust the URL as needed)
-    keystone_url = "http://your-keystone-host:5000/v3/auth/tokens"
+
+    keystone_url = "http://141.72.12.222:5000/v3/auth/tokens"
     headers = {
-        "X-Auth-Token": token_id,  # The admin or scoped token required to validate tokens
-        "X-Subject-Token": token_id  # The token we want to validate
+        "X-Auth-Token": token_id,
+        "X-Subject-Token": token_id
     }
 
     try:
