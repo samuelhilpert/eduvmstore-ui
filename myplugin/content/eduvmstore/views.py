@@ -1342,8 +1342,9 @@ class DeleteTemplateView(View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         # 4. Check if the image owner matches the logged-in user's ID.
-        if str(creator_id) != str(user_id):
-            messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
+        if creator_id != user_id:
+            messages.error(request, f"{creator_id} != {user_id}")
+            #messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         # 5. Proceed with deletion of the app template.
