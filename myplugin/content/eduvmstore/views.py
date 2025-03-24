@@ -1331,21 +1331,8 @@ class DeleteTemplateView(View):
             messages.error(request, f"Error fetching template details: {str(e)}")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        image_id = template_detail.get('image_id')
-        if not image_id:
-            messages.error(request, "Image ID not found in template details.")
-            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+        creator_id = template_detail.get('creator_id')
 
-        # Log for debugging before calling Glance.
-        logging.debug(f"Fetching image details for ID: {image_id} with token: {token_id}")
-
-        # 2. Retrieve image details (including owner) using Glance.
-        try:
-            image = glance.image_get(request, image_id)
-            image_owner = image.owner
-        except Exception as e:
-            messages.error(request, f"Unable to retrieve image details: {str(e)}")
-            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         # 3. Retrieve the logged-in user's ID from Keystone.
         #user_id = get_user_id_from_keystone(request)
@@ -1355,7 +1342,7 @@ class DeleteTemplateView(View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         # 4. Check if the image owner matches the logged-in user's ID.
-        if str(image_owner) != str(user_id):
+        if str(creator_id) != str(user_id):
             messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
