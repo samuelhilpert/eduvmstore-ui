@@ -1,6 +1,7 @@
 import requests
 import socket
 import logging
+import sys
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.views import generic
@@ -125,6 +126,12 @@ class IndexView(generic.TemplateView):
         roles_data = get_roles(self.request)
         context['roles'] = roles_data
 
+        admin_access_level = sys.maxsize
+        for item in roles_data:
+            if item["name"] == "EduVMStoreAdmin":
+                admin_access_level = item["access_level"]
+                break
+
         approvable_app_templates = get_app_templates_to_approve(self.request)
         context['approvable_app_templates'] = approvable_app_templates
 
@@ -133,7 +140,7 @@ class IndexView(generic.TemplateView):
 
         detailed_users = []
         for user in user_data:
-            user_id = user.get('id')  # Assuming the API response includes an 'id' field
+            user_id = user.get('id')
             if user_id:
                 user_details = get_user_details(self.request, user_id)
                 detailed_users.append(user_details)
@@ -146,8 +153,8 @@ class IndexView(generic.TemplateView):
         context['admin'] = userdev.is_superuser
         context['show_content'] = False
 
-        # Check if the user is an admin, if its equal or greater than 6000 it is an admin
-        if role_level >= 6000:
+        # Check if the user is an admin
+        if role_level >= admin_access_level:
             context['show_content'] = True
         else:
             context['show_content'] = False
@@ -156,13 +163,9 @@ class IndexView(generic.TemplateView):
 
         return context
 
-      # Zurück zur aktuellen Seite
-
 
 class UpdateRolesView(generic.View):
-    """
-    Handle POST requests to update a user's role via the Backend.
-    """
+
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to update a user's role via the external API.
@@ -177,13 +180,13 @@ class UpdateRolesView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # API-Aufruf vorbereiten
+            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
 
             payload = {"role_id": new_role_id}
             headers = {"X-Auth-Token": token_id}
 
-            # API-PATCH-Aufruf
+            # API-PATCH-Call
             response = requests.patch(api_url, json=payload, headers=headers,timeout=10)
 
             if response.status_code == 200:
@@ -198,35 +201,68 @@ class UpdateRolesView(generic.View):
 
 
 class ApproveTemplateView(generic.View):
-    """
-    Handle POST requests to update a user's role via the Backend.
-    """
+
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to update a user's role via the external API.
+        Handle POST requests to approve a template via the Backend.
         """
         template_id = request.POST.get("template_id")
         token_id = get_token_id(request)
 
 
         if not template_id:
-            messages.error(request, "Template ID are required.")
+            messages.error(request, "App Template ID is required.")
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # API-Aufruf vorbereiten
-            api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/approved/"
+            # Prepare API-Call
+            api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/approve/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # API-PATCH-Aufruf
+            # API-PATCH-Call
             response = requests.patch(api_url, headers=headers,timeout=10)
 
             if response.status_code == 200:
-                messages.success(request, f"{template_id} confirmed. This template is now public.")
+                messages.success(request, f"{template_id} confirmed. This app template is now public.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to update role: {error_message}")
+                messages.error(request, f"Failed to approve app template: {error_message}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+
+class RejectTemplateView(generic.View):
+
+    """
+    Handle POST requests to reject a template via the Backend.
+    """
+    def post(self, request, *args, **kwargs):
+
+        template_id = request.POST.get("template_id")
+        token_id = get_token_id(request)
+
+
+        if not template_id:
+            messages.error(request, "App Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:admin:index')
+
+        try:
+            # Prepare API-Call
+            api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/reject/"
+
+            headers = {"X-Auth-Token": token_id}
+
+            # API-PATCH-Call
+            response = requests.patch(api_url, headers=headers,timeout=10)
+
+            if response.status_code == 200:
+                messages.success(request, f"{template_id} rejected. This app template remains private.")
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to reject app template: {error_message}")
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 

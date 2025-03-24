@@ -1,0 +1,54 @@
+packages:
+  - curl
+  - openssh-server
+  - ca-certificates
+  - tzdata
+  - postfix
+  - jq
+
+runcmd:
+  - cat /etc/users.txt > /etc/testtesttest
+  - |
+    FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
+    while IFS=':' read -r username password firstname lastname email; do
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+        if [ "$username" = "$FIRST_USER" ]; then
+          usermod -aG sudo "$username"
+        fi
+      fi
+    done < /etc/users.txt
+
+  # Install GitLab 
+  - apt-get update
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y curl openssh-server ca-certificates tzdata postfix jq
+  - curl -fsSL https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
+  - apt-get install -y gitlab-ce
+  - gitlab-ctl reconfigure
+  - gitlab-ctl restart
+
+  # Wait until GitLab starts
+  - sleep 60
+
+  # Generate Root-Token for API
+  - |
+    export GITLAB_ROOT_TOKEN=$(openssl rand -hex 20)
+    gitlab-rails runner "token = User.find_by(username: 'root').personal_access_tokens.create(scopes: ['api'], name: 'root-token', expires_at: 1.year.from_now); token.set_token('$GITLAB_ROOT_TOKEN'); token.save!"
+    echo "$GITLAB_ROOT_TOKEN" > /root/gitlab_token.txt
+
+  # Create user in GitLab
+  - |
+    export GITLAB_ROOT_TOKEN=$(cat /root/gitlab_token.txt)
+    while IFS=':' read -r username password firstname lastname email; do
+    response=$(curl --silent --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" "http://localhost/api/v4/users?username=$username")
+    user_exists=$(echo "$response" | jq -r 'if . == [] then 0 else 1 end')
+
+    if [ "$user_exists" -eq 0 ]; then
+      curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" \
+        --data "username=$username&name=$firstname $lastname&email=$email&password=$password&skip_confirmation=true" \
+        "http://localhost/api/v4/users"
+    fi
+    done < /etc/users.txt
+
+final_message: "GitLab installation and user creation completed."

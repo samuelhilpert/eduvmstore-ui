@@ -134,24 +134,27 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Creator ID</th>
-                            <th>Created At</th>
-                            <th>Image ID</th>
                             <th>Name</th>
                             <th>Short Description</th>
-                            <th>Approve</th>
+                            <th>ID</th>
+                            <th>Creator ID</th>
+                            <th>Image ID</th>
+                            <th>Created At</th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for template in approvable_app_templates %}
                         <tr>
+                            <td>  <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
+                                     {{ template.name }}
+                             </a></td>
+                            <td>{{ template.short_description }}</td>
                             <td>{{ template.id }}</td>
                             <td>{{ template.creator_id }}</td>
-                            <td>{{ template.created_at }}</td>
                             <td>{{ template.image_id }}</td>
-                            <td>{{ template.name }}</td>
-                            <td>{{ template.short_description }}</td>
+                            <td>{{ template.created_at }}</td>
                             <td>
                                 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}">
                                     {% csrf_token %}
@@ -159,6 +162,12 @@
                                     <button class="btn btn-primary" type="submit">Approve</button>
                                 </form>
                             </td>
+                            <td>
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:reject_template' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="template_id" value="{{ template.id }}">
+                                    <button class="btn btn-danger" type="submit">Reject</button>
+                                </form>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -170,30 +179,30 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Name</th>
-                        <th>Updated At</th>
                         <th>Short Description</th>
-                        <th>Version</th>
+                        <th>ID</th>
+                        <th>Updated At</th>
                         <th>Public</th>
-                        <th>Delete</th>
+                        <th></th>
 
                     </tr>
                     </thead>
                     <tbody>
                     {% for temp in app_templates %}
                         <tr>
-                            <td>{{ temp.id }}</td>
-                            <td>{{ temp.name }}</td>
-                            <td>{{ temp.updated_at }}</td>
+                            <td>  <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' temp.id %}" class="template-link">
+                                {{ temp.name }}
+                            </a></td>
                             <td>{{ temp.short_description }}</td>
-                            <td>{{ temp.version }}</td>
+                            <td>{{ temp.id }}</td>
+                            <td>{{ temp.updated_at }}</td>
                             <td>{{ temp.public }}</td>
                             <td>
                                 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="template_id" value="{{ temp.id }}">
-                                    <button class="btn btn-primary" type="submit">Delete</button>
+                                    <button class="btn btn-danger" type="submit">Delete</button>
                                 </form>
                             </td>
                         </tr>
@@ -212,10 +221,10 @@
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>Current Role</th>
                             <th>ID</th>
                             <th>Created At</th>
                             <th>Updated At</th>
-                            <th>Current Role</th>
                             <th>New Role</th>
 
                         </tr>
@@ -223,10 +232,10 @@
                     <tbody>
                         {% for user in detailed_users %}
                             <tr>
+                                <td>{{ user.role.name }}</td>
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.created_at }}</td>
                                 <td>{{ user.updated_at }}</td>
-                                <td>{{ user.role.name }}</td>
                                 <td>
                                     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}" style="display: flex; gap: 10px; align-items: center;">
                                         {% csrf_token %}
@@ -253,25 +262,25 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
+                        <th>Current Role</th>
                         <th>ID</th>
                         <th>Created At</th>
                         <th>Updated At</th>
-                        <th>Current Role</th>
                         <th>Delete</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for user in detailed_users %}
                         <tr>
+                            <td>{{ user.role.name }}</td>
                             <td>{{ user.id }}</td>
                             <td>{{ user.created_at }}</td>
                             <td>{{ user.updated_at }}</td>
-                            <td>{{ user.role.name }}</td>
                             <td>
                                 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_user' %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="user_id" value="{{ user.id }}">
-                                    <button class="btn btn-primary" type="submit">Delete</button>
+                                    <button class="btn btn-danger" type="submit">Delete</button>
                                 </form>
                             </td>
                         </tr>

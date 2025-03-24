@@ -18,6 +18,77 @@
 
 
 {% block main %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".favorite-form").forEach(form => {
+                form.addEventListener("submit", function () {
+                    let star = this.querySelector(".favorite-btn i");
+                    star.classList.add("temporary-favorite");
+
+                    setTimeout(() => {
+                        star.classList.remove("temporary-favorite");
+                    }, 1000);
+
+                });
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            let templateId = this.getAttribute("data-template-id");
+
+            let authToken = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
+
+            if (!authToken) {
+                alert("Authentication token not found. Please log in again.");
+                return;
+            }
+
+            let confirmDelete = confirm("Are you sure you want to delete this App-Template?");
+            if (!confirmDelete) return;
+
+            fetch(`/delete_template/${templateId}/`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${authToken}`,
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken")
+                }
+            })
+            .then(response => {
+                if (response.status === 204) {
+                    alert("App-Template deleted successfully!");
+                    location.reload();
+                } else {
+                    return response.json().then(data => {
+                        alert("Failed to delete: " + (data.error || response.status));
+                    });
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+
+    </script>
 <style>
     .table {
             width: 100%;
@@ -40,13 +111,13 @@
         }
     #create-button {
         margin-top: 20px;
-        margin-bottom: 20px; /* Additional space below the button */
+        margin-bottom: 20px;
     }
 
      .button-container {
         display: flex;
-        justify-content: flex-end; /* Aligns button to the right */
-        margin: 10px; /* Margin for the button container */
+        justify-content: flex-end;
+        margin: 10px;
     }
 
     .btn-launch {
@@ -67,43 +138,156 @@
          background-color: #E8E8E8;
    }
 
-    </style>
+    .favorite-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .favorite-btn i {
+        font-size: 20px;
+        color: gray;
+        transition: color 0.3s ease-in-out;
+    }
+
+
+    .favorite-btn i.temporary-favorite {
+        color: gold;
+    }
+
+
+    .favorite-app-template .favorite-btn i {
+        color: gold !important;
+    }
+
+    .favorite-btn i.temporary-favorite {
+    color: gold;
+}
+
+
+
+</style>
 
 <div class="button-container">
     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}" class="btn btn-primary" id="create-button">
         Create App-Template
     </a>
 </div>
+{% if favorite_app_templates %}
+    <h2>Favorite App-Templates</h2>
 
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>App Template Name</th>
+            <th>Short Description</th>
+            <th>Size (MB)</th>
+            <th>Visibility</th>
+            <th>Action</th>
+            <th>Favorite</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for favorite_template in favorite_app_templates %}
+            <tr class="favorite-app-template">
+                <td>
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' favorite_template.id %}" class="template-link">
+                        {{ favorite_template.name }}
+                    </a>
+                </td>
+                <td>{{ favorite_template.short_description }}</td>
+                <td>{{ favorite_template.size }} </td>
+                <td>
+                    {% if favorite_template.public %}
+                        Public
+                    {% else %}
+                        Private
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' favorite_template.id %}" class="btn btn-launch">
+                            Launch
+                        </a>
+
+                        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">
+                                    Edit App-Template
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#"
+                                   onclick="event.preventDefault();
+                                            if (confirm('Are you sure you want to delete this App-Template?')) {
+                                                document.getElementById('delete-form-{{ favorite_template.id }}').submit();
+                                            }">
+                                    Delete App-Template
+                                </a>
+
+                                <form id="delete-form-{{ favorite_template.id }}" method="post"
+                                      action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' favorite_template.id %}"
+                                      style="display: none;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
+                                </form>
+                            </li>
+                        </ul>
+
+                    </div>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_favorite_template' %}" class="favorite-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="template_id" value="{{ favorite_template.id }}">
+                        <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
+                        <button type="submit" class="favorite-btn">
+                            <i class="fa fa-star"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+    <h2>All App-Templates</h2>
 
 <table class="table table-striped">
     <thead>
         <tr>
             <th>App Template Name</th>
             <th>Short Description</th>
-            <th>Version</th>
             <th>Size (MB)</th>
-            <th>Visibility</th>
-            <th>Action</th>
+            <th>Available for</th>
+            <th>Launch</th>
+            <th>Favorite</th>
         </tr>
     </thead>
     <tbody>
         {% for template in app_templates %}
         <tr>
-              <tr>
                 <td>
                     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
                         {{ template.name }}
                     </a>
                 </td>
             <td>{{ template.short_description }}</td>
-            <td>{{ template.version }}</td>
             <td>{{ template.size }} </td>
            <td>
                 {% if template.public %}
-                    Public
+                    Everyone
                 {% else %}
-                    Private
+                    Creator only
                 {% endif %}
             </td>
               <td>
@@ -117,17 +301,47 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="#">Create Volume</a></li>
-            <li><a href="#">Edit Image</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#" class="text-danger">Delete Image</a></li>
-        </ul>
+    <li>
+        <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">
+            Edit App-Template
+        </a>
+    </li>
+    <li role="separator" class="divider"></li>
+    <li>
+        <a class="dropdown-item text-danger" href="#"
+                                   onclick="event.preventDefault();
+                                            if (confirm('Are you sure you want to delete this App-Template?')) {
+                                                document.getElementById('delete-form-{{ template.id }}').submit();
+                                            }">
+                                    Delete App-Template
+                                </a>
+
+        <form id="delete-form-{{ template.id }}" method="post"
+              action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' template.id %}"
+              style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="template_name" value="{{ template.name }}">
+        </form>
+    </li>
+</ul>
+
     </div>
               </td>
+                  <td>
+                      <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
+                          {% csrf_token %}
+                          <input type="hidden" name="template_id" value="{{ template.id }}">
+                          <input type="hidden" name="template_name" value="{{ template.name }}">
+                          <button type="submit" class="favorite-btn">
+                              <i class="fa fa-star {% for fav_template in favorite_app_templates %}{% if fav_template.id == template.id %}temporary-favorite{% endif %}{% endfor %}"></i>
+                          </button>
+                      </form>
+                  </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
 
 
   {% endblock %}
