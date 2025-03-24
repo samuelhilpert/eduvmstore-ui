@@ -1297,15 +1297,13 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
 
 class DeleteTemplateView(View):
-    """
-    Handles app template deletion.
-
-    Deletion is allowed only if the image owner (from Glance) matches the logged-in user.
-    After successful deletion, it also attempts to remove the template from favorites.
+    """Handles app template deletion.
+       Deletion is allowed only if the image owner (from Glance) matches the user ID returned from Keystone.
+       After deletion, it also attempts to remove the template from favorites.
     """
 
     def post(self, request, template_id):
-        token_id = get_token_id(request)  # Retrieve the token using your existing method
+        token_id = get_token_id(request)  # Your existing function to extract the token
         template_name = request.POST.get("template_name")
 
         if not token_id:
@@ -1330,15 +1328,15 @@ class DeleteTemplateView(View):
             messages.error(request, f"Error fetching template details: {str(e)}")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        # Retrieve image details (including owner) using Glance.
         image_id = template_detail.get('image_id')
         if not image_id:
             messages.error(request, "Image ID not found in template details.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        # Log the image details request.
+        # Log for debugging before calling Glance.
         logging.debug(f"Fetching image details for ID: {image_id} with token: {token_id}")
 
+        # 2. Retrieve image details (including owner) using Glance.
         try:
             image = glance.image_get(request, image_id)
             image_owner = image.owner
@@ -1346,13 +1344,18 @@ class DeleteTemplateView(View):
             messages.error(request, f"Unable to retrieve image details: {str(e)}")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        # Check if the image owner matches the logged-in user.
-        if str(image_owner) != str(request.user.id):
-            messages.error(request,
-                           "You are not authorized to delete this template because you are not the image owner.")
+        # 3. Retrieve the logged-in user's ID from Keystone.
+        user_id = get_user_id_from_keystone(request)
+        if not user_id:
+            messages.error(request, "Could not verify logged-in user with Keystone.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        #  Proceed with deletion of the app template.
+        # 4. Check if the image owner matches the logged-in user's ID.
+        if str(image_owner) != str(user_id):
+            messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        # 5. Proceed with deletion of the app template.
         try:
             api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
             response = requests.delete(api_url, headers=headers, timeout=10)
@@ -1360,18 +1363,15 @@ class DeleteTemplateView(View):
             if response.status_code == 204:
                 messages.success(request, f"'{template_name}' was successfully deleted.")
 
-                # Attempt to remove the template from favorites.
+                # 6. Attempt to remove the template from favorites.
                 try:
                     favorite_api_url = API_ENDPOINTS['delete_favorite']
                     payload = {"app_template_id": template_id}
                     fav_response = requests.delete(favorite_api_url, json=payload, headers=headers, timeout=10)
-                    # Ignore if the response code is 204 or 404 (not found means it wasn't favorited)
                     if fav_response.status_code not in [204, 404]:
                         error_message = fav_response.json().get("error", "Unknown error occurred.")
-                        messages.warning(request,
-                                         f"'{template_name}' was deleted, but could not be removed from favorites: {error_message}")
+                        messages.warning(request, f"'{template_name}' was deleted, but could not be removed from favorites: {error_message}")
                 except requests.RequestException:
-                    # Ignore errors when removing from favorites.
                     pass
 
             else:
@@ -1382,3 +1382,32 @@ class DeleteTemplateView(View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+
+def get_user_id_from_keystone(request):
+    """
+    Retrieve the logged-in user's ID by validating the token with Keystone.
+
+    :param request: The incoming HTTP request.
+    :return: The user ID if found, otherwise None.
+    """
+    token_id = get_token_id(request)
+    if not token_id:
+        return None
+
+    # Keystone endpoint for token validation (adjust the URL as needed)
+    keystone_url = "http://your-keystone-host:5000/v3/auth/tokens"
+    headers = {
+        "X-Auth-Token": token_id,  # The admin or scoped token required to validate tokens
+        "X-Subject-Token": token_id  # The token we want to validate
+    }
+
+    try:
+        response = requests.get(keystone_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        # The response contains token details under 'token' key.
+        user_id = response.json()['token']['user']['id']
+        return user_id
+    except Exception as e:
+        logging.error("Failed to get user id from Keystone: %s", e)
+        return None
