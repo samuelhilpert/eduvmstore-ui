@@ -1306,7 +1306,7 @@ class DeleteTemplateView(View):
     """
 
     def post(self, request, template_id):
-        token_id = get_token_id(request)  # Your existing function to extract the token
+        token_id = get_token_id(request)
         template_name = request.POST.get("template_name")
 
         if not token_id:
@@ -1319,7 +1319,7 @@ class DeleteTemplateView(View):
 
         headers = {"X-Auth-Token": token_id}
 
-        # 1. Fetch template details from the external API.
+        # Fetch template details from the API
         detail_api_url = API_ENDPOINTS['app_template_detail'].format(template_id=template_id)
         try:
             detail_response = requests.get(detail_api_url, headers=headers, timeout=10)
@@ -1334,21 +1334,19 @@ class DeleteTemplateView(View):
         creator_id = template_detail.get('creator_id')
 
 
-        # 3. Retrieve the logged-in user's ID from Keystone.
-        #user_id = get_user_id_from_keystone(request)
+        # Retrieve the logged-in user's ID
         user_id = self.request.user.token.user['id']
         if not user_id:
             messages.error(request, "Could not verify logged-in user with Keystone.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        # 4. Check if the image owner matches the logged-in user's ID.
+        #  Check if the template owner matches the logged-in user's ID.
         if creator_id.replace('-', '') != user_id.replace('-', ''):
 
-            messages.error(request, f"{creator_id} != {user_id}")
-            #messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
+            messages.error(request, "You are not authorized to delete this template because you are not the template owner.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        # 5. Proceed with deletion of the app template.
+        # Proceed with deletion of the app template.
         try:
             api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
             response = requests.delete(api_url, headers=headers, timeout=10)
@@ -1356,7 +1354,7 @@ class DeleteTemplateView(View):
             if response.status_code == 204:
                 messages.success(request, f"'{template_name}' was successfully deleted.")
 
-                # 6. Attempt to remove the template from favorites.
+                #  Attempt to remove the template from favorites.
                 try:
                     favorite_api_url = API_ENDPOINTS['delete_favorite']
                     payload = {"app_template_id": template_id}
