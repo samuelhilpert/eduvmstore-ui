@@ -233,8 +233,13 @@ class IndexView(generic.TemplateView):
 
         glance_images = self.get_images_data()
 
+        # Filter out app templates with empty image_ids
+        filtered_app_templates = []
         for app_template in app_templates:
             image_id = app_template.get('image_id')
+            if not image_id:  # Skip templates with empty image_ids
+                continue
+
             glance_image = glance_images.get(image_id)
             if glance_image:
                 app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
@@ -242,9 +247,14 @@ class IndexView(generic.TemplateView):
             else:
                 app_template['size'] = _('Unknown')
                 app_template['visibility'] = _('Unknown')
+            filtered_app_templates.append(app_template)
 
+        filtered_favorite_app_templates = []
         for favorite_app_template in favorite_app_templates:
             image_id = favorite_app_template.get('image_id')
+            if not image_id:  # Skip templates with empty image_ids
+                continue
+
             glance_image = glance_images.get(image_id)
             if glance_image:
                 favorite_app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
@@ -252,9 +262,10 @@ class IndexView(generic.TemplateView):
             else:
                 favorite_app_template['size'] = _('Unknown')
                 favorite_app_template['visibility'] = _('Unknown')
+        filtered_favorite_app_templates.append(favorite_app_template)
 
-        context['app_templates'] = app_templates
-        context['favorite_app_templates'] = favorite_app_templates
+        context['app_templates'] = filtered_app_templates
+        context['favorite_app_templates'] = filtered_favorite_app_templates
 
         return context
 
