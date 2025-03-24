@@ -82,10 +82,24 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-right">
-            <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">Edit App-Template</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#" class="text-danger">Delete App-Template</a></li>
-        </ul>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
+                                    Edit App-Template
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
+                                    Delete App-Template
+                                </a>
+                                <form id="delete-form-{{ app_template.id }}" method="post"
+                                      action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
+                                      style="display: none;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="template_name" value="{{ app_template.name }}">
+                                </form>
+                            </li>
+                        </ul>
     </div>
 </div>
     <!-- App Template  Section -->
@@ -243,6 +257,62 @@ write_files:
         let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
         let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
         document.getElementById("structured-instantiation").textContent = formattedInstatiation;
+        document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();  // Prevent default link behavior
+
+            let templateId = this.getAttribute("data-template-id");
+
+            // Try retrieving the token from Local Storage
+            let authToken = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
+
+            if (!authToken) {
+                alert("Authentication token not found. Please log in again.");
+                return;
+            }
+
+            let confirmDelete = confirm("Are you sure you want to delete this App-Template?");
+            if (!confirmDelete) return;
+
+            fetch(`/delete_template/${templateId}/`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${authToken}`,
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken")  // Include CSRF token if needed
+                }
+            })
+            .then(response => {
+                if (response.status === 204) {
+                    alert("App-Template deleted successfully!");
+                    location.reload(); // Reload the page to update the list
+                } else {
+                    return response.json().then(data => {
+                        alert("Failed to delete: " + (data.error || response.status));
+                    });
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
     </script>
 
 

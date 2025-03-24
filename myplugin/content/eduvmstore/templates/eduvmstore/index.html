@@ -220,24 +220,24 @@
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-right">
-    <li>
-        <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">
-            Edit App-Template
-        </a>
-    </li>
-    <li role="separator" class="divider"></li>
-    <li>
-        <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ favorite_template.id }}').submit();">
-            Delete App-Template
-        </a>
-        <form id="delete-form-{{ favorite_template.id }}" method="post"
-              action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' favorite_template.id %}"
-              style="display: none;">
-            {% csrf_token %}
-            <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
-        </form>
-    </li>
-</ul>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">
+                                    Edit App-Template
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ favorite_template.id }}').submit();">
+                                    Delete App-Template
+                                </a>
+                                <form id="delete-form-{{ favorite_template.id }}" method="post"
+                                      action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' favorite_template.id %}"
+                                      style="display: none;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
+                                </form>
+                            </li>
+                        </ul>
 
                     </div>
                 </td>
