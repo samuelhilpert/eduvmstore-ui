@@ -1296,12 +1296,11 @@ class DeleteFavoriteAppTemplateView(generic.View):
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
 
-
 class DeleteTemplateView(View):
     """Handles app template deletion."""
 
     def post(self, request, template_id):
-        token_id = get_token_id(request)  # Assuming you already have this method in views.py
+        token_id = get_token_id(request)  # Holt das Auth-Token
         template_name = request.POST.get("template_name")
 
         if not token_id:
@@ -1313,18 +1312,38 @@ class DeleteTemplateView(View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         try:
+
             api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
             headers = {"X-Auth-Token": token_id}
 
             response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
-                messages.success(request, f"'{template_name}' has been deleted successfully.")
+                messages.success(request, f"'{template_name}' wurde erfolgreich gelöscht.")
+
+
+                try:
+                    favorite_api_url = API_ENDPOINTS['delete_favorite']
+                    payload = {"app_template_id": template_id}
+                    favorite_response = requests.delete(favorite_api_url, json=payload, headers=headers, timeout=10)
+
+                    if favorite_response.status_code == 204:
+                        messages.success(request, f"'{template_name}' wurde auch aus den Favoriten entfernt.")
+                    else:
+                        error_message = favorite_response.json().get("error",
+                                                                     "Fehler beim Entfernen aus den Favoriten.")
+                        messages.warning(request,
+                                         f"'{template_name}' wurde gelöscht, aber nicht aus den Favoriten entfernt: {error_message}")
+
+                except requests.RequestException as e:
+                    messages.warning(request,
+                                     f"'{template_name}' wurde gelöscht, aber ein Fehler trat beim Entfernen aus den Favoriten auf: {str(e)}")
+
             else:
-                error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to delete '{template_name}': {error_message}")
+                error_message = response.json().get("error", "Unbekannter Fehler ist aufgetreten.")
+                messages.error(request, f"Löschen von '{template_name}' fehlgeschlagen: {error_message}")
 
         except requests.RequestException as e:
-            messages.error(request, f"Error during API call: {str(e)}")
+            messages.error(request, f"Fehler während des API-Aufrufs: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
