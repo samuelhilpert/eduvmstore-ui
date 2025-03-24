@@ -324,12 +324,9 @@ write_files:
     });
 
     function saveScript() {
-        // Get the script text from the textarea
         var scriptText = document.getElementById('scriptText').value;
-        // Store it in the hidden input field
         document.getElementById('hiddenScriptField').value = scriptText;
 
-        // Close the modal
         closeModal();
     }
 

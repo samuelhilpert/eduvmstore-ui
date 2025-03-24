@@ -1334,3 +1334,78 @@ class DeleteFavoriteAppTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+
+class DeleteTemplateView(View):
+    """Handles app template deletion.
+       Deletion is allowed only if the image owner (from Glance) matches the user ID returned from Keystone.
+       After deletion, it also attempts to remove the template from favorites.
+    """
+
+    def post(self, request, template_id):
+        token_id = get_token_id(request)
+        template_name = request.POST.get("template_name")
+
+        if not token_id:
+            messages.error(request, "Authentication token not found.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        if not template_id:
+            messages.error(request, "App Template ID is required.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        headers = {"X-Auth-Token": token_id}
+
+        detail_api_url = API_ENDPOINTS['app_template_detail'].format(template_id=template_id)
+        try:
+            detail_response = requests.get(detail_api_url, headers=headers, timeout=10)
+            if detail_response.status_code != 200:
+                messages.error(request, "Failed to fetch template details.")
+                return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+            template_detail = detail_response.json()
+        except requests.RequestException as e:
+            messages.error(request, f"Error fetching template details: {str(e)}")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        creator_id = template_detail.get('creator_id')
+
+        user_id = self.request.user.token.user['id']
+        if not user_id:
+            messages.error(request, "Could not verify logged-in user with Keystone.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        if creator_id.replace('-', '') != user_id.replace('-', ''):
+
+            messages.error(request, "You are not authorized to delete this template.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        try:
+            api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
+            response = requests.delete(api_url, headers=headers, timeout=10)
+
+            if response.status_code == 204:
+                messages.success(request, f"'{template_name}' was successfully deleted.")
+
+                try:
+                    favorite_api_url = API_ENDPOINTS['delete_favorite']
+                    payload = {"app_template_id": template_id}
+                    fav_response = requests.delete(favorite_api_url, json=payload, headers=headers,
+                                                   timeout=10)
+                    if fav_response.status_code not in [204, 404]:
+                        error_message = fav_response.json().get("error", "Unknown error occurred.")
+                        messages.warning(
+                            request,
+                            f"'{template_name}' deleted, but still a favorite: {error_message}")
+                except requests.RequestException:
+                    pass
+
+            else:
+                error_message = response.json().get("error", "Unknown error occurred.")
+                messages.error(request, f"Failed to delete '{template_name}': {error_message}")
+
+        except requests.RequestException as e:
+            messages.error(request, f"Error during API call: {str(e)}")
+
+        return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+
