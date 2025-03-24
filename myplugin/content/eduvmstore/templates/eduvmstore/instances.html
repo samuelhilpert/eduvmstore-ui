@@ -263,9 +263,16 @@
         instancesContainer.innerHTML = "";
 
         for (let i = 1; i <= numInstances; i++) {
-            let instanceName = baseName ? `${baseName}-${i}` : "";
-            const tabId = `instanceTab_${i}`;
-            const contentId = `instanceContent_${i}`;
+                let instanceName = "";
+                if (baseName) {
+                    if (numInstances === 1) {
+                        instanceName = baseName;
+                    } else {
+                        instanceName = `${baseName}-${i}`;
+                    }
+                }
+                const tabId = `instanceTab_${i}`;
+                const contentId = `instanceContent_${i}`;
 
             instanceTabs.innerHTML += `
                 <li class="nav-item">
@@ -309,7 +316,7 @@
                             <ul>
                                 <li>{{ _("RAM") }}: <span id="total_ram_${i}"></span> GB </li>
                                 <li>{{ _("Disk") }}: <span id="total_disk_${i}"></span> GB </li>
-                                <li>{{ _("CPU Cores") }}:<span id="total_cores_${i}"></span></li>
+                                <li>{{ _("CPU Cores") }}: <span id="total_cores_${i}"></span></li>
                             </ul>
                         </div>
 
@@ -368,52 +375,53 @@
         attachFlavorCalculationListeners();
     }
 
-    function attachInstanceEventListeners() {
-        document.querySelectorAll(".next-instance").forEach(button => {
-            button.addEventListener("click", function () {
-                let instanceId = parseInt(this.getAttribute("data-instance"));
-                switchToInstance(instanceId + 1);
+      function attachInstanceEventListeners() {
+            document.querySelectorAll(".next-instance").forEach(button => {
+                button.addEventListener("click", function () {
+                    let instanceId = parseInt(this.getAttribute("data-instance"));
+                    switchToInstance(instanceId + 1);
+                });
             });
-        });
 
-        document.querySelectorAll(".prev-instance").forEach(button => {
-            button.addEventListener("click", function () {
-                let instanceId = parseInt(this.getAttribute("data-instance"));
-                switchToInstance(instanceId - 1);
+             document.querySelectorAll(".prev-instance").forEach(button => {
+                button.addEventListener("click", function () {
+                    let instanceId = parseInt(this.getAttribute("data-instance"));
+                    switchToInstance(instanceId - 1);
+                });
             });
-        });
 
-        document.querySelectorAll(".nav-link").forEach(tab => {
-            tab.addEventListener("click", function (event) {
-                event.preventDefault();
-                let instanceId = parseInt(this.id.replace("instanceTab_", ""));
-                switchToInstance(instanceId);
+            document.querySelectorAll(".nav-link").forEach(tab => {
+                tab.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    let instanceId = parseInt(this.id.replace("instanceTab_", ""));
+                    switchToInstance(instanceId);
+                });
             });
-        });
-    }
+        }
 
     function switchToInstance(instanceId) {
-        document.querySelectorAll(".tab-pane").forEach(el => {
-            el.classList.remove("show", "active");
-            el.style.display = "none";
-        });
+            document.querySelectorAll(".tab-pane").forEach(el => {
+                el.classList.remove("show", "active");
+                el.style.display = "none";
+            });
 
-        let newContent = document.getElementById(`instanceContent_${instanceId}`);
-        if (newContent) {
-            newContent.classList.add("show", "active");
-            newContent.style.display = "block";
+            let newContent = document.getElementById(`instanceContent_${instanceId}`);
+            if (newContent) {
+                newContent.classList.add("show", "active");
+                newContent.style.display = "block";
+            }
+
+            document.querySelectorAll(".nav-link").forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+            let newTab = document.getElementById(`instanceTab_${instanceId}`);
+            if (newTab) {
+                newTab.classList.add("active");
+                newTab.click();
+            }
         }
 
-        document.querySelectorAll(".nav-link").forEach(tab => {
-            tab.classList.remove("active");
-        });
-
-        let newTab = document.getElementById(`instanceTab_${instanceId}`);
-        if (newTab) {
-            newTab.classList.add("active");
-            newTab.click();
-        }
-    }
 
     function attachAccountButtonListeners() {
         document.querySelectorAll(".no_additional_users").forEach(checkbox => {
@@ -595,6 +603,16 @@ function selectAutomaticFlavor(instanceId) {
         attachFlavorCalculationListeners();
         switchToInstance(1);
     };
+
+
+    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("structured-instantiation").textContent = formattedInstantiation;
+
+    let accountAttribute = {{ app_template.account_attributes|safe }}
+    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+    document.getElementById("structured-accounts").textContent = formattedAccounts;
+
 </script>
 
 {% endblock %}
