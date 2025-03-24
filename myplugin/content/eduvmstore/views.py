@@ -1342,7 +1342,8 @@ class DeleteTemplateView(View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         # 4. Check if the image owner matches the logged-in user's ID.
-        if creator_id != user_id:
+        if creator_id.replace('-', '') != user_id.replace('-', ''):
+
             messages.error(request, f"{creator_id} != {user_id}")
             #messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
@@ -1376,30 +1377,3 @@ class DeleteTemplateView(View):
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
 
-def get_user_id_from_keystone(request):
-    """
-    Retrieve the logged-in user's ID by validating the token with Keystone.
-
-    :param request: The incoming HTTP request.
-    :return: The user ID if found, otherwise None.
-    """
-    token_id = get_token_id(request)
-    if not token_id:
-        return None
-
-
-    keystone_url = "http://141.72.12.222/v3/auth/tokens"
-    headers = {
-        "X-Auth-Token": token_id,
-        "X-Subject-Token": token_id
-    }
-
-    try:
-        response = requests.get(keystone_url, headers=headers, timeout=10)
-        response.raise_for_status()
-        # The response contains token details under 'token' key.
-        user_id = response.json()['token']['user']['id']
-        return user_id
-    except Exception as e:
-        logging.error("Failed to get user id from Keystone: %s", e)
-        return None
