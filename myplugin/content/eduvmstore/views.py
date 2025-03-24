@@ -1297,10 +1297,15 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
 
 class DeleteTemplateView(View):
-    """Handles app template deletion. Deletion is allowed only if the image owner (from Glance) matches the logged-in user."""
+    """
+    Handles app template deletion.
+
+    Deletion is allowed only if the image owner (from Glance) matches the logged-in user.
+    After successful deletion, it also attempts to remove the template from favorites.
+    """
 
     def post(self, request, template_id):
-        token_id = get_token_id(request)  # Get the authentication token
+        token_id = get_token_id(request)  # Retrieve the token using your existing method
         template_name = request.POST.get("template_name")
 
         if not token_id:
@@ -1313,7 +1318,7 @@ class DeleteTemplateView(View):
 
         headers = {"X-Auth-Token": token_id}
 
-        # Fetch the template details from the external API.
+        # 1. Fetch template details from the external API.
         detail_api_url = API_ENDPOINTS['app_template_detail'].format(template_id=template_id)
         try:
             detail_response = requests.get(detail_api_url, headers=headers, timeout=10)
@@ -1325,23 +1330,26 @@ class DeleteTemplateView(View):
             messages.error(request, f"Error fetching template details: {str(e)}")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        #  Retrieve the image data (including owner) using Glance.
+        # Retrieve image details (including owner) using Glance.
         image_id = template_detail.get('image_id')
         if not image_id:
             messages.error(request, "Image ID not found in template details.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
+        # Log the image details request.
+        logging.debug(f"Fetching image details for ID: {image_id} with token: {token_id}")
+
         try:
-            # Get image details similar to DetailsPageView.get_image_data()
             image = glance.image_get(request, image_id)
             image_owner = image.owner
         except Exception as e:
             messages.error(request, f"Unable to retrieve image details: {str(e)}")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        #  Check if the image owner matches the logged-in user.
+        # Check if the image owner matches the logged-in user.
         if str(image_owner) != str(request.user.id):
-            messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
+            messages.error(request,
+                           "You are not authorized to delete this template because you are not the image owner.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         #  Proceed with deletion of the app template.
@@ -1357,11 +1365,13 @@ class DeleteTemplateView(View):
                     favorite_api_url = API_ENDPOINTS['delete_favorite']
                     payload = {"app_template_id": template_id}
                     fav_response = requests.delete(favorite_api_url, json=payload, headers=headers, timeout=10)
-                    # Ignore if the template wasn't in favorites (204 or 404 are acceptable)
+                    # Ignore if the response code is 204 or 404 (not found means it wasn't favorited)
                     if fav_response.status_code not in [204, 404]:
                         error_message = fav_response.json().get("error", "Unknown error occurred.")
-                        messages.warning(request, f"'{template_name}' was deleted, but could not be removed from favorites: {error_message}")
+                        messages.warning(request,
+                                         f"'{template_name}' was deleted, but could not be removed from favorites: {error_message}")
                 except requests.RequestException:
+                    # Ignore errors when removing from favorites.
                     pass
 
             else:
