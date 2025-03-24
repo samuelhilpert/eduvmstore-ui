@@ -613,6 +613,12 @@ function selectAutomaticFlavor(instanceId) {
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-accounts").textContent = formattedAccounts;
 
+        {% if modal_message %}
+            $(document).ready(function () {
+                $('#responseModal').modal('show');
+            });
+        {% endif %}
+
 </script>
 
 {% endblock %}
