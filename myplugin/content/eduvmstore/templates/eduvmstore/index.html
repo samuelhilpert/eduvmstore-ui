@@ -50,6 +50,42 @@
                 .catch(error => console.error("Error fetching search results:", error));
             });
         });
+
+        angular.module('horizon.dashboard.eduvmstore', [])
+            .controller('AppTemplateController', ['$scope', '$http', function($scope, $http) {
+                var ctrl = this;
+                ctrl.searchQuery = '';
+                ctrl.appTemplatesTable = {};
+                ctrl.searchFacets = [
+                  {
+                    label: 'Name',
+                    name: 'name',
+                    singleton: true
+                  },
+                  {
+                    label: 'Description',
+                    name: 'description',
+                    singleton: true
+                  }
+                ];
+
+                // Load app templates
+                ctrl.loadAppTemplates = function() {
+                  $http.get("{% url 'horizon:eduvmstore_dashboard:eduvmstore:app_templates_json' %}", {
+                    params: {search: ctrl.searchQuery}
+                  }).then(function(response) {
+                    ctrl.appTemplates = response.data;
+                  });
+                };
+
+                // Watch for search changes
+                $scope.$watch('ctrl.searchQuery', function() {
+                  ctrl.loadAppTemplates();
+                });
+
+                // Initial load
+                ctrl.loadAppTemplates();
+              }]);
     </script>
 <style>
     .table {
@@ -199,22 +235,25 @@
 
     <h2>All App-Templates</h2>
 
-<form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}">
-    <input type="text" id="search" name="search" class="form-control"
-           placeholder="Search app templates" value="{{ request.GET.search }}">
-</form>
-
-<div id="table-container">
-    {% include "eduvmstore_dashboard/eduvmstore/table.html" %}
-</div>
-
-<!--
-TODO: Check if Search function can be done similiar to Images Search
-<search-bar filter-facets="appTemplatesTable.columns"></search-bar>
+    <!--search-bar filter-facets="appTemplatesTable.columns"></search-bar-->
+<div ng-app="horizon.dashboard.eduvmstore">
+  <div ng-controller="AppTemplateController as ctrl">
+    <!-- Search bar -->
+    <div class="search-bar">
+      <div class="form-group has-feedback">
+        <input type="text" class="form-control" id="search-input"
+               ng-model="ctrl.searchQuery"
+               placeholder="Search App Templates..."
+               aria-label="Search">
+        <span class="fa fa-search form-control-feedback" aria-hidden="true"></span>
+      </div>
+    </div>
 
 <hz-resource-table
     resource-type-name="OS::AppTemplates::Template"
     track-by="id"
+    table="ctrl.appTemplatesTable"
+    filter-facets="ctrl.searchFacets"
     id="appTemplatesTable">
 
     <hz-table>
@@ -234,9 +273,31 @@ TODO: Check if Search function can be done similiar to Images Search
                 <td>{{ template.description }}</td>
                 <td>{{ template.size }}</td>
                 <td>{{ template.visibility }}</td>
-            </tr>
-        </tbody>
+                <td>
+                        <div class="btn-group">
+                            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">Launch</a>
+                            <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">Edit App-Template</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="#" class="text-danger">Delete App-Template</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="template_id" value="{{ template.id }}">
+                            <input type="hidden" name="template_name" value="{{ template.name }}">
+                            <button type="submit" class="favorite-btn">
+                                <i class="fa fa-star"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
     </hz-table>
 </hz-resource-table>
--->
   {% endblock %}

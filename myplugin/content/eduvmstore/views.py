@@ -267,6 +267,34 @@ class IndexView(generic.TemplateView):
 
         return super().get(request, *args, **kwargs)
 
+
+class AppTemplatesJsonView(generic.View):
+    """Returns app templates as JSON for the Angular frontend."""
+
+    def get(self, request, *args, **kwargs):
+        """Handle GET requests to fetch app templates as JSON."""
+        token_id = get_token_id(request)
+        search_query = request.GET.get('search', '')
+
+        try:
+            api_url = API_ENDPOINTS['app_templates']
+            headers = {"X-Auth-Token": token_id}
+
+            # Add search parameter if provided
+            params = {}
+            if search_query:
+                params['search'] = search_query
+
+            response = requests.get(api_url, headers=headers, params=params, timeout=10)
+
+            if response.status_code == 200:
+                app_templates = response.json().get("app_templates", [])
+                return JsonResponse(app_templates, safe=False)
+            else:
+                return JsonResponse({"error": "Failed to fetch app templates"}, status=500)
+        except requests.RequestException as e:
+            return JsonResponse({"error": f"API error: {str(e)}"}, status=500)
+
 class DetailsPageView(generic.TemplateView):
     """
         Display detailed information for a specific app template, including associated image data.

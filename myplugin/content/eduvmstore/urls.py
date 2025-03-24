@@ -15,5 +15,5 @@ urlpatterns = [
     path('favorite_template/', views.GetFavoriteAppTemplateView.as_view(), name='favorite_template'),
     path('delete_favorite_template', views.DeleteFavoriteAppTemplateView.as_view(),
          name='delete_favorite_template'),
-
+    path('app_templates_json/', views.AppTemplatesJsonView.as_view(), name='app_templates_json'),
 ]
