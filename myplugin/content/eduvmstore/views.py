@@ -227,9 +227,6 @@ class IndexView(generic.TemplateView):
         # Add favorite template IDs to context
         favorite_template_ids = [template['id'] for template in favorite_app_templates]
 
-        user_id = self.request.user.token.user['id']
-        context['user_id'] = user_id
-
         context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
         context['favorite_template_ids'] = favorite_template_ids  # Add this line
