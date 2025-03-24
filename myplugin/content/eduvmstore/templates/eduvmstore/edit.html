@@ -166,7 +166,7 @@
          </div>
          <div class="form-group">
              <label for="instantiation_notice">Instantiation Notice:</label>
-             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required>{{ app_template.instantiation_notice }}</textarea>
+             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" >{{ app_template.instantiation_notice }}</textarea>
          </div>
 
         <div class="form-group row">
@@ -306,6 +306,12 @@ write_files:
  </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("input[type='text']").forEach(function(input) {
+        input.value = input.value.replace(",", ".");
+    });
+});
+
     document.getElementById('script_file').addEventListener('change', function(event) {
         var file = event.target.files[0];
         if (file) {
