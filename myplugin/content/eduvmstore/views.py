@@ -1336,7 +1336,7 @@ class DeleteTemplateView(View):
 
         if creator_id.replace('-', '') != user_id.replace('-', ''):
 
-            messages.error(request, "You are not authorized to delete this template because you are not the template owner.")
+            messages.error(request, "You are not authorized to delete this template.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         try:
@@ -1349,10 +1349,13 @@ class DeleteTemplateView(View):
                 try:
                     favorite_api_url = API_ENDPOINTS['delete_favorite']
                     payload = {"app_template_id": template_id}
-                    fav_response = requests.delete(favorite_api_url, json=payload, headers=headers, timeout=10)
+                    fav_response = requests.delete(favorite_api_url, json=payload, headers=headers,
+                                                   timeout=10)
                     if fav_response.status_code not in [204, 404]:
                         error_message = fav_response.json().get("error", "Unknown error occurred.")
-                        messages.warning(request, f"'{template_name}' was deleted, but could not be removed from favorites: {error_message}")
+                        messages.warning(
+                            request,
+                            f"'{template_name}' deleted, but still a favorite: {error_message}")
                 except requests.RequestException:
                     pass
 
