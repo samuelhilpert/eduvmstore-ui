@@ -1316,7 +1316,6 @@ class DeleteTemplateView(View):
 
         headers = {"X-Auth-Token": token_id}
 
-        # Fetch template details from the API
         detail_api_url = API_ENDPOINTS['app_template_detail'].format(template_id=template_id)
         try:
             detail_response = requests.get(detail_api_url, headers=headers, timeout=10)
@@ -1330,20 +1329,16 @@ class DeleteTemplateView(View):
 
         creator_id = template_detail.get('creator_id')
 
-
-        # Retrieve the logged-in user's ID
         user_id = self.request.user.token.user['id']
         if not user_id:
             messages.error(request, "Could not verify logged-in user with Keystone.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        #  Check if the template owner matches the logged-in user's ID.
         if creator_id.replace('-', '') != user_id.replace('-', ''):
 
             messages.error(request, "You are not authorized to delete this template because you are not the template owner.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        # Proceed with deletion of the app template.
         try:
             api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
             response = requests.delete(api_url, headers=headers, timeout=10)
@@ -1351,7 +1346,6 @@ class DeleteTemplateView(View):
             if response.status_code == 204:
                 messages.success(request, f"'{template_name}' was successfully deleted.")
 
-                #  Attempt to remove the template from favorites.
                 try:
                     favorite_api_url = API_ENDPOINTS['delete_favorite']
                     payload = {"app_template_id": template_id}

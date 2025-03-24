@@ -35,11 +35,10 @@
         document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".delete-btn").forEach(button => {
         button.addEventListener("click", function (event) {
-            event.preventDefault();  // Prevent default link behavior
+            event.preventDefault();
 
             let templateId = this.getAttribute("data-template-id");
 
-            // Try retrieving the token from Local Storage
             let authToken = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
 
             if (!authToken) {
@@ -55,13 +54,13 @@
                 headers: {
                     "Authorization": `Bearer ${authToken}`,
                     "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie("csrftoken")  // Include CSRF token if needed
+                    "X-CSRFToken": getCookie("csrftoken")
                 }
             })
             .then(response => {
                 if (response.status === 204) {
                     alert("App-Template deleted successfully!");
-                    location.reload(); // Reload the page to update the list
+                    location.reload();
                 } else {
                     return response.json().then(data => {
                         alert("Failed to delete: " + (data.error || response.status));
