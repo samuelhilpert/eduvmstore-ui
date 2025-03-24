@@ -262,7 +262,7 @@ class IndexView(generic.TemplateView):
             else:
                 favorite_app_template['size'] = _('Unknown')
                 favorite_app_template['visibility'] = _('Unknown')
-        filtered_favorite_app_templates.append(favorite_app_template)
+            filtered_favorite_app_templates.append(favorite_app_template)
 
         context['app_templates'] = filtered_app_templates
         context['favorite_app_templates'] = filtered_favorite_app_templates
