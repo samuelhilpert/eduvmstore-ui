@@ -227,7 +227,7 @@ class IndexView(generic.TemplateView):
         # Add favorite template IDs to context
         favorite_template_ids = [template['id'] for template in favorite_app_templates]
 
-        user_id = self.request.user.id
+        user_id = self.request.user.token.user['id']
         context['user_id'] = user_id
 
         context['app_templates'] = app_templates
@@ -1349,7 +1349,7 @@ class DeleteTemplateView(View):
 
         # 3. Retrieve the logged-in user's ID from Keystone.
         #user_id = get_user_id_from_keystone(request)
-        user_id = self.request.user.id
+        user_id = self.request.user.token.user['id']
         if not user_id:
             messages.error(request, "Could not verify logged-in user with Keystone.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
