@@ -1297,10 +1297,10 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
 
 class DeleteTemplateView(View):
-    """Handles app template deletion."""
+    """Handles app template deletion. Deletion is allowed only if the image owner (from Glance) matches the logged-in user."""
 
     def post(self, request, template_id):
-        token_id = get_token_id(request)  # Get authentication token
+        token_id = get_token_id(request)  # Get the authentication token
         template_name = request.POST.get("template_name")
 
         if not token_id:
@@ -1311,29 +1311,57 @@ class DeleteTemplateView(View):
             messages.error(request, "App Template ID is required.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-        try:
-            # Delete the app template
-            api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
-            headers = {"X-Auth-Token": token_id}
+        headers = {"X-Auth-Token": token_id}
 
+        # Fetch the template details from the external API.
+        detail_api_url = API_ENDPOINTS['app_template_detail'].format(template_id=template_id)
+        try:
+            detail_response = requests.get(detail_api_url, headers=headers, timeout=10)
+            if detail_response.status_code != 200:
+                messages.error(request, "Failed to fetch template details.")
+                return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+            template_detail = detail_response.json()
+        except requests.RequestException as e:
+            messages.error(request, f"Error fetching template details: {str(e)}")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        #  Retrieve the image data (including owner) using Glance.
+        image_id = template_detail.get('image_id')
+        if not image_id:
+            messages.error(request, "Image ID not found in template details.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        try:
+            # Get image details similar to DetailsPageView.get_image_data()
+            image = glance.image_get(request, image_id)
+            image_owner = image.owner
+        except Exception as e:
+            messages.error(request, f"Unable to retrieve image details: {str(e)}")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        #  Check if the image owner matches the logged-in user.
+        if str(image_owner) != str(request.user.id):
+            messages.error(request, "You are not authorized to delete this template because you are not the image owner.")
+            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
+        #  Proceed with deletion of the app template.
+        try:
+            api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
             response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"'{template_name}' was successfully deleted.")
 
-                # Remove from favorites (if exists)
+                # Attempt to remove the template from favorites.
                 try:
                     favorite_api_url = API_ENDPOINTS['delete_favorite']
                     payload = {"app_template_id": template_id}
                     fav_response = requests.delete(favorite_api_url, json=payload, headers=headers, timeout=10)
-
-                    # Only show a warning if the response code is neither 204 nor 404 (not found means it wasn't a favorite)
+                    # Ignore if the template wasn't in favorites (204 or 404 are acceptable)
                     if fav_response.status_code not in [204, 404]:
                         error_message = fav_response.json().get("error", "Unknown error occurred.")
                         messages.warning(request, f"'{template_name}' was deleted, but could not be removed from favorites: {error_message}")
-
                 except requests.RequestException:
-                    # Ignore errors when removing from favorites
                     pass
 
             else:
