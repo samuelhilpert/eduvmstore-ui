@@ -52,6 +52,10 @@
         });
 
         angular.module('horizon.dashboard.eduvmstore', [])
+            .config(function($interpolateProvider) {
+                $interpolateProvider.startSymbol('[[');
+                $interpolateProvider.endSymbol(']]');
+            })
             .controller('AppTemplateController', ['$scope', '$http', function($scope, $http) {
                 var ctrl = this;
                 ctrl.searchQuery = '';
@@ -275,12 +279,10 @@
                 <td>{{ template.visibility }}</td>
                 <td>
                         <div class="btn-group">
-                            <a ng-href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' %}[[template.id]]" class="btn btn-launch">Launch</a>                            <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="caret"></span>
+                            <a ng-href="/dashboard/eduvmstore_dashboard/instances/[[template.id]]/" class="btn btn-launch">Launch</a>                                <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-right">
-                                <li><a ng-href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' %}[[template.id]]">Edit App-Template</a></li>
-                                <li role="separator" class="divider"></li>
+                                <li><a ng-href="/dashboard/eduvmstore_dashboard/edit/[[template.id]]/">Edit App-Template</a></li>                                <li role="separator" class="divider"></li>
                                 <li><a href="#" class="text-danger">Delete App-Template</a></li>
                             </ul>
                         </div>
