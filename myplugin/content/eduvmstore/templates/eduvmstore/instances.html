@@ -589,6 +589,11 @@ function selectAutomaticFlavor(instanceId) {
         totalCores += userCount * perUserCores;
     }
 
+    // Display calculated resources for debugging purpose
+    document.getElementById(`total_ram_${instanceId}`).textContent = totalRAM.toFixed(2);
+    document.getElementById(`total_disk_${instanceId}`).textContent = totalDisk.toFixed(2);
+    document.getElementById(`total_cores_${instanceId}`).textContent = totalCores;
+
     let selectedFlavor = null;
 
     // Find the smallest suitable flavor
