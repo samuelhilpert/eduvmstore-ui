@@ -568,10 +568,19 @@ function selectAutomaticFlavor(instanceId) {
     const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
     const userCountInput = document.getElementById(`user_count_${instanceId}`);
 
+    // Helper function to parse numbers with either . or , as decimal separator
+    const parseNumber = (str) => {
+        if (typeof str === 'number') return str;
+        if (typeof str !== 'string') return 0;
+        // Replace comma with dot and remove any thousands separators
+        const cleanStr = str.replace(/\./g, '').replace(/,/g, '.');
+        return parseFloat(cleanStr) || 0;
+    };
+
     // Get fixed resource requirements from the template
-    const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
-    const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
-    const requiredCores = parseInt("{{ app_template.fixed_cores }}");
+    const requiredRAM = parseNumber("{{ app_template.fixed_ram_gb }}");
+    const requiredDisk = parseNumber("{{ app_template.fixed_disk_gb }}");
+    const requiredCores = parseInt("{{ app_template.fixed_cores }}") || 0;
 
     let totalRAM = requiredRAM;
     let totalDisk = requiredDisk;
@@ -579,20 +588,15 @@ function selectAutomaticFlavor(instanceId) {
 
     // Add per-user resources if checkbox is unchecked
     if (!noAdditionalUsersCheckbox.checked) {
-        const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
-        const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
-        const perUserCores = parseInt("{{ app_template.per_user_cores }}");
+        const perUserRAM = parseNumber("{{ app_template.per_user_ram_gb }}");
+        const perUserDisk = parseNumber("{{ app_template.per_user_disk_gb }}");
+        const perUserCores = parseInt("{{ app_template.per_user_cores }}") || 0;
         const userCount = parseInt(userCountInput.value) || 0;
 
         totalRAM += userCount * perUserRAM;
         totalDisk += userCount * perUserDisk;
         totalCores += userCount * perUserCores;
     }
-
-    // Display calculated resources for debugging purpose
-    document.getElementById(`total_ram_${instanceId}`).textContent = totalRAM.toFixed(2);
-    document.getElementById(`total_disk_${instanceId}`).textContent = totalDisk.toFixed(2);
-    document.getElementById(`total_cores_${instanceId}`).textContent = totalCores;
 
     let selectedFlavor = null;
 
@@ -604,8 +608,10 @@ function selectAutomaticFlavor(instanceId) {
             const flavorDisk = flavorDetails.disk; // Already in GB
             const flavorCores = flavorDetails.vcpus; // CPU cores
 
-            // Check if flavor meets the total requirements
-            if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+            // Check if flavor meets the total requirements with a small tolerance for floating point
+            if (flavorRAM >= totalRAM - 0.001 &&
+                flavorDisk >= totalDisk - 0.001 &&
+                flavorCores >= totalCores) {
                 if (!selectedFlavor ||
                     (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
                      flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
@@ -623,7 +629,6 @@ function selectAutomaticFlavor(instanceId) {
         alert("No suitable flavor found. Please select one manually.");
     }
 }
-
     function attachFlavorCalculationListeners() {
         document.querySelectorAll(".no_additional_users").forEach(checkbox => {
             checkbox.addEventListener("change", function () {
