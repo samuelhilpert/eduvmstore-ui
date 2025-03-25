@@ -360,23 +360,24 @@
                             </ul>
                         </div>
 
-                <!-- Flavor Selection -->
-                <div class="form-group">
-                    <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-                    <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
-                        {% if flavors.all_flavors %}
-                            <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-                            {% for flavor_id, flavor_data in flavors.all_flavors.items %}
-                                <option value="{{ flavor_id }}"
-                                        data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.vcpus }} }'>
-                                    {{ flavor_data.name }} (RAM: {{ flavor_data.ram|floatformat }} MB, Disk: {{ flavor_data.disk }} GB, Cores: {{ flavor_data.vcpus }})
-                                </option>
-                            {% endfor %}
-                        {% else %}
-                            <option value="" disabled>{{ _("No flavors available.") }}</option>
-                        {% endif %}
-                    </select>
-                </div>
+                        <!-- Flavor Selection -->
+                        <div class="form-group">
+                            <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
+                            <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
+                                {% if flavors.suitable_flavors %}
+    <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+    {% for flavor_id, flavor_data in flavors.suitable_flavors.items %}
+        <option value="{{ flavor_id }}"
+                data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.cores }} }'
+                {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+            {{ flavor_data.name }}
+        </option>
+    {% endfor %}
+{% else %}
+    <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
+{% endif %}
+                            </select>
+                        </div>
 
                         <div class="form-group">
                             <label for="network_id_${i}">{{ _("Select Network") }}</label>
