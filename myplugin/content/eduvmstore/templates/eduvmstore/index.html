@@ -186,7 +186,7 @@
             <th>App Template Name</th>
             <th>Short Description</th>
             <th>Size (MB)</th>
-            <th>Visibility</th>
+            <th>Available for</th>
             <th>Action</th>
             <th>Favorite</th>
         </tr>
@@ -203,9 +203,9 @@
                 <td>{{ favorite_template.size }} </td>
                 <td>
                     {% if favorite_template.public %}
-                        Public
+                        Everyone
                     {% else %}
-                        Private
+                        Creator only
                     {% endif %}
                 </td>
                 <td>
