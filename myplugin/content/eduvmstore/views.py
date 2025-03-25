@@ -127,10 +127,12 @@ def fetch_favorite_app_templates(request):
 
 def validate_name(request):
     """
-    Validate the uniqueness of a name by checking for collisions via an external API.
+    Validate the uniqueness of a name by checking for a collision via the EduVMStore
+    Backend API
 
-    This function handles POST requests to validate a name by sending it to an external API
-    and checking for any name collisions. It uses the token ID from the request for authentication.
+    This function handles POST requests to validate a name by sending it to the
+    EduVMStore Backend API and checking for any name collision.
+    It uses the token ID from the request for authentication.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
@@ -149,13 +151,13 @@ def validate_name(request):
             headers = {"X-Auth-Token": token_id}
 
             # API-Calls to Backend
-            url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
+            url = f"{API_ENDPOINTS['check_name']}{name}/collision"
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
 
             # Process Response
             data = response.json()
-            is_valid = not data.get('collisions', True)
+            is_valid = not data.get('collision', True)
 
         except (requests.RequestException, ValueError, json.JSONDecodeError):
             is_valid = False
