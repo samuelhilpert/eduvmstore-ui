@@ -87,44 +87,6 @@
         return cookieValue;
     }
 });
-        document.addEventListener("DOMContentLoaded", function () {
-    let page = 2;  // Start from page 2 because page 1 is already loaded
-
-    document.getElementById("load-more-btn").addEventListener("click", function () {
-        fetch(`/load_more_templates/?page=${page}`)
-            .then(response => response.json())
-            .then(data => {
-                let templateList = document.getElementById("app-template-list");
-
-                data.templates.forEach(template => {
-                    let row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td><a href="/details/${template.id}" class="template-link">${template.name}</a></td>
-                        <td>${template.short_description}</td>
-                        <td>${template.size}</td>
-                        <td>${template.public ? "Everyone" : "Creator only"}</td>
-                        <td><a href="/instances/${template.id}" class="btn btn-launch">Launch</a></td>
-                        <td>
-                            <form method="post" action="/favorite_template/" class="favorite-form">
-                                <input type="hidden" name="template_id" value="${template.id}">
-                                <button type="submit" class="favorite-btn">
-                                    <i class="fa fa-star"></i>
-                                </button>
-                            </form>
-                        </td>
-                    `;
-                    templateList.appendChild(row);
-                });
-
-                if (!data.has_more) {
-                    document.getElementById("load-more-btn").style.display = "none";
-                }
-
-                page += 1;
-            })
-            .catch(error => console.error("Error loading more templates:", error));
-    });
-});
 
     </script>
 <style>
@@ -224,7 +186,7 @@
             <th>App Template Name</th>
             <th>Short Description</th>
             <th>Size (MB)</th>
-            <th>Available for</th>
+            <th>Visibility</th>
             <th>Action</th>
             <th>Favorite</th>
         </tr>
@@ -241,9 +203,9 @@
                 <td>{{ favorite_template.size }} </td>
                 <td>
                     {% if favorite_template.public %}
-                        Everyone
+                        Public
                     {% else %}
-                        Creator only
+                        Private
                     {% endif %}
                 </td>
                 <td>
@@ -379,13 +341,6 @@
         {% endfor %}
     </tbody>
 </table>
-
-    <div style="text-align: center; margin-top: 20px;">
-    <button id="load-more-btn" class="btn btn-primary" style="display: {% if has_more %}block{% else %}none{% endif %};">
-        Load More
-    </button>
-</div>
-
 
 
 

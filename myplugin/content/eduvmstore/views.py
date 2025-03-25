@@ -1408,4 +1408,3 @@ class DeleteTemplateView(View):
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-
