@@ -581,7 +581,7 @@ function selectAutomaticFlavor(instanceId) {
     if (!noAdditionalUsersCheckbox.checked) {
         const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
         const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
-        const perUserCores = parseInt("{{ app_template.per_user_cores }}");
+        const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
         const userCount = parseInt(userCountInput.value) || 0;
 
         totalRAM += userCount * perUserRAM;
