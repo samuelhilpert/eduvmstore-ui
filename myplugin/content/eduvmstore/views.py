@@ -742,15 +742,7 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
-    def wait_for_volume_available(request, volume_id, timeout=60):
-        for _ in range(timeout):
-            volume = cinder.volume_get(request, volume_id)
-            if volume.status == "available":
-                return volume
-            elif volume.status == "error":
-                raise Exception(f"Volume {volume_id} failed to build.")
-            time.sleep(1)
-        raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
 
 
     def post(self, request, *args, **kwargs):
@@ -879,18 +871,18 @@ class InstancesView(generic.TemplateView):
 
                 block_device_mapping_v2 = []
                 if volume_size > 0:
-                    try:
                         volume_name = f"{instance_name}-volume"
                         volume = cinder.volume_create(
                             request,
                             size=volume_size,
-                            name="test",
+                            name=volume_name,
                             description=f"Extra volume for",
                             volume_type="__DEFAULT__"
                         )
 
                         # Warten, bis das Volume verfügbar ist
-                        volume = wait_for_volume_available(request, volume.id)
+                        volume = self.wait_for_volume_available(request, volume.id)
+
 
 
                         # Block-Device-Mapping erstellen
@@ -903,20 +895,7 @@ class InstancesView(generic.TemplateView):
                             "device_name": "/dev/vdb",  # Kann angepasst werden
                         })
 
-                    except Exception as e:
-                        logging.error(f"Failed to create volume for {instance_name}: {e}")
-                        modal_message = _(f"Failed to create volume for {instance_name}. Error: {e}")
 
-
-                volume = cinder.volume_create(
-                    request,
-                    size=5,
-                    name="moinmeister",
-                    description=f"Extra volume fo",
-                    volume_type="__DEFAULT__"
-                )
-
-                volume = wait_for_volume_available(request, volume.id)
 
 
                 nova.server_create(
@@ -942,6 +921,17 @@ class InstancesView(generic.TemplateView):
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
+
+    def wait_for_volume_available(self, request, volume_id, timeout=60):
+        for _ in range(timeout):
+            volume = cinder.volume_get(request, volume_id)
+            if volume.status == "available":
+                return volume
+            elif volume.status == "error":
+                raise Exception(f"Volume {volume_id} failed to build.")
+            time.sleep(1)
+        raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
 
     def get_context_data(self, **kwargs):
         """
