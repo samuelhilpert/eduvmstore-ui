@@ -1146,7 +1146,7 @@ class InstanceSuccessView(generic.TemplateView):
                 created = request.session.get("created", "Unknown Date")
                 instantiation = request.session.get(f"instantiations_{i}", [])
 
-                if accounts:
+                if accounts or instantiation:
                     pdf_content = generate_pdf(accounts, name, app_template, created, instantiation)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 

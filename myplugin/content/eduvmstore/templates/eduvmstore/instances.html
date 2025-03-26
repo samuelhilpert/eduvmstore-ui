@@ -418,6 +418,11 @@
 
                         <div id="accounts_section_${i}" style="display: none;">
                             <h6>{{ _("Accounts") }}</h6>
+
+                            <div class="form-group">
+                            <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
+                            <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}" data-instance="${i}" accept=".csv">
+                        </div>
                             <div id="dynamic_accounts_container_${i}" class="account-grid"></div>
                             <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                         </div>
@@ -698,6 +703,109 @@ function selectAutomaticFlavor(instanceId) {
                 $('#responseModal').modal('show');
             });
         {% endif %}
+
+   //Add accounts via CSV
+      document.addEventListener("change", function (event) {
+            if (!event.target.classList.contains("csv-upload")) return;
+
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const instanceId = event.target.getAttribute("data-instance");
+            if (!instanceId) {
+                return;
+            }
+
+            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+            const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                let text = e.target.result;
+
+                const lines = text.trim().split("\n");
+
+                if (lines.length < 1) {
+                    return;
+                }
+
+                accountsContainer.innerHTML = "";
+
+                function parseCSVLine(line) {
+                    const regex = /(?:\"([^\"]+)\"|([^,]+))/g;
+                    let matches, results = [];
+                    while ((matches = regex.exec(line)) !== null) {
+                        results.push(matches[1] || matches[2]);
+                    }
+                    return results;
+                }
+
+                let csvHeaders = parseCSVLine(lines[0]).map(header => header.trim().toLowerCase());
+
+                let isHeaderValid = accountAttributes.every(attr => csvHeaders.includes(attr.toLowerCase()));
+
+
+                let startIndex = 1;
+                let attributeIndexMap = {};
+
+                if (isHeaderValid) {
+                    accountAttributes.forEach(attr => {
+                        attributeIndexMap[attr] = csvHeaders.indexOf(attr.toLowerCase());
+                    });
+                } else {
+                    startIndex = 0;
+                    attributeIndexMap = accountAttributes.reduce((map, attr, index) => {
+                        map[attr] = index;
+                        return map;
+                    }, {});
+                }
+
+                let accountsList = [];
+
+                lines.slice(startIndex).forEach((line, index) => {
+                    let values = parseCSVLine(line).map(value => value.trim());
+
+                    if (values.length !== accountAttributes.length) {
+                        alert(`Error in row ${index + 1}: Number of columns does not match! Expected: ${accountAttributes.length}, found: ${values.length}`);
+                        return;
+                    }
+
+                    addAccountButton.click();
+                    accountsList.push(values);
+                });
+
+                setTimeout(() => {
+                    let accounts = accountsContainer.querySelectorAll(".card");
+
+                    if (accounts.length !== accountsList.length) {
+                        return;
+                    }
+
+                    accountsList.forEach((values, index) => {
+                        let account = accounts[index];
+
+                        if (!account) {
+                            return;
+                        }
+
+                        let inputs = account.querySelectorAll("input");
+                        accountAttributes.forEach(attr => {
+                            let csvIndex = attributeIndexMap[attr];
+                            let inputField = inputs[accountAttributes.indexOf(attr)];
+
+                            if (csvIndex !== -1 && inputField) {
+                                inputField.value = values[csvIndex];
+                            }
+                        });
+                    });
+                }, 500);
+            };
+
+            reader.readAsText(file);
+        });
+
 
 </script>
 
