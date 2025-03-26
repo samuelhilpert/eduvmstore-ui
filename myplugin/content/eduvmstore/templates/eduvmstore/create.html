@@ -483,7 +483,7 @@ write_files:
             } else {
                 inputField.classList.remove("is-valid");
                 inputField.classList.add("is-invalid");
-                feedback.textContent = "Name already taken";
+                feedback.textContent = result.reason || "Name already taken";
                 feedback.style.color = "red";
                 submitButton.disabled = true;
             }

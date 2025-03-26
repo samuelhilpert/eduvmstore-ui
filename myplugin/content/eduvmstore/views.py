@@ -163,7 +163,8 @@ def validate_name(request):
         except (requests.RequestException, ValueError, json.JSONDecodeError):
             is_valid = False
 
-        return JsonResponse({'valid': is_valid})
+        return JsonResponse({'valid': is_valid, 'reason': data.get('reason', 'Name already taken')})
+
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
