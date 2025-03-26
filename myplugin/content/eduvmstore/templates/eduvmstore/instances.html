@@ -529,36 +529,49 @@
         });
     }
 
-    function generateMultipleAccountFields(instanceId, userCount) {
-        let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-        if (!accountsContainer) return;
+  function generateMultipleAccountFields(instanceId, userCount) {
+    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    if (!accountsContainer) return;
 
-        accountsContainer.innerHTML = "";
-        userCount = Math.max(userCount, 1);
+    accountsContainer.innerHTML = "";
+    userCount = Math.max(userCount, 1);
 
-        for (let i = 1; i <= userCount; i++) {
-            let accountSection = document.createElement("div");
-            accountSection.classList.add("card", "p-3", "mb-3");
-            accountSection.setAttribute("id", `account_${instanceId}_${i}`);
-            accountSection.setAttribute("data-account-number", i);
-            accountSection.style.border = "1px solid #ccc";
-            accountSection.style.borderRadius = "5px";
-            accountSection.style.padding = "15px";
+    for (let i = 1; i <= userCount; i++) {
+        let accountSection = document.createElement("div");
+        accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
+        accountSection.setAttribute("id", `account_${instanceId}_${i}`);
+        accountSection.setAttribute("data-account-number", i);
+        accountSection.style.border = "1px solid #ccc";
+        accountSection.style.borderRadius = "5px";
+        accountSection.style.padding = "15px";
 
-            let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
-            accountAttributes.forEach(attr => {
-                fieldsHtml += `
-                    <div class="form-group md-5">
-                        <label for="${attr}_${instanceId}_${i}">${attr}</label>
-                        <input type="text" class="form-control" id="${attr}_${instanceId}_${i}" name="${attr}_${instanceId}[]" required>
-                    </div>
-                `;
-            });
+        // Add remove button
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-danger btn-sm position-absolute";
+        removeBtn.style.top = "5px";
+        removeBtn.style.right = "5px";
+        removeBtn.innerHTML = "&times;";
+        removeBtn.onclick = function() {
+            accountSection.remove();
+            updateUserCount(instanceId);
+            selectAutomaticFlavor(instanceId);
+        };
 
-            accountSection.innerHTML = fieldsHtml;
-            accountsContainer.appendChild(accountSection);
-        }
+        let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
+        accountAttributes.forEach(attr => {
+            fieldsHtml += `
+                <div class="form-group md-5">
+                    <label for="${attr}_${instanceId}_${i}">${attr}</label>
+                    <input type="text" class="form-control" id="${attr}_${instanceId}_${i}" name="${attr}_${instanceId}[]" required>
+                </div>
+            `;
+        });
+
+        accountSection.innerHTML = fieldsHtml;
+        accountSection.appendChild(removeBtn);
+        accountsContainer.appendChild(accountSection);
     }
+}
 
     function generateInstantiationFields(instanceId) {
         let fieldsHtmlInstance = ``;
@@ -705,7 +718,7 @@ function selectAutomaticFlavor(instanceId) {
         {% endif %}
 
    //Add accounts via CSV
-      // Add accounts via CSV
+ // Add accounts via CSV with remove buttons
 document.addEventListener("change", function(event) {
     if (!event.target.classList.contains("csv-upload")) return;
 
@@ -808,21 +821,29 @@ document.addEventListener("change", function(event) {
             document.getElementById(`user_count_section_${instanceId}`).style.display = "block";
         }
 
-        // Set user count to match CSV rows
-        userCountInput.value = accountsData.length;
-
         // Clear existing accounts
         accountsContainer.innerHTML = "";
 
         // Create account fields for each CSV row
         accountsData.forEach((account, index) => {
             const accountSection = document.createElement("div");
-            accountSection.className = "card p-3 mb-3";
+            accountSection.className = "card p-3 mb-3 position-relative";
             accountSection.id = `account_${instanceId}_${index+1}`;
             accountSection.dataset.accountNumber = index+1;
             accountSection.style.border = "1px solid #ccc";
             accountSection.style.borderRadius = "5px";
-            accountSection.style.padding = "15px";
+
+            // Add remove button
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "btn btn-danger btn-sm position-absolute";
+            removeBtn.style.top = "5px";
+            removeBtn.style.right = "5px";
+            removeBtn.innerHTML = "&times;";
+            removeBtn.onclick = function() {
+                accountSection.remove();
+                updateUserCount(instanceId);
+                selectAutomaticFlavor(instanceId);
+            };
 
             let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
             accountAttributes.forEach(attr => {
@@ -838,17 +859,29 @@ document.addEventListener("change", function(event) {
                 `;
             });
 
-
             accountSection.innerHTML = fieldsHtml;
+            accountSection.appendChild(removeBtn);
             accountsContainer.appendChild(accountSection);
         });
 
-        // Update flavor requirements based on new user count
+        // Update user count and flavor requirements
+        updateUserCount(instanceId);
         selectAutomaticFlavor(instanceId);
     };
 
     reader.readAsText(file);
 });
+
+// Function to update the user count based on visible accounts
+function updateUserCount(instanceId) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+
+    if (accountsContainer && userCountInput) {
+        userCountInput.value = accountsContainer.querySelectorAll('.card').length;
+    }
+}
+
 
 
 </script>
