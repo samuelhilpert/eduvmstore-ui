@@ -894,6 +894,14 @@ class InstancesView(generic.TemplateView):
                         modal_message = _(f"Failed to create volume for {instance_name}. Error: {e}")
 
 
+                volume = cinder.volume_create(
+                    request,
+                    size=5,
+                    name="moinmeister",
+                    description=f"Extra volume fo",
+                )
+
+                cinder.wait_for_volume_status(request, volume.id, status='available')
 
                 nova.server_create(
                     request,
