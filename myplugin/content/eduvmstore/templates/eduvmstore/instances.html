@@ -860,7 +860,7 @@ document.addEventListener("change", function(event) {
         accountsContainer.innerHTML = "";
 
         // Create account fields for each CSV row
-        accountsData.forEach((account, index) => {
+          accountsData.forEach((account, index) => {
             const accountSection = document.createElement("div");
             accountSection.className = "card p-3 mb-3 position-relative";
             accountSection.id = `account_${instanceId}_${index+1}`;
@@ -869,7 +869,7 @@ document.addEventListener("change", function(event) {
             accountSection.style.borderRadius = "5px";
             accountSection.style.padding = "15px";
 
-            // Add remove button
+            // Add remove button using shared renumbering function
             const removeBtn = document.createElement("button");
             removeBtn.className = "btn btn-danger btn-sm position-absolute";
             removeBtn.style.top = "5px";
@@ -877,9 +877,11 @@ document.addEventListener("change", function(event) {
             removeBtn.innerHTML = "Remove";
             removeBtn.onclick = function() {
                 accountSection.remove();
+                renumberAccounts(instanceId); // Using shared function
                 updateUserCount(instanceId);
                 selectAutomaticFlavor(instanceId);
             };
+
 
             let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
             accountAttributes.forEach(attr => {
