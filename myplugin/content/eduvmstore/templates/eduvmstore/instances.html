@@ -705,106 +705,148 @@ function selectAutomaticFlavor(instanceId) {
         {% endif %}
 
    //Add accounts via CSV
-      document.addEventListener("change", function (event) {
-            if (!event.target.classList.contains("csv-upload")) return;
+      // Add accounts via CSV
+document.addEventListener("change", function(event) {
+    if (!event.target.classList.contains("csv-upload")) return;
 
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+    const file = event.target.files[0];
+    if (!file) return;
 
-            const instanceId = event.target.getAttribute("data-instance");
-            if (!instanceId) {
-                return;
-            }
+    const instanceId = event.target.getAttribute("data-instance");
+    if (!instanceId) return;
 
-            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-            const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split("\n");
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                let text = e.target.result;
+        if (lines.length === 0) {
+            alert("CSV file is empty");
+            return;
+        }
 
-                const lines = text.trim().split("\n");
+        // Parse CSV with proper handling of quoted values
+        function parseCSVLine(line) {
+            const result = [];
+            let inQuotes = false;
+            let currentField = "";
 
-                if (lines.length < 1) {
-                    return;
-                }
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
 
-                accountsContainer.innerHTML = "";
-
-                function parseCSVLine(line) {
-                    const regex = /(?:\"([^\"]+)\"|([^,]+))/g;
-                    let matches, results = [];
-                    while ((matches = regex.exec(line)) !== null) {
-                        results.push(matches[1] || matches[2]);
+                if (char === '"') {
+                    if (inQuotes && line[i+1] === '"') {
+                        // Escaped quote
+                        currentField += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
                     }
-                    return results;
-                }
-
-                let csvHeaders = parseCSVLine(lines[0]).map(header => header.trim().toLowerCase());
-
-                let isHeaderValid = accountAttributes.every(attr => csvHeaders.includes(attr.toLowerCase()));
-
-
-                let startIndex = 1;
-                let attributeIndexMap = {};
-
-                if (isHeaderValid) {
-                    accountAttributes.forEach(attr => {
-                        attributeIndexMap[attr] = csvHeaders.indexOf(attr.toLowerCase());
-                    });
+                } else if (char === ',' && !inQuotes) {
+                    result.push(currentField.trim());
+                    currentField = "";
                 } else {
-                    startIndex = 0;
-                    attributeIndexMap = accountAttributes.reduce((map, attr, index) => {
-                        map[attr] = index;
-                        return map;
-                    }, {});
+                    currentField += char;
                 }
+            }
 
-                let accountsList = [];
+            result.push(currentField.trim());
+            return result;
+        }
 
-                lines.slice(startIndex).forEach((line, index) => {
-                    let values = parseCSVLine(line).map(value => value.trim());
+        // Parse header row
+        const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
-                    if (values.length !== accountAttributes.length) {
-                        alert(`Error in row ${index + 1}: Number of columns does not match! Expected: ${accountAttributes.length}, found: ${values.length}`);
-                        return;
-                    }
+        // Validate headers match account attributes (case insensitive)
+        const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
+        const isValidCSV = lowerAccountAttrs.every(attr =>
+            headers.includes(attr)
+        );
 
-                    addAccountButton.click();
-                    accountsList.push(values);
-                });
+        if (!isValidCSV) {
+            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}`);
+            return;
+        }
 
-                setTimeout(() => {
-                    let accounts = accountsContainer.querySelectorAll(".card");
+        // Create mapping from CSV columns to account fields
+        const fieldMapping = accountAttributes.map(attr =>
+            headers.indexOf(attr.toLowerCase())
+        );
 
-                    if (accounts.length !== accountsList.length) {
-                        return;
-                    }
+        // Process data rows
+        const accountsData = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim() === "") continue;
 
-                    accountsList.forEach((values, index) => {
-                        let account = accounts[index];
+            const values = parseCSVLine(lines[i]);
+            if (values.length !== headers.length) {
+                console.warn(`Skipping row ${i+1}: column count mismatch`);
+                continue;
+            }
 
-                        if (!account) {
-                            return;
-                        }
+            const accountData = {};
+            accountAttributes.forEach((attr, idx) => {
+                accountData[attr] = values[fieldMapping[idx]] || "";
+            });
+            accountsData.push(accountData);
+        }
 
-                        let inputs = account.querySelectorAll("input");
-                        accountAttributes.forEach(attr => {
-                            let csvIndex = attributeIndexMap[attr];
-                            let inputField = inputs[accountAttributes.indexOf(attr)];
+        if (accountsData.length === 0) {
+            alert("No valid account data found in CSV");
+            return;
+        }
 
-                            if (csvIndex !== -1 && inputField) {
-                                inputField.value = values[csvIndex];
-                            }
-                        });
-                    });
-                }, 500);
-            };
+        // Update UI
+        const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+        const userCountInput = document.getElementById(`user_count_${instanceId}`);
+        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
 
-            reader.readAsText(file);
+        // Uncheck "no additional users" if checked
+        if (noAdditionalUsersCheckbox.checked) {
+            noAdditionalUsersCheckbox.checked = false;
+            document.getElementById(`accounts_section_${instanceId}`).style.display = "block";
+            document.getElementById(`user_count_section_${instanceId}`).style.display = "block";
+        }
+
+        // Set user count to match CSV rows
+        userCountInput.value = accountsData.length;
+
+        // Clear existing accounts
+        accountsContainer.innerHTML = "";
+
+        // Create account fields for each CSV row
+        accountsData.forEach((account, index) => {
+            const accountSection = document.createElement("div");
+            accountSection.className = "card p-3 mb-3";
+            accountSection.id = `account_${instanceId}_${index+1}`;
+            accountSection.dataset.accountNumber = index+1;
+            accountSection.style.border = "1px solid #ccc";
+            accountSection.style.borderRadius = "5px";
+
+            let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
+            accountAttributes.forEach(attr => {
+                fieldsHtml += `
+                    <div class="form-group md-5">
+                        <label for="${attr}_${instanceId}_${index+1}">${attr}</label>
+                        <input type="text" class="form-control"
+                               id="${attr}_${instanceId}_${index+1}"
+                               name="${attr}_${instanceId}[]"
+                               value="${account[attr] || ''}"
+                               required>
+                    </div>
+                `;
+            });
+
+            accountSection.innerHTML = fieldsHtml;
+            accountsContainer.appendChild(accountSection);
         });
+
+        // Update flavor requirements based on new user count
+        selectAutomaticFlavor(instanceId);
+    };
+
+    reader.readAsText(file);
+});
 
 
 </script>
