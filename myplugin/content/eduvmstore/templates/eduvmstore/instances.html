@@ -417,13 +417,12 @@
                         </div>
 
                         <div id="accounts_section_${i}" style="display: none;">
-                            <h6>{{ _("Accounts") }}</h6>
-
+                   <!-- CSV Upload -->
                           <div class="form-group">
             <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
             <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}" data-instance="${i}" accept=".csv">
-
-        </div>
+                            </div>
+                  <h6>{{ _("Accounts") }}</h6>
                             <div id="dynamic_accounts_container_${i}" class="account-grid"></div>
                             <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                         </div>
