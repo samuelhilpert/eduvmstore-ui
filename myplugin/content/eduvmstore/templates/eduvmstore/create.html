@@ -203,6 +203,11 @@
                     <input type="text" id="fixed_cores" name="fixed_cores" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
+                <div class="form-group">
+                    <label for="volume_size">Volume Size::</label>
+                    <input type="text" id="volume_size" name="volume_size" class="form-control"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -385,6 +390,17 @@ write_files:
         const url = inputField.dataset.url;
         const feedback = document.getElementById("name-feedback");
         const submitButton = document.getElementById("submit-button");
+
+        const validPattern = /^[a-zA-Z0-9_\- ]+$/;
+
+        if (!validPattern.test(name)) {
+            inputField.classList.remove("is-valid");
+            inputField.classList.add("is-invalid");
+            feedback.textContent = "Invalid characters used. Only letters, numbers, '-', '_', and spaces are allowed.";
+            feedback.style.color = "red";
+            submitButton.disabled = true;
+            return;
+        }
 
 
         try {

@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
-from openstack_dashboard.api import glance, nova
+from openstack_dashboard.api import glance, nova, cinder
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -356,6 +356,7 @@ class CreateView(generic.TemplateView):
             'account_attributes': account_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
+            'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
@@ -488,6 +489,7 @@ class EditView(generic.TemplateView):
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
+            'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
@@ -765,6 +767,7 @@ class InstancesView(generic.TemplateView):
             app_template_name = app_template.get('name')
             app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
+            volume_size = app_template.get('volume_size_gb', 0)
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
@@ -862,6 +865,34 @@ class InstancesView(generic.TemplateView):
                         key = f"Instantiation_{index+1}_Part{part_index+1}"
                         metadata[key] = part_content
 
+                block_device_mapping_v2 = []
+                if volume_size > 0:
+                    try:
+                        volume_name = f"{instance_name}-volume"
+                        volume = cinder.volume_create(
+                            request,
+                            size=volume_size,
+                            name=volume_name,
+                            description=f"Extra volume for {instance_name}",
+                        )
+
+                        # Warten, bis das Volume verfügbar ist
+                        cinder.wait_for_volume_status(request, volume.id, status='available')
+
+                        # Block-Device-Mapping erstellen
+                        block_device_mapping_v2.append({
+                            "boot_index": -1,  # -1 bedeutet "zusätzliches Volume"
+                            "uuid": volume.id,
+                            "source_type": "volume",
+                            "destination_type": "volume",
+                            "delete_on_termination": True,  # Volume bleibt nach Löschung der Instanz bestehen
+                            "device_name": "/dev/vdb",  # Kann angepasst werden
+                        })
+
+                    except Exception as e:
+                        logging.error(f"Failed to create volume for {instance_name}: {e}")
+                        modal_message = _(f"Failed to create volume for {instance_name}. Error: {e}")
+
 
 
                 nova.server_create(
@@ -875,6 +906,7 @@ class InstancesView(generic.TemplateView):
                     nics=nics,
                     meta=metadata,
                     description=description,
+                    block_device_mapping_v2=block_device_mapping_v2,
                 )
                 instances.append(instance_name)
 

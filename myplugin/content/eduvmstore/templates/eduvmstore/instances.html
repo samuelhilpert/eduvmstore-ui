@@ -111,6 +111,7 @@
                         <tr><th>Short Description</th><td>{{ app_template.short_description }}</td></tr>
                         <tr><th>Description</th><td>{{ app_template.description }}</td></tr>
                         <tr><th>Instantiation Notice</th><td>{{ app_template.instantiation_notice }}</td></tr>
+                        <tr><th>Volume Size (GB)</th><td>{{ app_template.volume_size_gb }}</td></tr>
                         <tr><th>Fixed RAM (GB)</th><td>{{ app_template.fixed_ram_gb }}</td></tr>
                         <tr><th>Fixed Disk (GB)</th><td>{{ app_template.fixed_disk_gb }}</td></tr>
                         <tr><th>Fixed Cores</th><td>{{ app_template.fixed_cores }}</td></tr>
@@ -136,7 +137,8 @@
     <div class="form-group">
         <label for="instances_name">{{ _("Instance Name") }}</label>
         <input type="text" class="form-control" id="instances_name" name="instances_name"
-               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
+               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}"
+               oninput="this.value = this.value.replace(/[^a-zA-Z0-9_\- ]/g, '')" required>
     </div>
 
     <div class="form-group">

@@ -158,6 +158,10 @@
                 <strong>Fixed Cores:</strong>
                 <p>{{ app_template.fixed_cores }}</p>
             </div>
+            <div class="detail-group">
+                <strong>Volume Size:</strong>
+                <p>{{ app_template.volume_size_gb }}</p>
+            </div>
         </div>
         <div class="col-md-6">
             <h5>Resources per User</h5>
@@ -225,6 +229,12 @@ write_files:
       <span id="formatted-accounts"></span>
     permissions: '0644'
     owner: root:root
+
+  - path: /etc/attributes.txt
+    content: |
+      <span id="instantiationContent"></span>
+    permissions: '0644'
+    owner: root:root
                         </pre>
                         <pre>{{ app_template.script }}</pre>
 
@@ -257,6 +267,8 @@ write_files:
         let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
         let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
         document.getElementById("structured-instantiation").textContent = formattedInstatiation;
+        document.getElementById("instantiationContent").textContent = formattedInstatiation;
+
         document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".delete-btn").forEach(button => {
         button.addEventListener("click", function (event) {
