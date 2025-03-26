@@ -326,7 +326,7 @@
                 <option value="existing">Attach existing volume</option>
             {% endif %}
         </select>
-        {% if hasAttachableVolumes == false %}
+        {% if not hasAttachableVolumes %}
             <small class="form-text text-muted">You can attach an existing volume to this instance.</small>
         {% endif %}
 
