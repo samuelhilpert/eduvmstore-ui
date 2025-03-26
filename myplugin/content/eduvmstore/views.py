@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
-from openstack_dashboard.api import glance, nova
+from openstack_dashboard.api import glance, nova, cinder
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -24,6 +24,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 import io
 import zipfile
 from io import BytesIO
+import time
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
@@ -162,7 +163,8 @@ def validate_name(request):
         except (requests.RequestException, ValueError, json.JSONDecodeError):
             is_valid = False
 
-        return JsonResponse({'valid': is_valid})
+        return JsonResponse({'valid': is_valid, 'reason': data.get('reason', 'Name already taken')})
+
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -356,6 +358,7 @@ class CreateView(generic.TemplateView):
             'account_attributes': account_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
+            'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
@@ -488,6 +491,7 @@ class EditView(generic.TemplateView):
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
+            'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
@@ -739,6 +743,9 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
+
+
+
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create multiple instances.
@@ -765,6 +772,7 @@ class InstancesView(generic.TemplateView):
             app_template_name = app_template.get('name')
             app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
+            volume_size = int(app_template.get('volume_size_gb') or 0)
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
@@ -795,6 +803,8 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
+                use_existing = request.POST.get(f"use_existing_volume_{i}") == "existing"
+                existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
                 accounts = []
                 instantiations = []
 
@@ -851,7 +861,7 @@ class InstancesView(generic.TemplateView):
                     current_part = ""
                     for kv_pair in [f"{key}: {value}" for key, value in instantiation.items()]:
 
-                        if len(current_part) + len(kv_pair) + 2 > 255:  # limit for metadata length
+                        if len(current_part) + len(kv_pair) + 2 > 255:
                             parts.append(current_part.rstrip(", "))
                             current_part = ""
                         current_part += kv_pair + ", "
@@ -861,6 +871,40 @@ class InstancesView(generic.TemplateView):
                     for part_index, part_content in enumerate(parts):
                         key = f"Instantiation_{index+1}_Part{part_index+1}"
                         metadata[key] = part_content
+
+                block_device_mapping_v2 = []
+                if volume_size > 0:
+                    if use_existing and existing_volume_id:
+                        block_device_mapping_v2.append({
+                            "boot_index": -1,
+                            "uuid": existing_volume_id,
+                            "source_type": "volume",
+                            "destination_type": "volume",
+                            "delete_on_termination": False,
+                            "device_name": "/dev/vdb",
+                        })
+                        logging.info(f"Hänge vorhandenes Volume {existing_volume_id} an {instance_name}")
+                    else:
+                        volume_name = f"{instance_name}-volume"
+                        volume = cinder.volume_create(
+                            request,
+                            size=volume_size,
+                            name=volume_name,
+                            description=f"Extra volume for {instance_name}",
+                            volume_type="__DEFAULT__"
+                        )
+                        volume = self.wait_for_volume_available(request, volume.id)
+
+                        block_device_mapping_v2.append({
+                            "boot_index": -1,
+                            "uuid": volume.id,
+                            "source_type": "volume",
+                            "destination_type": "volume",
+                            "delete_on_termination": True,
+                            "device_name": "/dev/vdb",
+                        })
+
+
 
 
 
@@ -875,6 +919,7 @@ class InstancesView(generic.TemplateView):
                     nics=nics,
                     meta=metadata,
                     description=description,
+                    block_device_mapping_v2=block_device_mapping_v2,
                 )
                 instances.append(instance_name)
 
@@ -886,6 +931,35 @@ class InstancesView(generic.TemplateView):
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
+
+    def wait_for_volume_available(self, request, volume_id, timeout=60):
+        """
+        Wait for a volume to become available within a specified timeout period.
+
+        This function repeatedly checks the status of a volume until it becomes available
+        or an error occurs. If the volume does not become available within the timeout period,
+        a TimeoutError is raised.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param volume_id: The ID of the volume to check.
+        :type volume_id: str
+        :param timeout: The maximum time to wait for the volume to become available, in seconds.
+        :type timeout: int
+        :return: The volume object if it becomes available.
+        :rtype: Volume
+        :raises TimeoutError: If the volume does not become available within the timeout period.
+        :raises Exception: If the volume status is 'error'.
+        """
+        for i in range(timeout):
+            volume = cinder.volume_get(request, volume_id)
+            if volume.status == "available":
+                return volume
+            elif volume.status == "error":
+                raise Exception(f"Volume {volume_id} failed to build.")
+            time.sleep(1)
+        raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
 
     def get_context_data(self, **kwargs):
         """
@@ -914,6 +988,17 @@ class InstancesView(generic.TemplateView):
         context['expected_account_fields'] = self.get_expected_fields()
 
         context['expected_instantiation_fields'] = self.get_expected_fields_instantiation()
+
+        context['volume_size'] =  int(app_template.get('volume_size_gb') or 0)
+
+        volumes = cinder.volume_list(self.request)
+        attachable_volumes = [volume for volume in volumes if volume.status == "available"]
+        context['attachable_volumes'] = attachable_volumes
+
+        has_attachable_volumes = len(attachable_volumes) > 0
+        context['hasAttachableVolumes'] = has_attachable_volumes
+
+
 
         return context
 
