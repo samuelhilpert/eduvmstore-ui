@@ -28,7 +28,6 @@ from io import BytesIO
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.views import View
-from django.core.paginator import Paginator
 import base64
 import re
 
@@ -168,11 +167,16 @@ def validate_name(request):
 
 class IndexView(generic.TemplateView):
     """
-    Display the main index page with available app templates and associated image data.
+        Display the main index page with available app templates and associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
 
     def get_images_data(self):
+        """
+            Fetch images from the Glance API using Horizon API.
+            :return: Dictionary of images indexed by image IDs.
+            :rtype: dict
+        """
         try:
             filters = {}
             marker = self.request.GET.get('marker', None)
@@ -186,20 +190,23 @@ class IndexView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return {}
 
-    def get_paginated_templates(self, templates, page, per_page=10):
-        paginator = Paginator(templates, per_page)
-        paginated_templates = paginator.get_page(page)
-
-        return {
-            "templates": list(paginated_templates),
-            "has_next": paginated_templates.has_next()
-        }
-
     def get_context_data(self, **kwargs):
+        """
+        Add app templates, favorite app templates, and associated image data to the context.
+
+        This method fetches app templates and favorite app templates from the external API,
+        retrieves image data from the Glance API, and adds this information to the context
+        for rendering the template.
+
+        :param kwargs: Additional context parameters.
+        :return: Context dictionary with app templates, favorite app templates, and image details.
+        :rtype: dict
+        """
         context = super().get_context_data(**kwargs)
 
         app_templates = fetch_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
+
         glance_images = self.get_images_data()
 
         for template in app_templates:
@@ -212,31 +219,24 @@ class IndexView(generic.TemplateView):
                 template['size'] = _('Unknown')
                 template['visibility'] = _('Unknown')
 
-        page = int(self.request.GET.get("page", 1))  # Get the page number
-        paginated_data = self.get_paginated_templates(app_templates, page)
+        for favorite_app_template in favorite_app_templates:
+            image_id = favorite_app_template.get('image_id')
+            glance_image = glance_images.get(image_id)
+            if glance_image:
+                favorite_app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
+                favorite_app_template['visibility'] = glance_image.visibility
+            else:
+                favorite_app_template['size'] = _('Unknown')
+                favorite_app_template['visibility'] = _('Unknown')
 
-        context['app_templates'] = paginated_data["templates"]
-        context['has_more'] = paginated_data["has_next"]
+        # Add favorite template IDs to context
+        favorite_template_ids = [template['id'] for template in favorite_app_templates]
+
+        context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
-        context['favorite_template_ids'] = [template['id'] for template in favorite_app_templates]
+        context['favorite_template_ids'] = favorite_template_ids  # Add this line
 
         return context
-
-def load_more_templates(request):
-    """
-    API endpoint to load more app templates.
-    """
-    page = int(request.GET.get("page", 1))
-    app_templates = fetch_app_templates(request)
-
-    index_view = IndexView()
-    paginated_data = index_view.get_paginated_templates(app_templates, page)
-
-    return JsonResponse({
-        "templates": paginated_data["templates"],
-        "has_more": paginated_data["has_next"]
-    })
-
 
 
 class DetailsPageView(generic.TemplateView):
