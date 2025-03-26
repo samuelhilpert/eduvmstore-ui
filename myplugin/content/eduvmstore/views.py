@@ -874,7 +874,7 @@ class InstancesView(generic.TemplateView):
                             size=volume_size,
                             name=volume_name,
                             description=f"Extra volume for {instance_name}",
-                            volume_type="standard"
+                            volume_type="__DEFAULT__"
                         )
 
                         # Warten, bis das Volume verfügbar ist
@@ -900,7 +900,7 @@ class InstancesView(generic.TemplateView):
                     size=5,
                     name="moinmeister",
                     description=f"Extra volume fo",
-                    volume_type="standard"
+                    volume_type="__DEFAULT__"
                 )
 
                 cinder.wait_for_volume_status(request, volume.id, status='available')
