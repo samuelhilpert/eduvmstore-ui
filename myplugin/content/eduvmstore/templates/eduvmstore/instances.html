@@ -542,8 +542,8 @@
     for (let i = 1; i <= userCount; i++) {
         let accountSection = document.createElement("div");
         accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
-        accountSection.setAttribute("id", `account_${instanceId}_${i}`);
-        accountSection.setAttribute("data-account-number", i);
+        accountSection.id = `account_${instanceId}_${i}`;
+        accountSection.dataset.accountNumber = i;
         accountSection.style.border = "1px solid #ccc";
         accountSection.style.borderRadius = "5px";
         accountSection.style.padding = "15px";
@@ -556,7 +556,7 @@
         removeBtn.innerHTML = "Remove";
         removeBtn.onclick = function() {
             accountSection.remove();
-            renumberAccounts(instanceId); // Call renumbering function after removal
+            renumberAccounts(instanceId); // Using shared function
             updateUserCount(instanceId);
             selectAutomaticFlavor(instanceId);
         };
@@ -577,17 +577,17 @@
     }
 }
 
-// New function to renumber accounts after removal
+// Function to renumber accounts after removal
 function renumberAccounts(instanceId) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
     if (!accountsContainer) return;
 
-    const accountSections = accountsContainer.querySelectorAll('.card');
+    const accountSections = Array.from(accountsContainer.querySelectorAll('.card'));
     accountSections.forEach((section, index) => {
         const newNumber = index + 1;
 
         // Update data attribute
-        section.setAttribute('data-account-number', newNumber);
+        section.dataset.accountNumber = newNumber;
 
         // Update ID
         section.id = `account_${instanceId}_${newNumber}`;
@@ -598,7 +598,7 @@ function renumberAccounts(instanceId) {
 
         // Update all input fields' IDs and names
         accountAttributes.forEach(attr => {
-            const input = section.querySelector(`#${attr}_${instanceId}_${index+1}`);
+            const input = section.querySelector(`input[id$="${attr}_${instanceId}_${index+1}"]`);
             if (input) {
                 input.id = `${attr}_${instanceId}_${newNumber}`;
                 input.name = `${attr}_${instanceId}[]`;
@@ -755,12 +755,13 @@ function selectAutomaticFlavor(instanceId) {
 
  // Add accounts via CSV with remove buttons
 document.addEventListener("change", function(event) {
-    if (!event.target.classList.contains("csv-upload")) return;
+    i if (!event.target.classList.contains("csv-upload")) return;
 
-    const file = event.target.files[0];
+    const fileInput = event.target;
+    const file = fileInput.files[0];
     if (!file) return;
 
-    const instanceId = event.target.getAttribute("data-instance");
+    const instanceId = fileInput.getAttribute("data-instance");
     if (!instanceId) return;
 
     const reader = new FileReader();
@@ -860,7 +861,7 @@ document.addEventListener("change", function(event) {
         accountsContainer.innerHTML = "";
 
         // Create account fields for each CSV row
-        accountsData.forEach((account, index) => {
+           accountsData.forEach((account, index) => {
             const accountSection = document.createElement("div");
             accountSection.className = "card p-3 mb-3 position-relative";
             accountSection.id = `account_${instanceId}_${index+1}`;
@@ -869,17 +870,19 @@ document.addEventListener("change", function(event) {
             accountSection.style.borderRadius = "5px";
             accountSection.style.padding = "15px";
 
-            // Add remove button
+            // Add remove button using shared renumbering function
             const removeBtn = document.createElement("button");
             removeBtn.className = "btn btn-danger btn-sm position-absolute";
             removeBtn.style.top = "5px";
             removeBtn.style.right = "5px";
-            removeBtn.innerHTML = "&times;";
+            removeBtn.innerHTML = "Remove";
             removeBtn.onclick = function() {
                 accountSection.remove();
+                renumberAccounts(instanceId); // Using shared function
                 updateUserCount(instanceId);
                 selectAutomaticFlavor(instanceId);
             };
+
 
             let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
             accountAttributes.forEach(attr => {
@@ -918,7 +921,7 @@ function updateUserCount(instanceId) {
     }
 }
 
-
+//Undo CSV Selection
 document.addEventListener("change", function(event) {
     if (!event.target.classList.contains("csv-upload")) return;
 
