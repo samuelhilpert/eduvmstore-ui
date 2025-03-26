@@ -379,16 +379,19 @@
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="network_id_${i}">{{ _("Select Network") }}</label>
-                            <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
-                                <option value="" disabled selected>{{ _("Choose a network") }}</option>
-                                {% for network_id, network_name in networks.items %}
-                                    <option value="{{ network_id }}">{{ network_name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
+                          <div class="form-group">
+                <label for="network_id_${i}">{{ _("Select Network") }}</label>
+                <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
+                    {% if networks %}
+                        {% for network_id, network_name in networks.items() %}
+                            <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="" disabled selected>{{ _("No networks available") }}</option>
+                    {% endif %}
+                </select>
+            </div>
+
 
                              <!-- Instantiation Attributes Container -->
                     <div class="section-container">
