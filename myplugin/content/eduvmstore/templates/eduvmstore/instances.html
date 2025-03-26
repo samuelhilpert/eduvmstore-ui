@@ -437,6 +437,10 @@
         attachInstanceEventListeners();
         attachAccountButtonListeners();
         attachFlavorCalculationListeners();
+
+         for (let i = 1; i <= numInstances; i++) {
+        selectAutomaticFlavor(i); // Call the function to update RAM, Disk, and Cores
+    }
     }
 
       function attachInstanceEventListeners() {
