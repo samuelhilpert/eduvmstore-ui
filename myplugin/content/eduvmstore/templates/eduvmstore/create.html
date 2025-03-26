@@ -150,7 +150,8 @@
         <div class="form-group row">
             <div class="col-md-6">
                 <label for="name">App-Template Name:<span style="color: red;">*</span>
-                    <span data-toggle="tooltip" title="Enter the name of the app template. Only letters, numbers, '-', '_', and spaces are allowed.">
+                    <span data-toggle="tooltip" title="Enter the name of the app template.
+                    Only letters, numbers, '-', '_', and spaces are allowed.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
@@ -178,7 +179,8 @@
         </div>
         <div class="form-group">
             <label for="instantiation_notice">Instantiation Notice:
-                <span data-toggle="tooltip" title="Enter any special instructions or notices for instantiation.">
+                <span data-toggle="tooltip" title="Enter any special instructions or
+                notices for instantiation.">
             <i class="fa fa-question-circle"></i>
         </span>
             </label>
@@ -191,7 +193,8 @@
 
 
             <label for="public">Available for:<span style="color: red;">*</span>
-                <span data-toggle="tooltip" title="Select whether the app template is available for everyone or only the creator.">
+                <span data-toggle="tooltip" title="Select whether the app template is available
+                for everyone or only the creator.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
             <select name="public" id="public" class="form-control select-box" required>
@@ -208,7 +211,8 @@
                 <h4>Fixed Resources</h4>
                 <div class="form-group mt-5">
                     <label for="fixed_ram_gb">Fixed RAM (GB):<span style="color: red;">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of fixed RAM in gigabytes. Only numbers and one decimal point are allowed.">
+                        <span data-toggle="tooltip" title="Enter the amount of fixed RAM in gigabytes.
+                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
                       </span>
                     </label>
@@ -220,7 +224,8 @@
                 </div>
                 <div class="form-group">
                     <label for="fixed_disk_gb">Fixed Disk (GB):<span style="color: red;">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of fixed Disk in gigabytes. Only numbers and one decimal point are allowed.">
+                        <span data-toggle="tooltip" title="Enter the amount of fixed Disk in gigabytes.
+                        Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
                       </span>
                     </label>
@@ -229,7 +234,8 @@
                 </div>
                 <div class="form-group">
                     <label for="fixed_cores">Fixed Cores:<span style="color: red;">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of fixed Cores in gigabytes. Only numbers and one decimal point are allowed.">
+                        <span data-toggle="tooltip" title="Enter the amount of fixed Cores in gigabytes.
+                        Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
                       </span>
                     </label>
@@ -238,7 +244,10 @@
                 </div>
                 <div class="form-group">
                     <label for="volume_size">Volume Size (GB):<span style="color: red;">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of Volume Size in gigabytes. You will get a extra volume additional to your selected flavor if you start these app template. Only numbers and one decimal point are allowed. Enter 0 or leave empty if not needed. ">
+                        <span data-toggle="tooltip" title="Enter the amount of Volume Size in gigabytes.
+                        You will get a extra volume additional to your selected flavor if you start
+                        these app template. Only numbers and one decimal point are allowed.
+                        Enter 0 or leave empty if not needed. ">
                             <i class="fa fa-question-circle"></i>
                       </span>
                     </label>
@@ -251,7 +260,8 @@
                 <h4>Resources per User</h4>
                 <div class="form-group mt-5">
                     <label for="per_user_ram_gb">Per User RAM (GB):<span style="color: red;">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of RAM per user in gigabytes. Only numbers and one decimal point are allowed.">
+                        <span data-toggle="tooltip" title="Enter the amount of RAM per user in gigabytes.
+                         Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
         </span>
                     </label>
@@ -260,7 +270,8 @@
                 </div>
                 <div class="form-group">
                     <label for="per_user_disk_gb">Per User Disk (GB):<span style="color: red;">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of disk space per user in gigabytes. Only numbers and one decimal point are allowed.">
+                        <span data-toggle="tooltip" title="Enter the amount of disk space per user
+                        in gigabytes. Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
         </span>
                     </label>
@@ -269,7 +280,8 @@
                 </div>
                 <div class="form-group">
                     <label for="per_user_cores">Per User Cores:<span style="color: red;">*</span>
-                        <span data-toggle="tooltip" title="Enter the number of CPU cores per user. Only numbers and one decimal point are allowed.">
+                        <span data-toggle="tooltip" title="Enter the number of CPU cores per user.
+                        Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
         </span>
                     </label>
@@ -295,7 +307,8 @@ The values will be written to the file /etc/attributes.txt.">
             <div class="col-md-4">
                 <label for="account_attributes">Account Attributes:
                     <span data-toggle="tooltip" title="Enter any account-related attributes.
-                    For example, you can specify the account name or something else that is needed for the script.
+                    For example, you can specify the account name or something else that is needed
+                    for the script.
                      For more than one account attributes separate them with a : like name:password.
 The values will be written to the file /etc/users.txt.">
                 <i class="fa fa-question-circle"></i>
@@ -470,7 +483,8 @@ write_files:
         if (!validPattern.test(name)) {
             inputField.classList.remove("is-valid");
             inputField.classList.add("is-invalid");
-            feedback.textContent = "Invalid characters used. Only letters, numbers, '-', '_', and spaces are allowed.";
+            feedback.textContent = "Invalid characters used. Only letters, " +
+                "numbers, '-', '_', and spaces are allowed.";
             feedback.style.color = "red";
             submitButton.disabled = true;
             return;
