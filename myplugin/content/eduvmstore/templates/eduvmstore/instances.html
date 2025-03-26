@@ -576,6 +576,36 @@
     }
 }
 
+// New function to renumber accounts after removal
+function renumberAccounts(instanceId) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    if (!accountsContainer) return;
+
+    const accountSections = accountsContainer.querySelectorAll('.card');
+    accountSections.forEach((section, index) => {
+        const newNumber = index + 1;
+
+        // Update data attribute
+        section.setAttribute('data-account-number', newNumber);
+
+        // Update ID
+        section.id = `account_${instanceId}_${newNumber}`;
+
+        // Update title
+        const title = section.querySelector('.account-title');
+        if (title) title.textContent = `Account ${newNumber}`;
+
+        // Update all input fields' IDs and names
+        accountAttributes.forEach(attr => {
+            const input = section.querySelector(`#${attr}_${instanceId}_${index+1}`);
+            if (input) {
+                input.id = `${attr}_${instanceId}_${newNumber}`;
+                input.name = `${attr}_${instanceId}[]`;
+            }
+        });
+    });
+}
+
     function generateInstantiationFields(instanceId) {
         let fieldsHtmlInstance = ``;
         instantiationAttribute.forEach(attr => {
@@ -589,6 +619,7 @@
         return fieldsHtmlInstance;
     }
 
+    //Flavor Auto Selection
 function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
@@ -935,7 +966,6 @@ document.addEventListener("change", function(event) {
             return;
         }
 
-        // [Rest of your existing CSV parsing code...]
     };
 
     reader.readAsText(file);
