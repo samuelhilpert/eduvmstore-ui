@@ -319,12 +319,12 @@
 
                {% if volume_size > 0 %}
 <div class="form-group">
-    <label for="use_existing_volume_{{ i }}">Zusätzlicher Speicher</label>
-    <select class="form-control use-existing-volume" id="use_existing_volume_{{ i }}" name="use_existing_volume_{{ i }}" data-instance="{{ i }}">
-        <option value="new" selected>Neues Volume erstellen</option>
-        <option value="existing">Bestehendes Volume anhängen</option>
-    </select>
-</div>
+        <label for="use_existing_volume_${i}">Zusätzlicher Speicher</label>
+        <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
+            <option value="new" selected>Neues Volume erstellen</option>
+            <option value="existing">Bestehendes Volume anhängen</option>
+        </select>
+    </div>
 
 
 
