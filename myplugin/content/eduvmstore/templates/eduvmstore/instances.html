@@ -403,12 +403,19 @@
                 select.addEventListener("change", function () {
                     const instance = this.dataset.instance;
                     const group = document.getElementById(`existing_volume_group_${instance}`);
+                    const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
                     if (this.value === "existing") {
                         group.style.display = "block";
+                        volumeSelect.required = true;
+
+                        // Optional: HTML5 Reset für Validierungsfehler (Browser Highlight)
+                        volumeSelect.setCustomValidity("");
                     } else {
                         group.style.display = "none";
+                        volumeSelect.required = false;
                     }
                 });
+                select.dispatchEvent(new Event("change"));
             });
 
             attachVolumeChangeHandlers();
@@ -696,28 +703,7 @@
             reader.readAsText(file);
         });
 
-        document.querySelector("form").addEventListener("submit", function (e) {
-            const volumeSelects = document.querySelectorAll(".use-existing-volume");
 
-            for (let select of volumeSelects) {
-                const instance = select.dataset.instance;
-                const selectedOption = select.value;
-
-                if (selectedOption === "existing") {
-                    const volumeDropdown = document.getElementById(`existing_volume_id_${instance}`);
-                    if (!volumeDropdown || !volumeDropdown.value) {
-                        e.preventDefault();  // Formular nicht abschicken
-                        if (submitButton.disabled) {
-                            submitButton.disabled = false;
-                        }
-                        alert(`Please select a volume for Instance ${instance}.`);
-                        switchToInstance(parseInt(instance));
-                        volumeDropdown.focus();
-                        return;
-                    }
-                }
-            }
-        });
 
 
 
