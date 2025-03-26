@@ -971,7 +971,7 @@ class InstancesView(generic.TemplateView):
 
         context['expected_instantiation_fields'] = self.get_expected_fields_instantiation()
 
-        context['volume_size'] = app_template.get('volume_size_gb', 0)
+        context['volume_size'] =  int(app_template.get('volume_size_gb') or 0)
 
         volumes = cinder.volume_list(self.request)
         attachable_volumes = [volume for volume in volumes if volume.status == "available"]
