@@ -315,10 +315,24 @@
                     </select>
                 </div>
 
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
-                    <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
-                </div>
+
+
+                <div class="form-group">
+            <label for="use_existing_volume_${i}">Zusätzlicher Speicher</label>
+            <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
+                <option value="new" selected>Neues Volume erstellen</option>
+                <option value="existing">Bestehendes Volume anhängen</option>
+            </select>
+        </div>
+
+        <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
+            <label for="existing_volume_id_${i}">Verfügbare Volumes</label>
+            <select class="form-control" name="existing_volume_id_${i}" id="existing_volume_id_${i}">
+                {% for volume in attachable_volumes %}
+                    <option value="{{ volume.id }}">{{ volume.name }} ({{ volume.size }} GB)</option>
+                {% endfor %}
+            </select>
+        </div>
 
 
 
@@ -327,6 +341,11 @@
                     <div id="dynamic_instantiation_container_${i}">
                         ${generateInstantiationFields(i)}
                     </div>
+                </div>
+
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
+                    <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
                 </div>
 
                 <!-- Dynamische Accounts -->
@@ -352,6 +371,19 @@
 
             attachInstanceEventListeners();
             attachAccountButtonListeners();
+
+            document.querySelectorAll(".use-existing-volume").forEach(select => {
+                select.addEventListener("change", function () {
+                    const instance = this.dataset.instance;
+                    const group = document.getElementById(`existing_volume_group_${instance}`);
+                    if (this.value === "existing") {
+                        group.style.display = "block";
+                    } else {
+                        group.style.display = "none";
+                    }
+                });
+            });
+
         }
 
 
@@ -607,6 +639,8 @@ function selectAutomaticFlavor(instanceId) {
 
             reader.readAsText(file);
         });
+
+
 
     </script>
 

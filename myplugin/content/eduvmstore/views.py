@@ -803,6 +803,8 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
+                use_existing = request.POST.get(f"use_existing_volume_{i}") == "existing"
+                existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
                 accounts = []
                 instantiations = []
 
@@ -872,27 +874,36 @@ class InstancesView(generic.TemplateView):
 
                 block_device_mapping_v2 = []
                 if volume_size > 0:
+                    if use_existing and existing_volume_id:
+                        block_device_mapping_v2.append({
+                            "boot_index": -1,
+                            "uuid": existing_volume_id,
+                            "source_type": "volume",
+                            "destination_type": "volume",
+                            "delete_on_termination": False,
+                            "device_name": "/dev/vdb",
+                        })
+                        logging.info(f"Hänge vorhandenes Volume {existing_volume_id} an {instance_name}")
+                    else:
                         volume_name = f"{instance_name}-volume"
                         volume = cinder.volume_create(
                             request,
                             size=volume_size,
                             name=volume_name,
-                            description=f"Boot volume for {instance_name}",
-                            volume_type="lvmdriver-1",
-                            image_id=image_id,
+                            description=f"Extra volume for {instance_name}",
+                            volume_type="__DEFAULT__"
                         )
-
-
                         volume = self.wait_for_volume_available(request, volume.id)
 
-
-                        block_device_mapping_v2 = [{
-                            "boot_index": 0,
+                        block_device_mapping_v2.append({
+                            "boot_index": -1,
                             "uuid": volume.id,
                             "source_type": "volume",
                             "destination_type": "volume",
                             "delete_on_termination": True,
-                        }]
+                            "device_name": "/dev/vdb",
+                        })
+
 
 
 
@@ -959,6 +970,10 @@ class InstancesView(generic.TemplateView):
         context['expected_account_fields'] = self.get_expected_fields()
 
         context['expected_instantiation_fields'] = self.get_expected_fields_instantiation()
+
+        volumes = cinder.volume_list(self.request)
+        attachable_volumes = [volume for volume in volumes if volume.status == "available"]
+        context['attachable_volumes'] = attachable_volumes
 
         return context
 
