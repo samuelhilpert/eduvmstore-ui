@@ -207,6 +207,12 @@
 
     <script>
 
+        const attachableVolumes = [
+            {% for volume in attachable_volumes %}
+                { id: "{{ volume.id }}", name: "{{ volume.name }}", size: {{ volume.size }} },
+            {% endfor %}
+        ];
+
         document.getElementById("num_instances").addEventListener("input", function () {
             if (this.value > 100) {
                 this.value = 100;
@@ -237,6 +243,16 @@
 
         let accountAttributes = {{ expected_account_fields|safe }};
         let instantiationAttribute = {{ expected_instantiation_fields|safe }};
+
+        function generateVolumeDropdown(instanceId) {
+            let html = `<option value="" disabled selected>Bitte Volume wählen</option>`;
+            attachableVolumes.forEach(volume => {
+                html += `<option value="${volume.id}" data-volume-id="${volume.id}">
+                    ${volume.name} (${volume.size} GB)
+                 </option>`;
+            });
+            return html;
+        }
 
         function generateInstanceFields() {
             let instanceTabs = document.getElementById("instanceTabs");
@@ -334,14 +350,13 @@
 
 
         {% if hasAttachableVolumes  %}
-        <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
-            <label for="existing_volume_id_${i}">Available volumes</label>
-            <select class="form-control" name="existing_volume_id_${i}" id="existing_volume_id_${i}">
-                {% for volume in attachable_volumes %}
-                    <option value="{{ volume.id }}">{{ volume.name }} ({{ volume.size }} GB)</option>
-                {% endfor %}
-            </select>
-        </div>
+       <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
+    <label for="existing_volume_id_${i}">Available volumes</label>
+    <select class="form-control existing-volume-select" name="existing_volume_id_${i}" id="existing_volume_id_${i}" data-instance="${i}">
+        ${generateVolumeDropdown(i)}
+    </select>
+</div>
+
         {% endif %}
 
         {% endif %}
@@ -395,6 +410,9 @@
                     }
                 });
             });
+
+            attachVolumeChangeHandlers();
+
 
         }
 
@@ -529,8 +547,34 @@
             });
         {% endif %}
 
+        function attachVolumeChangeHandlers() {
+            document.querySelectorAll(".existing-volume-select").forEach(select => {
+                select.addEventListener("change", () => {
+                    const selectedVolumes = Array.from(document.querySelectorAll(".existing-volume-select"))
+                        .map(sel => sel.value)
+                        .filter(val => val); // nur gewählte Volumes
 
-function selectAutomaticFlavor(instanceId) {
+                    // Für jede Selectbox...
+                    document.querySelectorAll(".existing-volume-select").forEach(select => {
+                        const currentValue = select.value;
+                        Array.from(select.options).forEach(option => {
+                            if (
+                                selectedVolumes.includes(option.value) &&
+                                option.value !== currentValue
+                            ) {
+                                option.disabled = true;
+                            } else {
+                                option.disabled = false;
+                            }
+                        });
+                    });
+                });
+            });
+        }
+
+
+
+        function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
 
