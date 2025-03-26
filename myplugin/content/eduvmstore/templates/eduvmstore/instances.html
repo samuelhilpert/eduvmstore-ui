@@ -899,14 +899,14 @@ document.addEventListener("change", function(event) {
     if (!undoContainer) {
         undoContainer = document.createElement("div");
         undoContainer.id = `csv_undo_container_${instanceId}`;
-        undoContainer.className = "mb-3";
+        undoContainer.className = "mb-3 mt-3";
         fileInput.parentNode.insertBefore(undoContainer, fileInput.nextSibling);
     }
 
     // Add undo button
     undoContainer.innerHTML = `
         <button type="button" class="btn btn-danger btn-sm undo-csv" data-instance="${instanceId}">
-            <i class="fas fa-undo mr-1"></i> {{ _("Undo CSV Upload") }}
+            {{ _("Undo CSV Upload") }}
         </button>
     `;
 
