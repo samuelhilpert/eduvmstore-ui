@@ -951,7 +951,7 @@ class InstancesView(generic.TemplateView):
         :raises TimeoutError: If the volume does not become available within the timeout period.
         :raises Exception: If the volume status is 'error'.
         """
-        for _ in range(timeout):
+        for i in range(timeout):
             volume = cinder.volume_get(request, volume_id)
             if volume.status == "available":
                 return volume
@@ -995,8 +995,8 @@ class InstancesView(generic.TemplateView):
         attachable_volumes = [volume for volume in volumes if volume.status == "available"]
         context['attachable_volumes'] = attachable_volumes
 
-        hasAttachableVolumes = len(attachable_volumes) > 0
-        context['hasAttachableVolumes'] = hasAttachableVolumes
+        has_attachable_volumes = len(attachable_volumes) > 0
+        context['hasAttachableVolumes'] = has_attachable_volumes
 
 
 
