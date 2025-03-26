@@ -319,7 +319,7 @@
 
                {% if volume_size > 0 %}
 <div class="form-group">
-        <label for="use_existing_volume_${i}">Zusätzlicher Speicher</label>
+        <label for="use_existing_volume_${i}">Additional Volumes</label>
         <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
             <option value="new" selected>Create new volume</option>
             {% if hasAttachableVolumes %}
@@ -327,7 +327,7 @@
             {% endif %}
         </select>
         {% if not hasAttachableVolumes %}
-            <small class="form-text text-muted">You can attach an existing volume to this instance.</small>
+            <small class="form-text">There are currently no available volumes that can be attached.</small>
         {% endif %}
 
     </div>
