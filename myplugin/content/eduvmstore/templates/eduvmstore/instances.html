@@ -245,7 +245,7 @@
         let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
         function generateVolumeDropdown(instanceId) {
-            let html = `<option value="" disabled selected>Bitte Volume wählen</option>`;
+            let html = ``;
             attachableVolumes.forEach(volume => {
                 html += `<option value="${volume.id}" data-volume-id="${volume.id}">
                     ${volume.name} (${volume.size} GB)
@@ -554,6 +554,8 @@
                         .map(sel => sel.value)
                         .filter(val => val); // nur gewählte Volumes
 
+                    const allVolumesUsed = selectedVolumes.length >= attachableVolumes.length;
+
                     // Für jede Selectbox...
                     document.querySelectorAll(".existing-volume-select").forEach(select => {
                         const currentValue = select.value;
@@ -567,10 +569,33 @@
                                 option.disabled = false;
                             }
                         });
+
+                        // Wenn alle Volumes schon ausgewählt sind → Dropdown deaktivieren
+                        if (allVolumesUsed && !currentValue) {
+                            select.disabled = true;
+
+                            // Optional: Hinweis einblenden
+                            const group = select.closest('.form-group');
+                            if (group && !group.querySelector('.volume-hint')) {
+                                const hint = document.createElement('small');
+                                hint.classList.add('form-text', 'text-muted', 'volume-hint');
+                                hint.innerText = 'Alle verfügbaren Volumes sind bereits ausgewählt.';
+                                group.appendChild(hint);
+                            }
+                        } else {
+                            select.disabled = false;
+
+                            // Hinweis ggf. wieder entfernen
+                            const hint = select.closest('.form-group').querySelector('.volume-hint');
+                            if (hint) {
+                                hint.remove();
+                            }
+                        }
                     });
                 });
             });
         }
+
 
 
 
