@@ -600,7 +600,7 @@ function selectAutomaticFlavor(instanceId) {
     let selectedFlavor = null;
 
     // Find the smallest suitable flavor
-   Array.from(flavorDropdown.options).forEach(option => {
+  Array.from(flavorDropdown.options).forEach(option => {
     if (option.value) {
         const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
         const flavorRAM = flavorDetails.ram / 1024; // Convert MB to GB
@@ -628,6 +628,7 @@ function selectAutomaticFlavor(instanceId) {
         }
     }
 });
+
 
     if (selectedFlavor) {
         flavorDropdown.value = selectedFlavor.value;
