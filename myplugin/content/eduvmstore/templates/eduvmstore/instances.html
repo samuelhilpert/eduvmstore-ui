@@ -418,10 +418,16 @@
 
                         <div id="accounts_section_${i}" style="display: none;">
                    <!-- CSV Upload -->
-                          <div class="form-group">
-            <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
-            <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}" data-instance="${i}" accept=".csv">
-                            </div>
+                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+            <div style="flex-grow: 1;">
+                <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
+                <div style="display: flex; align-items: center;">
+                    <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}"
+                           data-instance="${i}" accept=".csv" style="width: auto;">
+                    <!-- Undo button will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
                   <h6>{{ _("Accounts") }}</h6>
                             <div id="dynamic_accounts_container_${i}" class="account-grid"></div>
                             <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
