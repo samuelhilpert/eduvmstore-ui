@@ -553,9 +553,10 @@
         removeBtn.className = "btn btn-danger btn-sm position-absolute";
         removeBtn.style.top = "5px";
         removeBtn.style.right = "5px";
-        removeBtn.innerHTML = "Remove";;
+        removeBtn.innerHTML = "Remove";
         removeBtn.onclick = function() {
             accountSection.remove();
+            renumberAccounts(instanceId); // Call renumbering function after removal
             updateUserCount(instanceId);
             selectAutomaticFlavor(instanceId);
         };
