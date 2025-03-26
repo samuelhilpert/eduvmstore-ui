@@ -392,8 +392,7 @@
                         </select>
 </div>
                     </div>
-
-                             <!-- Instantiation Attributes Container -->
+ <!-- Instantiation Attributes Container -->
                     <div class="section-container">
                         <h5>{{ _("Instantiation Attributes") }}</h5>
                         <div id="instantiation_section_${i}">
@@ -402,8 +401,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Additional Users and Accounts Container -->
+ <!-- Additional Users and Accounts Container -->
                     <div class="section-container">
                         <h5>{{ _("User Configuration") }}</h5>
                         <div class="form-group form-check">
@@ -417,7 +415,8 @@
                         </div>
 
                         <div id="accounts_section_${i}" style="display: none;">
-                   <!-- CSV Upload -->
+
+      <!-- CSV Upload -->
                          <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
             <div style="flex-grow: 1;">
                 <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
@@ -434,7 +433,7 @@
                         </div>
                     </div>
 
-                    <!-- Navigation Buttons -->
+          <!-- Navigation Buttons -->
                     <div class="d-flex justify-content-between mt-3">
                         ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous Instance") }}</button>` : ""}
                         ${i < numInstances ? `<button type="button" class="btn btn-primary next-instance" data-instance="${i}">→ {{ _("Next Instance") }}</button>` : ""}
@@ -554,7 +553,7 @@
         removeBtn.className = "btn btn-danger btn-sm position-absolute";
         removeBtn.style.top = "5px";
         removeBtn.style.right = "5px";
-        removeBtn.innerHTML = "&times;";
+        removeBtn.innerHTML = "Remove";;
         removeBtn.onclick = function() {
             accountSection.remove();
             updateUserCount(instanceId);
