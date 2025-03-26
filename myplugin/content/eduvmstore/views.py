@@ -241,43 +241,53 @@ class IndexView(generic.TemplateView):
 
 class DetailsPageView(generic.TemplateView):
     """
-        Display detailed information for a specific app template, including associated image data.
+    Display detailed information for a specific app template, including associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
     page_title = "{{ app_template.name }}"
 
     def get_context_data(self, **kwargs):
         """
-            Add app template and image data to the context.
-            :param kwargs: Additional context parameters.
-            :return: Context dictionary with app template and image details.
-            :rtype: dict
+        Add app template and image data to the context.
+        :param kwargs: Additional context parameters.
+        :return: Context dictionary with app template and image details.
+        :rtype: dict
         """
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
         image_data = self.get_image_data(app_template.get('image_id', ''))
+
+        # Ensure instantiation_attributes and account_attributes exist
+        instantiation_attributes = app_template.get('instantiation_attributes', [])
+        account_attributes = app_template.get('account_attributes', [])
+
+        # Debugging: Log the app template details
+        logging.debug("App Template Data: %s", json.dumps(app_template, indent=4))
+
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'instantiation_attributes': instantiation_attributes,
+            'account_attributes': account_attributes
         })
         return context
 
     def get_app_template(self):
         """
-            Fetch a specific app template from the external database using token authentication.
-            :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
-            :rtype: dict
+        Fetch a specific app template from the external database using token authentication.
+        :return: JSON response of app template details if successful, otherwise an empty dict.
+        :rtype: dict
         """
         token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
 
         try:
-            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
-                template_id=self.kwargs['template_id']),
-                headers=headers, timeout=10))
-
+            response = requests.get(
+                API_ENDPOINTS['app_template_detail'].format(template_id=self.kwargs['template_id']),
+                headers=headers,
+                timeout=10
+            )
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
@@ -286,10 +296,10 @@ class DetailsPageView(generic.TemplateView):
 
     def get_image_data(self, image_id):
         """
-            Fetch image details from Glance based on the image_id.
-            :param image_id: ID of the image to retrieve.
-            :return: Dictionary with visibility and owner details of the image.
-            :rtype: dict
+        Fetch image details from Glance based on the image_id.
+        :param image_id: ID of the image to retrieve.
+        :return: Dictionary with visibility and owner details of the image.
+        :rtype: dict
         """
         try:
             image = glance.image_get(self.request, image_id)
