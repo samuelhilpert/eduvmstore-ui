@@ -322,9 +322,14 @@
         <label for="use_existing_volume_${i}">Zusätzlicher Speicher</label>
         <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
             <option value="new" selected>Create new volume</option>
-            ${hasAttachableVolumes ? `<option value="existing">Attach existing volume</option>` : ""}
+            {% if hasAttachableVolumes %}
+                <option value="existing">Attach existing volume</option>
+            {% endif %}
         </select>
-         ${!hasAttachableVolumes ? `<small class="form-text text-muted">There are currently no available volumes that can be attached.</small>` : ""}
+        {% if hasAttachableVolumes == false %}
+            <small class="form-text text-muted">You can attach an existing volume to this instance.</small>
+        {% endif %}
+
     </div>
 
 
