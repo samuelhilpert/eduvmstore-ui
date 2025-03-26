@@ -365,7 +365,7 @@
                             <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
                             <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
                                 {% if flavors.suitable_flavors %}
-                            <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
+
                             {% for flavor_id, flavor_data in flavors.suitable_flavors.items %}
                                 <option value="{{ flavor_id }}"
                                         data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.cores }} }'
@@ -379,15 +379,18 @@
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="network_id_${i}">{{ _("Select Network") }}</label>
-                            <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
-                                <option value="" disabled selected>{{ _("Choose a network") }}</option>
+                       <div class="form-group">
+                        <label for="network_id_${i}">{{ _("Select Network") }}</label>
+                        <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
+                            {% if networks %}
                                 {% for network_id, network_name in networks.items %}
-                                    <option value="{{ network_id }}">{{ network_name }}</option>
+                                    <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
                                 {% endfor %}
-                            </select>
-                        </div>
+                            {% else %}
+                                <option value="" disabled selected>{{ _("No networks available") }}</option>
+                            {% endif %}
+                        </select>
+</div>
                     </div>
 
                              <!-- Instantiation Attributes Container -->
