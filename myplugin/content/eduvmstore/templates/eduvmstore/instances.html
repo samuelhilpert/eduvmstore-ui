@@ -707,6 +707,9 @@
                     const volumeDropdown = document.getElementById(`existing_volume_id_${instance}`);
                     if (!volumeDropdown || !volumeDropdown.value) {
                         e.preventDefault();  // Formular nicht abschicken
+                        if (submitButton.disabled) {
+                            submitButton.disabled = false;
+                        }
                         alert(`Please select a volume for Instance ${instance}.`);
                         switchToInstance(parseInt(instance));
                         volumeDropdown.focus();
