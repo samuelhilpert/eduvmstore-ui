@@ -24,6 +24,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 import io
 import zipfile
 from io import BytesIO
+import time
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
@@ -741,6 +742,17 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
+    def wait_for_volume_available(request, volume_id, timeout=60):
+        for _ in range(timeout):
+            volume = cinder.volume_get(request, volume_id)
+            if volume.status == "available":
+                return volume
+            elif volume.status == "error":
+                raise Exception(f"Volume {volume_id} failed to build.")
+            time.sleep(1)
+        raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
+
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create multiple instances.
@@ -767,7 +779,7 @@ class InstancesView(generic.TemplateView):
             app_template_name = app_template.get('name')
             app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
-            volume_size = app_template.get('volume_size_gb', 0)
+            volume_size = int(app_template.get('volume_size_gb') or 0)
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
@@ -872,13 +884,14 @@ class InstancesView(generic.TemplateView):
                         volume = cinder.volume_create(
                             request,
                             size=volume_size,
-                            name=volume_name,
-                            description=f"Extra volume for {instance_name}",
+                            name="test",
+                            description=f"Extra volume for",
                             volume_type="__DEFAULT__"
                         )
 
                         # Warten, bis das Volume verfügbar ist
-                        cinder.wait_for_volume_status(request, volume.id, status='available')
+                        volume = wait_for_volume_available(request, volume.id)
+
 
                         # Block-Device-Mapping erstellen
                         block_device_mapping_v2.append({
@@ -903,7 +916,8 @@ class InstancesView(generic.TemplateView):
                     volume_type="__DEFAULT__"
                 )
 
-                cinder.wait_for_volume_status(request, volume.id, status='available')
+                volume = wait_for_volume_available(request, volume.id)
+
 
                 nova.server_create(
                     request,
