@@ -206,7 +206,6 @@
     </style>
 
     <script>
-        const volumeSize = {{ app_template.volume_size_gb|default:0 }};
 
         document.getElementById("num_instances").addEventListener("input", function () {
             if (this.value > 100) {
@@ -318,24 +317,22 @@
 
 
 
-                ${volumeSize > 0 ? `
-    <div class="form-group">
-        <label for="use_existing_volume_${i}">Zusätzlicher Speicher</label>
-        <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
-            <option value="new" selected>Neues Volume erstellen</option>
-            <option value="existing">Bestehendes Volume anhängen</option>
-        </select>
-    </div>
+                <div class="form-group">
+            <label for="use_existing_volume_${i}">Zusätzlicher Speicher</label>
+            <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
+                <option value="new" selected>Neues Volume erstellen</option>
+                <option value="existing">Bestehendes Volume anhängen</option>
+            </select>
+        </div>
 
-    <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
-        <label for="existing_volume_id_${i}">Verfügbare Volumes</label>
-        <select class="form-control" name="existing_volume_id_${i}" id="existing_volume_id_${i}">
-            {% for volume in attachable_volumes %}
-                <option value="{{ volume.id }}">{{ volume.name }} ({{ volume.size }} GB)</option>
-            {% endfor %}
-        </select>
-    </div>
-    ` : ""}
+        <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
+            <label for="existing_volume_id_${i}">Verfügbare Volumes</label>
+            <select class="form-control" name="existing_volume_id_${i}" id="existing_volume_id_${i}">
+                {% for volume in attachable_volumes %}
+                    <option value="{{ volume.id }}">{{ volume.name }} ({{ volume.size }} GB)</option>
+                {% endfor %}
+            </select>
+        </div>
 
 
 
