@@ -591,7 +591,7 @@ function selectAutomaticFlavor(instanceId) {
 
     let selectedFlavor = null;
 
-    // Find the smallest suitable flavor
+    // Loop through all flavor options and disable unsuitable ones
     Array.from(flavorDropdown.options).forEach(option => {
         if (option.value) {
             const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
@@ -599,25 +599,33 @@ function selectAutomaticFlavor(instanceId) {
             const flavorDisk = flavorDetails.disk; // Already in GB
             const flavorCores = flavorDetails.vcpus; // CPU cores
 
-            // Check if flavor meets the total requirements
             if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+                // Suitable flavor, enable it
+                option.disabled = false;
+                option.textContent = `${flavorDetails.name}`;
+
                 if (!selectedFlavor ||
                     (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
                      flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
-                     flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus))
-                {
+                     flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus)) {
                     selectedFlavor = option;
                 }
+            } else {
+                // Flavor is too small, disable it and add an info note
+                option.disabled = true;
+                option.textContent = `${flavorDetails.name} (Too small for required resources)`;
             }
         }
     });
 
+    // Automatically select the best suitable flavor
     if (selectedFlavor) {
         flavorDropdown.value = selectedFlavor.value;
     } else {
         alert("No suitable flavor found. Please select one manually.");
     }
 }
+
 
     function attachFlavorCalculationListeners() {
         document.querySelectorAll(".no_additional_users").forEach(checkbox => {
