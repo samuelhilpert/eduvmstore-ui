@@ -245,7 +245,7 @@
         let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
         function generateVolumeDropdown(instanceId) {
-            let html = ``;
+            let html = `<option value="" disabled selected>Bitte Volume wählen</option>`;
             attachableVolumes.forEach(volume => {
                 html += `<option value="${volume.id}" data-volume-id="${volume.id}">
                     ${volume.name} (${volume.size} GB)
