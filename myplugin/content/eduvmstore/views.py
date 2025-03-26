@@ -861,7 +861,7 @@ class InstancesView(generic.TemplateView):
                     current_part = ""
                     for kv_pair in [f"{key}: {value}" for key, value in instantiation.items()]:
 
-                        if len(current_part) + len(kv_pair) + 2 > 255:  # limit for metadata length
+                        if len(current_part) + len(kv_pair) + 2 > 255:
                             parts.append(current_part.rstrip(", "))
                             current_part = ""
                         current_part += kv_pair + ", "
@@ -933,6 +933,24 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
     def wait_for_volume_available(self, request, volume_id, timeout=60):
+        """
+        Wait for a volume to become available within a specified timeout period.
+
+        This function repeatedly checks the status of a volume until it becomes available
+        or an error occurs. If the volume does not become available within the timeout period,
+        a TimeoutError is raised.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param volume_id: The ID of the volume to check.
+        :type volume_id: str
+        :param timeout: The maximum time to wait for the volume to become available, in seconds.
+        :type timeout: int
+        :return: The volume object if it becomes available.
+        :rtype: Volume
+        :raises TimeoutError: If the volume does not become available within the timeout period.
+        :raises Exception: If the volume status is 'error'.
+        """
         for _ in range(timeout):
             volume = cinder.volume_get(request, volume_id)
             if volume.status == "available":

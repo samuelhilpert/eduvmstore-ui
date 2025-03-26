@@ -149,23 +149,39 @@
 
         <div class="form-group row">
             <div class="col-md-6">
-                <label for="name">App-Template Name:<span style="color: red;">*</span></label>
+                <label for="name">App-Template Name:<span style="color: red;">*</span>
+                    <span data-toggle="tooltip" title="Enter the name of the app template. Only letters, numbers, '-', '_', and spaces are allowed.">
+                <i class="fa fa-question-circle"></i>
+            </span>
+                </label>
                 <input type="text" id="name" name="name" class="form-control" required
                        data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:validate_name' %}"
                        oninput="checkName()">
                 <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
-                <label for="short_description">Short Description:<span style="color: red;">*</span></label>
+                <label for="short_description">Short Description:<span style="color: red;">*</span>
+                    <span data-toggle="tooltip" title="Enter a brief description of the app template.">
+                <i class="fa fa-question-circle"></i>
+            </span>
+                </label>
                 <input type="text" id="short_description" name="short_description" class="form-control" required>
             </div>
         </div>
         <div class="form-group">
-            <label for="description">Description:<span style="color: red;">*</span></label>
+            <label for="description">Description:<span style="color: red;">*</span>
+                <span data-toggle="tooltip" title="Provide a detailed description of the app template.">
+            <i class="fa fa-question-circle"></i>
+        </span>
+            </label>
             <textarea id="description" name="description" class="form-control" required></textarea>
         </div>
         <div class="form-group">
-            <label for="instantiation_notice">Instantiation Notice:</label>
+            <label for="instantiation_notice">Instantiation Notice:
+                <span data-toggle="tooltip" title="Enter any special instructions or notices for instantiation.">
+            <i class="fa fa-question-circle"></i>
+        </span>
+            </label>
             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control"></textarea>
         </div>
 
@@ -174,7 +190,10 @@
             <div class="col-md-4">
 
 
-            <label for="public">Available for:<span style="color: red;">*</span></label>
+            <label for="public">Available for:<span style="color: red;">*</span>
+                <span data-toggle="tooltip" title="Select whether the app template is available for everyone or only the creator.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
             <select name="public" id="public" class="form-control select-box" required>
                 <option value="True">Everyone</option>
                 <option value="False">Creator only</option>
