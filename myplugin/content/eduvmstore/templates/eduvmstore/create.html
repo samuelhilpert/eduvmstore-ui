@@ -297,7 +297,7 @@
                 <label for="instantiation_attributes">Instantiation Attributes:
                     <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
 For example, you can specify a version or something else that is needed for the script.
-For more than one instansiation attributes separate them with a : like version:script.
+For more than one instantiation attribute separate by using ':' in between. E.g. 'version:script'.
 The values will be written to the file /etc/attributes.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
@@ -307,9 +307,8 @@ The values will be written to the file /etc/attributes.txt.">
             <div class="col-md-4">
                 <label for="account_attributes">Account Attributes:
                     <span data-toggle="tooltip" title="Enter any account-related attributes.
-                    For example, you can specify the account name or something else that is needed
-                    for the script.
-                     For more than one account attributes separate them with a : like name:password.
+                    For example, you can specify the account name, email, password, etc. used in the script.
+                    For more than one account attribute separate by using ':' in between. E.g. 'name:password'.
 The values will be written to the file /etc/users.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
@@ -319,8 +318,8 @@ The values will be written to the file /etc/users.txt.">
 
             <div class="col-md-4">
                 <label for="script_file">Upload Script:
-                    <span data-toggle="tooltip" title="Upload a script file in .yaml, .yml, or .txt format.
-You can also write your script in the modal below.">
+                    <span data-toggle="tooltip"  data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
+You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
@@ -483,8 +482,8 @@ write_files:
         if (!validPattern.test(name)) {
             inputField.classList.remove("is-valid");
             inputField.classList.add("is-invalid");
-            feedback.textContent = "Invalid characters used. Only letters, " +
-                "numbers, '-', '_', and spaces are allowed.";
+            feedback.textContent = "`Invalid input: Only letters (a-z, A-Z), numbers (0-9)," +
+                " underscores (_), hyphens (-), and spaces are allowed.`";
             feedback.style.color = "red";
             submitButton.disabled = true;
             return;

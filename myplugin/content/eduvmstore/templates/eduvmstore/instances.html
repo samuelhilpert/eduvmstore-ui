@@ -557,9 +557,7 @@
                 select.addEventListener("change", () => {
                     const selectedVolumes = Array.from(document.querySelectorAll(".existing-volume-select"))
                         .map(sel => sel.value)
-                        .filter(val => val); // nur gewählte Volumes
-
-                    // Für jede Selectbox...
+                        .filter(val => val);
                     document.querySelectorAll(".existing-volume-select").forEach(select => {
                         const currentValue = select.value;
                         Array.from(select.options).forEach(option => {
