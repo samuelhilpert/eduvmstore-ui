@@ -715,7 +715,7 @@ function selectAutomaticFlavor(instanceId) {
             });
         {% endif %}
 
-   //Add accounts via CSV
+
  // Add accounts via CSV with remove buttons
 document.addEventListener("change", function(event) {
     if (!event.target.classList.contains("csv-upload")) return;
@@ -882,7 +882,6 @@ function updateUserCount(instanceId) {
 }
 
 
-// Add accounts via CSV with remove buttons and undo functionality
 document.addEventListener("change", function(event) {
     if (!event.target.classList.contains("csv-upload")) return;
 
@@ -893,48 +892,64 @@ document.addEventListener("change", function(event) {
     const instanceId = fileInput.getAttribute("data-instance");
     if (!instanceId) return;
 
-    // Create undo button container if it doesn't exist
-    let undoContainer = document.getElementById(`csv_undo_container_${instanceId}`);
-    if (!undoContainer) {
-        undoContainer = document.createElement("div");
-        undoContainer.id = `csv_undo_container_${instanceId}`;
-        undoContainer.className = "mb-3 mt-3";
-        fileInput.parentNode.insertBefore(undoContainer, fileInput.nextSibling);
+    // Get the form group container
+    const formGroup = fileInput.closest('.form-group');
+
+    // Remove existing undo button if it exists
+    const existingUndoBtn = formGroup.querySelector('.undo-csv');
+    if (existingUndoBtn) {
+        existingUndoBtn.remove();
     }
 
-    // Add undo button
-    undoContainer.innerHTML = `
-        <button type="button" class="btn btn-danger btn-sm undo-csv mt-3" data-instance="${instanceId}">
-            {{ _("Undo CSV Upload") }}
-        </button>
-    `;
+    // Create and add red undo button to the right of the file input
+    const undoBtn = document.createElement("button");
+    undoBtn.type = "button";
+    undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
+    undoBtn.dataset.instance = instanceId;
+    undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
+
+    // Style the button container to appear inline
+    undoBtn.style.display = "inline-block";
+    undoBtn.style.verticalAlign = "middle";
+
+    // Add the button right after the file input
+    fileInput.insertAdjacentElement('afterend', undoBtn);
 
     // Add undo button event listener
-    document.querySelector(`.undo-csv[data-instance="${instanceId}"]`).addEventListener("click", function() {
+    undoBtn.addEventListener("click", function() {
         resetCSVUpload(instanceId);
     });
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        // [Previous CSV parsing code remains the same...]
+        const text = e.target.result;
+        const lines = text.trim().split("\n");
+
+        if (lines.length === 0) {
+            alert("CSV file is empty");
+            return;
+        }
+
+        // [Rest of your existing CSV parsing code...]
     };
 
     reader.readAsText(file);
 });
 
-// Function to reset CSV upload and user count
+
+// The resetCSVUpload function remains the same:
 function resetCSVUpload(instanceId) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
     const userCountInput = document.getElementById(`user_count_${instanceId}`);
     const csvInput = document.getElementById(`csvUpload_${instanceId}`);
-    const undoContainer = document.getElementById(`csv_undo_container_${instanceId}`);
+    const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceId}"]`);
 
     // Clear CSV file input
     csvInput.value = "";
 
     // Remove undo button
-    if (undoContainer) {
-        undoContainer.remove();
+    if (undoBtn) {
+        undoBtn.remove();
     }
 
     // Reset user count to 1
