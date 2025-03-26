@@ -245,7 +245,7 @@
         let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
         function generateVolumeDropdown(instanceId) {
-            let html = `<option value="" disabled selected>Bitte Volume wählen</option>`;
+            let html = `<option value="" disabled selected>Select Volume</option>`;
             attachableVolumes.forEach(volume => {
                 html += `<option value="${volume.id}" data-volume-id="${volume.id}">
                     ${volume.name} (${volume.size} GB)
@@ -694,6 +694,26 @@
             };
 
             reader.readAsText(file);
+        });
+
+        document.querySelector("form").addEventListener("submit", function (e) {
+            const volumeSelects = document.querySelectorAll(".use-existing-volume");
+
+            for (let select of volumeSelects) {
+                const instance = select.dataset.instance;
+                const selectedOption = select.value;
+
+                if (selectedOption === "existing") {
+                    const volumeDropdown = document.getElementById(`existing_volume_id_${instance}`);
+                    if (!volumeDropdown || !volumeDropdown.value) {
+                        e.preventDefault();  // Formular nicht abschicken
+                        alert(`Please select a volume for Instance ${instance}.`);
+                        switchToInstance(parseInt(instance));
+                        volumeDropdown.focus();
+                        return;
+                    }
+                }
+            }
         });
 
 
