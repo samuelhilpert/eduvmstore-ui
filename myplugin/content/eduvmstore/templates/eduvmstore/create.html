@@ -200,17 +200,29 @@
                            required>
                 </div>
                 <div class="form-group">
-                    <label for="fixed_disk_gb">Fixed Disk (GB):</label>
+                    <label for="fixed_disk_gb">Fixed Disk (GB):
+                        <span data-toggle="tooltip" title="Enter the amount of fixed Disk in gigabytes. Only numbers and one decimal point are allowed.">
+                            <i class="fa fa-question-circle"></i>
+                      </span>
+                    </label>
                     <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
-                    <label for="fixed_cores">Fixed Cores:</label>
+                    <label for="fixed_cores">Fixed Cores:
+                        <span data-toggle="tooltip" title="Enter the amount of fixed Cores in gigabytes. Only numbers and one decimal point are allowed.">
+                            <i class="fa fa-question-circle"></i>
+                      </span>
+                    </label>
                     <input type="text" id="fixed_cores" name="fixed_cores" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
-                    <label for="volume_size">Volume Size (GB):</label>
+                    <label for="volume_size">Volume Size (GB):
+                        <span data-toggle="tooltip" title="Enter the amount of Volume Size in gigabytes. You will get a extra volume additional to your selected flavor if you start these app template. Only numbers and one decimal point are allowed. Enter 0 or leave empty if not needed. ">
+                            <i class="fa fa-question-circle"></i>
+                      </span>
+                    </label>
                     <input type="text" id="volume_size" name="volume_size" class="form-control"
                            oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>

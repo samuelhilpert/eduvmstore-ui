@@ -876,24 +876,22 @@ class InstancesView(generic.TemplateView):
                             request,
                             size=volume_size,
                             name=volume_name,
-                            description=f"Extra volume for",
-                            volume_type="__DEFAULT__"
+                            description=f"Boot volume for {instance_name}",
+                            volume_type="lvmdriver-1",
+                            image_id=image_id,
                         )
 
-                        # Warten, bis das Volume verfügbar ist
+
                         volume = self.wait_for_volume_available(request, volume.id)
 
 
-
-                        # Block-Device-Mapping erstellen
-                        block_device_mapping_v2.append({
-                            "boot_index": -1,  # -1 bedeutet "zusätzliches Volume"
+                        block_device_mapping_v2 = [{
+                            "boot_index": 0,
                             "uuid": volume.id,
                             "source_type": "volume",
                             "destination_type": "volume",
-                            "delete_on_termination": True,  # Volume bleibt nach Löschung der Instanz bestehen
-                            "device_name": "/dev/vdb",  # Kann angepasst werden
-                        })
+                            "delete_on_termination": True,
+                        }]
 
 
 
