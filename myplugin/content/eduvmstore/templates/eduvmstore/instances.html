@@ -429,8 +429,6 @@
                         </div>
                     </div>
 
-
-
                     <!-- Navigation Buttons -->
                     <div class="d-flex justify-content-between mt-3">
                         ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous Instance") }}</button>` : ""}
@@ -907,8 +905,8 @@ document.addEventListener("change", function(event) {
 
     // Add undo button
     undoContainer.innerHTML = `
-        <button type="button" class="btn btn-warning btn-sm undo-csv" data-instance="${instanceId}">
-            {{ _("Undo CSV Upload") }}
+        <button type="button" class="btn btn-danger btn-sm undo-csv" data-instance="${instanceId}">
+            <i class="fas fa-undo mr-1"></i> {{ _("Undo CSV Upload") }}
         </button>
     `;
 
