@@ -822,6 +822,7 @@ document.addEventListener("change", function(event) {
             accountSection.dataset.accountNumber = index+1;
             accountSection.style.border = "1px solid #ccc";
             accountSection.style.borderRadius = "5px";
+            accountSection.style.padding = "15px";
 
             let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
             accountAttributes.forEach(attr => {
@@ -836,6 +837,7 @@ document.addEventListener("change", function(event) {
                     </div>
                 `;
             });
+
 
             accountSection.innerHTML = fieldsHtml;
             accountsContainer.appendChild(accountSection);
