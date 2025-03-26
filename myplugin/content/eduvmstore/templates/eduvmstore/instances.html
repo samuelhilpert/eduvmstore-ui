@@ -321,21 +321,23 @@
 <div class="form-group">
         <label for="use_existing_volume_${i}">Zusätzlicher Speicher</label>
         <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
-            <option value="new" selected>Neues Volume erstellen</option>
-            <option value="existing">Bestehendes Volume anhängen</option>
+            <option value="new" selected>Create new volume</option>
+            ${hasAttachableVolumes ? `<option value="existing">Attach existing volume</option>` : ""}
         </select>
+         ${!hasAttachableVolumes ? `<small class="form-text text-muted">There are currently no available volumes that can be attached.</small>` : ""}
     </div>
 
 
-
+        {% if hasAttachableVolumes  %}
         <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
-            <label for="existing_volume_id_${i}">Verfügbare Volumes</label>
+            <label for="existing_volume_id_${i}">Available volumes</label>
             <select class="form-control" name="existing_volume_id_${i}" id="existing_volume_id_${i}">
                 {% for volume in attachable_volumes %}
                     <option value="{{ volume.id }}">{{ volume.name }} ({{ volume.size }} GB)</option>
                 {% endfor %}
             </select>
         </div>
+        {% endif %}
 
         {% endif %}
 

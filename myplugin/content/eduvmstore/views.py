@@ -977,6 +977,9 @@ class InstancesView(generic.TemplateView):
         attachable_volumes = [volume for volume in volumes if volume.status == "available"]
         context['attachable_volumes'] = attachable_volumes
 
+        hasAttachableVolumes = len(attachable_volumes) > 0
+        context['hasAttachableVolumes'] = hasAttachableVolumes
+
 
 
         return context
