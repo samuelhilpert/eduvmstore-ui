@@ -231,17 +231,29 @@
             <div class="col-md-6">
                 <h4>Resources per User</h4>
                 <div class="form-group mt-5">
-                    <label for="per_user_ram_gb">Per User RAM (GB):<span style="color: red;">*</span></label>
+                    <label for="per_user_ram_gb">Per User RAM (GB):<span style="color: red;">*</span>
+                        <span data-toggle="tooltip" title="Enter the amount of RAM per user in gigabytes. Only numbers and one decimal point are allowed.">
+            <i class="fa fa-question-circle"></i>
+        </span>
+                    </label>
                     <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_disk_gb">Per User Disk (GB):<span style="color: red;">*</span></label>
+                    <label for="per_user_disk_gb">Per User Disk (GB):<span style="color: red;">*</span>
+                        <span data-toggle="tooltip" title="Enter the amount of disk space per user in gigabytes. Only numbers and one decimal point are allowed.">
+            <i class="fa fa-question-circle"></i>
+        </span>
+                    </label>
                     <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_cores">Per User Cores:<span style="color: red;">*</span></label>
+                    <label for="per_user_cores">Per User Cores:<span style="color: red;">*</span>
+                        <span data-toggle="tooltip" title="Enter the number of CPU cores per user. Only numbers and one decimal point are allowed.">
+            <i class="fa fa-question-circle"></i>
+        </span>
+                    </label>
                     <input type="text" id="per_user_cores" name="per_user_cores" class="form-control" required
                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                 </div>
@@ -255,7 +267,7 @@
                     <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
 For example, you can specify a version or something else that is needed for the script.
 For more than one instansiation attributes separate them with a : like version:script.
-The values will be written to the files /etc/attributes.txt.">
+The values will be written to the file /etc/attributes.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
@@ -266,7 +278,7 @@ The values will be written to the files /etc/attributes.txt.">
                     <span data-toggle="tooltip" title="Enter any account-related attributes.
                     For example, you can specify the account name or something else that is needed for the script.
                      For more than one account attributes separate them with a : like name:password.
-The values will be written to the files /etc/users.txt.">
+The values will be written to the file /etc/users.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
