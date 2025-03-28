@@ -427,8 +427,6 @@
     </div>
   {% endif %}
 
-        {% endif %}
-
 
         {% if hasAttachableVolumes  %}
        <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
@@ -437,6 +435,7 @@
         ${generateVolumeDropdown(i)}
     </select>
 </div>
+   {% endif %}
 
 
 </div>
