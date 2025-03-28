@@ -1,7 +1,10 @@
+
+{% with app_templates=app_templates, is_favorites=is_favorites %}
+
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>App Template Name</th>
+            <th>AppTemplate Name</th>
             <th>Short Description</th>
             <th>Size (MB)</th>
             <th>Available for</th>
@@ -10,17 +13,17 @@
         </tr>
     </thead>
     <tbody>
-        {% for template in app_templates %}
-        <tr>
+        {% for app_template in app_templates %}
+        <tr {% if is_favorites %}class="favorite-app-template"{% endif %}>
                 <td>
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
-                        {{ template.name }}
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template.id %}" class="template-link">
+                        {{ app_template.name }}
                     </a>
                 </td>
-            <td>{{ template.short_description }}</td>
-            <td>{{ template.size }} </td>
+            <td>{{ app_template.short_description }}</td>
+            <td>{{ app_template.size }} </td>
            <td>
-                {% if template.public %}
+                {% if app_template.public %}
                     Everyone
                 {% else %}
                     Creator only
@@ -28,7 +31,7 @@
             </td>
               <td>
     <div class="btn-group">
-                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
+                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
             Launch
         </a>
 
@@ -38,25 +41,25 @@
 
         <ul class="dropdown-menu dropdown-menu-right">
     <li>
-        <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">
-            Edit App-Template
+        <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
+            Edit AppTemplate
         </a>
     </li>
     <li role="separator" class="divider"></li>
     <li>
         <a class="dropdown-item text-danger" href="#"
                                    onclick="event.preventDefault();
-                                            if (confirm('Are you sure you want to delete this App-Template?')) {
-                                                document.getElementById('delete-form-{{ template.id }}').submit();
+                                            if (confirm('Are you sure you want to delete this AppTemplate?')) {
+                                                document.getElementById('delete-form-{{ app_template.id }}').submit();
                                             }">
-                                    Delete App-Template
+                                    Delete AppTemplate
                                 </a>
 
-        <form id="delete-form-{{ template.id }}" method="post"
-              action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' template.id %}"
+        <form id="delete-form-{{ app_template.id }}" method="post"
+              action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
               style="display: none;">
             {% csrf_token %}
-            <input type="hidden" name="template_name" value="{{ template.name }}">
+            <input type="hidden" name="template_name" value="{{ app_template.name }}">
         </form>
     </li>
 </ul>
@@ -64,12 +67,12 @@
     </div>
               </td>
                   <td>
-                      <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
+                      <form method="post" action="{% if is_favorites %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_favorite_template' %}{% else %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}{% endif %}" class="favorite-form">
                           {% csrf_token %}
-                          <input type="hidden" name="template_id" value="{{ template.id }}">
-                          <input type="hidden" name="template_name" value="{{ template.name }}">
+                          <input type="hidden" name="template_id" value="{{ app_template.id }}">
+                          <input type="hidden" name="template_name" value="{{ app_template.name }}">
                           <button type="submit" class="favorite-btn">
-                              <i class="fa fa-star {% for fav_template in favorite_app_templates %}{% if fav_template.id == template.id %}temporary-favorite{% endif %}{% endfor %}"></i>
+                              <i class="fa fa-star {% for fav_app_template in favorite_app_templates %}{% if fav_app_template.id == app_template.id %}temporary-favorite{% endif %}{% endfor %}"></i>
                           </button>
                       </form>
                   </td>
