@@ -1022,7 +1022,6 @@ class InstancesView(generic.TemplateView):
         :rtype: dict
         """
         try:
-            # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
             if not flavors:
                 logging.error("No flavors returned from Nova API.")
@@ -1031,7 +1030,6 @@ class InstancesView(generic.TemplateView):
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
 
-            # Store suitable flavors
             suitable_flavors = {}
 
             for flavor_id, flavor in flavor_dict.items():
@@ -1042,12 +1040,10 @@ class InstancesView(generic.TemplateView):
                         'cores': flavor.vcpus
                     }
 
-            # Check if at least one suitable flavor is found
             if not suitable_flavors:
                 logging.warning("No suitable flavors found for the given requirements.")
 
 
-            # Return flavor information
             result = {
                 'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
                   'suitable_flavors': suitable_flavors
