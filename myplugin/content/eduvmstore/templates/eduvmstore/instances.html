@@ -514,7 +514,7 @@
             attachVolumeChangeHandlers();
 
          for (let i = 1; i <= numInstances; i++) {
-        selectAutomaticFlavor(i); // Call the function to update RAM, Disk, and Cores
+        selectAutomaticFlavor(i);
     }
     }
 
@@ -623,7 +623,7 @@
         removeBtn.innerHTML = "Remove";
         removeBtn.onclick = function() {
             accountSection.remove();
-            renumberAccounts(instanceId); // Using shared function
+            renumberAccounts(instanceId);
             updateUserCount(instanceId);
             selectAutomaticFlavor(instanceId);
         };
@@ -644,7 +644,6 @@
     }
 }
 
-// Function to renumber accounts after removal
 function renumberAccounts(instanceId) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
     if (!accountsContainer) return;
@@ -653,17 +652,13 @@ function renumberAccounts(instanceId) {
     accountSections.forEach((section, index) => {
         const newNumber = index + 1;
 
-        // Update data attribute
         section.dataset.accountNumber = newNumber;
 
-        // Update ID
         section.id = `account_${instanceId}_${newNumber}`;
 
-        // Update title
         const title = section.querySelector('.account-title');
         if (title) title.textContent = `Account ${newNumber}`;
 
-        // Update all input fields' IDs and names
         accountAttributes.forEach(attr => {
             const input = section.querySelector(`input[id$="${attr}_${instanceId}_${index+1}"]`);
             if (input) {
@@ -687,7 +682,7 @@ function renumberAccounts(instanceId) {
         return fieldsHtmlInstance;
     }
 
-    //Flavor Auto Selection
+
 function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
@@ -695,7 +690,6 @@ function selectAutomaticFlavor(instanceId) {
     const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
     const userCountInput = document.getElementById(`user_count_${instanceId}`);
 
-    // Get fixed resource requirements from the template
     const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
     const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
     const requiredCores = parseInt("{{ app_template.fixed_cores }}");
@@ -704,7 +698,6 @@ function selectAutomaticFlavor(instanceId) {
     let totalDisk = requiredDisk;
     let totalCores = requiredCores;
 
-    // Add per-user resources if the checkbox is unchecked
     if (!noAdditionalUsersCheckbox.checked) {
         const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
         const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
@@ -716,25 +709,22 @@ function selectAutomaticFlavor(instanceId) {
         totalCores += userCount * perUserCores;
     }
 
-    // **Update the displayed resource values**
     document.getElementById(`total_ram_${instanceId}`).textContent = totalRAM.toFixed(2);
     document.getElementById(`total_disk_${instanceId}`).textContent = totalDisk.toFixed(2);
     document.getElementById(`total_cores_${instanceId}`).textContent = totalCores;
 
     let selectedFlavor = null;
 
-    // Find the smallest suitable flavor
   Array.from(flavorDropdown.options).forEach(option => {
     if (option.value) {
         const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
-        const flavorRAM = flavorDetails.ram / 1024; // Convert MB to GB
-        const flavorDisk = flavorDetails.disk; // Already in GB
-        const flavorCores = flavorDetails.vcpus; // CPU cores
+        const flavorRAM = flavorDetails.ram / 1024;
+        const flavorDisk = flavorDetails.disk;
+        const flavorCores = flavorDetails.vcpus;
 
-        // **Reset option text before modifying it**
-        option.textContent = flavorDetails.name;  // Reset to original name
 
-        // Check if flavor meets the total requirements
+        option.textContent = flavorDetails.name;
+
         if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
             if (!selectedFlavor ||
                 (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
@@ -820,7 +810,7 @@ function selectAutomaticFlavor(instanceId) {
         {% endif %}
 
 
- // Add accounts via CSV with remove buttons
+
 document.addEventListener("change", function(event) {
     if (!event.target.classList.contains("csv-upload")) return;
 
@@ -840,7 +830,7 @@ document.addEventListener("change", function(event) {
             return;
         }
 
-        // Parse CSV with proper handling of quoted values
+
         function parseCSVLine(line) {
             const result = [];
             let inQuotes = false;
@@ -851,7 +841,7 @@ document.addEventListener("change", function(event) {
 
                 if (char === '"') {
                     if (inQuotes && line[i+1] === '"') {
-                        // Escaped quote
+
                         currentField += '"';
                         i++;
                     } else {
@@ -869,10 +859,9 @@ document.addEventListener("change", function(event) {
             return result;
         }
 
-        // Parse header row
+
         const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
-        // Validate headers match account attributes (case insensitive)
         const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
         const isValidCSV = lowerAccountAttrs.every(attr =>
             headers.includes(attr)
@@ -883,12 +872,10 @@ document.addEventListener("change", function(event) {
             return;
         }
 
-        // Create mapping from CSV columns to account fields
         const fieldMapping = accountAttributes.map(attr =>
             headers.indexOf(attr.toLowerCase())
         );
 
-        // Process data rows
         const accountsData = [];
         for (let i = 1; i < lines.length; i++) {
             if (lines[i].trim() === "") continue;
@@ -911,22 +898,18 @@ document.addEventListener("change", function(event) {
             return;
         }
 
-        // Update UI
         const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
         const userCountInput = document.getElementById(`user_count_${instanceId}`);
         const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
 
-        // Uncheck "no additional users" if checked
         if (noAdditionalUsersCheckbox.checked) {
             noAdditionalUsersCheckbox.checked = false;
             document.getElementById(`accounts_section_${instanceId}`).style.display = "block";
             document.getElementById(`user_count_section_${instanceId}`).style.display = "block";
         }
 
-        // Clear existing accounts
         accountsContainer.innerHTML = "";
 
-        // Create account fields for each CSV row
           accountsData.forEach((account, index) => {
             const accountSection = document.createElement("div");
             accountSection.className = "card p-3 mb-3 position-relative";
@@ -936,7 +919,6 @@ document.addEventListener("change", function(event) {
             accountSection.style.borderRadius = "5px";
             accountSection.style.padding = "15px";
 
-            // Add remove button using shared renumbering function
             const removeBtn = document.createElement("button");
             removeBtn.className = "btn btn-danger btn-sm position-absolute";
             removeBtn.style.top = "5px";
@@ -944,7 +926,7 @@ document.addEventListener("change", function(event) {
             removeBtn.innerHTML = "Remove";
             removeBtn.onclick = function() {
                 accountSection.remove();
-                renumberAccounts(instanceId); // Using shared function
+                renumberAccounts(instanceId);
                 updateUserCount(instanceId);
                 selectAutomaticFlavor(instanceId);
             };
@@ -969,7 +951,6 @@ document.addEventListener("change", function(event) {
             accountsContainer.appendChild(accountSection);
         });
 
-        // Update user count and flavor requirements
         updateUserCount(instanceId);
         selectAutomaticFlavor(instanceId);
     };
@@ -977,7 +958,6 @@ document.addEventListener("change", function(event) {
     reader.readAsText(file);
 });
 
-// Function to update the user count based on visible accounts
 function updateUserCount(instanceId) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
     const userCountInput = document.getElementById(`user_count_${instanceId}`);
@@ -987,7 +967,7 @@ function updateUserCount(instanceId) {
     }
 }
 
-//Undo CSV Selection
+
 document.addEventListener("change", function(event) {
     if (!event.target.classList.contains("csv-upload")) return;
 
@@ -998,30 +978,24 @@ document.addEventListener("change", function(event) {
     const instanceId = fileInput.getAttribute("data-instance");
     if (!instanceId) return;
 
-    // Get the form group container
     const formGroup = fileInput.closest('.form-group');
 
-    // Remove existing undo button if it exists
     const existingUndoBtn = formGroup.querySelector('.undo-csv');
     if (existingUndoBtn) {
         existingUndoBtn.remove();
     }
 
-    // Create and add red undo button to the right of the file input
     const undoBtn = document.createElement("button");
     undoBtn.type = "button";
     undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
     undoBtn.dataset.instance = instanceId;
     undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
 
-    // Style the button container to appear inline
     undoBtn.style.display = "inline-block";
     undoBtn.style.verticalAlign = "middle";
 
-    // Add the button right after the file input
     fileInput.insertAdjacentElement('afterend', undoBtn);
 
-    // Add undo button event listener
     undoBtn.addEventListener("click", function() {
         resetCSVUpload(instanceId);
     });
@@ -1041,34 +1015,26 @@ document.addEventListener("change", function(event) {
     reader.readAsText(file);
 });
 
-
-// The resetCSVUpload function remains the same:
 function resetCSVUpload(instanceId) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
     const userCountInput = document.getElementById(`user_count_${instanceId}`);
     const csvInput = document.getElementById(`csvUpload_${instanceId}`);
     const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceId}"]`);
 
-    // Clear CSV file input
     csvInput.value = "";
 
-    // Remove undo button
     if (undoBtn) {
         undoBtn.remove();
     }
 
-    // Reset user count to 1
     userCountInput.value = 1;
 
-    // Clear accounts container and generate default single account
     accountsContainer.innerHTML = "";
     generateMultipleAccountFields(instanceId, 1);
 
-    // Update flavor requirements
     selectAutomaticFlavor(instanceId);
 }
 
-//Volumes
         function attachVolumeChangeHandlers() {
             document.querySelectorAll(".existing-volume-select").forEach(select => {
                 select.addEventListener("change", () => {
