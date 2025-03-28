@@ -1052,7 +1052,6 @@ class InstancesView(generic.TemplateView):
         :rtype: dict
         """
         try:
-            # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
             if not flavors:
                 logging.error("No flavors returned from Nova API.")
@@ -1061,40 +1060,23 @@ class InstancesView(generic.TemplateView):
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
 
-            # Extract system requirements from app_template
-            required_ram_gb = app_template.get('fixed_ram_gb')
-            required_disk_gb = app_template.get('fixed_disk_gb')
-            required_cores = app_template.get('fixed_cores')
-
-            # Convert required RAM to MB (as Nova uses MB)
-            required_ram_mb = required_ram_gb * 1024
-
-            # Store suitable flavors
             suitable_flavors = {}
 
             for flavor_id, flavor in flavor_dict.items():
-                if (
-                        flavor.ram >= required_ram_mb and
-                        flavor.disk >= required_disk_gb and
-                        flavor.vcpus >= required_cores
-                ):
-                    suitable_flavors[flavor_id] = flavor.name
+                    suitable_flavors[flavor_id] = {
+                        'name': flavor.name,
+                        'ram': flavor.ram,
+                        'disk': flavor.disk,
+                        'cores': flavor.vcpus
+                    }
 
-            # Check if at least one suitable flavor is found
             if not suitable_flavors:
                 logging.warning("No suitable flavors found for the given requirements.")
 
-            # Automatically select the first suitable flavor if exists
-            selected_flavor = next(iter(suitable_flavors.keys()), None)
 
-            # Return flavor information
             result = {
                 'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
-                'suitable_flavors': suitable_flavors,
-                'selected_flavor': selected_flavor,
-                'required_ram': required_ram_gb,
-                'required_disk': required_disk_gb,
-                'required_cores': required_cores,
+                  'suitable_flavors': suitable_flavors
             }
 
             logging.info(f"Returning flavor data: {result}")
@@ -1103,6 +1085,8 @@ class InstancesView(generic.TemplateView):
         except Exception as e:
             logging.error(f"An error occurred while fetching flavors: {e}")
             return {}
+
+
 
     def get_expected_fields(self):
         """
