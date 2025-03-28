@@ -259,6 +259,17 @@ write_files:
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
+    let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
+
+    document.getElementById("structured-accounts").textContent =
+        accountAttributes.length ? accountAttributes.map(acc => acc.name).join(": ") : "No account attributes available.";
+
+    document.getElementById("structured-instantiation").textContent =
+        instantiationAttributes.length ? instantiationAttributes.map(attr => attr.name).join(": ") : "No instantiation attributes available.";
+});
+
         let accountAttributes = {{ app_template.account_attributes|safe }};
         let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
         document.getElementById("formatted-accounts").textContent = formattedAccounts;
