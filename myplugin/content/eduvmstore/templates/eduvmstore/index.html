@@ -11,7 +11,7 @@
             </h1>
         </div>
         <div>
-            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
         </div>
     </div>
 {% endblock %}
@@ -33,7 +33,24 @@
             });
         });
         document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".delete-btn").forEach(button => {
+            const searchInput = document.getElementById("search");
+            const tableContainer = document.getElementById("table-container");
+
+            searchInput.addEventListener("input", function () {
+                const query = searchInput.value;
+
+                fetch("{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}?search="
+                    + encodeURIComponent(query), {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(response => response.text())
+                .then(data => {
+                    tableContainer.innerHTML = data;
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+            });
+
+            document.querySelectorAll(".delete-btn").forEach(button => {
         button.addEventListener("click", function (event) {
             event.preventDefault();
 
@@ -179,169 +196,16 @@
 </div>
 {% if favorite_app_templates %}
     <h2>Favorite App-Templates</h2>
-
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>App Template Name</th>
-            <th>Short Description</th>
-            <th>Size (MB)</th>
-            <th>Visibility</th>
-            <th>Action</th>
-            <th>Favorite</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for favorite_template in favorite_app_templates %}
-            <tr class="favorite-app-template">
-                <td>
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' favorite_template.id %}" class="template-link">
-                        {{ favorite_template.name }}
-                    </a>
-                </td>
-                <td>{{ favorite_template.short_description }}</td>
-                <td>{{ favorite_template.size }} </td>
-                <td>
-                    {% if favorite_template.public %}
-                        Public
-                    {% else %}
-                        Private
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' favorite_template.id %}" class="btn btn-launch">
-                            Launch
-                        </a>
-
-                        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="caret"></span>
-                        </button>
-
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li>
-                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' favorite_template.id %}">
-                                    Edit App-Template
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="#"
-                                   onclick="event.preventDefault();
-                                            if (confirm('Are you sure you want to delete this App-Template?')) {
-                                                document.getElementById('delete-form-{{ favorite_template.id }}').submit();
-                                            }">
-                                    Delete App-Template
-                                </a>
-
-                                <form id="delete-form-{{ favorite_template.id }}" method="post"
-                                      action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' favorite_template.id %}"
-                                      style="display: none;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
-                                </form>
-                            </li>
-                        </ul>
-
-                    </div>
-                </td>
-                <td>
-                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_favorite_template' %}" class="favorite-form">
-                        {% csrf_token %}
-                        <input type="hidden" name="template_id" value="{{ favorite_template.id }}">
-                        <input type="hidden" name="template_name" value="{{ favorite_template.name }}">
-                        <button type="submit" class="favorite-btn">
-                            <i class="fa fa-star"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=favorite_app_templates is_favorites=True %}
 {% endif %}
     <h2>All App-Templates</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>App Template Name</th>
-            <th>Short Description</th>
-            <th>Size (MB)</th>
-            <th>Available for</th>
-            <th>Launch</th>
-            <th>Favorite</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for template in app_templates %}
-        <tr>
-                <td>
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' template.id %}" class="template-link">
-                        {{ template.name }}
-                    </a>
-                </td>
-            <td>{{ template.short_description }}</td>
-            <td>{{ template.size }} </td>
-           <td>
-                {% if template.public %}
-                    Everyone
-                {% else %}
-                    Creator only
-                {% endif %}
-            </td>
-              <td>
-    <div class="btn-group">
-                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' template.id %}" class="btn btn-launch">
-            Launch
-        </a>
+<form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}">
+    <input type="text" id="search" name="search" class="form-control"
+           placeholder="Search app templates" value="{{ request.GET.search }}">
+</form>
 
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-right">
-    <li>
-        <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' template.id %}">
-            Edit App-Template
-        </a>
-    </li>
-    <li role="separator" class="divider"></li>
-    <li>
-        <a class="dropdown-item text-danger" href="#"
-                                   onclick="event.preventDefault();
-                                            if (confirm('Are you sure you want to delete this App-Template?')) {
-                                                document.getElementById('delete-form-{{ template.id }}').submit();
-                                            }">
-                                    Delete App-Template
-                                </a>
-
-        <form id="delete-form-{{ template.id }}" method="post"
-              action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' template.id %}"
-              style="display: none;">
-            {% csrf_token %}
-            <input type="hidden" name="template_name" value="{{ template.name }}">
-        </form>
-    </li>
-</ul>
-
-    </div>
-              </td>
-                  <td>
-                      <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}" class="favorite-form">
-                          {% csrf_token %}
-                          <input type="hidden" name="template_id" value="{{ template.id }}">
-                          <input type="hidden" name="template_name" value="{{ template.name }}">
-                          <button type="submit" class="favorite-btn">
-                              <i class="fa fa-star {% for fav_template in favorite_app_templates %}{% if fav_template.id == template.id %}temporary-favorite{% endif %}{% endfor %}"></i>
-                          </button>
-                      </form>
-                  </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-
-
+<div id="table-container">
+    {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=app_templates is_favorites=False%}
+</div>
   {% endblock %}

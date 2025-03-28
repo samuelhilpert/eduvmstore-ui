@@ -35,7 +35,6 @@ import re
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-
 def get_host_ip():
     """
         Retrieve the host's IP address by connecting to an external server.
@@ -52,7 +51,6 @@ def get_host_ip():
     finally:
         s.close()
     return ip
-
 
 def get_token_id(request):
     """
@@ -97,6 +95,34 @@ def fetch_app_templates(request):
         logging.error("Failed to fetch app templates: %s", e)
         return []
 
+def search_app_templates(request) -> list:
+    """
+    Search for app templates via the backend API using a provided token ID.
+
+    This function retrieves the token ID from the request, constructs the headers,
+    and makes a GET request to the EduVMStore Backend API to search for app templates.
+    If the request is successful, it returns the JSON response of AppTemplates.
+    In case of an error, it logs the error and returns an empty list.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :rtype: list
+    """
+
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    search = request.GET.get('search', '')
+
+    try:
+        response = requests.get(f"{API_ENDPOINTS['app_templates']}?search={search}",
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to search app templates: %s", e)
+        return []
 
 def fetch_favorite_app_templates(request):
     """
@@ -168,7 +194,6 @@ def validate_name(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
 class IndexView(generic.TemplateView):
     """
         Display the main index page with available app templates and associated image data.
@@ -196,7 +221,7 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-        Add app templates, favorite app templates, and associated image data to the context.
+        Add AppTemplates, favorite AppTemplates, and associated image data to the context.
 
         This method fetches app templates and favorite app templates from the external API,
         retrieves image data from the Glance API, and adds this information to the context
@@ -208,20 +233,20 @@ class IndexView(generic.TemplateView):
         """
         context = super().get_context_data(**kwargs)
 
-        app_templates = fetch_app_templates(self.request)
+        app_templates = search_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
 
         glance_images = self.get_images_data()
 
-        for template in app_templates:
-            image_id = template.get('image_id')
+        for app_template in app_templates:
+            image_id = app_template.get('image_id')
             glance_image = glance_images.get(image_id)
             if glance_image:
-                template['size'] = round(glance_image.size / (1024 * 1024), 2)
-                template['visibility'] = glance_image.visibility
+                app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
+                app_template['visibility'] = glance_image.visibility
             else:
-                template['size'] = _('Unknown')
-                template['visibility'] = _('Unknown')
+                app_template['size'] = _('Unknown')
+                app_template['visibility'] = _('Unknown')
 
         for favorite_app_template in favorite_app_templates:
             image_id = favorite_app_template.get('image_id')
@@ -242,6 +267,14 @@ class IndexView(generic.TemplateView):
 
         return context
 
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        # If the request is AJAX, return only the table partial
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return render(request, "eduvmstore_dashboard/eduvmstore/table.html", context)
+
+        return super().get(request, *args, **kwargs)
 
 class DetailsPageView(generic.TemplateView):
     """
@@ -379,7 +412,6 @@ class CreateView(generic.TemplateView):
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
                 messages.success(request, f"App Template created successfully.")
-
             else:
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
@@ -744,8 +776,6 @@ class InstancesView(generic.TemplateView):
         return render(request, self.template_name, context)
 
 
-
-
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create multiple instances.
@@ -976,7 +1006,7 @@ class InstancesView(generic.TemplateView):
         # Fetch available flavors from Nova
         context['flavors'] = self.get_flavors(app_template)
 
-        # Context for the selected App-Template --> Display system infos
+        # Context for the selected AppTemplate --> Display system infos
         context['app_template'] = app_template
 
         # Fetch available networks
@@ -1174,7 +1204,7 @@ class InstancesView(generic.TemplateView):
             logging.error(f"Unable to fetch networks: {e}")
             return {}
 
-    # Get App Template Details to display while launching an instance
+    # Get AppTemplate Details to display while launching an instance
     def get_app_template(self):
         """
             Fetch a specific app template from the external database using token authentication.
@@ -1306,7 +1336,6 @@ class InstanceSuccessView(generic.TemplateView):
 
         return response
 
-
 class GetFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
@@ -1355,7 +1384,6 @@ class GetFavoriteAppTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
 
 class DeleteFavoriteAppTemplateView(generic.View):
 
