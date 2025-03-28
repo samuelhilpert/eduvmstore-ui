@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
-from openstack_dashboard.api import glance, nova
+from openstack_dashboard.api import glance, nova, cinder
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -24,6 +24,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 import io
 import zipfile
 from io import BytesIO
+import time
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
@@ -33,7 +34,6 @@ import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-
 
 def get_host_ip():
     """
@@ -51,7 +51,6 @@ def get_host_ip():
     finally:
         s.close()
     return ip
-
 
 def get_token_id(request):
     """
@@ -96,6 +95,34 @@ def fetch_app_templates(request):
         logging.error("Failed to fetch app templates: %s", e)
         return []
 
+def search_app_templates(request) -> list:
+    """
+    Search for app templates via the backend API using a provided token ID.
+
+    This function retrieves the token ID from the request, constructs the headers,
+    and makes a GET request to the EduVMStore Backend API to search for app templates.
+    If the request is successful, it returns the JSON response of AppTemplates.
+    In case of an error, it logs the error and returns an empty list.
+
+    :param request: The incoming HTTP request.
+    :type request: HttpRequest
+    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :rtype: list
+    """
+
+    token_id = get_token_id(request)
+    headers = {"X-Auth-Token": token_id}
+
+    search = request.GET.get('search', '')
+
+    try:
+        response = requests.get(f"{API_ENDPOINTS['app_templates']}?search={search}",
+                                headers=headers, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logging.error("Failed to search app templates: %s", e)
+        return []
 
 def fetch_favorite_app_templates(request):
     """
@@ -127,10 +154,12 @@ def fetch_favorite_app_templates(request):
 
 def validate_name(request):
     """
-    Validate the uniqueness of a name by checking for collisions via an external API.
+    Validate the uniqueness of a name by checking for a collision via the EduVMStore
+    Backend API
 
-    This function handles POST requests to validate a name by sending it to an external API
-    and checking for any name collisions. It uses the token ID from the request for authentication.
+    This function handles POST requests to validate a name by sending it to the
+    EduVMStore Backend API and checking for any name collision.
+    It uses the token ID from the request for authentication.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
@@ -149,21 +178,21 @@ def validate_name(request):
             headers = {"X-Auth-Token": token_id}
 
             # API-Calls to Backend
-            url = f"{API_ENDPOINTS['check_name']}{name}/collisions"
+            url = f"{API_ENDPOINTS['check_name']}{name}/collision"
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
 
             # Process Response
             data = response.json()
-            is_valid = not data.get('collisions', True)
+            is_valid = not data.get('collision', True)
 
         except (requests.RequestException, ValueError, json.JSONDecodeError):
             is_valid = False
 
-        return JsonResponse({'valid': is_valid})
+        return JsonResponse({'valid': is_valid, 'reason': data.get('reason', 'Name already taken')})
+
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
-
 
 class IndexView(generic.TemplateView):
     """
@@ -192,7 +221,7 @@ class IndexView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-        Add app templates, favorite app templates, and associated image data to the context.
+        Add AppTemplates, favorite AppTemplates, and associated image data to the context.
 
         This method fetches app templates and favorite app templates from the external API,
         retrieves image data from the Glance API, and adds this information to the context
@@ -204,20 +233,20 @@ class IndexView(generic.TemplateView):
         """
         context = super().get_context_data(**kwargs)
 
-        app_templates = fetch_app_templates(self.request)
+        app_templates = search_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
 
         glance_images = self.get_images_data()
 
-        for template in app_templates:
-            image_id = template.get('image_id')
+        for app_template in app_templates:
+            image_id = app_template.get('image_id')
             glance_image = glance_images.get(image_id)
             if glance_image:
-                template['size'] = round(glance_image.size / (1024 * 1024), 2)
-                template['visibility'] = glance_image.visibility
+                app_template['size'] = round(glance_image.size / (1024 * 1024), 2)
+                app_template['visibility'] = glance_image.visibility
             else:
-                template['size'] = _('Unknown')
-                template['visibility'] = _('Unknown')
+                app_template['size'] = _('Unknown')
+                app_template['visibility'] = _('Unknown')
 
         for favorite_app_template in favorite_app_templates:
             image_id = favorite_app_template.get('image_id')
@@ -238,6 +267,14 @@ class IndexView(generic.TemplateView):
 
         return context
 
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        # If the request is AJAX, return only the table partial
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return render(request, "eduvmstore_dashboard/eduvmstore/table.html", context)
+
+        return super().get(request, *args, **kwargs)
 
 class DetailsPageView(generic.TemplateView):
     """
@@ -358,6 +395,7 @@ class CreateView(generic.TemplateView):
             'account_attributes': account_attributes,
             'public': request.POST.get('public'),
             'version': request.POST.get('version'),
+            'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
@@ -378,7 +416,6 @@ class CreateView(generic.TemplateView):
             if response.status_code == 201:
                 modal_message = _("App-Template created successfully.")
                 messages.success(request, f"App Template created successfully.")
-
             else:
                 modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
@@ -490,6 +527,7 @@ class EditView(generic.TemplateView):
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
+            'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
@@ -741,6 +779,7 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
+
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create multiple instances.
@@ -767,6 +806,7 @@ class InstancesView(generic.TemplateView):
             app_template_name = app_template.get('name')
             app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
+            volume_size = int(app_template.get('volume_size_gb') or 0)
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
@@ -797,6 +837,8 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
+                use_existing = request.POST.get(f"use_existing_volume_{i}") == "existing"
+                existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
                 accounts = []
                 instantiations = []
 
@@ -853,7 +895,7 @@ class InstancesView(generic.TemplateView):
                     current_part = ""
                     for kv_pair in [f"{key}: {value}" for key, value in instantiation.items()]:
 
-                        if len(current_part) + len(kv_pair) + 2 > 255:  # limit for metadata length
+                        if len(current_part) + len(kv_pair) + 2 > 255:
                             parts.append(current_part.rstrip(", "))
                             current_part = ""
                         current_part += kv_pair + ", "
@@ -863,6 +905,40 @@ class InstancesView(generic.TemplateView):
                     for part_index, part_content in enumerate(parts):
                         key = f"Instantiation_{index+1}_Part{part_index+1}"
                         metadata[key] = part_content
+
+                block_device_mapping_v2 = []
+                if volume_size > 0:
+                    if use_existing and existing_volume_id:
+                        block_device_mapping_v2.append({
+                            "boot_index": -1,
+                            "uuid": existing_volume_id,
+                            "source_type": "volume",
+                            "destination_type": "volume",
+                            "delete_on_termination": False,
+                            "device_name": "/dev/vdb",
+                        })
+                        logging.info(f"Hänge vorhandenes Volume {existing_volume_id} an {instance_name}")
+                    else:
+                        volume_name = f"{instance_name}-volume"
+                        volume = cinder.volume_create(
+                            request,
+                            size=volume_size,
+                            name=volume_name,
+                            description=f"Extra volume for {instance_name}",
+                            volume_type="__DEFAULT__"
+                        )
+                        volume = self.wait_for_volume_available(request, volume.id)
+
+                        block_device_mapping_v2.append({
+                            "boot_index": -1,
+                            "uuid": volume.id,
+                            "source_type": "volume",
+                            "destination_type": "volume",
+                            "delete_on_termination": True,
+                            "device_name": "/dev/vdb",
+                        })
+
+
 
 
 
@@ -877,6 +953,7 @@ class InstancesView(generic.TemplateView):
                     nics=nics,
                     meta=metadata,
                     description=description,
+                    block_device_mapping_v2=block_device_mapping_v2,
                 )
                 instances.append(instance_name)
 
@@ -888,6 +965,35 @@ class InstancesView(generic.TemplateView):
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
+
+    def wait_for_volume_available(self, request, volume_id, timeout=60):
+        """
+        Wait for a volume to become available within a specified timeout period.
+
+        This function repeatedly checks the status of a volume until it becomes available
+        or an error occurs. If the volume does not become available within the timeout period,
+        a TimeoutError is raised.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param volume_id: The ID of the volume to check.
+        :type volume_id: str
+        :param timeout: The maximum time to wait for the volume to become available, in seconds.
+        :type timeout: int
+        :return: The volume object if it becomes available.
+        :rtype: Volume
+        :raises TimeoutError: If the volume does not become available within the timeout period.
+        :raises Exception: If the volume status is 'error'.
+        """
+        for i in range(timeout):
+            volume = cinder.volume_get(request, volume_id)
+            if volume.status == "available":
+                return volume
+            elif volume.status == "error":
+                raise Exception(f"Volume {volume_id} failed to build.")
+            time.sleep(1)
+        raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
 
     def get_context_data(self, **kwargs):
         """
@@ -904,7 +1010,7 @@ class InstancesView(generic.TemplateView):
         # Fetch available flavors from Nova
         context['flavors'] = self.get_flavors(app_template)
 
-        # Context for the selected App-Template --> Display system infos
+        # Context for the selected AppTemplate --> Display system infos
         context['app_template'] = app_template
 
         # Fetch available networks
@@ -916,6 +1022,17 @@ class InstancesView(generic.TemplateView):
         context['expected_account_fields'] = self.get_expected_fields()
 
         context['expected_instantiation_fields'] = self.get_expected_fields_instantiation()
+
+        context['volume_size'] =  int(app_template.get('volume_size_gb') or 0)
+
+        volumes = cinder.volume_list(self.request)
+        attachable_volumes = [volume for volume in volumes if volume.status == "available"]
+        context['attachable_volumes'] = attachable_volumes
+
+        has_attachable_volumes = len(attachable_volumes) > 0
+        context['hasAttachableVolumes'] = has_attachable_volumes
+
+
 
         return context
 
@@ -939,7 +1056,6 @@ class InstancesView(generic.TemplateView):
         :rtype: dict
         """
         try:
-            # Fetch all available flavors from Nova
             flavors = api.nova.flavor_list(self.request)
             if not flavors:
                 logging.error("No flavors returned from Nova API.")
@@ -948,40 +1064,23 @@ class InstancesView(generic.TemplateView):
             flavor_dict = {str(flavor.id): flavor for flavor in flavors}
             logging.info(f"Found {len(flavors)} flavors.")
 
-            # Extract system requirements from app_template
-            required_ram_gb = app_template.get('fixed_ram_gb')
-            required_disk_gb = app_template.get('fixed_disk_gb')
-            required_cores = app_template.get('fixed_cores')
-
-            # Convert required RAM to MB (as Nova uses MB)
-            required_ram_mb = required_ram_gb * 1024
-
-            # Store suitable flavors
             suitable_flavors = {}
 
             for flavor_id, flavor in flavor_dict.items():
-                if (
-                        flavor.ram >= required_ram_mb and
-                        flavor.disk >= required_disk_gb and
-                        flavor.vcpus >= required_cores
-                ):
-                    suitable_flavors[flavor_id] = flavor.name
+                    suitable_flavors[flavor_id] = {
+                        'name': flavor.name,
+                        'ram': flavor.ram,
+                        'disk': flavor.disk,
+                        'cores': flavor.vcpus
+                    }
 
-            # Check if at least one suitable flavor is found
             if not suitable_flavors:
                 logging.warning("No suitable flavors found for the given requirements.")
 
-            # Automatically select the first suitable flavor if exists
-            selected_flavor = next(iter(suitable_flavors.keys()), None)
 
-            # Return flavor information
             result = {
                 'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
-                'suitable_flavors': suitable_flavors,
-                'selected_flavor': selected_flavor,
-                'required_ram': required_ram_gb,
-                'required_disk': required_disk_gb,
-                'required_cores': required_cores,
+                  'suitable_flavors': suitable_flavors
             }
 
             logging.info(f"Returning flavor data: {result}")
@@ -990,6 +1089,8 @@ class InstancesView(generic.TemplateView):
         except Exception as e:
             logging.error(f"An error occurred while fetching flavors: {e}")
             return {}
+
+
 
     def get_expected_fields(self):
         """
@@ -1107,7 +1208,7 @@ class InstancesView(generic.TemplateView):
             logging.error(f"Unable to fetch networks: {e}")
             return {}
 
-    # Get App Template Details to display while launching an instance
+    # Get AppTemplate Details to display while launching an instance
     def get_app_template(self):
         """
             Fetch a specific app template from the external database using token authentication.
@@ -1239,7 +1340,6 @@ class InstanceSuccessView(generic.TemplateView):
 
         return response
 
-
 class GetFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
@@ -1288,7 +1388,6 @@ class GetFavoriteAppTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
 
 class DeleteFavoriteAppTemplateView(generic.View):
 

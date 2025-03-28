@@ -5,13 +5,13 @@
 {% block page_header %}
     <div style="display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
-            <h1 class="page-title mb-0">Create Instance</h1>
+            <h1 class="page-title mb-0">Launch Instance</h1>
             {% if image_id %}
                 <h4>ID: {{ image_id }}</h4>
             {% endif %}
         </div>
         <div>
-            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
         </div>
     </div>
 {% endblock %}
@@ -74,97 +74,102 @@
         margin-top: 20px;
         margin-bottom: 20px;
     }
-    /* Dynamic Accounts Spacing */
-    #dynamic_accounts_container_${i} .card {
+
+    /* Section Styling */
+    .section-container {
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+    }
+
+    /* Account Fields Grid Layout */
+    .account-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .account-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: #ffffff;
+    }
+
+.section-container h5 {
+    color: #333333;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.section-container h6 {
+    color: #555555;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+    .account-card h5 {
         margin-bottom: 15px;
+        font-size: 16px;
+    }
+
+    .account-card .form-group {
+        margin-bottom: 10px;
+    }
+
+    .account-card .remove-account {
+        margin-top: 10px;
     }
 </style>
 
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
 
- <!-- App Template Name Display -->
-    <div class="form-group">
-        <label>{{ _("App Template Name") }}</label>
-        <div class="card">
-            <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
-                {{ app_template.name }}
-            </p>
-        </div>
-    </div>
-    <!-- App Template Details Modal -->
-    <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("App Template Details") }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered">
-                        <tbody>
-                        <tr><th>App-Template Name</th><td>{{ app_template.name }}</td></tr>
-                        <tr><th>App-Template ID</th><td>{{ app_template.id }}</td></tr>
-                        <tr><th>Image ID</th><td>{{ app_template.image_id }}</td></tr>
-                        <tr><th>Short Description</th><td>{{ app_template.short_description }}</td></tr>
-                        <tr><th>Description</th><td>{{ app_template.description }}</td></tr>
-                        <tr><th>Instantiation Notice</th><td>{{ app_template.instantiation_notice }}</td></tr>
-                        <tr><th>Fixed RAM (GB)</th><td>{{ app_template.fixed_ram_gb }}</td></tr>
-                        <tr><th>Fixed Disk (GB)</th><td>{{ app_template.fixed_disk_gb }}</td></tr>
-                        <tr><th>Fixed Cores</th><td>{{ app_template.fixed_cores }}</td></tr>
-                        <tr><th>Per User RAM (GB)</th><td>{{ app_template.per_user_ram_gb }}</td></tr>
-                        <tr><th>Per User Disk (GB)</th><td>{{ app_template.per_user_disk_gb }}</td></tr>
-                        <tr><th>Per User Cores</th><td>{{ app_template.per_user_cores }}</td></tr>
-                        <tr><th>Image Owner</th><td>{{ image_owner }}</td></tr>
-                        <tr><th>Available For</th><td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td></tr>
-                        <tr><th>Script</th><td><pre>{{ app_template.script }}</pre></td></tr>
-                         <tr><th>Instantiation Attributes</th><td> <pre id="structured-instantiation"></pre></td></tr>
-                        <tr><th>Account Attributes</th><td> <pre id="structured-accounts"></pre></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
-                </div>
+    <!-- App Template Name Display -->
+    <div class="section-container">
+        <div class="form-group">
+            <label>{{ _("App Template Name") }}</label>
+            <div class="card">
+                <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
+                    {{ app_template.name }}
+                </p>
             </div>
         </div>
-    </div>
 
-
-    <div class="form-group">
-        <label for="instances_name">{{ _("Instance Name") }}</label>
-        <input type="text" class="form-control" id="instances_name" name="instances_name"
-               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
-    </div>
-
-    <div class="form-group">
-        <label for="num_instances">{{ _("Number of Instances") }}</label>
-        <input type="number" class="form-control" id="num_instances" name="num_instances"
-               min="1" max="100" placeholder="1-100" required>
-    </div>
-
-    <div class="form-group">
-        <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}</label>
-        <select class="form-control" id="separate_keys" name="separate_keys">
-            <option value="false" selected>{{ _("No, use one key for all") }}</option>
-            <option value="true">{{ _("Yes, generate separate keys") }}</option>
-        </select>
-    </div>
-
-    <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
-
-    <div class="tab-content mt-3" id="instancesContainer"></div>
-
-     <div style="margin-top: 20px; margin-bottom: 20px;">
-            <button type="submit" style="margin-right: 20px;" class="btn btn-primary">{{ _("Launch Instance") }}</button>
-           <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+        <div class="form-group">
+            <label for="instances_name">{{ _("Instance Name") }}</label>
+            <input type="text" class="form-control" id="instances_name" name="instances_name"
+                   placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
         </div>
 
+        <div class="form-group">
+            <label for="num_instances">{{ _("Number of Instances") }}</label>
+            <input type="number" class="form-control" id="num_instances" name="num_instances"
+                   min="1" max="100" placeholder="1-100" required>
+        </div>
+
+        <div class="form-group">
+            <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}</label>
+            <select class="form-control" id="separate_keys" name="separate_keys">
+                <option value="false" selected>{{ _("No, use one key for all") }}</option>
+                <option value="true">{{ _("Yes, generate separate keys") }}</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Instance Tabs -->
+    <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
+
+    <!-- Instance Content -->
+    <div class="tab-content mt-3" id="instancesContainer"></div>
+
+    <!-- Launch and Cancel Buttons -->
+    <div class="button-container">
+        <button type="submit" class="btn btn-primary">{{ _("Launch Instance") }}</button>
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+    </div>
 </form>
-
-
 
 <!-- Modal for Success or Failure -->
 <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
@@ -190,67 +195,152 @@
 </div>
 
 
-    <style>
-        .tab-pane {
-            display: none;
-            position: absolute;
-            left: -9999px;
+  <!-- App Template Details Modal -->
+<div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("App Template Details") }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <tbody>
+                            <tr>
+                                <th class="w-25">App-Template Name</th>
+                                <td class="w-75">{{ app_template.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>App-Template ID</th>
+                                <td>{{ app_template.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Image ID</th>
+                                <td>{{ app_template.image_id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Short Description</th>
+                                <td>{{ app_template.short_description }}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ app_template.description }}</td>
+                            </tr>
+                            <tr>
+                                <th>Instantiation Notice</th>
+                                <td>{{ app_template.instantiation_notice }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fixed RAM (GB)</th>
+                                <td>{{ app_template.fixed_ram_gb }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fixed Disk (GB)</th>
+                                <td>{{ app_template.fixed_disk_gb }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fixed Cores</th>
+                                <td>{{ app_template.fixed_cores }}</td>
+                            </tr>
+                            <tr>
+                                <th>Per User RAM (GB)</th>
+                                <td>{{ app_template.per_user_ram_gb }}</td>
+                            </tr>
+                            <tr>
+                                <th>Per User Disk (GB)</th>
+                                <td>{{ app_template.per_user_disk_gb }}</td>
+                            </tr>
+                            <tr>
+                                <th>Per User Cores</th>
+                                <td>{{ app_template.per_user_cores }}</td>
+                            </tr>
+                            <tr>
+                                <th>Image Owner</th>
+                                <td>{{ image_owner }}</td>
+                            </tr>
+                            <tr>
+                                <th>Available For</th>
+                                <td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <th>Script</th>
+                                <td>
+                                    <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;">{{ app_template.script }}</pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Instantiation Attributes</th>
+                                <td>
+                                    <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;" id="structured-instantiation"></pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Account Attributes</th>
+                                <td>
+                                    <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;" id="structured-accounts"></pre>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+   <script>
+
+   //Volumes
+     const attachableVolumes = [
+            {% for volume in attachable_volumes %}
+                { id: "{{ volume.id }}", name: "{{ volume.name }}", size: {{ volume.size }} },
+            {% endfor %}
+        ];
+
+             function generateVolumeDropdown(instanceId) {
+            let html = `<option value="" disabled selected>Select Volume</option>`;
+            attachableVolumes.forEach(volume => {
+                html += `<option value="${volume.id}" data-volume-id="${volume.id}">
+                    ${volume.name} (${volume.size} GB)
+                 </option>`;
+            });
+            return html;
         }
 
-        .tab-pane.show.active {
-            display: block;
-            position: static;
+
+    document.getElementById("num_instances").addEventListener("input", function () {
+        if (this.value > 100) {
+            this.value = 100;
+        } else if (this.value < 1) {
+            this.value = 1;
         }
-    </style>
+    });
 
-    <script>
+    let accountAttributes = {{ expected_account_fields|safe }};
+    let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
-        document.getElementById("num_instances").addEventListener("input", function () {
-            if (this.value > 100) {
-                this.value = 100;
-            } else if (this.value < 1) {
-                this.value = 1;
-            }
-        });
+    function generateInstanceFields() {
+        let instanceTabs = document.getElementById("instanceTabs");
+        let instancesContainer = document.getElementById("instancesContainer");
 
-        window.onload = function () {
-            let numInstancesInput = document.getElementById("num_instances");
-            let instancesNameInput = document.getElementById("instances_name");
-            let instanceTabs = document.getElementById("instanceTabs");
-            let instancesContainer = document.getElementById("instancesContainer");
+        let numInstancesInput = document.getElementById("num_instances");
+        let numInstances = parseInt(numInstancesInput.value, 10) || 1;
+        numInstancesInput.value = numInstances;
 
-            if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
-                console.error("Fehlende HTML-Elemente. IDs überprüfen.");
-                return;
-            }
+        const baseNameInput = document.getElementById("instances_name");
+        let baseName = baseNameInput ? baseNameInput.value.trim() : "";
 
-            numInstancesInput.value = "1";
-            generateInstanceFields();
+        instanceTabs.innerHTML = "";
+        instancesContainer.innerHTML = "";
 
-            numInstancesInput.addEventListener("input", generateInstanceFields);
-            instancesNameInput.addEventListener("input", generateInstanceFields);
-
-            switchToInstance(1);
-        };
-
-        let accountAttributes = {{ expected_account_fields|safe }};
-        let instantiationAttribute = {{ expected_instantiation_fields|safe }};
-
-        function generateInstanceFields() {
-            let instanceTabs = document.getElementById("instanceTabs");
-            let instancesContainer = document.getElementById("instancesContainer");
-
-            let numInstancesInput = document.getElementById("num_instances");
-            let numInstances = parseInt(numInstancesInput.value, 10) || 1;
-            numInstancesInput.value = numInstances;
-
-            const baseNameInput = document.getElementById("instances_name");
-            let baseName = baseNameInput ? baseNameInput.value.trim() : "";
-
-            instanceTabs.innerHTML = "";
-            instancesContainer.innerHTML = "";
-
-            for (let i = 1; i <= numInstances; i++) {
+        for (let i = 1; i <= numInstances; i++) {
                 let instanceName = "";
                 if (baseName) {
                     if (numInstances === 1) {
@@ -262,99 +352,173 @@
                 const tabId = `instanceTab_${i}`;
                 const contentId = `instanceContent_${i}`;
 
-                instanceTabs.innerHTML += `
-            <li class="nav-item">
-                <a class="nav-link ${i === 1 ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
-                    Instance ${i}
-                </a>
-            </li>
-        `;
+            instanceTabs.innerHTML += `
+                <li class="nav-item">
+                    <a class="nav-link ${i === 1 ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
+                        Instance ${i}
+                    </a>
+                </li>
+            `;
 
-                instancesContainer.innerHTML += `
-            <div class="tab-pane ${i === 1 ? 'show active' : ''}" id="${contentId}" role="tabpanel">
-                <h4 id="instanceTitle_${i}">${instanceName}</h4> <!-- Dynamischer Titel -->
-                <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
+            instancesContainer.innerHTML += `
+                <div class="tab-pane ${i === 1 ? 'show active' : ''}" id="${contentId}" role="tabpanel">
+                    <h4 id="instanceTitle_${i}">${instanceName}</h4>
+                    <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
 
-<!-- Flavor Selection -->
+                    <!-- Flavor and Network Selection Container -->
+                    <div class="section-container">
+                        <h5>{{ _("Resource Configuration") }}</h5>
+
+                        <!-- Display Fixed Resource Requirements and Available Resources -->
+                        <div class="alert alert-info mt-3">
+                            <p><strong>{{ _("Resource Requirements") }}:</strong></p>
+                            <ul>
+                                <li>{{ _("RAM") }}: <span id="total_ram_${i}"></span> GB </li>
+                                <li>{{ _("Disk") }}: <span id="total_disk_${i}"></span> GB </li>
+                                <li>{{ _("CPU Cores") }}: <span id="total_cores_${i}"></span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Flavor Selection -->
+                        <div class="form-group">
+                            <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
+                            <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
+                                {% if flavors.suitable_flavors %}
+
+                            {% for flavor_id, flavor_data in flavors.suitable_flavors.items %}
+                                <option value="{{ flavor_id }}"
+                                        data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.cores }} }'
+                                        {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+                                    {{ flavor_data.name }}
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
+                        {% endif %}
+                            </select>
+                        </div>
+
+                       <div class="form-group">
+                        <label for="network_id_${i}">{{ _("Select Network") }}</label>
+                        <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
+                            {% if networks %}
+                                {% for network_id, network_name in networks.items %}
+                                    <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="" disabled selected>{{ _("No networks available") }}</option>
+                            {% endif %}
+                        </select>
+
+                        <!-- Volumes -->
+                          {% if volume_size > 0 %}
 <div class="form-group">
-    <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-    <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
-        {% if flavors.suitable_flavors %}
-            <option value="" disabled selected>{{ _("Choose a flavor") }}</option>
-            {% for flavor_id, flavor_name in flavors.suitable_flavors.items %}
-                <option value="{{ flavor_id }}"
-                    {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                    {{ flavor_name }}
-                </option>
-            {% endfor %}
-        {% else %}
-            <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
+        <label for="use_existing_volume_${i}">{{ _("Additional Volumes") }}</label>
+        <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
+            <option value="new" selected>Create new volume</option>
+            {% if hasAttachableVolumes %}
+                <option value="existing">Attach existing volume</option>
+            {% endif %}
+        </select>
+        {% if not hasAttachableVolumes %}
+            <small class="form-text">There are currently no available volumes that can be attached.</small>
         {% endif %}
+
+    </div>
+  {% endif %}
+
+
+        {% if hasAttachableVolumes  %}
+       <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
+    <label for="existing_volume_id_${i}">Available volumes</label>
+    <select class="form-control existing-volume-select" name="existing_volume_id_${i}" id="existing_volume_id_${i}" data-instance="${i}">
+        ${generateVolumeDropdown(i)}
     </select>
 </div>
+   {% endif %}
 
-<!-- Display Fixed Resource Requirements and Available Resources -->
-<div class="alert alert-info mt-3">
-    <p><strong>{{ _("Resource Requirements") }}:</strong></p>
-    <ul>
-        <li>{{ _("RAM") }}: {{ flavors.required_ram }} GB </li>
-        <li>{{ _("Disk") }}: {{ flavors.required_disk }} GB </li>
-        <li>{{ _("CPU Cores") }}: {{ flavors.required_cores }}</li>
-    </ul>
+
 </div>
-
-                <div class="form-group">
-                    <label for="network_id_${i}">{{ _("Select Network") }}</label>
-                    <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
-                        <option value="" disabled selected>{{ _("Choose a network") }}</option>
-                        {% for network_id, network_name in networks.items %}
-                            <option value="{{ network_id }}">{{ network_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
-                    <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
-                </div>
-
-
-
-                <div id="instantiation_section_${i}">
-                    <h4>{{ _("Instantiation Attributes") }}</h4>
-                    <div id="dynamic_instantiation_container_${i}">
-                        ${generateInstantiationFields(i)}
                     </div>
-                </div>
+ <!-- Instantiation Attributes Container -->
+                    <div class="section-container">
+                        <h5>{{ _("Instantiation Attributes") }}</h5>
+                        <div id="instantiation_section_${i}">
+                            <div id="dynamic_instantiation_container_${i}">
+                                ${generateInstantiationFields(i)}
+                            </div>
+                        </div>
+                    </div>
+ <!-- Additional Users and Accounts Container -->
+                    <div class="section-container">
+                        <h5>{{ _("User Configuration") }}</h5>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
+                            <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
+                        </div>
 
-                <!-- Dynamische Accounts -->
-                <div id="accounts_section_${i}" style="display: none;">
-                    <h4>{{ _("Accounts") }}</h4>
-                    <div class="form-group">
-    <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
-    <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}" data-instance="${i}" accept=".csv">
-</div>
-                    <div id="dynamic_accounts_container_${i}"></div>
-                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
-                </div>
+                        <div class="form-group mt-3" id="user_count_section_${i}" style="display: none;">
+                            <label for="user_count_${i}">{{ _("Number of Additional Users") }}</label>
+                            <input type="number" class="form-control user-count-input" id="user_count_${i}" name="user_count_${i}" min="1" value="1">
+                        </div>
 
+                        <div id="accounts_section_${i}" style="display: none;">
 
-
-                <div class="d-flex justify-content-between mt-3">
-                    ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous") }}</button>` : ""}
-                    ${i < numInstances ? `<button type="button" class="btn btn-primary next-instance" data-instance="${i}">→ {{ _("Next") }}</button>` : ""}
+      <!-- CSV Upload -->
+                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+            <div style="flex-grow: 1;">
+                <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
+                <div style="display: flex; align-items: center;">
+                    <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}"
+                           data-instance="${i}" accept=".csv" style="width: auto;">
+                    <!-- Undo button will be inserted here by JavaScript -->
                 </div>
             </div>
-        `;
-            }
+        </div>
+                  <h6>{{ _("Accounts") }}</h6>
+                            <div id="dynamic_accounts_container_${i}" class="account-grid"></div>
+                            <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
+                        </div>
+                    </div>
 
-            attachInstanceEventListeners();
-            attachAccountButtonListeners();
+          <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-3">
+                        ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous Instance") }}</button>` : ""}
+                        ${i < numInstances ? `<button type="button" class="btn btn-primary next-instance" data-instance="${i}">→ {{ _("Next Instance") }}</button>` : ""}
+                    </div>
+                </div>
+            `;
         }
 
+        attachInstanceEventListeners();
+        attachAccountButtonListeners();
+        attachFlavorCalculationListeners();
 
+          document.querySelectorAll(".use-existing-volume").forEach(select => {
+                select.addEventListener("change", function () {
+                    const instance = this.dataset.instance;
+                    const group = document.getElementById(`existing_volume_group_${instance}`);
+                    const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
+                    if (this.value === "existing") {
+                        group.style.display = "block";
+                        volumeSelect.required = true;
+                        volumeSelect.setCustomValidity("");
+                    } else {
+                        group.style.display = "none";
+                        volumeSelect.required = false;
+                    }
+                });
+                select.dispatchEvent(new Event("change"));
+            });
 
-        function attachInstanceEventListeners() {
+            attachVolumeChangeHandlers();
+
+         for (let i = 1; i <= numInstances; i++) {
+        selectAutomaticFlavor(i);
+    }
+    }
+
+      function attachInstanceEventListeners() {
             document.querySelectorAll(".next-instance").forEach(button => {
                 button.addEventListener("click", function () {
                     let instanceId = parseInt(this.getAttribute("data-instance"));
@@ -362,7 +526,7 @@
                 });
             });
 
-            document.querySelectorAll(".prev-instance").forEach(button => {
+             document.querySelectorAll(".prev-instance").forEach(button => {
                 button.addEventListener("click", function () {
                     let instanceId = parseInt(this.getAttribute("data-instance"));
                     switchToInstance(instanceId - 1);
@@ -378,8 +542,7 @@
             });
         }
 
-
-        function switchToInstance(instanceId) {
+    function switchToInstance(instanceId) {
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
                 el.style.display = "none";
@@ -403,98 +566,234 @@
         }
 
 
+    function attachAccountButtonListeners() {
+        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let instanceId = this.id.split("_").pop();
+                let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
+                let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+                let userCountSection = document.getElementById(`user_count_section_${instanceId}`);
+                let userCountInput = document.getElementById(`user_count_${instanceId}`);
 
-        function attachAccountButtonListeners() {
-            document.querySelectorAll(".no_additional_users").forEach(checkbox => {
-                checkbox.addEventListener("change", function () {
-                    let instanceId = this.id.split("_").pop();
-                    let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
-                    let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
-
-                    if (this.checked) {
-                        accountsSection.style.display = "none";
-                        addAccountButton.style.display = "none";
-                        document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
-                    } else {
-                        accountsSection.style.display = "block";
-                        addAccountButton.style.display = "block";
-                    }
-                });
+                if (this.checked) {
+                    accountsSection.style.display = "none";
+                    addAccountButton.style.display = "none";
+                    userCountSection.style.display = "none";
+                    document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
+                } else {
+                    accountsSection.style.display = "block";
+                    addAccountButton.style.display = "none";
+                    userCountSection.style.display = "block";
+                    let userCount = parseInt(userCountInput.value) || 1;
+                    generateMultipleAccountFields(instanceId, userCount);
+                }
             });
+        });
 
-            document.querySelectorAll(".add_account_btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceId = this.getAttribute("data-instance");
-                    addAccountFields(instanceId);
-                });
+        document.querySelectorAll(".user-count-input").forEach(input => {
+            input.addEventListener("input", function () {
+                let instanceId = this.id.split("_").pop();
+                let userCount = parseInt(this.value) || 1;
+                generateMultipleAccountFields(instanceId, userCount);
             });
-        }
+        });
+    }
 
-        function addAccountFields(instanceId) {
-            let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-            if (!accountsContainer) return;
+  function generateMultipleAccountFields(instanceId, userCount) {
+    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    if (!accountsContainer) return;
 
-            let accountCounter = accountsContainer.childElementCount + 1;
-            let accountSection = document.createElement("div");
-            accountSection.classList.add("card", "p-3", "mb-3");
-            accountSection.setAttribute("id", `account_${instanceId}_${accountCounter}`);
-            accountSection.style.border = "1px solid #ccc";
-            accountSection.style.borderRadius = "5px";
-            accountSection.style.padding = "15px";
+    accountsContainer.innerHTML = "";
+    userCount = Math.max(userCount, 1);
 
-            let fieldsHtml = `<h5>Account ${accountCounter}</h5>`;
-            accountAttributes.forEach(attr => {
-                fieldsHtml += `
-            <div class="form-group md-5">
-                <label for="${attr}_${instanceId}_${accountCounter}">${attr}</label>
-                <input type="text" class="form-control" id="${attr}_${instanceId}_${accountCounter}" name="${attr}_${instanceId}[]" required>
-            </div>
-        `;
-            });
+    for (let i = 1; i <= userCount; i++) {
+        let accountSection = document.createElement("div");
+        accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
+        accountSection.id = `account_${instanceId}_${i}`;
+        accountSection.dataset.accountNumber = i;
+        accountSection.style.border = "1px solid #ccc";
+        accountSection.style.borderRadius = "5px";
+        accountSection.style.padding = "15px";
 
+        // Add remove button
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-danger btn-sm position-absolute";
+        removeBtn.style.top = "5px";
+        removeBtn.style.right = "5px";
+        removeBtn.innerHTML = "Remove";
+        removeBtn.onclick = function() {
+            accountSection.remove();
+            renumberAccounts(instanceId);
+            updateUserCount(instanceId);
+            selectAutomaticFlavor(instanceId);
+        };
+
+        let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
+        accountAttributes.forEach(attr => {
             fieldsHtml += `
-        <button type="button" class="btn btn-danger btn-sm mt-2 remove-account" data-instance="${instanceId}" data-id="${accountCounter}">Remove</button>
-    `;
+                <div class="form-group md-5">
+                    <label for="${attr}_${instanceId}_${i}">${attr}</label>
+                    <input type="text" class="form-control" id="${attr}_${instanceId}_${i}" name="${attr}_${instanceId}[]" required>
+                </div>
+            `;
+        });
 
-            accountSection.innerHTML = fieldsHtml;
-            accountsContainer.appendChild(accountSection);
+        accountSection.innerHTML = fieldsHtml;
+        accountSection.appendChild(removeBtn);
+        accountsContainer.appendChild(accountSection);
+    }
+}
 
-            accountSection.querySelector(".remove-account").addEventListener("click", function () {
-                accountSection.remove();
-            });
-        }
+function renumberAccounts(instanceId) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    if (!accountsContainer) return;
 
-        function generateInstantiationFields(instanceId) {
-            let fieldsHtmlInstance = ``;
-            instantiationAttribute.forEach(attr => {
-                fieldsHtmlInstance += `
-            <div class="form-group md-5">
-                <label for="${attr}_${instanceId}_instantiation">${attr}</label>
-                <input type="text" class="form-control" id="${attr}_${instanceId}_instantiation" name="${attr}_${instanceId}_instantiation[]" required>
-            </div>
-        `;
-            });
-            return fieldsHtmlInstance;
-        }
+    const accountSections = Array.from(accountsContainer.querySelectorAll('.card'));
+    accountSections.forEach((section, index) => {
+        const newNumber = index + 1;
 
-        {% if modal_message %}
-            $(document).ready(function () {
-                $('#responseModal').modal('show');
-            });
-        {% endif %}
+        section.dataset.accountNumber = newNumber;
+
+        section.id = `account_${instanceId}_${newNumber}`;
+
+        const title = section.querySelector('.account-title');
+        if (title) title.textContent = `Account ${newNumber}`;
+
+        accountAttributes.forEach(attr => {
+            const input = section.querySelector(`input[id$="${attr}_${instanceId}_${index+1}"]`);
+            if (input) {
+                input.id = `${attr}_${instanceId}_${newNumber}`;
+                input.name = `${attr}_${instanceId}[]`;
+            }
+        });
+    });
+}
+
+    function generateInstantiationFields(instanceId) {
+        let fieldsHtmlInstance = ``;
+        instantiationAttribute.forEach(attr => {
+            fieldsHtmlInstance += `
+                <div class="form-group md-5">
+                    <label for="${attr}_${instanceId}_instantiation">${attr}</label>
+                    <input type="text" class="form-control" id="${attr}_${instanceId}_instantiation" name="${attr}_${instanceId}_instantiation[]" required>
+                </div>
+            `;
+        });
+        return fieldsHtmlInstance;
+    }
 
 
 function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
 
-    if (flavorDropdown.options.length === 2) {
-        flavorDropdown.selectedIndex = 1;
-        if (flavorDropdown.value) {
-            flavorDropdown.disabled = true;
+    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
+    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+
+    const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
+    const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
+    const requiredCores = parseInt("{{ app_template.fixed_cores }}");
+
+    let totalRAM = requiredRAM;
+    let totalDisk = requiredDisk;
+    let totalCores = requiredCores;
+
+    if (!noAdditionalUsersCheckbox.checked) {
+        const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
+        const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
+        const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
+        const userCount = parseInt(userCountInput.value) || 0;
+
+        totalRAM += userCount * perUserRAM;
+        totalDisk += userCount * perUserDisk;
+        totalCores += userCount * perUserCores;
+    }
+
+    document.getElementById(`total_ram_${instanceId}`).textContent = totalRAM.toFixed(2);
+    document.getElementById(`total_disk_${instanceId}`).textContent = totalDisk.toFixed(2);
+    document.getElementById(`total_cores_${instanceId}`).textContent = totalCores;
+
+    let selectedFlavor = null;
+
+  Array.from(flavorDropdown.options).forEach(option => {
+    if (option.value) {
+        const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
+        const flavorRAM = flavorDetails.ram / 1024;
+        const flavorDisk = flavorDetails.disk;
+        const flavorCores = flavorDetails.vcpus;
+
+
+        option.textContent = flavorDetails.name;
+
+        if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+            if (!selectedFlavor ||
+                (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
+                 flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
+                 flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus))
+            {
+                selectedFlavor = option;
+            }
+            option.disabled = false;
+            option.style.color = "black";
+        } else {
+            option.disabled = true;
+            option.style.color = "gray";
+            option.textContent += " (Too small for required resources)";  // Append only once
         }
     }
+});
+
+
+    if (selectedFlavor) {
+        flavorDropdown.value = selectedFlavor.value;
+    } else {
+        alert("No suitable flavor found. Please select one manually.");
+    }
 }
+
+
+
+    function attachFlavorCalculationListeners() {
+        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                let instanceId = this.id.split("_").pop();
+                selectAutomaticFlavor(instanceId);
+            });
+        });
+
+        document.querySelectorAll(".user-count-input").forEach(input => {
+            input.addEventListener("input", function () {
+                let instanceId = this.id.split("_").pop();
+                selectAutomaticFlavor(instanceId);
+            });
+        });
+    }
+
+    window.onload = function () {
+        let numInstancesInput = document.getElementById("num_instances");
+        let instancesNameInput = document.getElementById("instances_name");
+        let instanceTabs = document.getElementById("instanceTabs");
+        let instancesContainer = document.getElementById("instancesContainer");
+
+        if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+            console.error("Missing HTML elements. Check IDs.");
+            return;
+        }
+
+        numInstancesInput.value = "1";
+        generateInstanceFields();
+
+        for (let i = 1; i <= numInstancesInput.value; i++) {
+            selectAutomaticFlavor(i);
+        }
+
+        numInstancesInput.addEventListener("input", generateInstanceFields);
+        instancesNameInput.addEventListener("input", generateInstanceFields);
+
+        attachFlavorCalculationListeners();
+        switchToInstance(1);
+    };
+
 
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
     let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
@@ -504,108 +803,264 @@ function selectAutomaticFlavor(instanceId) {
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-accounts").textContent = formattedAccounts;
 
+        {% if modal_message %}
+            $(document).ready(function () {
+                $('#responseModal').modal('show');
+            });
+        {% endif %}
 
-        document.addEventListener("change", function (event) {
-            if (!event.target.classList.contains("csv-upload")) return;
 
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
 
-            const instanceId = event.target.getAttribute("data-instance");
-            if (!instanceId) {
-                return;
-            }
+document.addEventListener("change", function(event) {
+    if (!event.target.classList.contains("csv-upload")) return;
 
-            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-            const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+    const file = event.target.files[0];
+    if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                let text = e.target.result;
+    const instanceId = event.target.getAttribute("data-instance");
+    if (!instanceId) return;
 
-                const lines = text.trim().split("\n");
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split("\n");
 
-                if (lines.length < 1) {
-                    return;
-                }
+        if (lines.length === 0) {
+            alert("CSV file is empty");
+            return;
+        }
 
-                accountsContainer.innerHTML = "";
 
-                function parseCSVLine(line) {
-                    const regex = /(?:\"([^\"]+)\"|([^,]+))/g;
-                    let matches, results = [];
-                    while ((matches = regex.exec(line)) !== null) {
-                        results.push(matches[1] || matches[2]);
+        function parseCSVLine(line) {
+            const result = [];
+            let inQuotes = false;
+            let currentField = "";
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+
+                if (char === '"') {
+                    if (inQuotes && line[i+1] === '"') {
+
+                        currentField += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
                     }
-                    return results;
-                }
-
-                let csvHeaders = parseCSVLine(lines[0]).map(header => header.trim().toLowerCase());
-
-                let isHeaderValid = accountAttributes.every(attr => csvHeaders.includes(attr.toLowerCase()));
-
-
-                let startIndex = 1;
-                let attributeIndexMap = {};
-
-                if (isHeaderValid) {
-                    accountAttributes.forEach(attr => {
-                        attributeIndexMap[attr] = csvHeaders.indexOf(attr.toLowerCase());
-                    });
+                } else if (char === ',' && !inQuotes) {
+                    result.push(currentField.trim());
+                    currentField = "";
                 } else {
-                    startIndex = 0;
-                    attributeIndexMap = accountAttributes.reduce((map, attr, index) => {
-                        map[attr] = index;
-                        return map;
-                    }, {});
+                    currentField += char;
                 }
+            }
 
-                let accountsList = [];
+            result.push(currentField.trim());
+            return result;
+        }
 
-                lines.slice(startIndex).forEach((line, index) => {
-                    let values = parseCSVLine(line).map(value => value.trim());
 
-                    if (values.length !== accountAttributes.length) {
-                        alert(`Error in row ${index + 1}: Number of columns does not match! Expected: ${accountAttributes.length}, found: ${values.length}`);
-                        return;
-                    }
+        const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
-                    addAccountButton.click();
-                    accountsList.push(values);
-                });
+        const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
+        const isValidCSV = lowerAccountAttrs.every(attr =>
+            headers.includes(attr)
+        );
 
-                setTimeout(() => {
-                    let accounts = accountsContainer.querySelectorAll(".card");
+        if (!isValidCSV) {
+            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}`);
+            return;
+        }
 
-                    if (accounts.length !== accountsList.length) {
-                        return;
-                    }
+        const fieldMapping = accountAttributes.map(attr =>
+            headers.indexOf(attr.toLowerCase())
+        );
 
-                    accountsList.forEach((values, index) => {
-                        let account = accounts[index];
+        const accountsData = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim() === "") continue;
 
-                        if (!account) {
-                            return;
-                        }
+            const values = parseCSVLine(lines[i]);
+            if (values.length !== headers.length) {
+                console.warn(`Skipping row ${i+1}: column count mismatch`);
+                continue;
+            }
 
-                        let inputs = account.querySelectorAll("input");
-                        accountAttributes.forEach(attr => {
-                            let csvIndex = attributeIndexMap[attr];
-                            let inputField = inputs[accountAttributes.indexOf(attr)];
+            const accountData = {};
+            accountAttributes.forEach((attr, idx) => {
+                accountData[attr] = values[fieldMapping[idx]] || "";
+            });
+            accountsData.push(accountData);
+        }
 
-                            if (csvIndex !== -1 && inputField) {
-                                inputField.value = values[csvIndex];
+        if (accountsData.length === 0) {
+            alert("No valid account data found in CSV");
+            return;
+        }
+
+        const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+        const userCountInput = document.getElementById(`user_count_${instanceId}`);
+        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
+
+        if (noAdditionalUsersCheckbox.checked) {
+            noAdditionalUsersCheckbox.checked = false;
+            document.getElementById(`accounts_section_${instanceId}`).style.display = "block";
+            document.getElementById(`user_count_section_${instanceId}`).style.display = "block";
+        }
+
+        accountsContainer.innerHTML = "";
+
+          accountsData.forEach((account, index) => {
+            const accountSection = document.createElement("div");
+            accountSection.className = "card p-3 mb-3 position-relative";
+            accountSection.id = `account_${instanceId}_${index+1}`;
+            accountSection.dataset.accountNumber = index+1;
+            accountSection.style.border = "1px solid #ccc";
+            accountSection.style.borderRadius = "5px";
+            accountSection.style.padding = "15px";
+
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "btn btn-danger btn-sm position-absolute";
+            removeBtn.style.top = "5px";
+            removeBtn.style.right = "5px";
+            removeBtn.innerHTML = "Remove";
+            removeBtn.onclick = function() {
+                accountSection.remove();
+                renumberAccounts(instanceId);
+                updateUserCount(instanceId);
+                selectAutomaticFlavor(instanceId);
+            };
+
+
+            let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
+            accountAttributes.forEach(attr => {
+                fieldsHtml += `
+                    <div class="form-group md-5">
+                        <label for="${attr}_${instanceId}_${index+1}">${attr}</label>
+                        <input type="text" class="form-control"
+                               id="${attr}_${instanceId}_${index+1}"
+                               name="${attr}_${instanceId}[]"
+                               value="${account[attr] || ''}"
+                               required>
+                    </div>
+                `;
+            });
+
+            accountSection.innerHTML = fieldsHtml;
+            accountSection.appendChild(removeBtn);
+            accountsContainer.appendChild(accountSection);
+        });
+
+        updateUserCount(instanceId);
+        selectAutomaticFlavor(instanceId);
+    };
+
+    reader.readAsText(file);
+});
+
+function updateUserCount(instanceId) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+
+    if (accountsContainer && userCountInput) {
+        userCountInput.value = accountsContainer.querySelectorAll('.card').length;
+    }
+}
+
+
+document.addEventListener("change", function(event) {
+    if (!event.target.classList.contains("csv-upload")) return;
+
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const instanceId = fileInput.getAttribute("data-instance");
+    if (!instanceId) return;
+
+    const formGroup = fileInput.closest('.form-group');
+
+    const existingUndoBtn = formGroup.querySelector('.undo-csv');
+    if (existingUndoBtn) {
+        existingUndoBtn.remove();
+    }
+
+    const undoBtn = document.createElement("button");
+    undoBtn.type = "button";
+    undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
+    undoBtn.dataset.instance = instanceId;
+    undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
+
+    undoBtn.style.display = "inline-block";
+    undoBtn.style.verticalAlign = "middle";
+
+    fileInput.insertAdjacentElement('afterend', undoBtn);
+
+    undoBtn.addEventListener("click", function() {
+        resetCSVUpload(instanceId);
+    });
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split("\n");
+
+        if (lines.length === 0) {
+            alert("CSV file is empty");
+            return;
+        }
+
+    };
+
+    reader.readAsText(file);
+});
+
+function resetCSVUpload(instanceId) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+    const csvInput = document.getElementById(`csvUpload_${instanceId}`);
+    const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceId}"]`);
+
+    csvInput.value = "";
+
+    if (undoBtn) {
+        undoBtn.remove();
+    }
+
+    userCountInput.value = 1;
+
+    accountsContainer.innerHTML = "";
+    generateMultipleAccountFields(instanceId, 1);
+
+    selectAutomaticFlavor(instanceId);
+}
+
+        function attachVolumeChangeHandlers() {
+            document.querySelectorAll(".existing-volume-select").forEach(select => {
+                select.addEventListener("change", () => {
+                    const selectedVolumes = Array.from(document.querySelectorAll(".existing-volume-select"))
+                        .map(sel => sel.value)
+                        .filter(val => val);
+                    document.querySelectorAll(".existing-volume-select").forEach(select => {
+                        const currentValue = select.value;
+                        Array.from(select.options).forEach(option => {
+                            if (
+                                selectedVolumes.includes(option.value) &&
+                                option.value !== currentValue
+                            ) {
+                                option.disabled = true;
+                            } else {
+                                option.disabled = false;
                             }
                         });
                     });
-                }, 500);
-            };
+                });
+            });
+        }
 
-            reader.readAsText(file);
-        });
 
-    </script>
+
+
+</script>
 
 {% endblock %}
