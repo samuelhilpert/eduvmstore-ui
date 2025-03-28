@@ -196,7 +196,7 @@
 </div>
 {% if favorite_app_templates %}
     <h2>Favorite App-Templates</h2>
-    {% include "eduvmstore/table.html" with app_templates=favorite_app_templates is_favorites=True %}
+    {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=favorite_app_templates is_favorites=True %}
 {% endif %}
     <h2>All App-Templates</h2>
 
@@ -206,6 +206,6 @@
 </form>
 
 <div id="table-container">
-    {% include "eduvmstore/table.html" with app_templates=app_templates is_favorites=False%}
+    {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=app_templates is_favorites=False%}
 </div>
   {% endblock %}
