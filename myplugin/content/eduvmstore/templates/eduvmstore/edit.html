@@ -115,6 +115,14 @@
         border-color: #007bff;
     }
 
+    .custom-topmargin{
+        margin-top: 10px;
+    }
+
+    .custom-bottommargin{
+        margin-bottom: 30px;
+    }
+
  </style>
 
  <div class="form-container">
@@ -158,25 +166,21 @@
          </div>
          <div class="form-group">
              <label for="instantiation_notice">Instantiation Notice:</label>
-             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required>{{ app_template.instantiation_notice }}</textarea>
+             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" >{{ app_template.instantiation_notice }}</textarea>
          </div>
-
 
         <div class="form-group row">
-             <div class="col-md-4">
-                 <label for="version">Version:</label>
-                  <input type="text" id="version" name="version" value="{{ app_template.version }}" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '');">
+            <div class="col-md-4">
 
-             </div>
-         <div class="col-md-4">
-             <label for="public">Visibility:</label>
-             <select name="public" id="public" class="form-control select-box" required>
-                 <option value="True" {% if app_template.visibility == "True" %}selected{% endif %}>Public</option>
-                 <option value="False" {% if app_template.visibility == "False" %}selected{% endif %}>Private</option>
-              </select>
-         </div>
 
-         </div>
+            <label for="public">Available for:</label>
+            <select name="public" id="public" class="form-control select-box" required>
+                <option value="True" {% if app_template.visibility == "True" %}selected{% endif %}>Everyone</option>
+                 <option value="False" {% if app_template.visibility == "False" %}selected{% endif %}>Creator only</option>
+            </select>
+
+            </div>
+        </div>
 
          <h3>System Requirements</h3>
          <div class="row">
@@ -185,7 +189,7 @@
                  <div class="form-group mt-5">
                      <label for="fixed_ram_gb">Fixed RAM (GB):</label>
                      <input type="text" id="fixed_ram_gb" value="{{ app_template.fixed_ram_gb }}"
-                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');"
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
                             name="fixed_ram_gb" class="form-control" value="{{ app_template.fixed_ram_gb }}"
                             name="fixed_ram_gb" class="form-control"
                             required>
@@ -193,12 +197,17 @@
                  <div class="form-group">
                      <label for="fixed_disk_gb">Fixed Disk (GB):</label>
                      <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" value="{{ app_template.fixed_disk_gb }}" class="form-control" required
-                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                  </div>
                  <div class="form-group">
                      <label for="fixed_cores">Fixed Cores:</label>
                      <input type="text" id="fixed_cores" name="fixed_cores" value="{{ app_template.fixed_cores }}" class="form-control" required
-                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                 </div>
+                 <div class="form-group">
+                     <label for="volume_size">Volume Size::</label>
+                     <input type="text" id="volume_size" name="volume_size" value="{{ app_template.volume_size_gb }}" class="form-control"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                  </div>
              </div>
 
@@ -207,18 +216,18 @@
                  <div class="form-group mt-5">
                      <label for="per_user_ram_gb">Per User RAM (GB):</label>
                      <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" value="{{ app_template.per_user_ram_gb }}" class="form-control" required
-                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                  </div>
                  <div class="form-group">
                      <label for="per_user_disk_gb">Per User Disk (GB):</label>
 
                      <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" value="{{ app_template.per_user_disk_gb }}" class="form-control" required
-                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                  </div>
                  <div class="form-group">
                      <label for="per_user_cores">Per User Cores:</label>
                      <input type="text" id="per_user_cores" name="per_user_cores" value="{{ app_template.per_user_cores }}" class="form-control" required
-                            oninput="this.value = this.value.replace(/[^0-9,]/g, '').replace(/(,[0-9]{0,2}).*/g, '$1').replace(/(,.*?),.*/g, '$1');">
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                  </div>
              </div>
 
@@ -235,8 +244,10 @@
                  <input type="text" id="account_attributes" name="account_attributes" class="form-control">
              </div>
 
-             <div class="col-md-4 d-flex align-items-end">
-                 <button type="button" class="btn btn-primary" id="writeScriptButton" onclick="openModal()">Write Script</button>
+             <div class="col-md-4 ">
+                 <label for="script_file">Upload Script:</label>
+                 <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file">
+                  <button type="button" class="btn btn-primary custom-topmargin" id="writeScriptButton" onclick="openModal()">Write Script</button>
              </div>
 
          </div>
@@ -263,15 +274,16 @@ write_files:
          </pre>
 
                  <textarea id="scriptText" name="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
-                 <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
+                 <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">Save Script</button>
 
              </div>
          </div>
 
-         <!-- Hidden input to store the script text -->
+         <div class="custom-bottommargin">
          <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
-         <button type="submit" class="btn btn-primary" id="submit-button" >Edit</button>
+         <button type="submit" class="btn btn-primary " id="submit-button" >Edit</button>
           <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+         </div>
      </form>
  </div>
 
@@ -299,14 +311,33 @@ write_files:
  </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("input[type='text']").forEach(function(input) {
+        input.value = input.value.replace(",", ".");
+    });
+});
+
+    document.getElementById('script_file').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                var fileContent = e.target.result;
+
+                document.getElementById('hiddenScriptField').value = fileContent;
+
+                document.getElementById('scriptText').value = fileContent;
+            };
+
+            reader.readAsText(file);
+        }
+    });
 
     function saveScript() {
-        // Get the script text from the textarea
         var scriptText = document.getElementById('scriptText').value;
-        // Store it in the hidden input field
         document.getElementById('hiddenScriptField').value = scriptText;
 
-        // Close the modal
         closeModal();
     }
 

@@ -111,6 +111,7 @@
                         <tr><th>Short Description</th><td>{{ app_template.short_description }}</td></tr>
                         <tr><th>Description</th><td>{{ app_template.description }}</td></tr>
                         <tr><th>Instantiation Notice</th><td>{{ app_template.instantiation_notice }}</td></tr>
+                        <tr><th>Volume Size (GB)</th><td>{{ app_template.volume_size_gb }}</td></tr>
                         <tr><th>Fixed RAM (GB)</th><td>{{ app_template.fixed_ram_gb }}</td></tr>
                         <tr><th>Fixed Disk (GB)</th><td>{{ app_template.fixed_disk_gb }}</td></tr>
                         <tr><th>Fixed Cores</th><td>{{ app_template.fixed_cores }}</td></tr>
@@ -136,7 +137,8 @@
     <div class="form-group">
         <label for="instances_name">{{ _("Instance Name") }}</label>
         <input type="text" class="form-control" id="instances_name" name="instances_name"
-               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
+               placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}"
+               oninput="this.value = this.value.replace(/[^a-zA-Z0-9_\- ]/g, '')" required>
     </div>
 
     <div class="form-group">
@@ -205,6 +207,12 @@
 
     <script>
 
+        const attachableVolumes = [
+            {% for volume in attachable_volumes %}
+                { id: "{{ volume.id }}", name: "{{ volume.name }}", size: {{ volume.size }} },
+            {% endfor %}
+        ];
+
         document.getElementById("num_instances").addEventListener("input", function () {
             if (this.value > 100) {
                 this.value = 100;
@@ -236,6 +244,16 @@
         let accountAttributes = {{ expected_account_fields|safe }};
         let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
+        function generateVolumeDropdown(instanceId) {
+            let html = `<option value="" disabled selected>Select Volume</option>`;
+            attachableVolumes.forEach(volume => {
+                html += `<option value="${volume.id}" data-volume-id="${volume.id}">
+                    ${volume.name} (${volume.size} GB)
+                 </option>`;
+            });
+            return html;
+        }
+
         function generateInstanceFields() {
             let instanceTabs = document.getElementById("instanceTabs");
             let instancesContainer = document.getElementById("instancesContainer");
@@ -251,7 +269,14 @@
             instancesContainer.innerHTML = "";
 
             for (let i = 1; i <= numInstances; i++) {
-                let instanceName = baseName ? `${baseName}-${i}` : "";
+                let instanceName = "";
+                if (baseName) {
+                    if (numInstances === 1) {
+                        instanceName = baseName;
+                    } else {
+                        instanceName = `${baseName}-${i}`;
+                    }
+                }
                 const tabId = `instanceTab_${i}`;
                 const contentId = `instanceContent_${i}`;
 
@@ -306,10 +331,37 @@
                     </select>
                 </div>
 
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
-                    <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
-                </div>
+
+
+               {% if volume_size > 0 %}
+<div class="form-group">
+        <label for="use_existing_volume_${i}">{{ _("Additional Volumes") }}</label>
+        <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
+            <option value="new" selected>Create new volume</option>
+            {% if hasAttachableVolumes %}
+                <option value="existing">Attach existing volume</option>
+            {% endif %}
+        </select>
+        {% if not hasAttachableVolumes %}
+            <small class="form-text">There are currently no available volumes that can be attached.</small>
+        {% endif %}
+
+    </div>
+
+
+        {% if hasAttachableVolumes  %}
+       <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
+    <label for="existing_volume_id_${i}">Available volumes</label>
+    <select class="form-control existing-volume-select" name="existing_volume_id_${i}" id="existing_volume_id_${i}" data-instance="${i}">
+        ${generateVolumeDropdown(i)}
+    </select>
+</div>
+
+        {% endif %}
+
+        {% endif %}
+
+
 
                 <div id="instantiation_section_${i}">
                     <h4>{{ _("Instantiation Attributes") }}</h4>
@@ -318,9 +370,18 @@
                     </div>
                 </div>
 
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
+                    <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
+                </div>
+
                 <!-- Dynamische Accounts -->
                 <div id="accounts_section_${i}" style="display: none;">
                     <h4>{{ _("Accounts") }}</h4>
+                    <div class="form-group">
+    <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
+    <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}" data-instance="${i}" accept=".csv">
+</div>
                     <div id="dynamic_accounts_container_${i}"></div>
                     <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                 </div>
@@ -337,6 +398,27 @@
 
             attachInstanceEventListeners();
             attachAccountButtonListeners();
+
+            document.querySelectorAll(".use-existing-volume").forEach(select => {
+                select.addEventListener("change", function () {
+                    const instance = this.dataset.instance;
+                    const group = document.getElementById(`existing_volume_group_${instance}`);
+                    const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
+                    if (this.value === "existing") {
+                        group.style.display = "block";
+                        volumeSelect.required = true;
+                        volumeSelect.setCustomValidity("");
+                    } else {
+                        group.style.display = "none";
+                        volumeSelect.required = false;
+                    }
+                });
+                select.dispatchEvent(new Event("change"));
+            });
+
+            attachVolumeChangeHandlers();
+
+
         }
 
 
@@ -470,8 +552,32 @@
             });
         {% endif %}
 
+        function attachVolumeChangeHandlers() {
+            document.querySelectorAll(".existing-volume-select").forEach(select => {
+                select.addEventListener("change", () => {
+                    const selectedVolumes = Array.from(document.querySelectorAll(".existing-volume-select"))
+                        .map(sel => sel.value)
+                        .filter(val => val);
+                    document.querySelectorAll(".existing-volume-select").forEach(select => {
+                        const currentValue = select.value;
+                        Array.from(select.options).forEach(option => {
+                            if (
+                                selectedVolumes.includes(option.value) &&
+                                option.value !== currentValue
+                            ) {
+                                option.disabled = true;
+                            } else {
+                                option.disabled = false;
+                            }
+                        });
+                    });
+                });
+            });
+        }
 
-function selectAutomaticFlavor(instanceId) {
+
+
+        function selectAutomaticFlavor(instanceId) {
     const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
     if (!flavorDropdown) return;
 
@@ -490,6 +596,113 @@ function selectAutomaticFlavor(instanceId) {
     let accountAttribute = {{ app_template.account_attributes|safe }}
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("structured-accounts").textContent = formattedAccounts;
+
+
+        document.addEventListener("change", function (event) {
+            if (!event.target.classList.contains("csv-upload")) return;
+
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const instanceId = event.target.getAttribute("data-instance");
+            if (!instanceId) {
+                return;
+            }
+
+            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+            const addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                let text = e.target.result;
+
+                const lines = text.trim().split("\n");
+
+                if (lines.length < 1) {
+                    return;
+                }
+
+                accountsContainer.innerHTML = "";
+
+                function parseCSVLine(line) {
+                    const regex = /(?:\"([^\"]+)\"|([^,]+))/g;
+                    let matches, results = [];
+                    while ((matches = regex.exec(line)) !== null) {
+                        results.push(matches[1] || matches[2]);
+                    }
+                    return results;
+                }
+
+                let csvHeaders = parseCSVLine(lines[0]).map(header => header.trim().toLowerCase());
+
+                let isHeaderValid = accountAttributes.every(attr => csvHeaders.includes(attr.toLowerCase()));
+
+
+                let startIndex = 1;
+                let attributeIndexMap = {};
+
+                if (isHeaderValid) {
+                    accountAttributes.forEach(attr => {
+                        attributeIndexMap[attr] = csvHeaders.indexOf(attr.toLowerCase());
+                    });
+                } else {
+                    startIndex = 0;
+                    attributeIndexMap = accountAttributes.reduce((map, attr, index) => {
+                        map[attr] = index;
+                        return map;
+                    }, {});
+                }
+
+                let accountsList = [];
+
+                lines.slice(startIndex).forEach((line, index) => {
+                    let values = parseCSVLine(line).map(value => value.trim());
+
+                    if (values.length !== accountAttributes.length) {
+                        alert(`Error in row ${index + 1}: Number of columns does not match! Expected: ${accountAttributes.length}, found: ${values.length}`);
+                        return;
+                    }
+
+                    addAccountButton.click();
+                    accountsList.push(values);
+                });
+
+                setTimeout(() => {
+                    let accounts = accountsContainer.querySelectorAll(".card");
+
+                    if (accounts.length !== accountsList.length) {
+                        return;
+                    }
+
+                    accountsList.forEach((values, index) => {
+                        let account = accounts[index];
+
+                        if (!account) {
+                            return;
+                        }
+
+                        let inputs = account.querySelectorAll("input");
+                        accountAttributes.forEach(attr => {
+                            let csvIndex = attributeIndexMap[attr];
+                            let inputField = inputs[accountAttributes.indexOf(attr)];
+
+                            if (csvIndex !== -1 && inputField) {
+                                inputField.value = values[csvIndex];
+                            }
+                        });
+                    });
+                }, 500);
+            };
+
+            reader.readAsText(file);
+        });
+
+
+
+
+
     </script>
 
 {% endblock %}
