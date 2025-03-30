@@ -917,7 +917,7 @@ class InstancesView(generic.TemplateView):
                         "delete_on_termination": False,
                         "device_name": "/dev/vdb",
                     })
-                    logging.info(f"Hänge vorhandenes Volume {existing_volume_id} an {instance_name}")
+                    logging.info(f"Attach existing Volume {existing_volume_id} an {instance_name}")
                 elif use_existing == "new" and create_volume_size:
                     volume_size = int(create_volume_size)
                     volume_name = f"{instance_name}-volume"
@@ -939,7 +939,7 @@ class InstancesView(generic.TemplateView):
                         "device_name": "/dev/vdb",
                     })
                 else:
-                    logging.info(f"Keine Volumes an {instance_name} anhängen")
+                    logging.info(f" {instance_name} is without additional volume")
 
 
 
