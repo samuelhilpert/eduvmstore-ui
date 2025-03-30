@@ -306,10 +306,14 @@
 
              function generateVolumeDropdown(instanceId) {
             let html = `<option value="" disabled selected>Select Volume</option>`;
+            const requiredSize = {{ volume_size }};
             attachableVolumes.forEach(volume => {
-                html += `<option value="${volume.id}" data-volume-id="${volume.id}">
+                if (volume.size >= requiredSize) {
+                    html += `<option value="${volume.id}" data-volume-id="${volume.id}">
                     ${volume.name} (${volume.size} GB)
                  </option>`;
+                }
+
             });
             return html;
         }
@@ -419,15 +423,20 @@
             {% if hasAttachableVolumes %}
                 <option value="existing">Attach existing volume</option>
             {% endif %}
-            {% if app_template.volume_size_gb == 0 %}
+            {% if volume_size == 0 %}
                 <option value="none">No additional volumes</option>
             {% endif %}
         </select>
         {% if not hasAttachableVolumes %}
             <small class="form-text">There are currently no available volumes that can be attached.</small>
         {% endif %}
-
     </div>
+
+    <div class="form-group create-volume-size-group" id="create_volume_size_group_${i}" style="display: none;">
+        <label for="create_volume_size_${i}">Volume Size (GB)</label>
+        <input type="text" class="form-control" id="create_volume_size_${i}" name="create_volume_size_${i}"  value="${{ volume_size }}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+    </div>
+
 
 
         {% if hasAttachableVolumes  %}
@@ -505,9 +514,15 @@
                         group.style.display = "block";
                         volumeSelect.required = true;
                         volumeSelect.setCustomValidity("");
+                        createVolumeGroup.style.display = "none";
+                    } else if (this.value === "new") {
+                        group.style.display = "none";
+                        volumeSelect.required =false;
+                        createVolumeGroup.style.display = "block";
                     } else {
                         group.style.display = "none";
                         volumeSelect.required = false;
+                        createVolumeGroup.style.display = "none";
                     }
                 });
                 select.dispatchEvent(new Event("change"));
