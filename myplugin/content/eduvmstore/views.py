@@ -837,8 +837,9 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
-                use_existing = request.POST.get(f"use_existing_volume_{i}") == "existing"
+                use_existing = request.POST.get(f"use_existing_volume_{i}")
                 existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
+                create_volume_size = request.POST.get(f"create_volume_size_{i}")
                 accounts = []
                 instantiations = []
 
@@ -907,36 +908,39 @@ class InstancesView(generic.TemplateView):
                         metadata[key] = part_content
 
                 block_device_mapping_v2 = []
-                if volume_size > 0:
-                    if use_existing and existing_volume_id:
-                        block_device_mapping_v2.append({
-                            "boot_index": -1,
-                            "uuid": existing_volume_id,
-                            "source_type": "volume",
-                            "destination_type": "volume",
-                            "delete_on_termination": False,
-                            "device_name": "/dev/vdb",
-                        })
-                        logging.info(f"Hänge vorhandenes Volume {existing_volume_id} an {instance_name}")
-                    else:
-                        volume_name = f"{instance_name}-volume"
-                        volume = cinder.volume_create(
-                            request,
-                            size=volume_size,
-                            name=volume_name,
-                            description=f"Extra volume for {instance_name}",
-                            volume_type="__DEFAULT__"
-                        )
-                        volume = self.wait_for_volume_available(request, volume.id)
+                if use_existing == "existing" and existing_volume_id:
+                    block_device_mapping_v2.append({
+                        "boot_index": -1,
+                        "uuid": existing_volume_id,
+                        "source_type": "volume",
+                        "destination_type": "volume",
+                        "delete_on_termination": False,
+                        "device_name": "/dev/vdb",
+                    })
+                    logging.info(f"Hänge vorhandenes Volume {existing_volume_id} an {instance_name}")
+                elif use_existing == "new" and create_volume_size:
+                    volume_size = int(create_volume_size)
+                    volume_name = f"{instance_name}-volume"
+                    volume = cinder.volume_create(
+                        request,
+                        size=volume_size,
+                        name=volume_name,
+                        description=f"Extra volume for {instance_name}",
+                        volume_type="__DEFAULT__"
+                    )
+                    volume = self.wait_for_volume_available(request, volume.id)
 
-                        block_device_mapping_v2.append({
-                            "boot_index": -1,
-                            "uuid": volume.id,
-                            "source_type": "volume",
-                            "destination_type": "volume",
-                            "delete_on_termination": True,
-                            "device_name": "/dev/vdb",
-                        })
+                    block_device_mapping_v2.append({
+                        "boot_index": -1,
+                        "uuid": volume.id,
+                        "source_type": "volume",
+                        "destination_type": "volume",
+                        "delete_on_termination": True,
+                        "device_name": "/dev/vdb",
+                    })
+                else:
+                    logging.info(f"Keine Volumes an {instance_name} anhängen")
+
 
 
 
