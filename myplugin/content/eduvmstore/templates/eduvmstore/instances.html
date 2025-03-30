@@ -246,6 +246,10 @@
                                 <td>{{ app_template.fixed_cores }}</td>
                             </tr>
                             <tr>
+                                <th>Volume Size (GB)</th>
+                                <td>{{ app_template.volume_size_gb }}</td>
+                            </tr>
+                            <tr>
                                 <th>Per User RAM (GB)</th>
                                 <td>{{ app_template.per_user_ram_gb }}</td>
                             </tr>
@@ -511,7 +515,6 @@
 
          for (let i = 1; i <= numInstances; i++) {
         selectAutomaticFlavor(i);
-        updateVolumeSizeWarning(i, {{ volume_size }});
     }
     }
 
