@@ -441,6 +441,7 @@
 </div>
                     </div>
  <!-- Instantiation Attributes Container -->
+ {% if instantiationAttribute %}
                     <div class="section-container">
                         <h5>{{ _("Instantiation Attributes") }}</h5>
                         <div id="instantiation_section_${i}">
@@ -449,6 +450,8 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
+                    {% if accountAttributes %}
  <!-- Additional Users and Accounts Container -->
                     <div class="section-container">
                         <h5>{{ _("User Configuration") }}</h5>
@@ -480,6 +483,7 @@
                             <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                         </div>
                     </div>
+                    {% endif %}
 
           <!-- Navigation Buttons -->
                     <div class="d-flex justify-content-between mt-3">
