@@ -431,7 +431,6 @@
     <small class="form-text text-danger">There are currently no available volumes that can be attached.</small>
 {% endif %}
 
-        <small id="volume-size-warning-{{ i }}" class="form-text" style="display: none;"></small>
 
     </div>
 
@@ -551,28 +550,6 @@
            createVolumeGroup.style.display = "none";
        }
    }
-
-   function updateVolumeSizeWarning(instanceId, requiredSize) {
-       const select = document.getElementById(`existing_volume_id_${instanceId}`);
-       const warning = document.getElementById(`volume-size-warning-${instanceId}`);
-
-       if (!select || !warning) return;
-
-       // Prüfe, ob es mindestens eine gültige Option außer dem Platzhalter gibt
-       const validOptions = Array.from(select.options).filter(opt =>
-           opt.value && !opt.disabled
-       );
-
-       if (validOptions.length === 0) {
-           warning.style.display = "block";
-           warning.textContent = "No available volumes meet the required size (" + requiredSize + " GB).";
-       } else {
-           warning.style.display = "none";
-           warning.textContent = "";
-       }
-   }
-
-
 
 
 
