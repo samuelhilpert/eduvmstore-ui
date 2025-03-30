@@ -519,12 +519,14 @@
                const group = document.getElementById(`existing_volume_group_${instance}`);
                const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
 
-               if (this.value === "existing") {
-                   group.style.display = "block";
-                   volumeSelect.required = true;
-               } else {
-                   group.style.display = "none";
-                   volumeSelect.required = false;
+               if (group && volumeSelect) {
+                   if (this.value === "existing") {
+                       group.style.display = "block";
+                       volumeSelect.required = true;
+                   } else {
+                       group.style.display = "none";
+                       volumeSelect.required = false;
+                   }
                }
                updateCreateVolumeSizeVisibility(instance);
            });
