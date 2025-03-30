@@ -126,7 +126,7 @@
  </style>
 
  <div class="form-container">
-     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
+     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:clone' app_template.id %}">
          {% csrf_token %}
 
          <h3>App-Template Details</h3>
