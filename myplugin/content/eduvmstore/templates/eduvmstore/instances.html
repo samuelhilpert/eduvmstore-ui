@@ -427,14 +427,13 @@
                 <option value="none">No additional volumes</option>
             {% endif %}
         </select>
-        {% if not hasAttachableVolumes %}
-            <small class="form-text">There are currently no available volumes that can be attached.</small>
-        {% endif %}
+        <small id="volume-warning-{{ i }}" class="form-text" style="display: none;"></small>
+
     </div>
 
     <div class="form-group create-volume-size-group" id="create_volume_size_group_${i}" style="display: none;">
         <label for="create_volume_size_${i}">Volume Size (GB)</label>
-        <input type="text" class="form-control" id="create_volume_size_${i}" name="create_volume_size_${i}"  value="${{ volume_size }}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+        <input type="text" class="form-control" id="create_volume_size_${i}" name="create_volume_size_${i}"  value="{{ volume_size }}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
     </div>
 
 
@@ -509,6 +508,7 @@
 
          for (let i = 1; i <= numInstances; i++) {
         selectAutomaticFlavor(i);
+        updateVolumeWarning(i);
     }
     }
 
@@ -547,6 +547,34 @@
            createVolumeGroup.style.display = "none";
        }
    }
+
+   function updateVolumeWarning(instanceId) {
+       const warningElement = document.getElementById(`volume-warning-${instanceId}`);
+       const volumeSelect = document.getElementById(`existing_volume_id_${instanceId}`);
+       const requiredSize = {{ volume_size }};
+
+       if (!volumeSelect) return;
+
+       let hasOptions = false;
+       for (let option of volumeSelect.options) {
+           if (option.value && !option.disabled) {
+               hasOptions = true;
+               break;
+           }
+       }
+
+       if (!volumeSelect.options.length) {
+           warningElement.style.display = "block";
+           warningElement.textContent = "There are currently no available volumes that can be attached.";
+       } else if (!hasOptions) {
+           warningElement.style.display = "block";
+           warningElement.textContent = `All available volumes are too small (minimum required: ${requiredSize} GB).`;
+       } else {
+           warningElement.style.display = "none";
+           warningElement.textContent = "";
+       }
+   }
+
 
 
 
