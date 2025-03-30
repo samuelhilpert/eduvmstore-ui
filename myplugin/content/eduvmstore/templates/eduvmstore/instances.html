@@ -411,7 +411,7 @@
                         </select>
 
                         <!-- Volumes -->
-                          {% if volume_size > 0 %}
+
 <div class="form-group">
         <label for="use_existing_volume_${i}">{{ _("Additional Volumes") }}</label>
         <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
@@ -419,13 +419,15 @@
             {% if hasAttachableVolumes %}
                 <option value="existing">Attach existing volume</option>
             {% endif %}
+            {% if app_template.volume_size_gb == 0 %}
+                <option value="none">No additional volumes</option>
+            {% endif %}
         </select>
         {% if not hasAttachableVolumes %}
             <small class="form-text">There are currently no available volumes that can be attached.</small>
         {% endif %}
 
     </div>
-  {% endif %}
 
 
         {% if hasAttachableVolumes  %}
@@ -441,7 +443,6 @@
 </div>
                     </div>
  <!-- Instantiation Attributes Container -->
- {% if instantiationAttribute %}
                     <div class="section-container">
                         <h5>{{ _("Instantiation Attributes") }}</h5>
                         <div id="instantiation_section_${i}">
@@ -450,8 +451,6 @@
                             </div>
                         </div>
                     </div>
-                    {% endif %}
-                    {% if accountAttributes %}
  <!-- Additional Users and Accounts Container -->
                     <div class="section-container">
                         <h5>{{ _("User Configuration") }}</h5>
@@ -483,7 +482,6 @@
                             <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
                         </div>
                     </div>
-                    {% endif %}
 
           <!-- Navigation Buttons -->
                     <div class="d-flex justify-content-between mt-3">
