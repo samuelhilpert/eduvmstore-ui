@@ -505,7 +505,6 @@
         attachAccountButtonListeners();
         attachFlavorCalculationListeners();
         attachVolumeOptionListeners();
-        updateCreateVolumeSizeVisibility();
         attachVolumeChangeHandlers();
 
          for (let i = 1; i <= numInstances; i++) {
@@ -526,8 +525,8 @@
                } else {
                    group.style.display = "none";
                    volumeSelect.required = false;
-                   createVolumeGroup.style.display = "none";
                }
+               updateCreateVolumeSizeVisibility(instance);
            });
 
            select.dispatchEvent(new Event("change"));
