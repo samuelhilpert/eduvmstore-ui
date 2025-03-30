@@ -504,7 +504,7 @@
         attachInstanceEventListeners();
         attachAccountButtonListeners();
         attachFlavorCalculationListeners();
-        attachVolumeOptionListeners();
+        setTimeout(attachVolumeOptionListeners, 0);
         attachVolumeChangeHandlers();
 
          for (let i = 1; i <= numInstances; i++) {
@@ -536,6 +536,8 @@
            });
 
            select.dispatchEvent(new Event("change"));
+           console.log("Volume Listener für", select.id, "mit Wert:", select.value);
+
        });
    }
 
