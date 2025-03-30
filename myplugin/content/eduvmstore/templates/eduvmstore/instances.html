@@ -510,6 +510,7 @@
                     const instance = this.dataset.instance;
                     const group = document.getElementById(`existing_volume_group_${instance}`);
                     const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
+                    const createVolumeGroup = document.getElementById(`create_volume_size_group_${instance}`);
                     if (this.value === "existing") {
                         group.style.display = "block";
                         volumeSelect.required = true;
