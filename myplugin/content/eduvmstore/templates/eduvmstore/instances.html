@@ -364,12 +364,6 @@
                 </li>
             `;
 
-
-
-        attachInstanceEventListeners();
-        attachAccountButtonListeners();
-        attachFlavorCalculationListeners();
-
             instancesContainer.innerHTML += `
                 <div class="tab-pane ${i === 1 ? 'show active' : ''}" id="${contentId}" role="tabpanel">
                     <h4 id="instanceTitle_${i}">${instanceName}</h4>
@@ -506,7 +500,12 @@
                 </div>
             `;
         }
+
+        attachInstanceEventListeners();
+        attachAccountButtonListeners();
+        attachFlavorCalculationListeners();
         attachVolumeOptionListeners();
+        updateCreateVolumeSizeVisibility();
         attachVolumeChangeHandlers();
 
          for (let i = 1; i <= numInstances; i++) {
@@ -520,16 +519,10 @@
                const instance = this.dataset.instance;
                const group = document.getElementById(`existing_volume_group_${instance}`);
                const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
-               const createVolumeGroup = document.getElementById(`create_volume_size_group_${instance}`);
 
                if (this.value === "existing") {
                    group.style.display = "block";
                    volumeSelect.required = true;
-                   createVolumeGroup.style.display = "none";
-               } else if (this.value === "new") {
-                   group.style.display = "none";
-                   volumeSelect.required = false;
-                   createVolumeGroup.style.display = "block";
                } else {
                    group.style.display = "none";
                    volumeSelect.required = false;
@@ -541,6 +534,19 @@
 
        });
    }
+
+   function updateCreateVolumeSizeVisibility(instance) {
+       const createVolumeGroup = document.getElementById(`create_volume_size_group_${instance}`);
+       const volumeModeSelect = document.getElementById(`use_existing_volume_${instance}`);
+       if (!createVolumeGroup || !volumeModeSelect) return;
+
+       if (volumeModeSelect.value === "new") {
+           createVolumeGroup.style.display = "block";
+       } else {
+           createVolumeGroup.style.display = "none";
+       }
+   }
+
 
 
    function attachInstanceEventListeners() {
