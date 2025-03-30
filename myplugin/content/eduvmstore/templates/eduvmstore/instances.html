@@ -504,39 +504,43 @@
         attachInstanceEventListeners();
         attachAccountButtonListeners();
         attachFlavorCalculationListeners();
-
-          document.querySelectorAll(".use-existing-volume").forEach(select => {
-                select.addEventListener("change", function () {
-                    const instance = this.dataset.instance;
-                    const group = document.getElementById(`existing_volume_group_${instance}`);
-                    const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
-                    const createVolumeGroup = document.getElementById(`create_volume_size_group_${instance}`);
-                    if (this.value === "existing") {
-                        group.style.display = "block";
-                        volumeSelect.required = true;
-                        volumeSelect.setCustomValidity("");
-                        createVolumeGroup.style.display = "none";
-                    } else if (this.value === "new") {
-                        group.style.display = "none";
-                        volumeSelect.required =false;
-                        createVolumeGroup.style.display = "block";
-                    } else {
-                        group.style.display = "none";
-                        volumeSelect.required = false;
-                        createVolumeGroup.style.display = "none";
-                    }
-                });
-                select.dispatchEvent(new Event("change"));
-            });
-
-            attachVolumeChangeHandlers();
+        attachVolumeOptionListeners();
+        attachVolumeChangeHandlers();
 
          for (let i = 1; i <= numInstances; i++) {
         selectAutomaticFlavor(i);
     }
     }
 
-      function attachInstanceEventListeners() {
+   function attachVolumeOptionListeners() {
+       document.querySelectorAll(".use-existing-volume").forEach(select => {
+           select.addEventListener("change", function () {
+               const instance = this.dataset.instance;
+               const group = document.getElementById(`existing_volume_group_${instance}`);
+               const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
+               const createVolumeGroup = document.getElementById(`create_volume_size_group_${instance}`);
+
+               if (this.value === "existing") {
+                   group.style.display = "block";
+                   volumeSelect.required = true;
+                   createVolumeGroup.style.display = "none";
+               } else if (this.value === "new") {
+                   group.style.display = "none";
+                   volumeSelect.required = false;
+                   createVolumeGroup.style.display = "block";
+               } else {
+                   group.style.display = "none";
+                   volumeSelect.required = false;
+                   createVolumeGroup.style.display = "none";
+               }
+           });
+
+           select.dispatchEvent(new Event("change"));
+       });
+   }
+
+
+   function attachInstanceEventListeners() {
             document.querySelectorAll(".next-instance").forEach(button => {
                 button.addEventListener("click", function () {
                     let instanceId = parseInt(this.getAttribute("data-instance"));
