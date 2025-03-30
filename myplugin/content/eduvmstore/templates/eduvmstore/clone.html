@@ -312,6 +312,7 @@ write_files:
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        checkName();
     document.querySelectorAll("input[type='text']").forEach(function(input) {
         input.value = input.value.replace(",", ".");
     });
