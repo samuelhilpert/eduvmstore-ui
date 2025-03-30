@@ -1532,11 +1532,12 @@ class CloneView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to update an existing app template.
+        Handle POST requests to clone an existing app template.
 
-        This method processes the form data submitted via POST request to update an existing app template
-        by sending the updated data to the backend API. It handles the extraction of instantiation and account
-        attributes, constructs the data payload, and makes a PUT request to the API endpoint.
+        This method processes the form data submitted via POST request to clone an existing app template
+        by sending the cloned and updated data to the backend API. It handles the extraction of
+        instantiation and account attributes, constructs the data payload,
+         and makes a POST request to the API endpoint.
 
         :param request: The incoming HTTP request containing form data.
         :type request: HttpRequest
