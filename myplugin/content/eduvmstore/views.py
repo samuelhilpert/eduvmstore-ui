@@ -1601,7 +1601,7 @@ class CloneView(generic.TemplateView):
                 headers=headers,
                 timeout=10,
             )
-            if response.status_code == 200:
+            if response.status_code == 201:
                 modal_message = _("App-Template cloned successfully.")
                 messages.success(request, f"App Template cloned successfully.")
             else:
