@@ -1511,75 +1511,159 @@ class DeleteTemplateView(View):
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
-class CloneTemplateView(View):
-    """Handles app template deletion.
-       Deletion is allowed only if the image owner (from Glance) matches the user ID returned from Keystone.
-       After deletion, it also attempts to remove the template from favorites.
+class CloneView(generic.TemplateView):
     """
+    View to handle editing of an app template.
+    """
+    template_name = 'eduvmstore_dashboard/eduvmstore/clone.html'
 
-    def post(self, request, template_id):
+    def get(self, request, *args, **kwargs):
+        """
+            Render the template on GET request.
+            :param HttpRequest request: The incoming HTTP GET request.
+            :return: Rendered HTML response.
+        """
+        context = self.get_context_data()
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to update an existing app template.
+
+        This method processes the form data submitted via POST request to update an existing app template
+        by sending the updated data to the backend API. It handles the extraction of instantiation and account
+        attributes, constructs the data payload, and makes a PUT request to the API endpoint.
+
+        :param request: The incoming HTTP request containing form data.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :type args: tuple
+        :param kwargs: Additional keyword arguments.
+        :type kwargs: dict
+        :return: Rendered HTML response with the updated app template details or an error message.
+        :rtype: HttpResponse
+        """
+
         token_id = get_token_id(request)
-        template_name = request.POST.get("template_name")
-
-        if not token_id:
-            messages.error(request, "Authentication token not found.")
-            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
-        if not template_id:
-            messages.error(request, "App Template ID is required.")
-            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
         headers = {"X-Auth-Token": token_id}
 
-        detail_api_url = API_ENDPOINTS['app_template_detail'].format(template_id=template_id)
+        instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
+        if instantiation_attribute_raw:
+            instantiation_attributes = [
+                {"name": attr.strip()}
+                for attr in instantiation_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            instantiation_attributes = []
+
+        account_attribute_raw = request.POST.get('account_attributes', '').strip()
+        if account_attribute_raw:
+            account_attributes = [
+                {"name": attr.strip()}
+                for attr in account_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            account_attributes = []
+
+        data = {
+            'image_id': request.POST.get('image_id'),
+            'name': request.POST.get('name'),
+            'description': request.POST.get('description'),
+            'short_description': request.POST.get('short_description'),
+            'instantiation_notice': request.POST.get('instantiation_notice'),
+            'public': request.POST.get('public'),
+            'approved': request.POST.get('approved'),
+            'script': request.POST.get('hiddenScriptField'),
+            'instantiation_attributes': instantiation_attributes,
+            'account_attributes': account_attributes,
+            'version': request.POST.get('version'),
+            'volume_size_gb': request.POST.get('volume_size'),
+            'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
+            'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
+            'fixed_cores': request.POST.get('fixed_cores'),
+            'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
+            'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
+            'per_user_cores': request.POST.get('per_user_cores'),
+        }
+        app_template_id = kwargs.get("template_id")  # ID aus der URL holen
+
+        if not app_template_id:
+            return JsonResponse({"error": "App Template ID is required"}, status=400)
+
+        update_url = API_ENDPOINTS['app_templates_update'].format(template_id=app_template_id)
+
         try:
-            detail_response = requests.get(detail_api_url, headers=headers, timeout=10)
-            if detail_response.status_code != 200:
-                messages.error(request, "Failed to fetch template details.")
-                return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-            template_detail = detail_response.json()
-        except requests.RequestException as e:
-            messages.error(request, f"Error fetching template details: {str(e)}")
-            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
-        creator_id = template_detail.get('creator_id')
-
-        user_id = self.request.user.token.user['id']
-        if not user_id:
-            messages.error(request, "Could not verify logged-in user with Keystone.")
-            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
-        if creator_id.replace('-', '') != user_id.replace('-', ''):
-
-            messages.error(request, "You are not authorized to delete this template.")
-            return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
-        try:
-            api_url = API_ENDPOINTS['app_template_delete'].format(template_id=template_id)
-            response = requests.delete(api_url, headers=headers, timeout=10)
-
-            if response.status_code == 204:
-                messages.success(request, f"'{template_name}' was successfully deleted.")
-
-                try:
-                    favorite_api_url = API_ENDPOINTS['delete_favorite']
-                    payload = {"app_template_id": template_id}
-                    fav_response = requests.delete(favorite_api_url, json=payload, headers=headers,
-                                                   timeout=10)
-                    if fav_response.status_code not in [204, 404]:
-                        error_message = fav_response.json().get("error", "Unknown error occurred.")
-                        messages.warning(
-                            request,
-                            f"'{template_name}' deleted, but still a favorite: {error_message}")
-                except requests.RequestException:
-                    pass
-
+            response = requests.put(
+                update_url,
+                json=data,
+                headers=headers,
+                timeout=10,
+            )
+            if response.status_code == 200:
+                modal_message = _("App-Template updated successfully.")
+                messages.success(request, f"App Template updated successfully.")
             else:
-                error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to delete '{template_name}': {error_message}")
+                modal_message = _("Failed to update App-Template. Please try again.")
+                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
+                messages.error(request, f"Failed to update App-Template. {response.text}")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request error: {e}")
+            modal_message = _("Failed to update App-Template. Please try again.")
 
+        context = self.get_context_data(modal_message=modal_message)
+        return render(request, self.template_name, context)
+
+    def get_context_data(self, **kwargs):
+        """
+            Add app template and image data to the context.
+            :param kwargs: Additional context parameters.
+            :return: Context dictionary with app template and image details.
+            :rtype: dict
+        """
+        context = super().get_context_data(**kwargs)
+        app_template = self.get_app_template()
+        image_data = self.get_image_data(app_template.get('image_id', ''))
+        context.update({
+            'app_template': app_template,
+            'image_visibility': image_data.get('visibility', 'N/A'),
+            'image_owner': image_data.get('owner', 'N/A'),
+        })
+        return context
+
+    def get_app_template(self):
+        """
+            Fetch a specific app template from the external database using token authentication.
+            :param token_id: Authentication token for API access.
+            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :rtype: dict
+        """
+        token_id = get_token_id(self.request)
+        headers = {"X-Auth-Token": token_id}
+
+        try:
+            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                template_id=self.kwargs['template_id']),
+                headers=headers, timeout=10))
+
+            response.raise_for_status()
+            return response.json()
         except requests.RequestException as e:
-            messages.error(request, f"Error during API call: {str(e)}")
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
 
-        return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+    def get_image_data(self, image_id):
+        """
+            Fetch image details from Glance based on the image_id.
+            :param image_id: ID of the image to retrieve.
+            :return: Dictionary with visibility and owner details of the image.
+            :rtype: dict
+        """
+        try:
+            image = glance.image_get(self.request, image_id)
+            return {'visibility': image.visibility, 'owner': image.owner}
+        except Exception as e:
+            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+            return {}
 

@@ -16,6 +16,6 @@ urlpatterns = [
     path('delete_template/<str:template_id>/', views.DeleteTemplateView.as_view(), name='delete_template'),
     path('delete_favorite_template', views.DeleteFavoriteAppTemplateView.as_view(),
          name='delete_favorite_template'),
-    path('clone_template/<str:template_id>/', views.CloneTemplateView.as_view(), name='clone_template'),
+    path('clone/<str:template_id>/', views.CloneView.as_view(), name='clone'),
 
 ]
