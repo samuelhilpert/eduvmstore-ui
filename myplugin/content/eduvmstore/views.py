@@ -1587,30 +1587,30 @@ class CloneView(generic.TemplateView):
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
         }
-        app_template_id = kwargs.get("template_id")  # ID aus der URL holen
+        app_template_id = kwargs.get("template_id")
 
         if not app_template_id:
             return JsonResponse({"error": "App Template ID is required"}, status=400)
 
-        update_url = API_ENDPOINTS['app_templates_update'].format(template_id=app_template_id)
+        update_url = API_ENDPOINTS['app_templates']
 
         try:
-            response = requests.put(
+            response = requests.post(
                 update_url,
                 json=data,
                 headers=headers,
                 timeout=10,
             )
             if response.status_code == 200:
-                modal_message = _("App-Template updated successfully.")
-                messages.success(request, f"App Template updated successfully.")
+                modal_message = _("App-Template cloned successfully.")
+                messages.success(request, f"App Template cloned successfully.")
             else:
-                modal_message = _("Failed to update App-Template. Please try again.")
+                modal_message = _("Failed to clone App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                messages.error(request, f"Failed to update App-Template. {response.text}")
+                messages.error(request, f"Failed to clone App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            modal_message = _("Failed to update App-Template. Please try again.")
+            modal_message = _("Failed to clone App-Template. Please try again.")
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
