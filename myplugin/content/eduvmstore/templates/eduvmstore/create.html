@@ -316,6 +316,16 @@ The values will be written to the file /etc/users.txt.">
                 <input type="text" id="account_attributes" name="account_attributes" class="form-control" >
             </div>
 
+            <div class="col-md-12 mt-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="generate_ssh_script" onchange="toggleSshScript(this)">
+                    <label class="form-check-label" for="generate_ssh_script">
+                        Generate SSH setup for users
+                    </label>
+                </div>
+            </div>
+
+
             <div class="col-md-4">
                 <label for="script_file">Upload Script:
                     <span data-toggle="tooltip"  data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
@@ -523,6 +533,111 @@ write_files:
             console.error("Fehler bei der Validierung:", error);
         }
     }
+
+    function toggleSshScript(checkbox) {
+        const sshScript = `
+runcmd:
+  - |
+    # Create directory for private keys
+    mkdir -p /home/ubuntu/user_keys
+    chmod 700 /home/ubuntu/user_keys
+    chown ubuntu:ubuntu /home/ubuntu/user_keys
+
+    # Set first user account as admin
+    FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
+
+    # Create users
+    while IFS=: read -r username password; do
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s /bin/bash "$username"
+        echo "$username:$password" | chpasswd
+      fi
+
+      # Create SSH directory and key
+      sudo -u "$username" mkdir -p /home/"$username"/.ssh
+      chmod 700 /home/"$username"/.ssh
+
+      # Generate SSH key
+      sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
+
+      # Set Public Key as authorized_key
+      cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
+      chmod 600 /home/"$username"/.ssh/authorized_keys
+      chown -R "$username:$username" /home/"$username"/.ssh
+
+      # Secure private keys for the admin & Ubuntu user
+      cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
+      chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
+      chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
+    done < /etc/users.txt
+
+    # Set first user as admin
+    if [ -n "$FIRST_USER" ]; then
+      echo "$FIRST_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$FIRST_USER
+      chmod 440 /etc/sudoers.d/$FIRST_USER
+    fi
+
+    # SSH configuration: Disable password login
+    sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+    sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+    systemctl restart ssh`;
+
+        if (checkbox.checked) {
+            document.getElementById('scriptText').value = sshScript.trim();
+            document.getElementById('hiddenScriptField').value = sshScript.trim();
+        } else {
+            document.getElementById('scriptText').value = '';
+            document.getElementById('hiddenScriptField').value = '';
+        }
+    }
+    function toggleSshScript(checkbox) {
+        const sshScript = `
+runcmd:
+  - |
+    # Create directory for private keys
+    mkdir -p /home/ubuntu/user_keys
+    chmod 700 /home/ubuntu/user_keys
+    chown ubuntu:ubuntu /home/ubuntu/user_keys
+
+    # Create users
+    while IFS=: read -r username password; do
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s /bin/bash "$username"
+        echo "$username:$password" | chpasswd
+      fi
+
+      # Create SSH directory and key
+      sudo -u "$username" mkdir -p /home/"$username"/.ssh
+      chmod 700 /home/"$username"/.ssh
+
+      # Generate SSH key
+      sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
+
+      # Set Public Key as authorized_key
+      cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
+      chmod 600 /home/"$username"/.ssh/authorized_keys
+      chown -R "$username:$username" /home/"$username"/.ssh
+
+      # Secure private keys for the admin & Ubuntu user
+      cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
+      chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
+      chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
+    done < /etc/users.txt
+
+    # SSH configuration: Disable password login
+    sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+    sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+    systemctl restart ssh`;
+
+        if (checkbox.checked) {
+            document.getElementById('scriptText').value = sshScript.trim();
+            document.getElementById('hiddenScriptField').value = sshScript.trim();
+        } else {
+            document.getElementById('scriptText').value = '';
+            document.getElementById('hiddenScriptField').value = '';
+        }
+    }
+
 
 
 
