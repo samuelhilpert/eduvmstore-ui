@@ -919,7 +919,11 @@ class InstancesView(generic.TemplateView):
                     })
                     logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
                 elif use_existing == "new" and create_volume_size:
-                    volume_size = int(create_volume_size)
+                    try:
+                        volume_size = int(create_volume_size)
+                    except ValueError:
+                        volume_size = 0
+
                     volume_name = f"{instance_name}-volume"
                     volume = cinder.volume_create(
                         request,
