@@ -543,9 +543,6 @@ runcmd:
     chmod 700 /home/ubuntu/user_keys
     chown ubuntu:ubuntu /home/ubuntu/user_keys
 
-    # Set first user account as admin
-    FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
-
     # Create users
     while IFS=: read -r username password; do
       if ! id "$username" &>/dev/null; then
@@ -570,12 +567,6 @@ runcmd:
       chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
       chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
     done < /etc/users.txt
-
-    # Set first user as admin
-    if [ -n "$FIRST_USER" ]; then
-      echo "$FIRST_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$FIRST_USER
-      chmod 440 /etc/sudoers.d/$FIRST_USER
-    fi
 
     # SSH configuration: Disable password login
     sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
