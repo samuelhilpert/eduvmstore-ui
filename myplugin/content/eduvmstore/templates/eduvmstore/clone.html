@@ -173,11 +173,12 @@
             <div class="col-md-4">
 
 
-            <label for="public">Available for:</label>
-            <select name="public" id="public" class="form-control select-box" required>
-                <option value="True" {% if app_template.approved == "true" %}selected{% endif %}>Everyone</option>
-                 <option value="False" {% if app_template.approved == "false" %}selected{% endif %}>Creator only</option>
-            </select>
+                <label for="public">Available for:</label>
+                <select name="public" id="public" class="form-control select-box" required>
+                    <option value="True" {% if app_template.approved %}selected{% endif %}>Everyone</option>
+                    <option value="False" {% if not app_template.approved %}selected{% endif %}>Creator only</option>
+                </select>
+
 
             </div>
         </div>
