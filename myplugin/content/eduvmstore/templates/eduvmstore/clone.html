@@ -175,8 +175,8 @@
 
                 <label for="public">Available for:</label>
                 <select name="public" id="public" class="form-control select-box" required>
-                    <option value="True" {% if app_template.approved %}selected{% endif %}>Everyone</option>
-                    <option value="False" {% if not app_template.approved %}selected{% endif %}>Creator only</option>
+                    <option value="True" {% if app_template.public %}selected{% endif %}>Everyone</option>
+                    <option value="False" {% if not app_template.public %}selected{% endif %}>Creator only</option>
                 </select>
 
 
