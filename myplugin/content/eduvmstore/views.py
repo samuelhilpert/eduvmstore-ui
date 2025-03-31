@@ -561,7 +561,7 @@ class EditView(generic.TemplateView):
             logging.error(f"Request error: {e}")
             modal_message = _("Failed to update App-Template. Please try again.")
 
-        context = self.get_context_data(modal_message=modal_message)
+        self.get_context_data(modal_message=modal_message)
         return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
     def get_context_data(self, **kwargs):
