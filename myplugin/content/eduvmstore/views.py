@@ -1521,7 +1521,7 @@ class DeleteTemplateView(View):
 
 class CloneView(generic.TemplateView):
     """
-    View to handle editing of an app template.
+    View to handle cloning of an app template.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/clone.html'
 
