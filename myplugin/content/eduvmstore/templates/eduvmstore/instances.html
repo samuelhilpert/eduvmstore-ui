@@ -440,7 +440,10 @@
 
     <div class="form-group create-volume-size-group" id="create_volume_size_group_${i}" style="display: none;">
         <label for="create_volume_size_${i}">Volume Size (GB)</label>
-        <input type="number" class="form-control" id="create_volume_size_${i}" name="create_volume_size_${i}"  value="{{ volume_size }}" min="{{ volume_size }}">
+        <input type="number" class="form-control" id="create_volume_size_{{ i }}" name="create_volume_size_{{ i }}"
+       value="{{ volume_size }}"
+       min="{% if volume_size > 1 %}{{ volume_size }}{% else %}1{% endif %}">
+
     </div>
 
 
