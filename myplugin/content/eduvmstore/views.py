@@ -425,7 +425,7 @@ class CreateView(generic.TemplateView):
             modal_message = _("Failed to create App-Template. Please try again.")
 
         context = self.get_context_data(modal_message=modal_message)
-        return render(request, self.template_name, context)
+        return render(request, 'horizon:eduvmstore_dashboard:eduvmstore:index', context)
 
     def get_context_data(self, **kwargs):
         """
@@ -561,7 +561,7 @@ class EditView(generic.TemplateView):
             modal_message = _("Failed to update App-Template. Please try again.")
 
         context = self.get_context_data(modal_message=modal_message)
-        return render(request, self.template_name, context)
+        return render(request, 'horizon:eduvmstore_dashboard:eduvmstore:index', context)
 
     def get_context_data(self, **kwargs):
         """
@@ -1623,7 +1623,7 @@ class CloneView(generic.TemplateView):
             modal_message = _("Failed to clone App-Template. Please try again.")
 
         context = self.get_context_data(modal_message=modal_message)
-        return render(request, self.template_name, context)
+        return render(request, 'horizon:eduvmstore_dashboard:eduvmstore:index', context)
 
     def get_context_data(self, **kwargs):
         """

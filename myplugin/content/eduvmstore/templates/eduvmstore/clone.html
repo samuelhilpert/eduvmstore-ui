@@ -313,6 +313,8 @@ write_files:
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         checkName();
+        var scriptText = document.getElementById('scriptText').value;
+        document.getElementById('hiddenScriptField').value = scriptText;
     document.querySelectorAll("input[type='text']").forEach(function(input) {
         input.value = input.value.replace(",", ".");
     });
