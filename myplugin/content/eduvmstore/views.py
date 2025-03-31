@@ -842,6 +842,10 @@ class InstancesView(generic.TemplateView):
                 create_volume_size = request.POST.get(f"create_volume_size_{i}")
                 accounts = []
                 instantiations = []
+                try:
+                    volume_size = int(create_volume_size)
+                except ValueError:
+                    volume_size = 1
 
                 no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
 
@@ -918,11 +922,8 @@ class InstancesView(generic.TemplateView):
                         "device_name": "/dev/vdb",
                     })
                     logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
-                elif use_existing == "new" and create_volume_size:
-                    try:
-                        volume_size = int(create_volume_size)
-                    except ValueError:
-                        volume_size = 0
+
+                elif use_existing == "new" and volume_size >= 1:
 
                     volume_name = f"{instance_name}-volume"
                     volume = cinder.volume_create(
@@ -943,7 +944,7 @@ class InstancesView(generic.TemplateView):
                         "device_name": "/dev/vdb",
                     })
                 else:
-                    logging.info(f" {instance_name} is without additional volume")
+                    logging.info(f"{instance_name} is without additional volume")
 
 
 
