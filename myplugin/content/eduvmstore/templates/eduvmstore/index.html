@@ -232,7 +232,7 @@
     <h2>All App-Templates</h2>
 
 <form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}">
-    <input type="text" id="search" name="search" class="form-control"
+    <input type="text" id="search" name="search" class="form-control" style="margin-bottom: 10px"
            placeholder="Search app templates" value="{{ request.GET.search }}">
 </form>
 
