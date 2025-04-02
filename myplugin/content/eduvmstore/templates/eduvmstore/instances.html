@@ -310,9 +310,9 @@
 
              function generateVolumeDropdown(instanceId) {
             let html = `<option value="" disabled selected>Select Volume</option>`;
-            const requiredSize = {{ volume_size }};
+            let requiredVolumeSize = {{ volume_size }};
             attachableVolumes.forEach(volume => {
-                if (volume.size >= requiredSize) {
+                if (volume.size >= requiredVolumeSize) {
                     html += `<option value="${volume.id}" data-volume-id="${volume.id}">
                     ${volume.name} (${volume.size} GB)
                  </option>`;
@@ -439,8 +439,8 @@
     </div>
 
     <div class="form-group create-volume-size-group" id="create_volume_size_group_${i}" style="display: none;">
-        <label for="create_volume_size_${i}">Volume Size (GB)</label>
-        <input type="number" class="form-control" id="create_volume_size_${i}" name="create_volume_size_${i}"  value="{{ volume_size }}" min="{{ volume_size }}">
+        <label for="volume_size_instance_${i}">Volume Size (GB)</label>
+        <input type="number" class="form-control" id="volume_size_instance_${i}" name="volume_size_instance${i}"  value="{{ volume_size }}" min="{{ volume_size }}">
     </div>
 
 
@@ -522,19 +522,20 @@
        document.querySelectorAll(".use-existing-volume").forEach(select => {
            select.addEventListener("change", function () {
                const instance = this.dataset.instance;
-               const group = document.getElementById(`existing_volume_group_${instance}`);
-               const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
-
-               if (group && volumeSelect) {
+               const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
+               const selectedVolumeId = document.getElementById(`existing_volume_id_${instance}`);
+                // Check if the volumeGroup and selectedVolumeId exist for attaching existing volumes
+               // If they do, toggle their visibility to block or none
+               if (volumeGroup && selectedVolumeId {
                    if (this.value === "existing") {
-                       group.style.display = "block";
-                       volumeSelect.required = true;
+                       volumeGroup.style.display = "block";
+                       selectedVolumeId.required = true;
                    } else {
-                       group.style.display = "none";
-                       volumeSelect.required = false;
+                       volumeGroup.style.display = "none";
+                       selectedVolumeId.required = false;
                    }
                }
-               updateCreateVolumeSizeVisibility(instance);
+               attachVolumeCreateListeners(instance);
            });
 
            select.dispatchEvent(new Event("change"));
@@ -542,15 +543,18 @@
        });
    }
 
-   function updateCreateVolumeSizeVisibility(instance) {
-       const createVolumeGroup = document.getElementById(`create_volume_size_group_${instance}`);
+   function attachVolumeCreateListeners(instance) {
+       const volumeSizeInputField = document.getElementById(`create_volume_size_group_${instance}`);
        const volumeModeSelect = document.getElementById(`use_existing_volume_${instance}`);
-       if (!createVolumeGroup || !volumeModeSelect) return;
 
-       if (volumeModeSelect.value === "new") {
-           createVolumeGroup.style.display = "block";
-       } else {
-           createVolumeGroup.style.display = "none";
+       try {
+           if (volumeModeSelect.value === "new") {
+               volumeSizeInputField.style.display = "block";
+           } else {
+               volumeSizeInputField.style.display = "none";
+           }
+       } catch (error) {
+           console.error("Error handling volume mode selection:", error);
        }
    }
 

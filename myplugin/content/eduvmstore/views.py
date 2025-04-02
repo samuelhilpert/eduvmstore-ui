@@ -562,6 +562,7 @@ class EditView(generic.TemplateView):
             modal_message = _("Failed to update App-Template. Please try again.")
 
         self.get_context_data(modal_message=modal_message)
+        # After updating redirect to Dashboard overview
         return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
     def get_context_data(self, **kwargs):
@@ -840,7 +841,7 @@ class InstancesView(generic.TemplateView):
                 network_id = request.POST.get(f'network_id_{i}')
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
-                create_volume_size = request.POST.get(f"create_volume_size_{i}")
+                create_volume_size = request.POST.get(f"volume_size_instance_${i}")
                 accounts = []
                 instantiations = []
                 try:
@@ -919,14 +920,15 @@ class InstancesView(generic.TemplateView):
                         "uuid": existing_volume_id,
                         "source_type": "volume",
                         "destination_type": "volume",
-                        "delete_on_termination": False,
+                        "delete_on_termination": True,
                         "device_name": "/dev/vdb",
                     })
                     logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
-
+                # OpenStack only allows Volumes larger than 1 GB
                 elif use_existing == "new" and volume_size >= 1:
 
                     volume_name = f"{instance_name}-volume"
+                    # Create Volume via Cinder
                     volume = cinder.volume_create(
                         request,
                         size=volume_size,
@@ -936,6 +938,7 @@ class InstancesView(generic.TemplateView):
                     )
                     volume = self.wait_for_volume_available(request, volume.id)
 
+                    # Attach an additional block device (a virtual disk) to the instance.
                     block_device_mapping_v2.append({
                         "boot_index": -1,
                         "uuid": volume.id,
@@ -1523,7 +1526,9 @@ class DeleteTemplateView(View):
 
 class CloneView(generic.TemplateView):
     """
-    View to handle cloning of an app template.
+        View to handle cloning of an AppTemplate.
+    Cloning in this context means starting the AppTemplate Creation
+     with the values of an existing AppTemplate
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/clone.html'
 
@@ -1603,11 +1608,11 @@ class CloneView(generic.TemplateView):
         if not app_template_id:
             return JsonResponse({"error": "App Template ID is required"}, status=400)
 
-        update_url = API_ENDPOINTS['app_templates']
+        clone_url = API_ENDPOINTS['app_templates']
 
         try:
             response = requests.post(
-                update_url,
+                clone_url,
                 json=data,
                 headers=headers,
                 timeout=10,
