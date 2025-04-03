@@ -422,14 +422,13 @@ write_files:
 
     });
 
-    let accountAttributes = {{ app_template.account_attributes|safe }};
+    let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
     let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("account_attributes").value = formattedAccounts;
 
-    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-    let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
-    document.getElementById("instantiation_attributes").value = formattedInstatiation;
-
+    let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
+    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("instantiation_attributes").value = formattedInstantiation;
 
     $(document).ready(function() {
         $('[data-toggle="tooltip"]').tooltip();
