@@ -1546,6 +1546,7 @@ class CloneView(generic.TemplateView):
         account_attributes = [{"name": attr.strip()} for attr in account_attribute_raw.split(':') if attr.strip()] if account_attribute_raw else []
 
         data = {
+            'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
             'short_description': request.POST.get('short_description'),
