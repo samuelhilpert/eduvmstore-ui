@@ -413,7 +413,9 @@ write_files:
         checkName();
         var scriptText = document.getElementById('scriptText').value;
         document.getElementById('hiddenScriptField').value = scriptText;
-
+        document.querySelectorAll("input[type='text']").forEach(function(input) {
+            input.value = input.value.replace(",", ".");
+        });
     });
 
     let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
