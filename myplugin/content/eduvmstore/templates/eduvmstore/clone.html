@@ -143,6 +143,18 @@
 
 
 
+         <div class="form-group row">
+             <div class="col-md-4">
+                 <label for="image_id">Select Image:<span style="color: red;">*</span></label>
+                 <select name="image_id" id="image_id" class="form-control select-box" required>
+                     {% for image in images %}
+                         <option value="{{ image.0 }}" {% if app_template.image_id == image.0 %}selected{% endif %}>
+                             {{ image.1 }}
+                         </option>
+                     {% endfor %}
+                 </select>
+             </div>
+         </div>
 
          <div class="form-group row">
              <div class="col-md-6">

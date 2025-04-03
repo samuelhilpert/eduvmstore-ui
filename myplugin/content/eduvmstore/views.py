@@ -1546,13 +1546,11 @@ class CloneView(generic.TemplateView):
         account_attributes = [{"name": attr.strip()} for attr in account_attribute_raw.split(':') if attr.strip()] if account_attribute_raw else []
 
         data = {
-            'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
             'description': request.POST.get('description'),
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
-            'approved': request.POST.get('approved'),
             'script': request.POST.get('hiddenScriptField'),
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
