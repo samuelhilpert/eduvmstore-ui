@@ -129,8 +129,21 @@
 </style>
 
 <div class="form-container">
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create' %}">
-        {% csrf_token %}
+    <form method="post" action="
+        {% if app_template.id %}
+        {% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}
+        {% else %}
+        {% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}
+        {% endif %}
+    ">
+    {% csrf_token %}
+
+        {% if app_template.id %}
+            <input type="hidden" name="app_template_id" value="{{ app_template.id }}">
+        {% endif %}
+        {% if app_template.approved %}
+            <input type="hidden" name="approved" value="{{ app_template.approved }}">
+        {% endif %}
 
         <h3>App-Template Details</h3>
         <div class="form-group row">
@@ -138,14 +151,12 @@
                 <label for="image_id">Select Image:<span style="color: red;">*</span></label>
                 <select name="image_id" id="image_id" class="form-control select-box" required>
                     {% for image in images %}
-                        <option value="{{ image.0 }}">{{ image.1 }}</option>
+                        <option value="{{ image.0 }}" {% if app_template.image_id == image.0 %}selected{% endif %}>{{ image.1 }}</option>
                     {% endfor %}
                 </select>
             </div>
-
         </div>
 
-        <!-- Modal for script input -->
 
         <div class="form-group row">
             <div class="col-md-6">
@@ -157,7 +168,7 @@
                 </label>
                 <input type="text" id="name" name="name" class="form-control" required
                        data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:validate_name' %}"
-                       oninput="checkName()">
+                       oninput="checkName()" value="{{ app_template.name }}">
                 <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
@@ -166,7 +177,8 @@
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
-                <input type="text" id="short_description" name="short_description" class="form-control" required>
+                <input type="text" id="short_description" name="short_description" class="form-control" required
+                       value="{{ app_template.short_description }}">
             </div>
         </div>
         <div class="form-group">
@@ -175,7 +187,9 @@
             <i class="fa fa-question-circle"></i>
         </span>
             </label>
-            <textarea id="description" name="description" class="form-control" required></textarea>
+            <textarea id="description" name="description" class="form-control" required>
+                {{ app_template.description }}
+            </textarea>
         </div>
         <div class="form-group">
             <label for="instantiation_notice">Instantiation Notice:
@@ -184,7 +198,9 @@
             <i class="fa fa-question-circle"></i>
         </span>
             </label>
-            <textarea id="instantiation_notice" name="instantiation_notice" class="form-control"></textarea>
+            <textarea id="instantiation_notice" name="instantiation_notice" class="form-control">
+                {{ app_template.instantiation_notice }}
+            </textarea>
         </div>
 
 
@@ -198,8 +214,8 @@
                             <i class="fa fa-question-circle"></i>
                       </span></label>
             <select name="public" id="public" class="form-control select-box" required>
-                <option value="True">Everyone</option>
-                <option value="False">Creator only</option>
+                <option value="True" {% if app_template.public %}selected{% endif %}>Everyone</option>
+                <option value="False" {% if not app_template.public %}selected{% endif %}>Creator only</option>
             </select>
 
             </div>
@@ -219,7 +235,7 @@
 
                     <input type="text" id="fixed_ram_gb"
                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                           name="fixed_ram_gb" class="form-control"
+                           name="fixed_ram_gb" class="form-control" value="{{ app_template.fixed_ram_gb }}"
                            required>
                 </div>
                 <div class="form-group">
@@ -230,7 +246,8 @@
                       </span>
                     </label>
                     <input type="text" id="fixed_disk_gb" name="fixed_disk_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           value="{{ app_template.fixed_disk_gb }}">
                 </div>
                 <div class="form-group">
                     <label for="fixed_cores">Fixed Cores:<span style="color: red;">*</span>
@@ -240,7 +257,8 @@
                       </span>
                     </label>
                     <input type="text" id="fixed_cores" name="fixed_cores" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           value="{{ app_template.fixed_cores }}">
                 </div>
                 <div class="form-group">
                     <label for="volume_size">Volume Size (GB):<span style="color: red;">*</span>
@@ -252,7 +270,8 @@
                       </span>
                     </label>
                     <input type="text" id="volume_size" name="volume_size" class="form-control"
-                           oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                           value="{{ app_template.volume_size_gb }}">
                 </div>
             </div>
 
@@ -266,7 +285,8 @@
         </span>
                     </label>
                     <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           value="{{ app_template.per_user_ram_gb }}">
                 </div>
                 <div class="form-group">
                     <label for="per_user_disk_gb">Per User Disk (GB):<span style="color: red;">*</span>
@@ -276,7 +296,8 @@
         </span>
                     </label>
                     <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           value="{{ app_template.per_user_disk_gb }}">
                 </div>
                 <div class="form-group">
                     <label for="per_user_cores">Per User Cores:<span style="color: red;">*</span>
@@ -286,7 +307,8 @@
         </span>
                     </label>
                     <input type="text" id="per_user_cores" name="per_user_cores" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
+                           value="{{ app_template.per_user_cores }}">
                 </div>
             </div>
 
@@ -302,7 +324,8 @@ The values will be written to the file /etc/attributes.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
-                <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" >
+                <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control"
+                value="{{ app_template.instantiation_attributes }}">
             </div>
             <div class="col-md-4">
                 <label for="account_attributes">Account Attributes:
@@ -313,7 +336,8 @@ The values will be written to the file /etc/users.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
-                <input type="text" id="account_attributes" name="account_attributes" class="form-control" >
+                <input type="text" id="account_attributes" name="account_attributes" class="form-control"
+                value="{{ app_template.account_attributes }}">
             </div>
 
             <div class="col-md-4">
@@ -352,7 +376,7 @@ write_files:
 
         </pre>
 
-                <textarea id="scriptText" class="form-control " rows="10"></textarea>
+                <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
                 <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">Save Script</button>
 
             </div>
@@ -392,6 +416,13 @@ write_files:
 
 <!-- JavaScript to handle modal -->
 <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        checkName();
+        var scriptText = document.getElementById('scriptText').value;
+        document.getElementById('hiddenScriptField').value = scriptText;
+
+    });
 
     $(document).ready(function() {
         $('[data-toggle="tooltip"]').tooltip();
