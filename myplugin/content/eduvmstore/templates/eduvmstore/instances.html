@@ -18,110 +18,6 @@
 
 {% block main %}
 
-    <style>
-    .clickable {
-        cursor: pointer;
-        color: #007bff;
-        text-decoration: underline;
-    }
-    .clickable:hover {
-        text-decoration: none;
-    }
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    .form-control {
-        border-radius: 5px;
-        border: 1px solid #ced4da;
-        padding: 0.5rem 0.75rem;
-        transition: border-color 0.3s ease;
-    }
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-
-    .modal-content {
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .modal-header {
-        color: #fff;
-        border-radius: 8px 8px 0 0;
-    }
-    .modal-title {
-        font-weight: bold;
-    }
-    .modal-footer {
-        border-top: 1px solid #e0e0e0;
-    }
-    .table {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .table th, .table td {
-        padding: 0.75rem;
-        color: #333333;
-    }
-    h5 {
-       color: #333333;
-    }
-
-    .button-container {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-
-    /* Section Styling */
-    .section-container {
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        background-color: #f9f9f9;
-    }
-
-    /* Account Fields Grid Layout */
-    .account-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-
-    .account-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px;
-        background-color: #ffffff;
-    }
-
-.section-container h5 {
-    color: #333333;
-    margin-bottom: 20px;
-    font-size: 18px;
-}
-
-.section-container h6 {
-    color: #555555;
-    margin-bottom: 15px;
-    font-size: 16px;
-}
-
-    .account-card h5 {
-        margin-bottom: 15px;
-        font-size: 16px;
-    }
-
-    .account-card .form-group {
-        margin-bottom: 10px;
-    }
-
-    .account-card .remove-account {
-        margin-top: 10px;
-    }
-</style>
 
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
@@ -296,15 +192,14 @@
 
 
    <script>
-
-   //Volumes
-     const attachableVolumes = [
+       //Volumes
+        const attachableVolumes = [
             {% for volume in attachable_volumes %}
                 { id: "{{ volume.id }}", name: "{{ volume.name }}", size: {{ volume.size }} },
             {% endfor %}
         ];
 
-             function generateVolumeDropdown(instanceId) {
+        function generateVolumeDropdown(instanceId) {
             let html = `<option value="" disabled selected>Select Volume</option>`;
             attachableVolumes.forEach(volume => {
                 html += `<option value="${volume.id}" data-volume-id="${volume.id}">
@@ -315,22 +210,24 @@
         }
 
 
-    document.getElementById("num_instances").addEventListener("input", function () {
-        if (this.value > 100) {
-            this.value = 100;
-        } else if (this.value < 1) {
-            this.value = 1;
-        }
-    });
+        document.getElementById("num_instances").addEventListener("input", function () {
+            const MAX_NUM_INSTANCES = 100;
+            if (this.value > MAX_NUM_INSTANCES) {
+                this.value = MAX_NUM_INSTANCES;
+            } else if (this.value < 1) {
+                this.value = 1;
+            }
+        });
 
-    let accountAttributes = {{ expected_account_fields|safe }};
-    let instantiationAttribute = {{ expected_instantiation_fields|safe }};
+        let accountAttributes = {{ expected_account_fields|safe }};
+        let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
     function generateInstanceFields() {
         let instanceTabs = document.getElementById("instanceTabs");
         let instancesContainer = document.getElementById("instancesContainer");
 
         let numInstancesInput = document.getElementById("num_instances");
+        //ensure numInstances is a natural number base 10, if not 1
         let numInstances = parseInt(numInstancesInput.value, 10) || 1;
         numInstancesInput.value = numInstances;
 
@@ -339,6 +236,23 @@
 
         instanceTabs.innerHTML = "";
         instancesContainer.innerHTML = "";
+
+        // Add all Instance Tab
+        if (numInstances > 1) {
+            instanceTabs.innerHTML += `
+                <li class="nav-item">
+                    <a class="nav-link active" id="instanceTab_all" data-toggle="tab" href="#instanceContent_all" role="tab">
+                        All Instances
+                    </a>
+                </li>
+            `;
+            instancesContainer.innerHTML += `
+                <div class="tab-pane show active" id="instanceContent_all" role="tabpanel">
+                    <h4>{{ _("All Instances") }}</h4>
+                    <input type="hidden" name="generated_instance_name_all" value="${baseName}">
+                </div>
+            `;
+        }
 
         for (let i = 1; i <= numInstances; i++) {
                 let instanceName = "";
