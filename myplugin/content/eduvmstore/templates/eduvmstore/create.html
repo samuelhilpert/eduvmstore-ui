@@ -132,12 +132,6 @@
     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}">
     {% csrf_token %}
 
-        {% if app_template.id %}
-            <input type="hidden" name="app_template_id" value="{{ app_template.id }}">
-        {% endif %}
-        {% if app_template.approved %}
-            <input type="hidden" name="approved" value="{{ app_template.approved }}">
-        {% endif %}
 
         <h3>App-Template Details</h3>
         <div class="form-group row">
