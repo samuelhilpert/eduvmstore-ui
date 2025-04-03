@@ -349,40 +349,18 @@ class CreateView(generic.TemplateView):
     # success_url = reverse_lazy('/eduvmstore_dashboard/')
 
     def get(self, request, *args, **kwargs):
-        """
-            Render the template on GET request.
-            :param HttpRequest request: The incoming HTTP GET request.
-            :return: Rendered HTML response.
-        """
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to create a new app template by sending data to the backend API.
-        """
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
         instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
-        if instantiation_attribute_raw:
-            instantiation_attributes = [
-                {"name": attr.strip()}
-                for attr in instantiation_attribute_raw.split(':')
-                if attr.strip()
-            ]
-        else:
-            instantiation_attributes = []
+        instantiation_attributes = [{"name": attr.strip()} for attr in instantiation_attribute_raw.split(':') if attr.strip()] if instantiation_attribute_raw else []
 
         account_attribute_raw = request.POST.get('account_attributes', '').strip()
-        if account_attribute_raw:
-            account_attributes = [
-                {"name": attr.strip()}
-                for attr in account_attribute_raw.split(':')
-                if attr.strip()
-            ]
-        else:
-            account_attributes = []
+        account_attributes = [{"name": attr.strip()} for attr in account_attribute_raw.split(':') if attr.strip()] if account_attribute_raw else []
 
         data = {
             'image_id': request.POST.get('image_id'),
@@ -390,10 +368,10 @@ class CreateView(generic.TemplateView):
             'description': request.POST.get('description'),
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
+            'public': request.POST.get('public'),
             'script': request.POST.get('hiddenScriptField'),
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
-            'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -402,8 +380,6 @@ class CreateView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
-            'created_at': request.POST.get('created_at')
-
         }
 
         try:
@@ -414,61 +390,62 @@ class CreateView(generic.TemplateView):
                 timeout=10,
             )
             if response.status_code == 201:
-                modal_message = _("App-Template created successfully.")
-                messages.success(request, f"App Template created successfully.")
+                messages.success(request, f"App Template cloned successfully.")
             else:
-                modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                messages.error(request, f"Failed to create App-Template. {response.text}")
+                messages.error(request, f"Failed to clone App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            modal_message = _("Failed to create App-Template. Please try again.")
+            messages.error(request, f"Failed to clone App-Template. Please try again.")
 
-        self.get_context_data(modal_message=modal_message)
         return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
-
     def get_context_data(self, **kwargs):
-        """
-            Add available images to the context for template selection.
-            :param kwargs: Additional context parameters.
-            :return: Context dictionary with available images.
-            :rtype: dict
-        """
         context = super().get_context_data(**kwargs)
-        glance_images = self.get_images_data()
-        context['images'] = [(image.id, image.name) for image in glance_images]
+
         template_id = self.kwargs.get('template_id')
         if template_id:
-            try:
-                token_id = get_token_id(self.request)
-                headers = {"X-Auth-Token": token_id}
-                response = requests.get(
-                    f"{API_ENDPOINTS['app_templates']}/{template_id}",
-                    headers=headers,
-                    timeout=10,
-                )
-                if response.status_code == 200:
-                    context['app_template'] = response.json()
-                else:
-                    logging.warning(f"Could not fetch template: {response.status_code}")
-                    context['app_template'] = {}
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Error fetching app template: {e}")
-                context['app_template'] = {}
+            app_template = self.get_app_template(template_id)
+            image_data = self.get_image_data(app_template.get('image_id', ''))
         else:
-            context['app_template'] = {}
+            app_template = {}
+            image_data = {}
 
-        context.update(kwargs)
+        context.update({
+            'app_template': app_template,
+            'image_visibility': image_data.get('visibility', 'N/A'),
+            'image_owner': image_data.get('owner', 'N/A'),
+        })
+
+        glance_images = self.get_images_data()
+        context['images'] = [(image.id, image.name) for image in glance_images]
+
         return context
 
-    def get_images_data(self):
-        """
-        Fetch the images from the Glance API using the Horizon API.
+    def get_app_template(self, template_id):
+        token_id = get_token_id(self.request)
+        headers = {"X-Auth-Token": token_id}
+        try:
+            response = requests.get(
+                API_ENDPOINTS['app_template_detail'].format(template_id=template_id),
+                headers=headers,
+                timeout=10
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
 
-        :return: List of images retrieved from Glance, or an empty list if retrieval fails.
-        :rtype: list
-        """
+    def get_image_data(self, image_id):
+        try:
+            image = glance.image_get(self.request, image_id)
+            return {'visibility': image.visibility, 'owner': image.owner}
+        except Exception as e:
+            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+            return {}
+
+    def get_images_data(self):
         try:
             filters = {}
             images, has_more_data, has_prev_data = glance.image_list_detailed(
