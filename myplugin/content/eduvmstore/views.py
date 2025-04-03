@@ -435,7 +435,7 @@ class CreateView(generic.TemplateView):
             :return: Context dictionary with available images.
             :rtype: dict
         """
-        context = {}
+        context = super().get_context_data(**kwargs)
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
         template_id = self.kwargs.get('template_id')
