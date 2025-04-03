@@ -1526,62 +1526,24 @@ class DeleteTemplateView(View):
 
 class CloneView(generic.TemplateView):
     """
-        View to handle cloning of an AppTemplate.
-    Cloning in this context means starting the AppTemplate Creation
-     with the values of an existing AppTemplate
+    Unified view for both creating a new app template and cloning an existing one.
+    If a template_id is provided, it pre-fills the form with data from that template.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/clone.html'
 
     def get(self, request, *args, **kwargs):
-        """
-            Render the template on GET request.
-            :param HttpRequest request: The incoming HTTP GET request.
-            :return: Rendered HTML response.
-        """
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to clone an existing app template.
-
-        This method processes the form data submitted via POST request to clone an existing app template
-        by sending the cloned and updated data to the backend API. It handles the extraction of
-        instantiation and account attributes, constructs the data payload,
-         and makes a POST request to the API endpoint.
-
-        :param request: The incoming HTTP request containing form data.
-        :type request: HttpRequest
-        :param args: Additional positional arguments.
-        :type args: tuple
-        :param kwargs: Additional keyword arguments.
-        :type kwargs: dict
-        :return: Rendered HTML response with the updated app template details or an error message.
-        :rtype: HttpResponse
-        """
-
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
         instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
-        if instantiation_attribute_raw:
-            instantiation_attributes = [
-                {"name": attr.strip()}
-                for attr in instantiation_attribute_raw.split(':')
-                if attr.strip()
-            ]
-        else:
-            instantiation_attributes = []
+        instantiation_attributes = [{"name": attr.strip()} for attr in instantiation_attribute_raw.split(':') if attr.strip()] if instantiation_attribute_raw else []
 
         account_attribute_raw = request.POST.get('account_attributes', '').strip()
-        if account_attribute_raw:
-            account_attributes = [
-                {"name": attr.strip()}
-                for attr in account_attribute_raw.split(':')
-                if attr.strip()
-            ]
-        else:
-            account_attributes = []
+        account_attributes = [{"name": attr.strip()} for attr in account_attribute_raw.split(':') if attr.strip()] if account_attribute_raw else []
 
         data = {
             'image_id': request.POST.get('image_id'),
@@ -1603,66 +1565,56 @@ class CloneView(generic.TemplateView):
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
         }
-        app_template_id = kwargs.get("template_id")
-
-        if not app_template_id:
-            return JsonResponse({"error": "App Template ID is required"}, status=400)
-
-        clone_url = API_ENDPOINTS['app_templates']
 
         try:
             response = requests.post(
-                clone_url,
+                API_ENDPOINTS['app_templates'],
                 json=data,
                 headers=headers,
                 timeout=10,
             )
             if response.status_code == 201:
-                modal_message = _("App-Template cloned successfully.")
                 messages.success(request, f"App Template cloned successfully.")
             else:
-                modal_message = _("Failed to clone App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
                 messages.error(request, f"Failed to clone App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            modal_message = _("Failed to clone App-Template. Please try again.")
+            messages.error(request, f"Failed to clone App-Template. Please try again.")
 
-        self.get_context_data(modal_message=modal_message)
         return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
     def get_context_data(self, **kwargs):
-        """
-            Add app template and image data to the context.
-            :param kwargs: Additional context parameters.
-            :return: Context dictionary with app template and image details.
-            :rtype: dict
-        """
         context = super().get_context_data(**kwargs)
-        app_template = self.get_app_template()
-        image_data = self.get_image_data(app_template.get('image_id', ''))
+
+        template_id = self.kwargs.get('template_id')
+        if template_id:
+            app_template = self.get_app_template(template_id)
+            image_data = self.get_image_data(app_template.get('image_id', ''))
+        else:
+            app_template = {}
+            image_data = {}
+
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
         })
+
+        glance_images = self.get_images_data()
+        context['images'] = [(image.id, image.name) for image in glance_images]
+
         return context
 
-    def get_app_template(self):
-        """
-            Fetch a specific app template from the external database using token authentication.
-            :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
-            :rtype: dict
-        """
+    def get_app_template(self, template_id):
         token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
-
         try:
-            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
-                template_id=self.kwargs['template_id']),
-                headers=headers, timeout=10))
-
+            response = requests.get(
+                API_ENDPOINTS['app_template_detail'].format(template_id=template_id),
+                headers=headers,
+                timeout=10
+            )
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
@@ -1670,12 +1622,6 @@ class CloneView(generic.TemplateView):
             return {}
 
     def get_image_data(self, image_id):
-        """
-            Fetch image details from Glance based on the image_id.
-            :param image_id: ID of the image to retrieve.
-            :return: Dictionary with visibility and owner details of the image.
-            :rtype: dict
-        """
         try:
             image = glance.image_get(self.request, image_id)
             return {'visibility': image.visibility, 'owner': image.owner}
@@ -1683,3 +1629,15 @@ class CloneView(generic.TemplateView):
             exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
             return {}
 
+    def get_images_data(self):
+        try:
+            filters = {}
+            images, has_more_data, has_prev_data = glance.image_list_detailed(
+                self.request,
+                filters=filters,
+                paginate=True
+            )
+            return images
+        except Exception as e:
+            logging.error(f"Unable to retrieve images: {e}")
+            return []

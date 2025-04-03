@@ -126,9 +126,8 @@
  </style>
 
  <div class="form-container">
-     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:clone' app_template.id %}">
-         {% csrf_token %}
-
+     <form method="post" action="{% if app_template.id %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:clone' app_template.id %}{% else %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:clone_empty' %}{% endif %}">
+     {% csrf_token %}
          <h3>App-Template Details</h3>
 
         <div class="col-md-6" hidden="hidden">
