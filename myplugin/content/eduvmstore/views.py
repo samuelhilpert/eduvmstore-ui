@@ -342,17 +342,47 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     """
-        View to handle the creation of a new app template with specified details.
+    View for creating a new app template.
+
+    This view handles the display and submission of the form for creating a new app template.
+    It processes the form data, validates it, and sends it to the backend API for creation.
     """
+
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
 
-    # success_url = reverse_lazy('/eduvmstore_dashboard/')
-
     def get(self, request, *args, **kwargs):
-        context = self.get_context_data()
-        return render(request, self.template_name, context)
+            """
+            Handle GET requests to render the create app template form.
+
+            This method retrieves the context data required for rendering the form
+            and returns an HTTP response with the rendered template.
+
+            :param request: The incoming HTTP GET request.
+            :type request: HttpRequest
+            :param args: Additional positional arguments.
+            :param kwargs: Additional keyword arguments.
+            :return: Rendered HTML response.
+            :rtype: HttpResponse
+            """
+            context = self.get_context_data()
+            return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to create a new app template.
+
+        This method processes the form data submitted via POST request, validates it,
+        and sends it to the backend API for creating a new app template. It handles
+        the response and displays appropriate success or error messages.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: HTTP response redirecting to the index page.
+        :rtype: HttpResponse
+        """
+
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
@@ -390,17 +420,27 @@ class CreateView(generic.TemplateView):
                 timeout=10,
             )
             if response.status_code == 201:
-                messages.success(request, f"App Template cloned successfully.")
+                messages.success(request, f"App Template create successfully.")
             else:
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                messages.error(request, f"Failed to clone App-Template. {response.text}")
+                messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            messages.error(request, f"Failed to clone App-Template. Please try again.")
+            messages.error(request, f"Failed to create App-Template. Please try again.")
 
         return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
     def get_context_data(self, **kwargs):
+        """
+        Add app template and image data to the context for rendering the template.
+
+        This method fetches the app template and associated image data if a template ID is provided.
+        It also retrieves a list of available images from Glance and adds this information to the context.
+
+        :param kwargs: Additional context parameters.
+        :return: Context dictionary with app template, image visibility, image owner, and available images.
+        :rtype: dict
+        """
         context = super().get_context_data(**kwargs)
 
         template_id = self.kwargs.get('template_id')
@@ -423,6 +463,19 @@ class CreateView(generic.TemplateView):
         return context
 
     def get_app_template(self, template_id):
+        """
+        Fetch a specific app template from the external database using token authentication.
+
+        This function retrieves the token ID from the request, constructs the headers,
+        and makes a GET request to the external API to fetch the app template details.
+        If the request is successful, it returns the JSON response. In case of an error,
+        it logs the error and returns an empty dictionary.
+
+        :param template_id: The ID of the app template to retrieve.
+        :type template_id: str
+        :return: JSON response of app template details if successful, otherwise an empty dict.
+        :rtype: dict
+        """
         token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
         try:
@@ -438,6 +491,18 @@ class CreateView(generic.TemplateView):
             return {}
 
     def get_image_data(self, image_id):
+        """
+        Fetch image details from Glance based on the image_id.
+
+        This function retrieves the image details from the Glance API using the provided image_id.
+        If the image is found, it returns a dictionary containing the visibility and owner of the image.
+        If an error occurs during the retrieval, it logs the error and returns an empty dictionary.
+
+        :param image_id: ID of the image to retrieve.
+        :type image_id: str
+        :return: Dictionary with visibility and owner details of the image.
+        :rtype: dict
+        """
         try:
             image = glance.image_get(self.request, image_id)
             return {'visibility': image.visibility, 'owner': image.owner}
@@ -446,6 +511,16 @@ class CreateView(generic.TemplateView):
             return {}
 
     def get_images_data(self):
+        """
+        Fetch images from the Glance API using Horizon API.
+
+        This function retrieves a list of images available to the current tenant
+        by making a call to the Glance API. It returns the list of images if successful,
+        otherwise logs an error and returns an empty list.
+
+        :return: List of images or an empty list if an error occurs.
+        :rtype: list
+        """
         try:
             filters = {}
             images, has_more_data, has_prev_data = glance.image_list_detailed(
