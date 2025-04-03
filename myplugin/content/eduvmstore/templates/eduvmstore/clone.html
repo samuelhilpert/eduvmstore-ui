@@ -130,18 +130,16 @@
      {% csrf_token %}
          <h3>App-Template Details</h3>
 
-        <div class="col-md-6" hidden="hidden">
-                 <label for="image_id">Image ID:</label>
-                 <input type="text" hidden="hidden"  name="app_template_id" value="{{ app_template.id }}">
-             </div>
-        <div class="col-md-6" hidden="hidden">
-                 <label for="image_id">Image ID:</label>
-                 <input type="text" id="image_id" name="image_id" class="form-control" value="{{ app_template.image_id }}" required>
-             </div>
-     <div class="col-md-6" hidden="hidden">
-                 <label for="approved">Approved:</label>
-                 <input type="text" id="approved" name="approved" class="form-control" value="{{ app_template.approved }}" required>
-             </div>
+         {% if app_template.id %}
+             <input type="hidden" name="app_template_id" value="{{ app_template.id }}">
+         {% endif %}
+         {% if app_template.image_id %}
+             <input type="hidden" name="image_id" value="{{ app_template.image_id }}">
+         {% endif %}
+         {% if app_template.approved %}
+             <input type="hidden" name="approved" value="{{ app_template.approved }}">
+         {% endif %}
+
 
 
 
