@@ -17,8 +17,4 @@ urlpatterns = [
     path('delete_template/<str:template_id>/', views.DeleteTemplateView.as_view(), name='delete_template'),
     path('delete_favorite_template', views.DeleteFavoriteAppTemplateView.as_view(),
          name='delete_favorite_template'),
-    path('clone/', views.CloneView.as_view(), name='clone_empty'),
-    path('clone/<str:template_id>/', views.CloneView.as_view(), name='clone'),
-
-
 ]
