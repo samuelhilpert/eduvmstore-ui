@@ -199,7 +199,7 @@
             {% endfor %}
         ];
 
-        function generateVolumeDropdown(instanceId) {
+        function generateVolumeDropdown(instanceIndex) {
             let html = `<option value="" disabled selected>Select Volume</option>`;
             attachableVolumes.forEach(volume => {
                 html += `<option value="${volume.id}" data-volume-id="${volume.id}">
@@ -222,247 +222,435 @@
         let accountAttributes = {{ expected_account_fields|safe }};
         let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
-    function generateInstanceFields() {
-        let instanceTabs = document.getElementById("instanceTabs");
-        let instancesContainer = document.getElementById("instancesContainer");
-
-        let numInstancesInput = document.getElementById("num_instances");
-        //ensure numInstances is a natural number base 10, if not 1
-        let numInstances = parseInt(numInstancesInput.value, 10) || 1;
-        numInstancesInput.value = numInstances;
-
-        const baseNameInput = document.getElementById("instances_name");
-        let baseName = baseNameInput ? baseNameInput.value.trim() : "";
-
-        instanceTabs.innerHTML = "";
-        instancesContainer.innerHTML = "";
-
-        // Add all Instance Tab
-        if (numInstances > 1) {
-            instanceTabs.innerHTML += `
-                <li class="nav-item">
-                    <a class="nav-link active" id="instanceTab_all" data-toggle="tab" href="#instanceContent_all" role="tab">
-                        All Instances
-                    </a>
-                </li>
-            `;
-            instancesContainer.innerHTML += `
-                <div class="tab-pane show active" id="instanceContent_all" role="tabpanel">
-                    <h4>{{ _("All Instances") }}</h4>
-                    <input type="hidden" name="generated_instance_name_all" value="${baseName}">
-                </div>
-            `;
-        }
-
-        for (let i = 1; i <= numInstances; i++) {
-                let instanceName = "";
-                if (baseName) {
-                    if (numInstances === 1) {
-                        instanceName = baseName;
-                    } else {
-                        instanceName = `${baseName}-${i}`;
-                    }
-                }
-                const tabId = `instanceTab_${i}`;
-                const contentId = `instanceContent_${i}`;
-
-            instanceTabs.innerHTML += `
-                <li class="nav-item">
-                    <a class="nav-link ${i === 1 ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
-                        Instance ${i}
-                    </a>
-                </li>
-            `;
-
-            instancesContainer.innerHTML += `
-                <div class="tab-pane ${i === 1 ? 'show active' : ''}" id="${contentId}" role="tabpanel">
-                    <h4 id="instanceTitle_${i}">${instanceName}</h4>
-                    <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
-
-                    <!-- Flavor and Network Selection Container -->
-                    <div class="section-container">
-                        <h5>{{ _("Resource Configuration") }}</h5>
-
-                        <!-- Display Fixed Resource Requirements and Available Resources -->
-                        <div class="alert alert-info mt-3">
-                            <p><strong>{{ _("Resource Requirements") }}:</strong></p>
-                            <ul>
-                                <li>{{ _("RAM") }}: <span id="total_ram_${i}"></span> GB </li>
-                                <li>{{ _("Disk") }}: <span id="total_disk_${i}"></span> GB </li>
-                                <li>{{ _("CPU Cores") }}: <span id="total_cores_${i}"></span></li>
-                            </ul>
-                        </div>
-
-                        <!-- Flavor Selection -->
-                        <div class="form-group">
-                            <label for="flavor_id_${i}">{{ _("Select Flavor") }}</label>
-                            <select class="form-control flavor-dropdown" id="flavor_id_${i}" name="flavor_id_${i}" required>
-                                {% if flavors.suitable_flavors %}
-
-                            {% for flavor_id, flavor_data in flavors.suitable_flavors.items %}
-                                <option value="{{ flavor_id }}"
-                                        data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.cores }} }'
-                                        {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                                    {{ flavor_data.name }}
-                                </option>
-                            {% endfor %}
+        function generateFlavorSection(instanceIndex, isAllInstances = false) {
+            const labelPrefix = isAllInstances ? "{{ _('Select Flavor for all Instances') }}" : "{{ _('Select Flavor') }}";
+            return `
+                 <!-- Flavor Selection -->
+                <div class="form-group">
+                    <label for="flavor_id_${instanceIndex}">${labelPrefix}</label>
+                     <select class="form-control flavor-dropdown ${isAllInstances ? 'all-instances-flavor' : ''}"
+                            id="flavor_id_${instanceIndex}"
+                            name="flavor_id_${instanceIndex}" required>
+                     {% if flavors.suitable_flavors %}
+                        {% for flavor_id, flavor_data in flavors.suitable_flavors.items() %}
+                            <option value="{{ flavor_id }}"
+                                    data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.cores }} }'
+                                    {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
+                                {{ flavor_data.name }}
+                            </option>
+                        {% endfor %}
                         {% else %}
                             <option value="" disabled>{{ _("No suitable flavors found.") }}</option>
                         {% endif %}
-                            </select>
-                        </div>
-
-                       <div class="form-group">
-                        <label for="network_id_${i}">{{ _("Select Network") }}</label>
-                        <select class="form-control" id="network_id_${i}" name="network_id_${i}" required>
-                            {% if networks %}
-                                {% for network_id, network_name in networks.items %}
-                                    <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="" disabled selected>{{ _("No networks available") }}</option>
-                            {% endif %}
-                        </select>
-
-                        <!-- Volumes -->
-                          {% if volume_size > 0 %}
-<div class="form-group">
-        <label for="use_existing_volume_${i}">{{ _("Additional Volumes") }}</label>
-        <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
-            <option value="new" selected>Create new volume</option>
-            {% if hasAttachableVolumes %}
-                <option value="existing">Attach existing volume</option>
-            {% endif %}
-        </select>
-        {% if not hasAttachableVolumes %}
-            <small class="form-text">There are currently no available volumes that can be attached.</small>
-        {% endif %}
-
-    </div>
-  {% endif %}
-
-
-        {% if hasAttachableVolumes  %}
-       <div class="form-group existing-volume-group" id="existing_volume_group_${i}" style="display: none;">
-    <label for="existing_volume_id_${i}">Available volumes</label>
-    <select class="form-control existing-volume-select" name="existing_volume_id_${i}" id="existing_volume_id_${i}" data-instance="${i}">
-        ${generateVolumeDropdown(i)}
-    </select>
-</div>
-   {% endif %}
-
-
-</div>
-                    </div>
- <!-- Instantiation Attributes Container -->
-                    <div class="section-container">
-                        <h5>{{ _("Instantiation Attributes") }}</h5>
-                        <div id="instantiation_section_${i}">
-                            <div id="dynamic_instantiation_container_${i}">
-                                ${generateInstantiationFields(i)}
-                            </div>
-                        </div>
-                    </div>
- <!-- Additional Users and Accounts Container -->
-                    <div class="section-container">
-                        <h5>{{ _("User Configuration") }}</h5>
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${i}" name="no_additional_users_${i}" checked>
-                            <label class="form-check-label" for="no_additional_users_${i}">{{ _("No additional users") }}</label>
-                        </div>
-
-                        <div class="form-group mt-3" id="user_count_section_${i}" style="display: none;">
-                            <label for="user_count_${i}">{{ _("Number of Additional Users") }}</label>
-                            <input type="number" class="form-control user-count-input" id="user_count_${i}" name="user_count_${i}" min="1" value="1">
-                        </div>
-
-                        <div id="accounts_section_${i}" style="display: none;">
-
-      <!-- CSV Upload -->
-                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-            <div style="flex-grow: 1;">
-                <label for="csvUpload_${i}">{{ _("Upload CSV") }}</label>
-                <div style="display: flex; align-items: center;">
-                    <input type="file" class="form-control-file csv-upload" id="csvUpload_${i}"
-                           data-instance="${i}" accept=".csv" style="width: auto;">
-                    <!-- Undo button will be inserted here by JavaScript -->
+                    </select>
                 </div>
-            </div>
-        </div>
-                  <h6>{{ _("Accounts") }}</h6>
-                            <div id="dynamic_accounts_container_${i}" class="account-grid"></div>
-                            <button type="button" class="btn btn-secondary add_account_btn" data-instance="${i}" style="display: none;">{{ _("Add Account") }}</button>
-                        </div>
-                    </div>
+            `;
+        }
 
-          <!-- Navigation Buttons -->
-                    <div class="d-flex justify-content-between mt-3">
-                        ${i > 1 ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${i}">← {{ _("Previous Instance") }}</button>` : ""}
-                        ${i < numInstances ? `<button type="button" class="btn btn-primary next-instance" data-instance="${i}">→ {{ _("Next Instance") }}</button>` : ""}
+        function generateNetworkSection(instanceIndex, isAllInstances = false) {
+            const labelPrefix = isAllInstances ? "{{ _('Select Network for all Instances') }}" : "{{ _('Select Network') }}";
+            return `
+                <div class="form-group">
+                    <label for="network_id_${instanceIndex}">${labelPrefix}</label>
+                    <select class="form-control ${isAllInstances ? 'all-instances-network' : ''}"
+                            id="network_id_${instanceIndex}"
+                            name="network_id_${instanceIndex}" required>
+                        {% if networks %}
+                            {% for network_id, network_name in networks.items() %}
+                                <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled selected>{{ _("No networks available") }}</option>
+                        {% endif %}
+                    </select>
+                </div>
+            `;
+        }
+
+        function generateVolumeSection(instanceIndex, isAllInstances = false) {
+            return `
+                <!-- Volumes -->
+                {% if volume_size > 0 %}
+                <div class="form-group">
+                    <label for="use_existing_volume_${instanceIndex}">{{ _("Additional Volumes") }}</label>
+                    <select class="form-control use-existing-volume ${isAllInstances ? 'all-instances-volume-option' : ''}"
+                            id="use_existing_volume_${instanceIndex}"
+                            name="use_existing_volume_${instanceIndex}"
+                            data-instance="${instanceIndex}">
+                        <option value="new" selected>Create new volume</option>
+                        {% if hasAttachableVolumes %}
+                            <option value="existing">Attach existing volume</option>
+                        {% endif %}
+                    </select>
+                    {% if not hasAttachableVolumes %}
+                        <small class="form-text">There are currently no available volumes that can be attached.</small>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if hasAttachableVolumes %}
+                <div class="form-group existing-volume-group" id="existing_volume_group_${instanceIndex}" style="display: none;">
+                    <label for="existing_volume_id_${instanceIndex}">Available volumes</label>
+                    <select class="form-control existing-volume-select ${isAllInstances ? 'all-instances-volume' : ''}"
+                            name="existing_volume_id_${instanceIndex}"
+                            id="existing_volume_id_${instanceIndex}"
+                            data-instance="${instanceIndex}">
+                        ${generateVolumeDropdown(instanceIndex)}
+                    </select>
+                </div>
+                {% endif %}
+            `;
+        }
+
+        function generateInstantiationAttributesSection(instanceIndex, isAllInstances = false) {
+            const sectionTitle = isAllInstances ? "{{ _('Instantiation Attributes for all Instances') }}" : "{{ _('Instantiation Attributes') }}";
+
+            return `
+                <div class="section-container">
+                    <h5>${sectionTitle}</h5>
+                    <div id="instantiation_section_${instanceIndex}">
+                        <div id="dynamic_instantiation_container_${instanceIndex}">
+                            ${generateInstantiationFields(instanceIndex, isAllInstances)}
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        attachInstanceEventListeners();
-        attachAccountButtonListeners();
-        attachFlavorCalculationListeners();
+        function generateFixedRessourceSection(instanceIndex){
+            return `
+                <h5>{{ _("Resource Configuration") }}</h5>
 
-          document.querySelectorAll(".use-existing-volume").forEach(select => {
-                select.addEventListener("change", function () {
-                    const instance = this.dataset.instance;
-                    const group = document.getElementById(`existing_volume_group_${instance}`);
-                    const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
-                    if (this.value === "existing") {
-                        group.style.display = "block";
-                        volumeSelect.required = true;
-                        volumeSelect.setCustomValidity("");
-                    } else {
-                        group.style.display = "none";
-                        volumeSelect.required = false;
+                <!-- Display Fixed Resource Requirements and Available Resources -->
+                <div class="alert alert-info mt-3">
+                    <p><strong>{{ _("Resource Requirements") }}:</strong></p>
+                    <ul>
+                        <li>{{ _("RAM") }}: <span id="total_ram_${instanceIndex}"></span> GB </li>
+                        <li>{{ _("Disk") }}: <span id="total_disk_${instanceIndex}"></span> GB </li>
+                        <li>{{ _("CPU Cores") }}: <span id="total_cores_${instanceIndex}"></span></li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function generateAccountAttributesSection(instanceIndex, isAllInstances = false){
+            return`
+                <div class="section-container">
+                    <h5>{{ _("User Configuration") }}</h5>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
+                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }}</label>
+                    </div>
+
+                    <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
+                        <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }}</label>
+                        <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="1" value="1">
+                    </div>
+
+                    <div id="accounts_section_${instanceIndex}" style="display: none;">
+                        <!-- CSV Upload -->
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex-grow: 1;">
+                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }}</label>
+                                <div style="display: flex; align-items: center;">
+                                    <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
+                                           data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
+                                    <!-- Undo button will be inserted here by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        <h6>{{ _("Accounts") }}</h6>
+                        <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
+                        <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateNavigationSection(instanceIndex, isAllInstances= false){
+            return `
+                <div class="d-flex justify-content-between mt-3">
+                    ${(countInstances > 1 || isAllInstances) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
+                    ${instanceIndex < countInstances ? `<button type="button" class="btn btn-primary next-instance" data-instance="${instanceIndex}">→ {{ _("Next Instance") }}</button>` : ""}
+                </div>
+            `;
+        }
+
+        function generateAlertOverrideInstances(){
+            return `
+                <!--Alert for overriding settings-->
+                <div class="alert alert-warning apply-warning" style="display: none;">
+                    <p><strong>Warning:</strong> Changes made here will override settings for all individual instances.</p>
+                    <button type="button" class="btn btn-warning btn-sm confirm-apply">Apply to All Instances</button>
+                    <button type="button" class="btn btn-secondary btn-sm cancel-apply">Cancel</button>
+                </div>
+            `;
+        }
+
+        function singleInstanceTab(instanceName, i, countInstances, tabId, contentId){
+            return `
+                <li class="nav-item">
+                    <!--Only if there is no all InstanceTab then the 1st instance tab is selected -->
+                    <a class="nav-link ${(i === 1 && countInstances === 1) ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
+                        ${instanceName}
+                    </a>
+                </li>
+            `;
+        }
+       function generateInstanceFields() {
+            let instanceTabs = document.getElementById("instanceTabs");
+            let instancesContainer = document.getElementById("instancesContainer");
+
+            let countInstancesInput = document.getElementById("num_instances");
+            //ensure countInstances is a natural number base 10, if not 1
+            let countInstances = parseInt(countInstancesInput.value, 10) || 1;
+            countInstancesInput.value = countInstances;
+
+            const baseNameInput = document.getElementById("instances_name");
+            let baseName = baseNameInput ? baseNameInput.value.trim() : "";
+
+            instanceTabs.innerHTML = "";
+            instancesContainer.innerHTML = "";
+
+            // Add all Instance Tab
+            if (countInstances > 1) {
+                instanceTabs.innerHTML += `
+                    <li class="nav-item">
+                        <a class="nav-link active" id="instanceTab_all" data-toggle="tab" href="#instanceContent_all" role="tab">
+                            All Instances
+                        </a>
+                    </li>
+                `;
+                instancesContainer.innerHTML += `
+                    <div class="tab-pane show active" id="instanceContent_all" role="tabpanel">
+                        <h4>{{ _("All Instances Configuration") }}</h4>
+
+                        ${generateAlertOverrideInstances()}
+
+                        <!-- Resource Configuration Section -->
+                        <div class="section-container">
+                            ${generateFixedRessourceSection('all')}
+
+                            ${generateFlavorSection('all', true)}
+                            ${generateNetworkSection('all', true)}
+                            ${generateVolumeSection('all', true)}
+                        </div>
+                        <!-- Instantiation Attributes Section -->
+                        ${generateInstantiationAttributesSection('all', true)}
+
+
+
+                        <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
+                        <div class="section-container">
+                            <h5>{{ _("User Configuration for All Instances") }}</h5>
+
+                            <!-- CSV Upload with Instance Mapping -->
+                            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                                <div style="flex-grow: 1;">
+                                    <label for="csvUpload_all">{{ _("Upload CSV with Instance Mapping") }}</label>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="file" class="form-control-file all-instances-csv-upload"
+                                               id="csvUpload_all" accept=".csv" style="width: auto;">
+                                        <!-- Undo button will be inserted here by JavaScript -->
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Upload a CSV file with headers: ${accountAttributes.join(", ")}, instance
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div id="all_instances_csv_preview" class="mt-3">
+                                <!-- CSV preview will be shown here -->
+                            </div>
+                        </div>
+
+                        ${generateNavigationSection('all', true)}
+                    </div>
+                `;
+
+                attachAllInstancesEventListeners();
+            }
+            // Generate individual instance tabs
+            for (let i = 1; i <= countInstances; i++) {
+                    let instanceName = "";
+                    if (baseName) {
+                        if (countInstances === 1) {
+                            instanceName = baseName;
+                        } else {
+                            instanceName = `${baseName}-${i}`;
+                        }
                     }
+                    const tabId = `instanceTab_${i}`;
+                    const contentId = `instanceContent_${i}`;
+
+                instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances, tabId, contentId);
+
+                instancesContainer.innerHTML += `
+                    <div class="tab-pane ${(i === 1 && countInstances === 1) ? 'show active' : ''}" id="${contentId}" role="tabpanel">
+                        <h4 id="instanceTitle_${i}">${instanceName}</h4>
+                        <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
+
+                        <!-- Flavor and Network Selection Container -->
+                        <div class="section-container">
+                            ${generateFixedRessourceSection(i)}
+
+                            ${generateFlavorSection(i, false)}
+                            ${generateNetworkSection(i, false)}
+                            ${generateVolumeSection(i, false)}
+                        </div>
+
+                        ${generateInstantiationAttributesSection(i, false)}
+                        ${generateAccountAttributesSection(i, false)}
+                        ${generateNavigationSection(i, false)}
+                    </div>
+                `;
+            }
+
+            attachInstanceEventListeners();
+            attachAccountButtonListeners();
+            attachFlavorCalculationListeners();
+
+              document.querySelectorAll(".use-existing-volume").forEach(select => {
+                    select.addEventListener("change", function () {
+                        const instance = this.dataset.instance;
+                        const group = document.getElementById(`existing_volume_group_${instance}`);
+                        const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
+                        if (this.value === "existing") {
+                            group.style.display = "block";
+                            volumeSelect.required = true;
+                            volumeSelect.setCustomValidity("");
+                        } else {
+                            group.style.display = "none";
+                            volumeSelect.required = false;
+                        }
+                    });
+                    select.dispatchEvent(new Event("change"));
                 });
-                select.dispatchEvent(new Event("change"));
+
+                attachVolumeChangeHandlers();
+
+            for (let i = 1; i <= countInstances; i++) {
+                selectAutomaticFlavor(i);
+            }
+        }
+
+        function attachAllInstancesEventListeners() {
+            // Handle "Apply to All Instances" button
+            document.querySelector('.confirm-apply').addEventListener('click', function() {
+                applyAllInstancesSettings();
+                document.querySelector('.apply-warning').style.display = 'none';
             });
 
-            attachVolumeChangeHandlers();
+            // Handle "Cancel" button for alert
+            document.querySelector('.cancel-apply').addEventListener('click', function() {
+                document.querySelector('.apply-warning').style.display = 'none';
+            });
 
-         for (let i = 1; i <= numInstances; i++) {
-        selectAutomaticFlavor(i);
-    }
-    }
+            // Show warning when settings are changed in All Instances tab
+            document.querySelectorAll('.all-instances-flavor, .all-instances-network, .all-instances-volume-option, .all-instances-volume, [all-instances-attr]').forEach(element => {
+                element.addEventListener('change', function() {
+                    document.querySelector('.apply-warning').style.display = 'block';
+                });
+            });
 
-      function attachInstanceEventListeners() {
+            // Handle CSV upload for all instances
+            document.querySelector('.all-instances-csv-upload').addEventListener('change', function(event) {
+                handleAllInstancesCSVUpload(event);
+            });
+        }
+
+        function applyAllInstancesSettings() {
+            const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
+
+            // Apply flavor selection to all instances
+            const allFlavorSelect = document.getElementById('flavor_id_all');
+            if (allFlavorSelect && allFlavorSelect.value) {
+                for (let i = 1; i <= countInstances; i++) {
+                    const instanceFlavorSelect = document.getElementById(`flavor_id_${i}`);
+                    if (instanceFlavorSelect) {
+                        instanceFlavorSelect.value = allFlavorSelect.value;
+                    }
+                }
+            }
+
+            // Apply network selection to all instances
+            const allNetworkSelect = document.getElementById('network_id_all');
+            if (allNetworkSelect && allNetworkSelect.value) {
+                for (let i = 1; i <= countInstances; i++) {
+                    const instanceNetworkSelect = document.getElementById(`network_id_${i}`);
+                    if (instanceNetworkSelect) {
+                        instanceNetworkSelect.value = allNetworkSelect.value;
+                    }
+                }
+            }
+
+            // Apply volume settings
+            const allVolumeOption = document.getElementById('use_existing_volume_all');
+            if (allVolumeOption) {
+                const volumeChoice = allVolumeOption.value;
+                for (let i = 1; i <= countInstances; i++) {
+                    const instanceVolumeOption = document.getElementById(`use_existing_volume_${i}`);
+                    if (instanceVolumeOption) {
+                        instanceVolumeOption.value = volumeChoice;
+                        instanceVolumeOption.dispatchEvent(new Event('change'));
+
+                        // If existing volume is selected, apply volume selection
+                        if (volumeChoice === 'existing') {
+                            const allVolumeSelect = document.getElementById('existing_volume_id_all');
+                            const instanceVolumeSelect = document.getElementById(`existing_volume_id_${i}`);
+                            if (allVolumeSelect && instanceVolumeSelect && allVolumeSelect.value) {
+                                instanceVolumeSelect.value = allVolumeSelect.value;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Apply instantiation attributes
+            instantiationAttribute.forEach(attr => {
+                const allAttrInput = document.getElementById(`${attr}_all_instantiation`);
+                if (allAttrInput && allAttrInput.value) {
+                    for (let i = 1; i <= countInstances; i++) {
+                        const instanceAttrInput = document.getElementById(`${attr}_${i}_instantiation`);
+                        if (instanceAttrInput) {
+                            instanceAttrInput.value = allAttrInput.value;
+                        }
+                    }
+                }
+            });
+        }
+
+        function attachInstanceEventListeners() {
             document.querySelectorAll(".next-instance").forEach(button => {
                 button.addEventListener("click", function () {
-                    let instanceId = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceId + 1);
+                    let instanceIndex = parseInt(this.getAttribute("data-instance"));
+                    switchToInstance(instanceIndex + 1);
                 });
             });
 
              document.querySelectorAll(".prev-instance").forEach(button => {
                 button.addEventListener("click", function () {
-                    let instanceId = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceId - 1);
+                    let instanceIndex = parseInt(this.getAttribute("data-instance"));
+                    switchToInstance(instanceIndex - 1);
                 });
             });
 
             document.querySelectorAll(".nav-link").forEach(tab => {
                 tab.addEventListener("click", function (event) {
                     event.preventDefault();
-                    let instanceId = parseInt(this.id.replace("instanceTab_", ""));
-                    switchToInstance(instanceId);
+                    let instanceIndex = parseInt(this.id.replace("instanceTab_", ""));
+                    switchToInstance(instanceIndex);
                 });
             });
         }
 
-    function switchToInstance(instanceId) {
+        function switchToInstance(instanceIndex) {
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
                 el.style.display = "none";
             });
 
-            let newContent = document.getElementById(`instanceContent_${instanceId}`);
+            let newContent = document.getElementById(`instanceContent_${instanceIndex}`);
             if (newContent) {
                 newContent.classList.add("show", "active");
                 newContent.style.display = "block";
@@ -472,7 +660,7 @@
                 tab.classList.remove("active");
             });
 
-            let newTab = document.getElementById(`instanceTab_${instanceId}`);
+            let newTab = document.getElementById(`instanceTab_${instanceIndex}`);
             if (newTab) {
                 newTab.classList.add("active");
                 newTab.click();
@@ -483,38 +671,38 @@
     function attachAccountButtonListeners() {
         document.querySelectorAll(".no_additional_users").forEach(checkbox => {
             checkbox.addEventListener("change", function () {
-                let instanceId = this.id.split("_").pop();
-                let accountsSection = document.getElementById(`accounts_section_${instanceId}`);
-                let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceId}']`);
-                let userCountSection = document.getElementById(`user_count_section_${instanceId}`);
-                let userCountInput = document.getElementById(`user_count_${instanceId}`);
+                let instanceIndex = this.id.split("_").pop();
+                let accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
+                let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceIndex}']`);
+                let userCountSection = document.getElementById(`user_count_section_${instanceIndex}`);
+                let userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
                 if (this.checked) {
                     accountsSection.style.display = "none";
                     addAccountButton.style.display = "none";
                     userCountSection.style.display = "none";
-                    document.getElementById(`dynamic_accounts_container_${instanceId}`).innerHTML = "";
+                    document.getElementById(`dynamic_accounts_container_${instanceIndex}`).innerHTML = "";
                 } else {
                     accountsSection.style.display = "block";
                     addAccountButton.style.display = "none";
                     userCountSection.style.display = "block";
                     let userCount = parseInt(userCountInput.value) || 1;
-                    generateMultipleAccountFields(instanceId, userCount);
+                    generateMultipleAccountFields(instanceIndex, userCount);
                 }
             });
         });
 
         document.querySelectorAll(".user-count-input").forEach(input => {
             input.addEventListener("input", function () {
-                let instanceId = this.id.split("_").pop();
+                let instanceIndex = this.id.split("_").pop();
                 let userCount = parseInt(this.value) || 1;
-                generateMultipleAccountFields(instanceId, userCount);
+                generateMultipleAccountFields(instanceIndex, userCount);
             });
         });
     }
 
-  function generateMultipleAccountFields(instanceId, userCount) {
-    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+  function generateMultipleAccountFields(instanceIndex, userCount) {
+    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
     if (!accountsContainer) return;
 
     accountsContainer.innerHTML = "";
@@ -523,7 +711,7 @@
     for (let i = 1; i <= userCount; i++) {
         let accountSection = document.createElement("div");
         accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
-        accountSection.id = `account_${instanceId}_${i}`;
+        accountSection.id = `account_${instanceIndex}_${i}`;
         accountSection.dataset.accountNumber = i;
         accountSection.style.border = "1px solid #ccc";
         accountSection.style.borderRadius = "5px";
@@ -537,17 +725,17 @@
         removeBtn.innerHTML = "Remove";
         removeBtn.onclick = function() {
             accountSection.remove();
-            renumberAccounts(instanceId);
-            updateUserCount(instanceId);
-            selectAutomaticFlavor(instanceId);
+            renumberAccounts(instanceIndex);
+            updateUserCount(instanceIndex);
+            selectAutomaticFlavor(instanceIndex);
         };
 
         let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
         accountAttributes.forEach(attr => {
             fieldsHtml += `
                 <div class="form-group md-5">
-                    <label for="${attr}_${instanceId}_${i}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${instanceId}_${i}" name="${attr}_${instanceId}[]" required>
+                    <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
+                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}[]" required>
                 </div>
             `;
         });
@@ -558,8 +746,8 @@
     }
 }
 
-function renumberAccounts(instanceId) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
+function renumberAccounts(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
     if (!accountsContainer) return;
 
     const accountSections = Array.from(accountsContainer.querySelectorAll('.card'));
@@ -568,41 +756,46 @@ function renumberAccounts(instanceId) {
 
         section.dataset.accountNumber = newNumber;
 
-        section.id = `account_${instanceId}_${newNumber}`;
+        section.id = `account_${instanceIndex}_${newNumber}`;
 
         const title = section.querySelector('.account-title');
         if (title) title.textContent = `Account ${newNumber}`;
 
         accountAttributes.forEach(attr => {
-            const input = section.querySelector(`input[id$="${attr}_${instanceId}_${index+1}"]`);
+            const input = section.querySelector(`input[id$="${attr}_${instanceIndex}_${index+1}"]`);
             if (input) {
-                input.id = `${attr}_${instanceId}_${newNumber}`;
-                input.name = `${attr}_${instanceId}[]`;
+                input.id = `${attr}_${instanceIndex}_${newNumber}`;
+                input.name = `${attr}_${instanceIndex}[]`;
             }
         });
     });
 }
 
-    function generateInstantiationFields(instanceId) {
-        let fieldsHtmlInstance = ``;
-        instantiationAttribute.forEach(attr => {
-            fieldsHtmlInstance += `
-                <div class="form-group md-5">
-                    <label for="${attr}_${instanceId}_instantiation">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${instanceId}_instantiation" name="${attr}_${instanceId}_instantiation[]" required>
-                </div>
-            `;
-        });
-        return fieldsHtmlInstance;
-    }
+        function generateInstantiationFields(instanceIndex, isAllInstances = false) {
+            let fieldsHtmlInstance = ``;
+            instantiationAttribute.forEach(attr => {
+                fieldsHtmlInstance += `
+                    <div class="form-group md-5">
+                        <label for="${attr}_${instanceIndex}_instantiation">${attr}</label>
+                        <input type="text"
+                               class="form-control"
+                               ${isAllInstances ? 'all-instances-attr' : ''}"
+                               id="${attr}_${instanceIndex}_instantiation"
+                               name="${attr}_${instanceIndex}_instantiation[]"
+                               data-attr-name="${attr}"
+                               required>
+                    </div>
+                `;
+            });
+            return fieldsHtmlInstance;
+        }
 
-
-function selectAutomaticFlavor(instanceId) {
-    const flavorDropdown = document.getElementById(`flavor_id_${instanceId}`);
+function selectAutomaticFlavor(instanceIndex) {
+    const flavorDropdown = document.getElementById(`flavor_id_${instanceIndex}`);
     if (!flavorDropdown) return;
 
-    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
-    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
+    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
     const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
     const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
@@ -623,9 +816,9 @@ function selectAutomaticFlavor(instanceId) {
         totalCores += userCount * perUserCores;
     }
 
-    document.getElementById(`total_ram_${instanceId}`).textContent = totalRAM.toFixed(2);
-    document.getElementById(`total_disk_${instanceId}`).textContent = totalDisk.toFixed(2);
-    document.getElementById(`total_cores_${instanceId}`).textContent = totalCores;
+    document.getElementById(`total_ram_${instanceIndex}`).textContent = totalRAM.toFixed(2);
+    document.getElementById(`total_disk_${instanceIndex}`).textContent = totalDisk.toFixed(2);
+    document.getElementById(`total_cores_${instanceIndex}`).textContent = totalCores;
 
     let selectedFlavor = null;
 
@@ -670,38 +863,38 @@ function selectAutomaticFlavor(instanceId) {
     function attachFlavorCalculationListeners() {
         document.querySelectorAll(".no_additional_users").forEach(checkbox => {
             checkbox.addEventListener("change", function () {
-                let instanceId = this.id.split("_").pop();
-                selectAutomaticFlavor(instanceId);
+                let instanceIndex = this.id.split("_").pop();
+                selectAutomaticFlavor(instanceIndex);
             });
         });
 
         document.querySelectorAll(".user-count-input").forEach(input => {
             input.addEventListener("input", function () {
-                let instanceId = this.id.split("_").pop();
-                selectAutomaticFlavor(instanceId);
+                let instanceIndex = this.id.split("_").pop();
+                selectAutomaticFlavor(instanceIndex);
             });
         });
     }
 
     window.onload = function () {
-        let numInstancesInput = document.getElementById("num_instances");
+        let countInstancesInput = document.getElementById("num_instances");
         let instancesNameInput = document.getElementById("instances_name");
         let instanceTabs = document.getElementById("instanceTabs");
         let instancesContainer = document.getElementById("instancesContainer");
 
-        if (!numInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+        if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
             console.error("Missing HTML elements. Check IDs.");
             return;
         }
 
-        numInstancesInput.value = "1";
+        countInstancesInput.value = "1";
         generateInstanceFields();
 
-        for (let i = 1; i <= numInstancesInput.value; i++) {
+        for (let i = 1; i <= countInstancesInput.value; i++) {
             selectAutomaticFlavor(i);
         }
 
-        numInstancesInput.addEventListener("input", generateInstanceFields);
+        countInstancesInput.addEventListener("input", generateInstanceFields);
         instancesNameInput.addEventListener("input", generateInstanceFields);
 
         attachFlavorCalculationListeners();
@@ -731,8 +924,8 @@ document.addEventListener("change", function(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const instanceId = event.target.getAttribute("data-instance");
-    if (!instanceId) return;
+    const instanceIndex = event.target.getAttribute("data-instance");
+    if (!instanceIndex) return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -812,14 +1005,14 @@ document.addEventListener("change", function(event) {
             return;
         }
 
-        const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-        const userCountInput = document.getElementById(`user_count_${instanceId}`);
-        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceId}`);
+        const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+        const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
 
         if (noAdditionalUsersCheckbox.checked) {
             noAdditionalUsersCheckbox.checked = false;
-            document.getElementById(`accounts_section_${instanceId}`).style.display = "block";
-            document.getElementById(`user_count_section_${instanceId}`).style.display = "block";
+            document.getElementById(`accounts_section_${instanceIndex}`).style.display = "block";
+            document.getElementById(`user_count_section_${instanceIndex}`).style.display = "block";
         }
 
         accountsContainer.innerHTML = "";
@@ -827,7 +1020,7 @@ document.addEventListener("change", function(event) {
           accountsData.forEach((account, index) => {
             const accountSection = document.createElement("div");
             accountSection.className = "card p-3 mb-3 position-relative";
-            accountSection.id = `account_${instanceId}_${index+1}`;
+            accountSection.id = `account_${instanceIndex}_${index+1}`;
             accountSection.dataset.accountNumber = index+1;
             accountSection.style.border = "1px solid #ccc";
             accountSection.style.borderRadius = "5px";
@@ -840,9 +1033,9 @@ document.addEventListener("change", function(event) {
             removeBtn.innerHTML = "Remove";
             removeBtn.onclick = function() {
                 accountSection.remove();
-                renumberAccounts(instanceId);
-                updateUserCount(instanceId);
-                selectAutomaticFlavor(instanceId);
+                renumberAccounts(instanceIndex);
+                updateUserCount(instanceIndex);
+                selectAutomaticFlavor(instanceIndex);
             };
 
 
@@ -850,10 +1043,10 @@ document.addEventListener("change", function(event) {
             accountAttributes.forEach(attr => {
                 fieldsHtml += `
                     <div class="form-group md-5">
-                        <label for="${attr}_${instanceId}_${index+1}">${attr}</label>
+                        <label for="${attr}_${instanceIndex}_${index+1}">${attr}</label>
                         <input type="text" class="form-control"
-                               id="${attr}_${instanceId}_${index+1}"
-                               name="${attr}_${instanceId}[]"
+                               id="${attr}_${instanceIndex}_${index+1}"
+                               name="${attr}_${instanceIndex}[]"
                                value="${account[attr] || ''}"
                                required>
                     </div>
@@ -865,16 +1058,16 @@ document.addEventListener("change", function(event) {
             accountsContainer.appendChild(accountSection);
         });
 
-        updateUserCount(instanceId);
-        selectAutomaticFlavor(instanceId);
+        updateUserCount(instanceIndex);
+        selectAutomaticFlavor(instanceIndex);
     };
 
     reader.readAsText(file);
 });
 
-function updateUserCount(instanceId) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-    const userCountInput = document.getElementById(`user_count_${instanceId}`);
+function updateUserCount(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
     if (accountsContainer && userCountInput) {
         userCountInput.value = accountsContainer.querySelectorAll('.card').length;
@@ -889,8 +1082,8 @@ document.addEventListener("change", function(event) {
     const file = fileInput.files[0];
     if (!file) return;
 
-    const instanceId = fileInput.getAttribute("data-instance");
-    if (!instanceId) return;
+    const instanceIndex = fileInput.getAttribute("data-instance");
+    if (!instanceIndex) return;
 
     const formGroup = fileInput.closest('.form-group');
 
@@ -902,7 +1095,7 @@ document.addEventListener("change", function(event) {
     const undoBtn = document.createElement("button");
     undoBtn.type = "button";
     undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
-    undoBtn.dataset.instance = instanceId;
+    undoBtn.dataset.instance = instanceIndex;
     undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
 
     undoBtn.style.display = "inline-block";
@@ -911,7 +1104,7 @@ document.addEventListener("change", function(event) {
     fileInput.insertAdjacentElement('afterend', undoBtn);
 
     undoBtn.addEventListener("click", function() {
-        resetCSVUpload(instanceId);
+        resetCSVUpload(instanceIndex);
     });
 
     const reader = new FileReader();
@@ -929,11 +1122,11 @@ document.addEventListener("change", function(event) {
     reader.readAsText(file);
 });
 
-function resetCSVUpload(instanceId) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceId}`);
-    const userCountInput = document.getElementById(`user_count_${instanceId}`);
-    const csvInput = document.getElementById(`csvUpload_${instanceId}`);
-    const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceId}"]`);
+function resetCSVUpload(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+    const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
+    const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
 
     csvInput.value = "";
 
@@ -944,9 +1137,9 @@ function resetCSVUpload(instanceId) {
     userCountInput.value = 1;
 
     accountsContainer.innerHTML = "";
-    generateMultipleAccountFields(instanceId, 1);
+    generateMultipleAccountFields(instanceIndex, 1);
 
-    selectAutomaticFlavor(instanceId);
+    selectAutomaticFlavor(instanceIndex);
 }
 
         function attachVolumeChangeHandlers() {
@@ -971,9 +1164,6 @@ function resetCSVUpload(instanceId) {
                 });
             });
         }
-
-
-
 
 </script>
 
