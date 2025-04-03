@@ -438,6 +438,28 @@ class CreateView(generic.TemplateView):
         context = {}
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
+        template_id = self.kwargs.get('template_id')
+        if template_id:
+            try:
+                token_id = get_token_id(self.request)
+                headers = {"X-Auth-Token": token_id}
+                response = requests.get(
+                    f"{API_ENDPOINTS['app_templates']}/{template_id}",
+                    headers=headers,
+                    timeout=10,
+                )
+                if response.status_code == 200:
+                    context['app_template'] = response.json()
+                else:
+                    logging.warning(f"Could not fetch template: {response.status_code}")
+                    context['app_template'] = {}
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Error fetching app template: {e}")
+                context['app_template'] = {}
+        else:
+            context['app_template'] = {}
+
+        context.update(kwargs)
         return context
 
     def get_images_data(self):
