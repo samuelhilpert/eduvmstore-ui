@@ -523,16 +523,16 @@
            select.addEventListener("change", function () {
                const instance = this.dataset.instance;
                const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
-               const selectedVolumeId = document.getElementById(`existing_volume_id_${instance}`);
+               const selectedVolume = document.getElementById(`existing_volume_id_${instance}`);
                 // Check if the volumeGroup and selectedVolumeId exist for attaching existing volumes
                // If they do, toggle their visibility to block or none
                if (volumeGroup && selectedVolumeId {
                    if (this.value === "existing") {
                        volumeGroup.style.display = "block";
-                       selectedVolumeId.required = true;
+                       selectedVolume.required = true;
                    } else {
                        volumeGroup.style.display = "none";
-                       selectedVolumeId.required = false;
+                       selectedVolume.required = false;
                    }
                }
                attachVolumeCreateListeners(instance);

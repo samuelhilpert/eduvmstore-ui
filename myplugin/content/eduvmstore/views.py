@@ -387,10 +387,24 @@ class CreateView(generic.TemplateView):
         headers = {"X-Auth-Token": token_id}
 
         instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
-        instantiation_attributes = [{"name": attr.strip()} for attr in instantiation_attribute_raw.split(':') if attr.strip()] if instantiation_attribute_raw else []
+        if instantiation_attribute_raw:
+            instantiation_attributes = [
+                {"name": attr.strip()}
+                for attr in instantiation_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            instantiation_attributes = []
 
         account_attribute_raw = request.POST.get('account_attributes', '').strip()
-        account_attributes = [{"name": attr.strip()} for attr in account_attribute_raw.split(':') if attr.strip()] if account_attribute_raw else []
+        if account_attribute_raw:
+            account_attributes = [
+                {"name": attr.strip()}
+                for attr in account_attribute_raw.split(':')
+                if attr.strip()
+            ]
+        else:
+            account_attributes = []
 
         data = {
             'image_id': request.POST.get('image_id'),
