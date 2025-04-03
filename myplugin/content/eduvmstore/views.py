@@ -434,7 +434,7 @@ class CreateView(generic.TemplateView):
                 timeout=10,
             )
             if response.status_code == 201:
-                messages.success(request, f"App Template create successfully.")
+                messages.success(request, f"App Template created successfully.")
             else:
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
                 messages.error(request, f"Failed to create App-Template. {response.text}")
@@ -929,7 +929,7 @@ class InstancesView(generic.TemplateView):
                 network_id = request.POST.get(f'network_id_{i}')
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
-                create_volume_size = request.POST.get(f"volume_size_instance_${i}")
+                create_volume_size = request.POST.get(f"volume_size_instance_{i}")
                 accounts = []
                 instantiations = []
                 try:
