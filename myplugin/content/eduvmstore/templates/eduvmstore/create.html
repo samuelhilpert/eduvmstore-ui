@@ -324,8 +324,7 @@ The values will be written to the file /etc/attributes.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
-                <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control"
-                value="{{ app_template.instantiation_attributes }}">
+                <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control">
             </div>
             <div class="col-md-4">
                 <label for="account_attributes">Account Attributes:
@@ -336,8 +335,7 @@ The values will be written to the file /etc/users.txt.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
-                <input type="text" id="account_attributes" name="account_attributes" class="form-control"
-                value="{{ app_template.account_attributes }}">
+                <input type="text" id="account_attributes" name="account_attributes" class="form-control">
             </div>
 
             <div class="col-md-4">
@@ -423,6 +421,15 @@ write_files:
         document.getElementById('hiddenScriptField').value = scriptText;
 
     });
+
+    let accountAttributes = {{ app_template.account_attributes|safe }};
+    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+    document.getElementById("account_attributes").value = formattedAccounts;
+
+    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+    let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("instantiation_attributes").value = formattedInstatiation;
+
 
     $(document).ready(function() {
         $('[data-toggle="tooltip"]').tooltip();
