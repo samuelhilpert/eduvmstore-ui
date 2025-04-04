@@ -192,6 +192,11 @@
 
 
    <script>
+       //For the all instances tab index 0 is used for easier calculation
+       const ALL_INSTANCES_INDEX = 0
+       const TAB_PREFIX = 'instanceTab_'
+       const CONTENT_PREFIX = 'instanceContent_'
+
        //Volumes
         const attachableVolumes = [
             {% for volume in attachable_volumes %}
@@ -222,13 +227,13 @@
         let accountAttributes = {{ expected_account_fields|safe }};
         let instantiationAttribute = {{ expected_instantiation_fields|safe }};
 
-        function generateFlavorSection(instanceIndex, isAllInstances = false) {
-            const labelPrefix = isAllInstances ? "{{ _('Select Flavor for all Instances') }}" : "{{ _('Select Flavor') }}";
+        function generateFlavorSection(instanceIndex) {
+            const labelPrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Select Flavor for all Instances') }}" : "{{ _('Select Flavor') }}";
             return `
                  <!-- Flavor Selection -->
                 <div class="form-group">
                     <label for="flavor_id_${instanceIndex}">${labelPrefix}</label>
-                     <select class="form-control flavor-dropdown ${isAllInstances ? 'all-instances-flavor' : ''}"
+                     <select class="form-control flavor-dropdown"
                             id="flavor_id_${instanceIndex}"
                             name="flavor_id_${instanceIndex}" required>
                      {% if flavors.suitable_flavors %}
@@ -247,12 +252,12 @@
             `;
         }
 
-        function generateNetworkSection(instanceIndex, isAllInstances = false) {
-            const labelPrefix = isAllInstances ? "{{ _('Select Network for all Instances') }}" : "{{ _('Select Network') }}";
+        function generateNetworkSection(instanceIndex) {
+            const labelPrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Select Network for all Instances') }}" : "{{ _('Select Network') }}";
             return `
                 <div class="form-group">
                     <label for="network_id_${instanceIndex}">${labelPrefix}</label>
-                    <select class="form-control ${isAllInstances ? 'all-instances-network' : ''}"
+                    <select class="form-control"
                             id="network_id_${instanceIndex}"
                             name="network_id_${instanceIndex}" required>
                         {% if networks %}
@@ -267,13 +272,13 @@
             `;
         }
 
-        function generateVolumeSection(instanceIndex, isAllInstances = false) {
+        function generateVolumeSection(instanceIndex) {
             return `
                 <!-- Volumes -->
                 {% if volume_size > 0 %}
                 <div class="form-group">
                     <label for="use_existing_volume_${instanceIndex}">{{ _("Additional Volumes") }}</label>
-                    <select class="form-control use-existing-volume ${isAllInstances ? 'all-instances-volume-option' : ''}"
+                    <select class="form-control use-existing-volume"
                             id="use_existing_volume_${instanceIndex}"
                             name="use_existing_volume_${instanceIndex}"
                             data-instance="${instanceIndex}">
@@ -291,7 +296,7 @@
                 {% if hasAttachableVolumes %}
                 <div class="form-group existing-volume-group" id="existing_volume_group_${instanceIndex}" style="display: none;">
                     <label for="existing_volume_id_${instanceIndex}">Available volumes</label>
-                    <select class="form-control existing-volume-select ${isAllInstances ? 'all-instances-volume' : ''}"
+                    <select class="form-control existing-volume-select"
                             name="existing_volume_id_${instanceIndex}"
                             id="existing_volume_id_${instanceIndex}"
                             data-instance="${instanceIndex}">
@@ -302,15 +307,15 @@
             `;
         }
 
-        function generateInstantiationAttributesSection(instanceIndex, isAllInstances = false) {
-            const sectionTitle = isAllInstances ? "{{ _('Instantiation Attributes for all Instances') }}" : "{{ _('Instantiation Attributes') }}";
+        function generateInstantiationAttributesSection(instanceIndex) {
+            const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Instantiation Attributes for all Instances') }}" : "{{ _('Instantiation Attributes') }}";
 
             return `
                 <div class="section-container">
                     <h5>${sectionTitle}</h5>
                     <div id="instantiation_section_${instanceIndex}">
                         <div id="dynamic_instantiation_container_${instanceIndex}">
-                            ${generateInstantiationFields(instanceIndex, isAllInstances)}
+                            ${generateInstantiationFields(instanceIndex)}
                         </div>
                     </div>
                 </div>
@@ -333,7 +338,7 @@
             `;
         }
 
-        function generateAccountAttributesSection(instanceIndex, isAllInstances = false){
+        function generateAccountAttributesSection(instanceIndex){
             return`
                 <div class="section-container">
                     <h5>{{ _("User Configuration") }}</h5>
@@ -367,11 +372,11 @@
             `;
         }
 
-        function generateNavigationSection(instanceIndex, countInstances, isAllInstances= false){
+        function generateNavigationSection(instanceIndex, countInstances){
             return `
                 <div class="d-flex justify-content-between mt-3">
-                    ${(countInstances > 1 || isAllInstances) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
-                    ${instanceIndex < countInstances ? `<button type="button" class="btn btn-primary next-instance" data-instance="${instanceIndex}">→ {{ _("Next Instance") }}</button>` : ""}
+                    ${(countInstances > 1 ) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
+                    ${(instanceIndex < countInstances || instanceIndex === ALL_INSTANCES_INDEX) ? `<button type="button" class="btn btn-primary next-instance" data-instance="${instanceIndex}">→ {{ _("Next Instance") }}</button>` : ""}
                 </div>
             `;
         }
@@ -412,31 +417,32 @@
             instanceTabs.innerHTML = "";
             instancesContainer.innerHTML = "";
 
+
             // Add all Instance Tab
             if (countInstances > 1) {
                 instanceTabs.innerHTML += `
                     <li class="nav-item">
-                        <a class="nav-link ${(countInstances > 1) ? 'active' : ''}" id="instanceTab_all" data-toggle="tab" href="#instanceContent_all" role="tab">
+                        <a class="nav-link active" id="${TAB_PREFIX}${ALL_INSTANCES_INDEX}" data-toggle="tab" href="#${CONTENT_PREFIX}${ALL_INSTANCES_INDEX}" role="tab">
                             All Instances
                         </a>
                     </li>
                 `;
                 instancesContainer.innerHTML += `
-                    <div class="tab-pane show active" id="instanceContent_all" role="tabpanel">
+                    <div class="tab-pane show active" id="${CONTENT_PREFIX}${ALL_INSTANCES_INDEX}" role="tabpanel">
                         <h4>{{ _("All Instances Configuration") }}</h4>
 
                         ${generateAlertOverrideInstances()}
 
                         <!-- Resource Configuration Section -->
                         <div class="section-container">
-                            ${generateFixedRessourceSection('all')}
+                            ${generateFixedRessourceSection(ALL_INSTANCES_INDEX)}
 
-                            ${generateFlavorSection('all', true)}
-                            ${generateNetworkSection('all', true)}
-                            ${generateVolumeSection('all', true)}
+                            ${generateFlavorSection(ALL_INSTANCES_INDEX)}
+                            ${generateNetworkSection(ALL_INSTANCES_INDEX)}
+                            ${generateVolumeSection(ALL_INSTANCES_INDEX)}
                         </div>
                         <!-- Instantiation Attributes Section -->
-                        ${generateInstantiationAttributesSection('all', true)}
+                        ${generateInstantiationAttributesSection(ALL_INSTANCES_INDEX)}
 
 
 
@@ -447,10 +453,10 @@
                             <!-- CSV Upload with Instance Mapping -->
                             <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                                 <div style="flex-grow: 1;">
-                                    <label for="csvUpload_all">{{ _("Upload CSV with Instance Mapping") }}</label>
+                                    <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV with Instance Mapping") }}</label>
                                     <div style="display: flex; align-items: center;">
-                                        <input type="file" class="form-control-file all-instances-csv-upload"
-                                               id="csvUpload_all" accept=".csv" style="width: auto;">
+                                        <input type="file" class="form-control-file"
+                                               id="csvUpload_${ALL_INSTANCES_INDEX}" accept=".csv" style="width: auto;">
                                         <!-- Undo button will be inserted here by JavaScript -->
                                     </div>
                                     <small class="form-text text-muted">
@@ -464,7 +470,7 @@
                             </div>
                         </div>
 
-                        ${generateNavigationSection('all', countInstances, true)}
+                        ${generateNavigationSection(ALL_INSTANCES_INDEX, countInstances, true)}
                     </div>
                 `;
 
@@ -480,8 +486,8 @@
                             instanceName = `${baseName}-${i}`;
                         }
                     }
-                    const tabId = `instanceTab_${i}`;
-                    const contentId = `instanceContent_${i}`;
+                    const tabId = `${TAB_PREFIX}${i}`;
+                    const contentId = `${CONTENT_PREFIX}${i}`;
 
                 instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances, tabId, contentId);
 
@@ -494,14 +500,14 @@
                         <div class="section-container">
                             ${generateFixedRessourceSection(i)}
 
-                            ${generateFlavorSection(i, false)}
-                            ${generateNetworkSection(i, false)}
-                            ${generateVolumeSection(i, false)}
+                            ${generateFlavorSection(i)}
+                            ${generateNetworkSection(i)}
+                            ${generateVolumeSection(i)}
                         </div>
 
-                        ${generateInstantiationAttributesSection(i, false)}
-                        ${generateAccountAttributesSection(i, false)}
-                        ${generateNavigationSection(i, countInstances, false)}
+                        ${generateInstantiationAttributesSection(i)}
+                        ${generateAccountAttributesSection(i)}
+                        ${generateNavigationSection(i, countInstances)}
                     </div>
                 `;
             }
@@ -529,7 +535,8 @@
 
                 attachVolumeChangeHandlers();
 
-            for (let i = 1; i <= countInstances; i++) {
+            // Select Automatic Flavor for all instances including AllInstanceTab
+            for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
                 selectAutomaticFlavor(i);
             }
         }
@@ -547,14 +554,14 @@
             });
 
             // Show warning when settings are changed in All Instances tab
-            document.querySelectorAll('.all-instances-flavor, .all-instances-network, .all-instances-volume-option, .all-instances-volume, [all-instances-attr]').forEach(element => {
+            document.querySelectorAll('TODO').forEach(element => {
                 element.addEventListener('change', function() {
                     document.querySelector('.apply-warning').style.display = 'block';
                 });
             });
 
             // Handle CSV upload for all instances
-            document.querySelector('.all-instances-csv-upload').addEventListener('change', function(event) {
+            document.querySelector('TODO').addEventListener('change', function(event) {
                 handleAllInstancesCSVUpload(event);
             });
         }
@@ -638,20 +645,20 @@
             document.querySelectorAll(".nav-link").forEach(tab => {
                 tab.addEventListener("click", function (event) {
                     event.preventDefault();
-                    let instanceIndex = parseInt(this.id.replace("instanceTab_", ""));
+                    let instanceIndex = parseInt(this.id.replace(TAB_PREFIX, ""));
                     switchToInstance(instanceIndex);
                 });
             });
         }
 
         function switchToInstance(instanceIndex) {
+            if (instanceIndex < 0 ){ console.error('Can't have a negative InstanceIndex: {{ instanceIndex }}')}
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
                 el.style.display = "none";
             });
-            // all instance Tab has the index all
-            if (instanceIndex === 0) {instanceIndex = 'all'}
-            let newContent = document.getElementById(`instanceContent_${instanceIndex}`);
+
+            let newContent = document.getElementById(`${CONTENT_PREFIX}${instanceIndex}`);
             if (newContent) {
                 newContent.classList.add("show", "active");
                 newContent.style.display = "block";
@@ -661,7 +668,7 @@
                 tab.classList.remove("active");
             });
 
-            let newTab = document.getElementById(`instanceTab_${instanceIndex}`);
+            let newTab = document.getElementById(`${TAB_PREFIX}${instanceIndex}`);
             if (newTab) {
                 newTab.classList.add("active");
                 newTab.click();
@@ -772,7 +779,7 @@ function renumberAccounts(instanceIndex) {
     });
 }
 
-        function generateInstantiationFields(instanceIndex, isAllInstances = false) {
+        function generateInstantiationFields(instanceIndex) {
             let fieldsHtmlInstance = ``;
             instantiationAttribute.forEach(attr => {
                 fieldsHtmlInstance += `
@@ -780,7 +787,6 @@ function renumberAccounts(instanceIndex) {
                         <label for="${attr}_${instanceIndex}_instantiation">${attr}</label>
                         <input type="text"
                                class="form-control"
-                               ${isAllInstances ? 'all-instances-attr' : ''}"
                                id="${attr}_${instanceIndex}_instantiation"
                                name="${attr}_${instanceIndex}_instantiation[]"
                                data-attr-name="${attr}"
@@ -899,7 +905,7 @@ function selectAutomaticFlavor(instanceIndex) {
         instancesNameInput.addEventListener("input", generateInstanceFields);
 
         attachFlavorCalculationListeners();
-        switchToInstance(1);
+        switchToInstance(ALL_INSTANCES_INDEX);
     };
 
 
