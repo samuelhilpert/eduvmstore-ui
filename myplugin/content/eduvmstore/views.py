@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova, cinder
+from openstack_auth.api import keystone
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -25,8 +26,6 @@ import io
 import zipfile
 from io import BytesIO
 import time
-from keystoneclient.v3 import client as keystone_client
-from openstack_auth import utils as auth_utils
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
@@ -315,10 +314,11 @@ class DetailsPageView(generic.TemplateView):
         return context
 
     def get_username_from_id(self, user_id):
-        session = auth_utils.get_session(self.request)
-        keystone = keystone_client.Client(session=session)
-        user = keystone.users.get(user_id)
-        return user.name
+        try:
+            user = keystone.user_get(self.request, user_id)
+            return user.name
+        except Exception:
+            return 'Unbekannt'
 
 
     def get_app_template(self):
