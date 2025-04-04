@@ -256,7 +256,7 @@
                             id="network_id_${instanceIndex}"
                             name="network_id_${instanceIndex}" required>
                         {% if networks %}
-                            {% for network_id, network_name in networks.items() %}
+                            {% for network_id, network_name in networks.items %}
                                 <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
                             {% endfor %}
                         {% else %}
