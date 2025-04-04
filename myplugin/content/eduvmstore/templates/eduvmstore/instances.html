@@ -367,7 +367,7 @@
             `;
         }
 
-        function generateNavigationSection(instanceIndex, isAllInstances= false){
+        function generateNavigationSection(instanceIndex, countInstances isAllInstances= false){
             return `
                 <div class="d-flex justify-content-between mt-3">
                     ${(countInstances > 1 || isAllInstances) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
@@ -464,7 +464,7 @@
                             </div>
                         </div>
 
-                        ${generateNavigationSection('all', true)}
+                        ${generateNavigationSection('all', countInstances, true)}
                     </div>
                 `;
 
@@ -501,7 +501,7 @@
 
                         ${generateInstantiationAttributesSection(i, false)}
                         ${generateAccountAttributesSection(i, false)}
-                        ${generateNavigationSection(i, false)}
+                        ${generateNavigationSection(i, countInstances, false)}
                     </div>
                 `;
             }
