@@ -25,6 +25,8 @@ import io
 import zipfile
 from io import BytesIO
 import time
+from keystoneclient.v3 import client as keystone_client
+from openstack_auth import utils as auth_utils
 
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
@@ -291,13 +293,32 @@ class DetailsPageView(generic.TemplateView):
         app_template = self.get_app_template()
         image_data = self.get_image_data(app_template.get('image_id', ''))
 
+        app_template_creator_id = app_template.get('creator_id', '')
+        app_template_creator_name = (
+            self.get_username_from_id(self.request, app_template_creator_id)
+            if app_template_creator_id else 'N/A'
+        )
+
+        image_owner_id = image_data.get('owner', '')
+        image_owner_name = (
+            self.get_username_from_id(self.request, image_owner_id)
+            if image_owner_id else 'N/A'
+        )
+
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
-            'image_owner': image_data.get('owner', 'N/A'),
+            'image_owner': image_owner_name,
+            'app_template_creator': app_template_creator_name,
         })
 
         return context
+
+    def get_username_from_id(request, user_id):
+        session = auth_utils.get_session(request)
+        keystone = keystone_client.Client(session=session)
+        user = keystone.users.get(user_id)
+        return user.name
 
     def get_app_template(self):
         """

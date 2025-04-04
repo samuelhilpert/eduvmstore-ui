@@ -118,20 +118,35 @@
             <strong>App-Template ID:</strong>
             <p>{{ app_template.id }}</p>
         </div>
+        <div class="detail-group">
+            <strong>Created at:</strong>
+            <p>{{ app_template.created_at }}</p>
+        </div>
     </div>
     <div class="col-md-6">
         <div class="detail-group">
-            <strong>Image ID:</strong>
+            <strong>Available for:</strong>
             <p>
-                <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
-                    {{ app_template.image_id }}
-                </a>
+                {% if app_template.public and app_template.approve %}
+                    Everyone
+                {% elif app_template.public and not app_template.approve %}
+                    Waiting for approval
+                {% elif not app_template.public and not app_template.approve %}
+                    Creator only
+                {% endif %}
             </p>
+
         </div>
         <div class="detail-group">
             <strong>Short Description:</strong>
             <p>{{ app_template.short_description }}</p>
         </div>
+
+        <div class="detail-group">
+            <strong>App Template Creator:</strong>
+            <p>{{ app_template_creator }}</p>
+        </div>
+
     </div>
 </div>
 
@@ -192,15 +207,12 @@
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Available for:</strong>
+                <strong>Image ID:</strong>
                 <p>
-                    {% if app_template.public %}
-                    Everyone
-                {% else %}
-                    Creator only
-                {% endif %}
+                    <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
+                        {{ app_template.image_id }}
+                    </a>
                 </p>
-
             </div>
         </div>
         <div class="col-md-6">
@@ -209,12 +221,7 @@
                 <p>{{ image_owner }}</p>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Created at:</strong>
-                <p>{{ image_created_at }}</p>
-            </div>
-        </div>
+
     </div>
 </div>
 
