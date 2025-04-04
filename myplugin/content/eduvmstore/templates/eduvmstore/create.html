@@ -543,8 +543,8 @@ runcmd:
     chmod 700 /home/ubuntu/user_keys
     chown ubuntu:ubuntu /home/ubuntu/user_keys
 
-    # Create users
     while IFS=: read -r username password; do
+      # Create users
       if ! id "$username" &>/dev/null; then
         useradd -m -s /bin/bash "$username"
         echo "$username:$password" | chpasswd
