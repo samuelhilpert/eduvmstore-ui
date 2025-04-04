@@ -315,7 +315,7 @@ class DetailsPageView(generic.TemplateView):
         return context
 
     def get_username_from_id(self, user_id):
-        session = auth_utils.get_session()
+        session = auth_utils.get_session(self.request)
         keystone = keystone_client.Client(session=session)
         user = keystone.users.get(user_id)
         return user.name
