@@ -87,6 +87,11 @@
                                     Edit App-Template
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
+                                    Clone AppTemplate
+                                </a>
+                            </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">

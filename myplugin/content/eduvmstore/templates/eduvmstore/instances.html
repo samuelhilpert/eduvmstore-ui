@@ -246,6 +246,10 @@
                                 <td>{{ app_template.fixed_cores }}</td>
                             </tr>
                             <tr>
+                                <th>Volume Size (GB)</th>
+                                <td>{{ app_template.volume_size_gb }}</td>
+                            </tr>
+                            <tr>
                                 <th>Per User RAM (GB)</th>
                                 <td>{{ app_template.per_user_ram_gb }}</td>
                             </tr>
@@ -306,10 +310,14 @@
 
              function generateVolumeDropdown(instanceId) {
             let html = `<option value="" disabled selected>Select Volume</option>`;
+            let requiredVolumeSize = {{ volume_size }};
             attachableVolumes.forEach(volume => {
-                html += `<option value="${volume.id}" data-volume-id="${volume.id}">
+                if (volume.size >= requiredVolumeSize) {
+                    html += `<option value="${volume.id}" data-volume-id="${volume.id}">
                     ${volume.name} (${volume.size} GB)
                  </option>`;
+                }
+
             });
             return html;
         }
@@ -411,7 +419,7 @@
                         </select>
 
                         <!-- Volumes -->
-                          {% if volume_size > 0 %}
+
 <div class="form-group">
         <label for="use_existing_volume_${i}">{{ _("Additional Volumes") }}</label>
         <select class="form-control use-existing-volume" id="use_existing_volume_${i}" name="use_existing_volume_${i}" data-instance="${i}">
@@ -419,13 +427,22 @@
             {% if hasAttachableVolumes %}
                 <option value="existing">Attach existing volume</option>
             {% endif %}
+            {% if volume_size == 0 %}
+                <option value="none">No additional volumes</option>
+            {% endif %}
         </select>
         {% if not hasAttachableVolumes %}
-            <small class="form-text">There are currently no available volumes that can be attached.</small>
-        {% endif %}
+    <small class="form-text text-danger">There are currently no available volumes that can be attached.</small>
+{% endif %}
+
 
     </div>
-  {% endif %}
+
+    <div class="form-group create-volume-size-group" id="create_volume_size_group_${i}" style="display: none;">
+        <label for="volume_size_instance_${i}">Volume Size (GB)</label>
+        <input type="number" class="form-control" id="volume_size_instance_${i}" name="volume_size_instance_${i}"  value="{{ volume_size }}" min="{{ volume_size }}">
+    </div>
+
 
 
         {% if hasAttachableVolumes  %}
@@ -493,32 +510,57 @@
         attachInstanceEventListeners();
         attachAccountButtonListeners();
         attachFlavorCalculationListeners();
-
-          document.querySelectorAll(".use-existing-volume").forEach(select => {
-                select.addEventListener("change", function () {
-                    const instance = this.dataset.instance;
-                    const group = document.getElementById(`existing_volume_group_${instance}`);
-                    const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
-                    if (this.value === "existing") {
-                        group.style.display = "block";
-                        volumeSelect.required = true;
-                        volumeSelect.setCustomValidity("");
-                    } else {
-                        group.style.display = "none";
-                        volumeSelect.required = false;
-                    }
-                });
-                select.dispatchEvent(new Event("change"));
-            });
-
-            attachVolumeChangeHandlers();
+        attachVolumeOptionListeners();
+        attachVolumeChangeHandlers();
 
          for (let i = 1; i <= numInstances; i++) {
         selectAutomaticFlavor(i);
     }
     }
 
-      function attachInstanceEventListeners() {
+   function attachVolumeOptionListeners() {
+       document.querySelectorAll(".use-existing-volume").forEach(select => {
+           select.addEventListener("change", function () {
+               const instance = this.dataset.instance;
+               const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
+               const selectedVolume = document.getElementById(`existing_volume_id_${instance}`);
+                // Check if the volumeGroup and selectedVolumeId exist for attaching existing volumes
+               // If they do, toggle their visibility to block or none
+               if (volumeGroup && selectedVolume) {
+                   if (this.value === "existing") {
+                       volumeGroup.style.display = "block";
+                       selectedVolume.required = true;
+                   } else {
+                       volumeGroup.style.display = "none";
+                       selectedVolume.required = false;
+                   }
+               }
+               attachVolumeCreateListeners(instance);
+           });
+
+           select.dispatchEvent(new Event("change"));
+
+       });
+   }
+
+   function attachVolumeCreateListeners(instance) {
+       const volumeSizeInputField = document.getElementById(`create_volume_size_group_${instance}`);
+       const volumeModeSelect = document.getElementById(`use_existing_volume_${instance}`);
+
+       try {
+           if (volumeModeSelect.value === "new") {
+               volumeSizeInputField.style.display = "block";
+           } else {
+               volumeSizeInputField.style.display = "none";
+           }
+       } catch (error) {
+           console.error("Error handling volume mode selection:", error);
+       }
+   }
+
+
+
+   function attachInstanceEventListeners() {
             document.querySelectorAll(".next-instance").forEach(button => {
                 button.addEventListener("click", function () {
                     let instanceId = parseInt(this.getAttribute("data-instance"));
@@ -738,7 +780,7 @@ function selectAutomaticFlavor(instanceId) {
         } else {
             option.disabled = true;
             option.style.color = "gray";
-            option.textContent += " (Too small for required resources)";  // Append only once
+            option.textContent += " (Too small for required resources)";
         }
     }
 });
