@@ -317,7 +317,7 @@ class DetailsPageView(generic.TemplateView):
             user = keystone.user_get(self.request, user_id)
             return user.name
         except Exception:
-            return 'Unbekannt'
+            return user_id
 
 
     def get_app_template(self):
