@@ -295,13 +295,13 @@ class DetailsPageView(generic.TemplateView):
 
         app_template_creator_id = app_template.get('creator_id', '')
         app_template_creator_name = (
-            self.get_username_from_id(self.request, app_template_creator_id)
+            self.get_username_from_id(app_template_creator_id)
             if app_template_creator_id else 'N/A'
         )
 
         image_owner_id = image_data.get('owner', '')
         image_owner_name = (
-            self.get_username_from_id(self.request, image_owner_id)
+            self.get_username_from_id(image_owner_id)
             if image_owner_id else 'N/A'
         )
 
@@ -314,11 +314,12 @@ class DetailsPageView(generic.TemplateView):
 
         return context
 
-    def get_username_from_id(request, user_id):
-        session = auth_utils.get_session(request)
+    def get_username_from_id(self, user_id):
+        session = auth_utils.get_session(self.request)
         keystone = keystone_client.Client(session=session)
         user = keystone.users.get(user_id)
         return user.name
+
 
     def get_app_template(self):
         """
