@@ -650,7 +650,7 @@
                 el.style.display = "none";
             });
             // all instance Tab has the index all
-            if instanceIndex === 0 {instanceIndex = 'all'}
+            if (instanceIndex === 0) {instanceIndex = 'all'}
             let newContent = document.getElementById(`instanceContent_${instanceIndex}`);
             if (newContent) {
                 newContent.classList.add("show", "active");
