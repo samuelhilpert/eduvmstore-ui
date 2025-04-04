@@ -416,7 +416,7 @@
             if (countInstances > 1) {
                 instanceTabs.innerHTML += `
                     <li class="nav-item">
-                        <a class="nav-link active" id="instanceTab_all" data-toggle="tab" href="#instanceContent_all" role="tab">
+                        <a class="nav-link ${(countInstances > 1) ? 'active' : ''}" id="instanceTab_all" data-toggle="tab" href="#instanceContent_all" role="tab">
                             All Instances
                         </a>
                     </li>
