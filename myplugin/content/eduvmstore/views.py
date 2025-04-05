@@ -299,11 +299,10 @@ class DetailsPageView(generic.TemplateView):
             if app_template_creator_id else 'N/A'
         )
 
-        owner_id = image_data.get('owner', '')
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
-            'image_owner': owner_id,
+            'image_owner': image_data.get('owner', 'N/A'),
             'app_template_creator': app_template_creator_name,
             'created_at': created_at,
         })
