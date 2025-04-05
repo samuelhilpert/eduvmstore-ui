@@ -127,11 +127,11 @@
         <div class="detail-group">
             <strong>Available for:</strong>
             <p>
-                {% if app_template.public and app_template.approve %}
+                {% if app_template.public and app_template.approved %}
                     Everyone
-                {% elif app_template.public and not app_template.approve %}
+                {% elif app_template.public and not app_template.approved %}
                     Waiting for approval
-                {% elif not app_template.public and not app_template.approve %}
+                {% elif not app_template.public and not app_template.approved %}
                     Creator only
                 {% endif %}
             </p>
