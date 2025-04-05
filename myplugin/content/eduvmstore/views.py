@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova, cinder, keystone
+from openstack_auth.api import keystone as auth_keystone
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -324,7 +325,7 @@ class DetailsPageView(generic.TemplateView):
             return user_id
 
     def get_project_name_from_id(self, project_id):
-        project = keystone.project_get(self.request, project_id)
+        project = auth_keystone.project_get(self.request, project_id)
         return project.name
 
 
