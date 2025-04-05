@@ -324,11 +324,8 @@ class DetailsPageView(generic.TemplateView):
             return user_id
 
     def get_project_name_from_id(self, project_id):
-        try:
-            project = keystone.project_get(self.request, project_id)
-            return project.name
-        except Exception:
-            return project_id
+        project = keystone.project_get(self.request, project_id)
+        return project.name
 
 
     def get_app_template(self):
