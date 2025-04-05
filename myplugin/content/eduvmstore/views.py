@@ -292,13 +292,15 @@ class DetailsPageView(generic.TemplateView):
         image_data = self.get_image_data(app_template.get('image_id', ''))
         created_at = app_template.get('created_at', '').split('T')[0]
 
-        app_template_creator_id = app_template.get('creator_id', '')
+        creator_id = app_template.get('creator_id', '')
+        app_template_creator_id = creator_id.replace('-', '')
         app_template_creator_name = (
             self.get_username_from_id(app_template_creator_id)
             if app_template_creator_id else 'N/A'
         )
 
-        image_owner_id = image_data.get('owner', '')
+        owner_id = image_data.get('owner', '')
+        image_owner_id = owner_id.replace('-', '')
         image_owner_name = (
             self.get_username_from_id(image_owner_id)
             if image_owner_id else 'N/A'
