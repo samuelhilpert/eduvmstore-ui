@@ -23,11 +23,13 @@
             <td>{{ app_template.short_description }}</td>
             <td>{{ app_template.size }} </td>
            <td>
-                {% if app_template.public %}
-                    Everyone
-                {% else %}
-                    Creator only
-                {% endif %}
+               {% if app_template.public and app_template.approve %}
+                   Everyone
+               {% elif app_template.public and not app_template.approve %}
+                   Waiting for approval
+               {% elif not app_template.public and not app_template.approve %}
+                   Creator only
+               {% endif %}
             </td>
               <td>
     <div class="btn-group">

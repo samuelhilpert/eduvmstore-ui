@@ -290,6 +290,7 @@ class DetailsPageView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
         image_data = self.get_image_data(app_template.get('image_id', ''))
+        created_at = app_template.get('created_at', '').split('T')[0]
 
         app_template_creator_id = app_template.get('creator_id', '')
         app_template_creator_name = (
@@ -308,6 +309,7 @@ class DetailsPageView(generic.TemplateView):
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_owner_name,
             'app_template_creator': app_template_creator_name,
+            'created_at': created_at,
         })
 
         return context
