@@ -302,7 +302,7 @@ class DetailsPageView(generic.TemplateView):
         owner_id = image_data.get('owner', '')
         image_owner_id = owner_id.replace('-', '')
         image_owner_name = (
-            self.get_username_from_id(image_owner_id)
+            self.get_project_name_from_id(image_owner_id)
             if image_owner_id else 'N/A'
         )
 
@@ -322,6 +322,13 @@ class DetailsPageView(generic.TemplateView):
             return user.name
         except Exception:
             return user_id
+
+    def get_project_name_from_id(self, project_id):
+        try:
+            project = keystone.project_get(self.request, project_id)
+            return project.name
+        except Exception:
+            return project_id
 
 
     def get_app_template(self):
