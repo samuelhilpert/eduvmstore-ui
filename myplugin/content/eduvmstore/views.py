@@ -10,7 +10,6 @@ from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova, cinder, keystone
-from openstack_auth.api import keystone as auth_keystone
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -301,16 +300,10 @@ class DetailsPageView(generic.TemplateView):
         )
 
         owner_id = image_data.get('owner', '')
-        image_owner_id = owner_id.replace('-', '')
-        image_owner_name = (
-            self.get_project_name_from_id(image_owner_id)
-            if image_owner_id else 'N/A'
-        )
-
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
-            'image_owner': image_owner_name,
+            'image_owner': owner_id,
             'app_template_creator': app_template_creator_name,
             'created_at': created_at,
         })
@@ -324,9 +317,6 @@ class DetailsPageView(generic.TemplateView):
         except Exception:
             return user_id
 
-    def get_project_name_from_id(self, project_id):
-        project = auth_keystone.project_get(self.request, project_id)
-        return project.name
 
 
     def get_app_template(self):
