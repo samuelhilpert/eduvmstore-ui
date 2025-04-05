@@ -313,11 +313,8 @@ class DetailsPageView(generic.TemplateView):
         return context
 
     def get_username_from_id(self, user_id):
-        try:
-            user = keystone.user_get(self.request, user_id)
-            return user.name
-        except Exception:
-            return user_id
+        user = keystone.user_get(self.request, user_id)
+        return user.name
 
 
     def get_app_template(self):
