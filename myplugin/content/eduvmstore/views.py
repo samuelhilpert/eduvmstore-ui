@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
-from openstack_dashboard.api import glance, nova, cinder
+from openstack_dashboard.api import glance, nova, cinder, keystone
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -290,14 +290,33 @@ class DetailsPageView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
         image_data = self.get_image_data(app_template.get('image_id', ''))
+        created_at = app_template.get('created_at', '').split('T')[0]
+
+        creator_id = app_template.get('creator_id', '')
+        app_template_creator_id = creator_id.replace('-', '')
+        app_template_creator_name = (
+            self.get_username_from_id(app_template_creator_id)
+            if app_template_creator_id else 'N/A'
+        )
 
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'app_template_creator': app_template_creator_name,
+            'created_at': created_at,
         })
 
         return context
+
+    def get_username_from_id(self, user_id):
+        try:
+            user = keystone.user_get(self.request, user_id)
+            return user.name
+        except Exception:
+            return user_id
+
+
 
     def get_app_template(self):
         """
