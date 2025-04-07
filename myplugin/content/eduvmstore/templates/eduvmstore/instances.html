@@ -571,7 +571,6 @@
             document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
                 console.log('Event registered for element:', element);
                 element.addEventListener('change', function() {
-                    console.log('Event fired: AllInstanceTab changed');
                     $('#allInstancesWarningModal').modal('show');
                 });
             });
@@ -582,42 +581,12 @@
                     const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
                     if (element) {
                         element.addEventListener('change', function() {
-                            console.log('Event fired: AllInstanceTab instantiation attribute changed');
                             $('#allInstancesWarningModal').modal('show');
                         });
                     }
                 });
             }
         }
-
-        /*
-        function attachAllInstancesEventListeners() {
-            // Handle "Apply to All Instances" button
-            document.querySelector('.confirm-apply').addEventListener('click', function() {
-                applyAllInstancesSettings();
-                document.querySelector('.apply-warning').style.display = 'none';
-            });
-
-            // Handle "Cancel" button for alert
-            document.querySelector('.cancel-apply').addEventListener('click', function() {
-                document.querySelector('.apply-warning').style.display = 'none';
-            });
-
-            // All instance tab value change
-            document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
-                console.log('Event registered for element:', element);
-                element.addEventListener('change', function() {
-                    console.log('Event fired: AllInstanceTab changed')
-                    document.querySelector('.apply-warning').style.display = 'block';
-                });
-            });
-
-            // Handle CSV upload for all instances
-            document.querySelector('TODO').addEventListener('change', function(event) {
-                handleAllInstancesCSVUpload(event);
-            });
-        }
-        */
 
         function applyAllInstancesSettings() {
             const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
