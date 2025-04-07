@@ -652,7 +652,7 @@
         }
 
         function switchToInstance(instanceIndex) {
-            if (instanceIndex < 0 ){ console.error('Can't have a negative InstanceIndex: {{ instanceIndex }}')}
+            if (instanceIndex < 0 ){ console.error("Can't have a negative InstanceIndex: {{ instanceIndex }}")}
             document.querySelectorAll(".tab-pane").forEach(el => {
                 el.classList.remove("show", "active");
                 el.style.display = "none";
