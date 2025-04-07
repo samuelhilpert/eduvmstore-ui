@@ -375,7 +375,7 @@
         function generateNavigationSection(instanceIndex, countInstances){
             return `
                 <div class="d-flex justify-content-between mt-3">
-                    ${(countInstances > 1 ) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
+                    ${(countInstances != 1 &&  instanceIndex > ALL_INSTANCES_INDEX ) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
                     ${(instanceIndex < countInstances || instanceIndex === ALL_INSTANCES_INDEX) ? `<button type="button" class="btn btn-primary next-instance" data-instance="${instanceIndex}">→ {{ _("Next Instance") }}</button>` : ""}
                 </div>
             `;
@@ -470,7 +470,7 @@
                             </div>
                         </div>
 
-                        ${generateNavigationSection(ALL_INSTANCES_INDEX, countInstances, true)}
+                        ${generateNavigationSection(ALL_INSTANCES_INDEX, countInstances)}
                     </div>
                 `;
 
