@@ -526,7 +526,7 @@
                             volumeSelect.required = true;
                             volumeSelect.setCustomValidity("");
                         } else {
-                            group.style.display = "none";
+                            if (group) group.style.display = "none";
                             volumeSelect.required = false;
                         }
                     });
