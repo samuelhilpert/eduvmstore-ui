@@ -381,10 +381,37 @@
             `;
         }
 
+        function generateCSVAllInstanceSection(){
+            return`
+                <div class="section-container">
+                    <h5>{{ _("User Configuration for All Instances") }}</h5>
+
+                    <!-- CSV Upload with Instance Mapping -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                        <div style="flex-grow: 1;">
+                            <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV with Instance Mapping") }}</label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="file" class="form-control-file"
+                                       id="csvUpload_${ALL_INSTANCES_INDEX}" accept=".csv" style="width: auto;">
+                                <!-- Undo button will be inserted here by JavaScript -->
+                            </div>
+                            <small class="form-text text-muted">
+                                Upload a CSV file with headers: ${accountAttributes.join(", ")}, instance
+                            </small>
+                        </div>
+                    </div>
+
+                    <div id="all_instances_csv_preview" class="mt-3">
+                        <!-- CSV preview will be shown here -->
+                    </div>
+                </div>
+            `
+        }
+
         function generateAlertOverrideInstances(){
             return `
                 <!--Alert for overriding settings-->
-                <div class="alert alert-warning apply-warning" style="display: none;">
+                <div class="alert alert-warning apply-warning all-instance-change-alert" style="display: none;">
                     <p><strong>Warning:</strong> Changes made here will override settings for all individual instances.</p>
                     <button type="button" class="btn btn-warning btn-sm confirm-apply">Apply to All Instances</button>
                     <button type="button" class="btn btn-secondary btn-sm cancel-apply">Cancel</button>
@@ -392,11 +419,11 @@
             `;
         }
 
-        function singleInstanceTab(instanceName, instanceIndex, countInstances, tabId, contentId){
+        function singleInstanceTab(instanceName, instanceIndex, countInstances, contentId){
             return `
                 <li class="nav-item">
                     <!--Only if there is no all InstanceTab then the 1st instance tab is selected -->
-                    <a class="nav-link ${(instanceIndex === 1 && countInstances === 1) ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
+                    <a class="nav-link ${(instanceIndex === 0 || (instanceIndex === 1 && countInstances === 1)) ? 'active' : ''}" id="${TAB_PREFIX}${instanceIndex}" data-toggle="tab" href="#${CONTENT_PREFIX}${instanceIndex}" role="tab">
                         ${instanceName}
                     </a>
                 </li>
@@ -420,13 +447,7 @@
 
             // Add all Instance Tab
             if (countInstances > 1) {
-                instanceTabs.innerHTML += `
-                    <li class="nav-item">
-                        <a class="nav-link active" id="${TAB_PREFIX}${ALL_INSTANCES_INDEX}" data-toggle="tab" href="#${CONTENT_PREFIX}${ALL_INSTANCES_INDEX}" role="tab">
-                            All Instances
-                        </a>
-                    </li>
-                `;
+                instanceTabs.innerHTML += singleInstanceTab("All Instances", ALL_INSTANCES_INDEX, countInstances)
                 instancesContainer.innerHTML += `
                     <div class="tab-pane show active" id="${CONTENT_PREFIX}${ALL_INSTANCES_INDEX}" role="tabpanel">
                         <h4>{{ _("All Instances Configuration") }}</h4>
@@ -436,7 +457,6 @@
                         <!-- Resource Configuration Section -->
                         <div class="section-container">
                             ${generateFixedRessourceSection(ALL_INSTANCES_INDEX)}
-
                             ${generateFlavorSection(ALL_INSTANCES_INDEX)}
                             ${generateNetworkSection(ALL_INSTANCES_INDEX)}
                             ${generateVolumeSection(ALL_INSTANCES_INDEX)}
@@ -447,28 +467,7 @@
 
 
                         <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
-                        <div class="section-container">
-                            <h5>{{ _("User Configuration for All Instances") }}</h5>
-
-                            <!-- CSV Upload with Instance Mapping -->
-                            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                                <div style="flex-grow: 1;">
-                                    <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV with Instance Mapping") }}</label>
-                                    <div style="display: flex; align-items: center;">
-                                        <input type="file" class="form-control-file"
-                                               id="csvUpload_${ALL_INSTANCES_INDEX}" accept=".csv" style="width: auto;">
-                                        <!-- Undo button will be inserted here by JavaScript -->
-                                    </div>
-                                    <small class="form-text text-muted">
-                                        Upload a CSV file with headers: ${accountAttributes.join(", ")}, instance
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div id="all_instances_csv_preview" class="mt-3">
-                                <!-- CSV preview will be shown here -->
-                            </div>
-                        </div>
+                        ${generateCSVAllInstanceSection()}
 
                         ${generateNavigationSection(ALL_INSTANCES_INDEX, countInstances)}
                     </div>
@@ -486,10 +485,10 @@
                             instanceName = `${baseName}-${i}`;
                         }
                     }
-                    const tabId = `${TAB_PREFIX}${i}`;
+
                     const contentId = `${CONTENT_PREFIX}${i}`;
 
-                instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances, tabId, contentId);
+                instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances, contentId);
 
                 instancesContainer.innerHTML += `
                     <div class="tab-pane ${(i === 1 && countInstances === 1) ? 'show active' : ''}" id="${contentId}" role="tabpanel">
@@ -541,6 +540,10 @@
             }
         }
 
+        function generateInstanceContainerTop(instanceIndex){
+
+        }
+
         function attachAllInstancesEventListeners() {
             // Handle "Apply to All Instances" button
             document.querySelector('.confirm-apply').addEventListener('click', function() {
@@ -553,9 +556,11 @@
                 document.querySelector('.apply-warning').style.display = 'none';
             });
 
-            document.querySelectorAll('#flavor_id_0, #network_id_{{ ALL_INSTANCES_INDEX }}, #use_existing_volume_{{ ALL_INSTANCES_INDEX }}, #existing_volume_id_{{ ALL_INSTANCES_INDEX }}').forEach(element => {
-                console.log('Testing element:', element);
+            // All instance tab value change
+            document.querySelectorAll(`#flavor_id_0, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
+                console.log('Event registered for element:', element);
                 element.addEventListener('change', function() {
+                    console.log('Event fired: AllInstanceTab changed')
                     document.querySelector('.apply-warning').style.display = 'block';
                 });
             });
