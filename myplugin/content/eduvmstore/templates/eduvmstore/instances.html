@@ -491,12 +491,6 @@
                 instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances);
                 instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
             }
-            if (countInstances > 1) {
-                attachAllInstancesEventListeners();
-            }
-            attachInstanceEventListeners();
-            attachAccountButtonListeners();
-            attachFlavorCalculationListeners();
 
               document.querySelectorAll(".use-existing-volume").forEach(select => {
                     select.addEventListener("change", function () {
@@ -515,12 +509,18 @@
                     select.dispatchEvent(new Event("change"));
                 });
 
-                attachVolumeChangeHandlers();
-
             // Select Automatic Flavor for all instances including AllInstanceTab
             for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
                 selectAutomaticFlavor(i);
             }
+
+            attachVolumeChangeHandlers();
+            if (countInstances > 1) {
+                attachAllInstancesEventListeners();
+            }
+            attachInstanceEventListeners();
+            attachAccountButtonListeners();
+            attachFlavorCalculationListeners();
         }
 
         function attachAllInstancesEventListeners() {
@@ -548,7 +548,6 @@
                     }
                 });
             }
-            hideWarningModal();
         }
 
         function showWarningModal() {
