@@ -519,6 +519,7 @@
                     select.addEventListener("change", function () {
                         const instance = this.dataset.instance;
                         const group = document.getElementById(`existing_volume_group_${instance}`);
+                        console.log(`Group name, existing_volume_group_${instance}`)
                         const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
                         if (this.value === "existing") {
                             group.style.display = "block";
