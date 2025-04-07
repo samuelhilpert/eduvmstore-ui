@@ -392,11 +392,11 @@
             `;
         }
 
-        function singleInstanceTab(instanceName, i, countInstances, tabId, contentId){
+        function singleInstanceTab(instanceName, instanceIndex, countInstances, tabId, contentId){
             return `
                 <li class="nav-item">
                     <!--Only if there is no all InstanceTab then the 1st instance tab is selected -->
-                    <a class="nav-link ${(i === 1 && countInstances === 1) ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
+                    <a class="nav-link ${(instanceIndex === 1 && countInstances === 1) ? 'active' : ''}" id="${tabId}" data-toggle="tab" href="#${contentId}" role="tab">
                         ${instanceName}
                     </a>
                 </li>
@@ -553,7 +553,7 @@
                 document.querySelector('.apply-warning').style.display = 'none';
             });
 
-            document.querySelectorAll('flavor_id_{{ ALL_INSTANCES_INDEX }}, #network_id_{{ ALL_INSTANCES_INDEX }}, #use_existing_volume_{{ ALL_INSTANCES_INDEX }}, #existing_volume_id_{{ ALL_INSTANCES_INDEX }}').forEach(element => {
+            document.querySelectorAll('.flavor_id_{{ ALL_INSTANCES_INDEX }}, #network_id_{{ ALL_INSTANCES_INDEX }}, #use_existing_volume_{{ ALL_INSTANCES_INDEX }}, #existing_volume_id_{{ ALL_INSTANCES_INDEX }}').forEach(element => {
                 console.log('Testing element:', element);
                 element.addEventListener('change', function() {
                     document.querySelector('.apply-warning').style.display = 'block';
