@@ -90,6 +90,26 @@
     </div>
 </div>
 
+<!-- Modal for All Instances Changes Warning -->
+<div class="modal fade" id="allInstancesWarningModal" tabindex="-1" role="dialog" aria-labelledby="allInstancesWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allInstancesWarningModalLabel">{{ _("Warning") }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><strong>{{ _("Warning:") }}</strong> {{ _("Changes made here will override settings for all individual instances.") }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning confirm-apply-modal">{{ _("Apply to All Instances") }}</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
 
   <!-- App Template Details Modal -->
 <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
@@ -540,10 +560,37 @@
             }
         }
 
-        function generateInstanceContainerTop(instanceIndex){
+        function attachAllInstancesEventListeners() {
+            // Handle "Apply to All Instances" button from the modal
+            document.querySelector('.confirm-apply-modal').addEventListener('click', function() {
+                applyAllInstancesSettings();
+                $('#allInstancesWarningModal').modal('hide');
+            });
 
+            // All instance tab value change
+            document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
+                console.log('Event registered for element:', element);
+                element.addEventListener('change', function() {
+                    console.log('Event fired: AllInstanceTab changed');
+                    $('#allInstancesWarningModal').modal('show');
+                });
+            });
+
+            // Add handlers for instantiation attributes if they exist
+            if (instantiationAttribute.length > 0) {
+                instantiationAttribute.forEach(attr => {
+                    const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
+                    if (element) {
+                        element.addEventListener('change', function() {
+                            console.log('Event fired: AllInstanceTab instantiation attribute changed');
+                            $('#allInstancesWarningModal').modal('show');
+                        });
+                    }
+                });
+            }
         }
 
+        /*
         function attachAllInstancesEventListeners() {
             // Handle "Apply to All Instances" button
             document.querySelector('.confirm-apply').addEventListener('click', function() {
@@ -565,19 +612,12 @@
                 });
             });
 
-            // Show warning when settings are changed in All Instances tab
-            /*
-            document.querySelectorAll('TODO').forEach(element => {
-                element.addEventListener('change', function() {
-                    document.querySelector('.apply-warning').style.display = 'block';
-                });
-            });
-
             // Handle CSV upload for all instances
             document.querySelector('TODO').addEventListener('change', function(event) {
                 handleAllInstancesCSVUpload(event);
-            });*/
+            });
         }
+        */
 
         function applyAllInstancesSettings() {
             const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
