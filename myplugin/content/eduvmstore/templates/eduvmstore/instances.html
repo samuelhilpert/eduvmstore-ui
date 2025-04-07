@@ -428,17 +428,6 @@
             `
         }
 
-        function generateAlertOverrideInstances(){
-            return `
-                <!--Alert for overriding settings-->
-                <div class="alert alert-warning apply-warning all-instance-change-alert" style="display: none;">
-                    <p><strong>Warning:</strong> Changes made here will override settings for all individual instances.</p>
-                    <button type="button" class="btn btn-warning btn-sm confirm-apply">Apply to All Instances</button>
-                    <button type="button" class="btn btn-secondary btn-sm cancel-apply">Cancel</button>
-                </div>
-            `;
-        }
-
         function singleInstanceTab(instanceName, instanceIndex, countInstances, contentId){
             return `
                 <li class="nav-item">
@@ -449,6 +438,28 @@
                 </li>
             `;
         }
+
+        function singleInstanceContainer(instanceName, instanceIndex, countInstances){
+            return`
+                <div class="tab-pane ${((instanceIndex === 1 && countInstances === 1)|| instanceIndex === 0) ? 'show active' : ''}" id="${CONTENT_PREFIX}${instanceIndex}" role="tabpanel">
+                    <h4 id="instanceTitle_${instanceIndex}">${instanceName}</h4>
+                    <input type="hidden" name="generated_instance_name_${instanceIndex}" value="${instanceName}">
+
+                    <div class="section-container">
+                        ${generateFixedRessourceSection(instanceIndex)}
+                        ${generateFlavorSection(instanceIndex)}
+                        ${generateNetworkSection(instanceIndex)}
+                        ${generateVolumeSection(instanceIndex)}
+                    </div>
+
+                    ${generateInstantiationAttributesSection(instanceIndex)}
+                     <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
+                     ${instanceIndex === ALL_INSTANCES_INDEX ? generateCSVAllInstanceSection() : generateAccountAttributesSection(instanceIndex)}
+                    ${generateNavigationSection(instanceIndex, countInstances)}
+                </div>
+            `
+        }
+
        function generateInstanceFields() {
             let instanceTabs = document.getElementById("instanceTabs");
             let instancesContainer = document.getElementById("instancesContainer");
@@ -467,31 +478,9 @@
 
             // Add all Instance Tab
             if (countInstances > 1) {
-                instanceTabs.innerHTML += singleInstanceTab("All Instances", ALL_INSTANCES_INDEX, countInstances)
-                instancesContainer.innerHTML += `
-                    <div class="tab-pane show active" id="${CONTENT_PREFIX}${ALL_INSTANCES_INDEX}" role="tabpanel">
-                        <h4>{{ _("All Instances Configuration") }}</h4>
-
-                        ${generateAlertOverrideInstances()}
-
-                        <!-- Resource Configuration Section -->
-                        <div class="section-container">
-                            ${generateFixedRessourceSection(ALL_INSTANCES_INDEX)}
-                            ${generateFlavorSection(ALL_INSTANCES_INDEX)}
-                            ${generateNetworkSection(ALL_INSTANCES_INDEX)}
-                            ${generateVolumeSection(ALL_INSTANCES_INDEX)}
-                        </div>
-                        <!-- Instantiation Attributes Section -->
-                        ${generateInstantiationAttributesSection(ALL_INSTANCES_INDEX)}
-
-
-
-                        <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
-                        ${generateCSVAllInstanceSection()}
-
-                        ${generateNavigationSection(ALL_INSTANCES_INDEX, countInstances)}
-                    </div>
-                `;
+                allInstancesName = "All Instances"
+                instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
+                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
             }
             // Generate individual instance tabs
             for (let i = 1; i <= countInstances; i++) {
@@ -508,25 +497,7 @@
 
                 instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances, contentId);
 
-                instancesContainer.innerHTML += `
-                    <div class="tab-pane ${(i === 1 && countInstances === 1) ? 'show active' : ''}" id="${contentId}" role="tabpanel">
-                        <h4 id="instanceTitle_${i}">${instanceName}</h4>
-                        <input type="hidden" name="generated_instance_name_${i}" value="${instanceName}">
-
-                        <!-- Flavor and Network Selection Container -->
-                        <div class="section-container">
-                            ${generateFixedRessourceSection(i)}
-
-                            ${generateFlavorSection(i)}
-                            ${generateNetworkSection(i)}
-                            ${generateVolumeSection(i)}
-                        </div>
-
-                        ${generateInstantiationAttributesSection(i)}
-                        ${generateAccountAttributesSection(i)}
-                        ${generateNavigationSection(i, countInstances)}
-                    </div>
-                `;
+                instancesContainer.innerHTML += singleInstanceContainer();
             }
             if (countInstances > 1) {
                 attachAllInstancesEventListeners();
