@@ -556,27 +556,27 @@
         }
 
         function showWarningModal() {
-            changedFieldInfo.element = event.target;
+            allInstanceChangedFieldInfo.element = event.target;
 
             // Determine field type based on ID
             const fieldId = event.target.id;
             if (fieldId.includes('flavor_id')) {
-                changedFieldInfo.fieldType = 'flavor';
+                allInstanceChangedFieldInfo.fieldType = 'flavor';
             } else if (fieldId.includes('network_id')) {
-                changedFieldInfo.fieldType = 'network';
+                allInstanceChangedFieldInfo.fieldType = 'network';
             } else if (fieldId.includes('use_existing_volume')) {
-                changedFieldInfo.fieldType = 'volume_type';
+                allInstanceChangedFieldInfo.fieldType = 'volume_type';
             } else if (fieldId.includes('existing_volume_id')) {
-                changedFieldInfo.fieldType = 'volume_selection';
+                allInstanceChangedFieldInfo.fieldType = 'volume_selection';
             } else if (fieldId.includes('_instantiation')) {
-                changedFieldInfo.fieldType = 'instantiation';
-                changedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
+                allInstanceChangedFieldInfo.fieldType = 'instantiation';
+                allInstanceChangedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
             }
 
             const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
             if (warningText) {
                 warningText.innerHTML = `<strong>{{ _("Warning:") }}</strong> {{ _("This will apply the selected ") }}
-                    <strong>${getFieldTypeDisplayName(changedFieldInfo.fieldType)}</strong>
+                    <strong>${getFieldTypeDisplayName(allInstanceChangedFieldInfo.fieldType)}</strong>
                     {{ _(" to all individual instances.") }}`;
             }
 
@@ -591,7 +591,7 @@ function getFieldTypeDisplayName(fieldType) {
         case 'volume_type': return 'volume type';
         case 'volume_selection': return 'volume selection';
         case 'instantiation':
-            return `instantiation attribute "${changedFieldInfo.attrName}"`;
+            return `instantiation attribute "${allInstanceChangedFieldInfo.attrName}"`;
         default: return 'setting';
     }
 }
@@ -604,7 +604,7 @@ function getFieldTypeDisplayName(fieldType) {
             const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
 
             // Only apply the specific changed setting
-            switch (changedFieldInfo.fieldType) {
+            switch (allInstanceChangedFieldInfo.fieldType) {
                 case 'flavor':
                     const allFlavorSelect = document.getElementById(`flavor_id_${ALL_INSTANCES_INDEX}`);
                     if (allFlavorSelect && allFlavorSelect.value) {
@@ -656,11 +656,11 @@ function getFieldTypeDisplayName(fieldType) {
                     break;
 
                 case 'instantiation':
-                    if (changedFieldInfo.attrName) {
-                        const allAttrInput = document.getElementById(`${changedFieldInfo.attrName}_${ALL_INSTANCES_INDEX}_instantiation`);
+                    if (allInstanceChangedFieldInfo.attrName) {
+                        const allAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${ALL_INSTANCES_INDEX}_instantiation`);
                         if (allAttrInput && allAttrInput.value !== undefined) {
                             for (let i = 1; i <= countInstances; i++) {
-                                const instanceAttrInput = document.getElementById(`${changedFieldInfo.attrName}_${i}_instantiation`);
+                                const instanceAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${i}_instantiation`);
                                 if (instanceAttrInput) {
                                     instanceAttrInput.value = allAttrInput.value;
                                 }
@@ -670,7 +670,7 @@ function getFieldTypeDisplayName(fieldType) {
                     break;
             }
 
-            changedFieldInfo = { element: null, fieldType: '', attrName: null };
+            allInstanceChangedFieldInfo = { element: null, fieldType: '', attrName: null };
         }
 
         function attachInstanceEventListeners() {
