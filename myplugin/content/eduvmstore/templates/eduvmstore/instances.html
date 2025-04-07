@@ -554,6 +554,7 @@
             });
 
             document.querySelectorAll('#flavor_id_{{ ALL_INSTANCES_INDEX }}, #network_id_{{ ALL_INSTANCES_INDEX }}, #use_existing_volume_{{ ALL_INSTANCES_INDEX }}, #existing_volume_id_{{ ALL_INSTANCES_INDEX }}').forEach(element => {
+                console.log('Testing element:', element);
                 element.addEventListener('change', function() {
                     document.querySelector('.apply-warning').style.display = 'block';
                 });
