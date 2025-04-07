@@ -23,11 +23,13 @@
             <td>{{ app_template.short_description }}</td>
             <td>{{ app_template.size }} </td>
            <td>
-                {% if app_template.public %}
-                    Everyone
-                {% else %}
-                    Creator only
-                {% endif %}
+               {% if app_template.public and app_template.approved %}
+                   Everyone
+               {% elif app_template.public and not app_template.approved %}
+                   Waiting for approval
+               {% elif not app_template.public and not app_template.approved %}
+                   Creator only
+               {% endif %}
             </td>
               <td>
     <div class="btn-group">
@@ -43,6 +45,11 @@
     <li>
         <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
             Edit AppTemplate
+        </a>
+    </li>
+    <li>
+        <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
+         Clone AppTemplate
         </a>
     </li>
     <li role="separator" class="divider"></li>

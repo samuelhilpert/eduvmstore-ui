@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
-from openstack_dashboard.api import glance, nova, cinder
+from openstack_dashboard.api import glance, nova, cinder, keystone
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -290,14 +290,33 @@ class DetailsPageView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
         image_data = self.get_image_data(app_template.get('image_id', ''))
+        created_at = app_template.get('created_at', '').split('T')[0]
+
+        creator_id = app_template.get('creator_id', '')
+        app_template_creator_id = creator_id.replace('-', '')
+        app_template_creator_name = (
+            self.get_username_from_id(app_template_creator_id)
+            if app_template_creator_id else 'N/A'
+        )
 
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'app_template_creator': app_template_creator_name,
+            'created_at': created_at,
         })
 
         return context
+
+    def get_username_from_id(self, user_id):
+        try:
+            user = keystone.user_get(self.request, user_id)
+            return user.name
+        except Exception:
+            return user_id
+
+
 
     def get_app_template(self):
         """
@@ -342,25 +361,47 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     """
-        View to handle the creation of a new app template with specified details.
+    View for creating a new app template.
+
+    This view handles the display and submission of the form for creating a new app template.
+    It processes the form data, validates it, and sends it to the backend API for creation.
     """
+
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
 
-    # success_url = reverse_lazy('/eduvmstore_dashboard/')
-
     def get(self, request, *args, **kwargs):
-        """
-            Render the template on GET request.
-            :param HttpRequest request: The incoming HTTP GET request.
+            """
+            Handle GET requests to render the create app template form.
+
+            This method retrieves the context data required for rendering the form
+            and returns an HTTP response with the rendered template.
+
+            :param request: The incoming HTTP GET request.
+            :type request: HttpRequest
+            :param args: Additional positional arguments.
+            :param kwargs: Additional keyword arguments.
             :return: Rendered HTML response.
-        """
-        context = self.get_context_data()
-        return render(request, self.template_name, context)
+            :rtype: HttpResponse
+            """
+            context = self.get_context_data()
+            return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to create a new app template by sending data to the backend API.
+        Handle POST requests to create a new app template.
+
+        This method processes the form data submitted via POST request, validates it,
+        and sends it to the backend API for creating a new app template. It handles
+        the response and displays appropriate success or error messages.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param args: Additional positional arguments.
+        :param kwargs: Additional keyword arguments.
+        :return: HTTP response redirecting to the index page.
+        :rtype: HttpResponse
         """
+
         token_id = get_token_id(request)
         headers = {"X-Auth-Token": token_id}
 
@@ -390,10 +431,10 @@ class CreateView(generic.TemplateView):
             'description': request.POST.get('description'),
             'short_description': request.POST.get('short_description'),
             'instantiation_notice': request.POST.get('instantiation_notice'),
+            'public': request.POST.get('public'),
             'script': request.POST.get('hiddenScriptField'),
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
-            'public': request.POST.get('public'),
             'version': request.POST.get('version'),
             'volume_size_gb': request.POST.get('volume_size'),
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
@@ -402,8 +443,6 @@ class CreateView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
-            'created_at': request.POST.get('created_at')
-
         }
 
         try:
@@ -414,36 +453,105 @@ class CreateView(generic.TemplateView):
                 timeout=10,
             )
             if response.status_code == 201:
-                modal_message = _("App-Template created successfully.")
                 messages.success(request, f"App Template created successfully.")
             else:
-                modal_message = _("Failed to create App-Template. Please try again.")
                 logging.error(f"Unexpected response: {response.status_code}, {response.text}")
                 messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            modal_message = _("Failed to create App-Template. Please try again.")
+            messages.error(request, f"Failed to create App-Template. Please try again.")
 
-        context = self.get_context_data(modal_message=modal_message)
-        return render(request, self.template_name, context)
+        return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
     def get_context_data(self, **kwargs):
         """
-            Add available images to the context for template selection.
-            :param kwargs: Additional context parameters.
-            :return: Context dictionary with available images.
-            :rtype: dict
+        Add app template and image data to the context for rendering the template.
+
+        This method fetches the app template and associated image data if a template ID is provided.
+        It also retrieves a list of available images from Glance and adds this information to the context.
+
+        :param kwargs: Additional context parameters.
+        :return: Context dictionary with app template, image visibility, image owner, and available images.
+        :rtype: dict
         """
-        context = {}
+        context = super().get_context_data(**kwargs)
+
+        template_id = self.kwargs.get('template_id')
+        if template_id:
+            app_template = self.get_app_template(template_id)
+            image_data = self.get_image_data(app_template.get('image_id', ''))
+        else:
+            app_template = {}
+            image_data = {}
+
+        context.update({
+            'app_template': app_template,
+            'image_visibility': image_data.get('visibility', 'N/A'),
+            'image_owner': image_data.get('owner', 'N/A'),
+        })
+
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
+
         return context
+
+    def get_app_template(self, template_id):
+        """
+        Fetch a specific app template from the external database using token authentication.
+
+        This function retrieves the token ID from the request, constructs the headers,
+        and makes a GET request to the external API to fetch the app template details.
+        If the request is successful, it returns the JSON response. In case of an error,
+        it logs the error and returns an empty dictionary.
+
+        :param template_id: The ID of the app template to retrieve.
+        :type template_id: str
+        :return: JSON response of app template details if successful, otherwise an empty dict.
+        :rtype: dict
+        """
+        token_id = get_token_id(self.request)
+        headers = {"X-Auth-Token": token_id}
+        try:
+            response = requests.get(
+                API_ENDPOINTS['app_template_detail'].format(template_id=template_id),
+                headers=headers,
+                timeout=10
+            )
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
+
+    def get_image_data(self, image_id):
+        """
+        Fetch image details from Glance based on the image_id.
+
+        This function retrieves the image details from the Glance API using the provided image_id.
+        If the image is found, it returns a dictionary containing the visibility and owner of the image.
+        If an error occurs during the retrieval, it logs the error and returns an empty dictionary.
+
+        :param image_id: ID of the image to retrieve.
+        :type image_id: str
+        :return: Dictionary with visibility and owner details of the image.
+        :rtype: dict
+        """
+        try:
+            image = glance.image_get(self.request, image_id)
+            return {'visibility': image.visibility, 'owner': image.owner}
+        except Exception as e:
+            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
+            return {}
 
     def get_images_data(self):
         """
-        Fetch the images from the Glance API using the Horizon API.
+        Fetch images from the Glance API using Horizon API.
 
-        :return: List of images retrieved from Glance, or an empty list if retrieval fails.
+        This function retrieves a list of images available to the current tenant
+        by making a call to the Glance API. It returns the list of images if successful,
+        otherwise logs an error and returns an empty list.
+
+        :return: List of images or an empty list if an error occurs.
         :rtype: list
         """
         try:
@@ -560,8 +668,9 @@ class EditView(generic.TemplateView):
             logging.error(f"Request error: {e}")
             modal_message = _("Failed to update App-Template. Please try again.")
 
-        context = self.get_context_data(modal_message=modal_message)
-        return render(request, self.template_name, context)
+        self.get_context_data(modal_message=modal_message)
+        # After updating redirect to Dashboard overview
+        return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
     def get_context_data(self, **kwargs):
         """
@@ -837,10 +946,15 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
-                use_existing = request.POST.get(f"use_existing_volume_{i}") == "existing"
+                use_existing = request.POST.get(f"use_existing_volume_{i}")
                 existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
+                create_volume_size = request.POST.get(f"volume_size_instance_{i}")
                 accounts = []
                 instantiations = []
+                try:
+                    volume_size = int(create_volume_size)
+                except ValueError:
+                    volume_size = 1
 
                 no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
 
@@ -907,36 +1021,42 @@ class InstancesView(generic.TemplateView):
                         metadata[key] = part_content
 
                 block_device_mapping_v2 = []
-                if volume_size > 0:
-                    if use_existing and existing_volume_id:
-                        block_device_mapping_v2.append({
-                            "boot_index": -1,
-                            "uuid": existing_volume_id,
-                            "source_type": "volume",
-                            "destination_type": "volume",
-                            "delete_on_termination": False,
-                            "device_name": "/dev/vdb",
-                        })
-                        logging.info(f"Hänge vorhandenes Volume {existing_volume_id} an {instance_name}")
-                    else:
-                        volume_name = f"{instance_name}-volume"
-                        volume = cinder.volume_create(
-                            request,
-                            size=volume_size,
-                            name=volume_name,
-                            description=f"Extra volume for {instance_name}",
-                            volume_type="__DEFAULT__"
-                        )
-                        volume = self.wait_for_volume_available(request, volume.id)
+                if use_existing == "existing" and existing_volume_id:
+                    block_device_mapping_v2.append({
+                        "boot_index": -1,
+                        "uuid": existing_volume_id,
+                        "source_type": "volume",
+                        "destination_type": "volume",
+                        "delete_on_termination": True,
+                        "device_name": "/dev/vdb",
+                    })
+                    logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
+                # OpenStack only allows Volumes larger than 1 GB
+                elif use_existing == "new" and volume_size >= 1:
 
-                        block_device_mapping_v2.append({
-                            "boot_index": -1,
-                            "uuid": volume.id,
-                            "source_type": "volume",
-                            "destination_type": "volume",
-                            "delete_on_termination": True,
-                            "device_name": "/dev/vdb",
-                        })
+                    volume_name = f"{instance_name}-volume"
+                    # Create Volume via Cinder
+                    volume = cinder.volume_create(
+                        request,
+                        size=volume_size,
+                        name=volume_name,
+                        description=f"Extra volume for {instance_name}",
+                        volume_type="__DEFAULT__"
+                    )
+                    volume = self.wait_for_volume_available(request, volume.id)
+
+                    # Attach an additional block device (a virtual disk) to the instance.
+                    block_device_mapping_v2.append({
+                        "boot_index": -1,
+                        "uuid": volume.id,
+                        "source_type": "volume",
+                        "destination_type": "volume",
+                        "delete_on_termination": True,
+                        "device_name": "/dev/vdb",
+                    })
+                else:
+                    logging.info(f"{instance_name} is without additional volume")
+
 
 
 
@@ -1510,4 +1630,3 @@ class DeleteTemplateView(View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
-
