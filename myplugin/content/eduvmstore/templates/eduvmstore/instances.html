@@ -527,7 +527,7 @@
                             volumeSelect.setCustomValidity("");
                         } else {
                             if (group) group.style.display = "none";
-                            volumeSelect.required = false;
+                            if (volumeSelect) volumeSelect.required = false;
                         }
                     });
                     select.dispatchEvent(new Event("change"));
