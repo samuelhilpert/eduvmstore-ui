@@ -890,10 +890,6 @@ function selectAutomaticFlavor(instanceIndex) {
         countInstancesInput.value = "1";
         generateInstanceFields();
 
-        for (let i = 1; i <= countInstancesInput.value; i++) {
-            selectAutomaticFlavor(i);
-        }
-
         countInstancesInput.addEventListener("input", generateInstanceFields);
         instancesNameInput.addEventListener("input", generateInstanceFields);
 
