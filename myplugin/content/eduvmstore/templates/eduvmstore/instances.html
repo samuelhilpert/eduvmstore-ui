@@ -428,7 +428,7 @@
             `
         }
 
-        function singleInstanceTab(instanceName, instanceIndex, countInstances){
+        function singleInstanceTab(instanceName, instanceIndex){
             return `
                 <li class="nav-item">
                     <!--Only if there is no all InstanceTab then the 1st instance tab is selected -->
@@ -441,7 +441,7 @@
 
         function singleInstanceContainer(instanceName, instanceIndex, countInstances){
             return`
-                <div class="tab-pane ${((instanceIndex === 1 && countInstances === 1)|| instanceIndex === 0) ? 'show active' : ''}" id="${CONTENT_PREFIX}${instanceIndex}" role="tabpanel">
+                <div class="tab-pane" id="${CONTENT_PREFIX}${instanceIndex}" role="tabpanel">
                     <h4 id="instanceTitle_${instanceIndex}">${instanceName}</h4>
                     <input type="hidden" name="generated_instance_name_${instanceIndex}" value="${instanceName}">
 
@@ -479,7 +479,7 @@
             // Add all Instance Tab
             if (countInstances > 1) {
                 allInstancesName = "All Instances"
-                instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
+                instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX)
                 instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
             }
             // Generate individual instance tabs
@@ -488,7 +488,7 @@
                 if (baseName) {
                     instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
                 }
-                instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances);
+                instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
                 instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
             }
 
