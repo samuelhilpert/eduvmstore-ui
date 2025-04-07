@@ -486,17 +486,12 @@
             for (let i = 1; i <= countInstances; i++) {
                     let instanceName = "";
                     if (baseName) {
-                        if (countInstances === 1) {
-                            instanceName = baseName;
-                        } else {
-                            instanceName = `${baseName}-${i}`;
-                        }
+                        instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
                     }
 
                     const contentId = `${CONTENT_PREFIX}${i}`;
 
                 instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances);
-
                 instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
             }
             if (countInstances > 1) {
