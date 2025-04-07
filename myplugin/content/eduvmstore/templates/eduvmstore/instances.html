@@ -519,7 +519,6 @@
                     select.addEventListener("change", function () {
                         const instance = this.dataset.instance;
                         const group = document.getElementById(`existing_volume_group_${instance}`);
-                        console.log(`Group name, existing_volume_group_${instance}`)
                         const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
                         if (this.value === "existing") {
                             group.style.display = "block";
@@ -558,7 +557,7 @@
             });
 
             // All instance tab value change
-            document.querySelectorAll(`#flavor_id_0, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
+            document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
                 console.log('Event registered for element:', element);
                 element.addEventListener('change', function() {
                     console.log('Event fired: AllInstanceTab changed')
