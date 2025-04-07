@@ -484,13 +484,10 @@
             }
             // Generate individual instance tabs
             for (let i = 1; i <= countInstances; i++) {
-                    let instanceName = "";
-                    if (baseName) {
-                        instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
-                    }
-
-                    const contentId = `${CONTENT_PREFIX}${i}`;
-
+                let instanceName = "";
+                if (baseName) {
+                    instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
+                }
                 instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances);
                 instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
             }
@@ -530,14 +527,14 @@
             // Handle "Apply to All Instances" button from the modal
             document.querySelector('.confirm-apply-modal').addEventListener('click', function() {
                 applyAllInstancesSettings();
-                $('#allInstancesWarningModal').modal('hide');
+                hideWarningModal();
             });
 
             // All instance tab value change
             document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
-                element.addEventListener('change', function() {
-                    $('#allInstancesWarningModal').modal('show');
-                });
+                // Remove existing event listeners to prevent duplicates
+                element.removeEventListener('change', showWarningModal);
+                element.addEventListener('change', showWarningModal);
             });
 
             // Add handlers for instantiation attributes if they exist
@@ -545,12 +542,20 @@
                 instantiationAttribute.forEach(attr => {
                     const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
                     if (element) {
-                        element.addEventListener('change', function() {
-                            $('#allInstancesWarningModal').modal('show');
-                        });
+                        // Remove existing event listeners to prevent duplicates
+                        element.removeEventListener('change', showWarningModal);
+                        element.addEventListener('change', showWarningModal);
                     }
                 });
             }
+        }
+
+        function showWarningModal() {
+            $('#allInstancesWarningModal').modal('show');
+        }
+
+        function hideWarningModal(){
+            $('#allInstancesWarningModal').modal('hide');
         }
 
         function applyAllInstancesSettings() {
