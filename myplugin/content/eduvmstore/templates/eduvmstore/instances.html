@@ -428,7 +428,7 @@
             `
         }
 
-        function singleInstanceTab(instanceName, instanceIndex, countInstances, contentId){
+        function singleInstanceTab(instanceName, instanceIndex, countInstances){
             return `
                 <li class="nav-item">
                     <!--Only if there is no all InstanceTab then the 1st instance tab is selected -->
@@ -495,9 +495,9 @@
 
                     const contentId = `${CONTENT_PREFIX}${i}`;
 
-                instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances, contentId);
+                instanceTabs.innerHTML += singleInstanceTab(instanceName, i, countInstances);
 
-                instancesContainer.innerHTML += singleInstanceContainer();
+                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
             }
             if (countInstances > 1) {
                 attachAllInstancesEventListeners();
@@ -540,7 +540,6 @@
 
             // All instance tab value change
             document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
-                console.log('Event registered for element:', element);
                 element.addEventListener('change', function() {
                     $('#allInstancesWarningModal').modal('show');
                 });
