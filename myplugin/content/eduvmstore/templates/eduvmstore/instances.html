@@ -559,18 +559,25 @@
             allInstanceChangedFieldInfo.element = event.target;
 
             // Determine field type based on ID
-            const fieldId = event.target.id;
-            if (fieldId.includes('flavor_id')) {
-                allInstanceChangedFieldInfo.fieldType = 'flavor';
-            } else if (fieldId.includes('network_id')) {
-                allInstanceChangedFieldInfo.fieldType = 'network';
-            } else if (fieldId.includes('use_existing_volume')) {
-                allInstanceChangedFieldInfo.fieldType = 'volume_type';
-            } else if (fieldId.includes('existing_volume_id')) {
-                allInstanceChangedFieldInfo.fieldType = 'volume_selection';
-            } else if (fieldId.includes('_instantiation')) {
-                allInstanceChangedFieldInfo.fieldType = 'instantiation';
-                allInstanceChangedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
+            switch (true) {
+                case fieldId.includes('flavor_id'):
+                    allInstanceChangedFieldInfo.fieldType = 'flavor';
+                    break;
+                case fieldId.includes('network_id'):
+                    allInstanceChangedFieldInfo.fieldType = 'network';
+                    break;
+                case fieldId.includes('use_existing_volume'):
+                    allInstanceChangedFieldInfo.fieldType = 'volume_type';
+                    break;
+                case fieldId.includes('existing_volume_id'):
+                    allInstanceChangedFieldInfo.fieldType = 'volume_selection';
+                    break;
+                case fieldId.includes('_instantiation'):
+                    allInstanceChangedFieldInfo.fieldType = 'instantiation';
+                    allInstanceChangedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
+                    break;
+                default:
+                    allInstanceChangedFieldInfo.fieldType = 'unknown';
             }
 
             const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
