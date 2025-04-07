@@ -21,13 +21,8 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let items = document.querySelectorAll(".template-row");
-            let loadMoreBtn = document.getElementById("loadMoreBtn");
             let itemsPerPage = 10;
             let currentItems = 0;
-
-            if (items.length <= itemsPerPage) {
-                loadMoreBtn.style.display = "none";
-            }
 
             function showNextItems() {
                 console.log("Load More clicked!"); // Debugging log
@@ -37,14 +32,9 @@
                 currentItems += itemsPerPage;
 
                 console.log(`Showing up to index: ${currentItems}, Total items: ${items.length}`);
-
-                if (currentItems >= items.length) {
-                    loadMoreBtn.style.display = "none";
-                }
             }
 
             showNextItems();
-            loadMoreBtn.addEventListener("click", showNextItems);
         });
         document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll(".favorite-form").forEach(form => {
