@@ -513,7 +513,8 @@
             for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
                 selectAutomaticFlavor(i);
             }
-
+            startInstanceIndex = (countInstances > 1) ? ALL_INSTANCES_INDEX : 1;
+            switchToInstance(startInstanceIndex)
             attachVolumeChangeHandlers();
             if (countInstances > 1) {
                 attachAllInstancesEventListeners();
@@ -894,7 +895,6 @@ function selectAutomaticFlavor(instanceIndex) {
         instancesNameInput.addEventListener("input", generateInstanceFields);
 
         attachFlavorCalculationListeners();
-        switchToInstance(1)
     };
 
 
