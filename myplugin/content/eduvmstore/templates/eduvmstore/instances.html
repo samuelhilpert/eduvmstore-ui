@@ -819,7 +819,8 @@ function selectAutomaticFlavor(instanceIndex) {
     let totalDisk = requiredDisk;
     let totalCores = requiredCores;
 
-    if (!noAdditionalUsersCheckbox.checked) {
+    // AllInstanceTab only shows fixed resources
+    if (instanceIndex != ALL_INSTANCES_INDEX && !noAdditionalUsersCheckbox.checked) {
         const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
         const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
         const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
