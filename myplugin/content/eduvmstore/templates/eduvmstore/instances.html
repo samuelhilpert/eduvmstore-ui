@@ -472,8 +472,6 @@
                         ${generateNavigationSection(ALL_INSTANCES_INDEX, countInstances)}
                     </div>
                 `;
-
-                attachAllInstancesEventListeners();
             }
             // Generate individual instance tabs
             for (let i = 1; i <= countInstances; i++) {
@@ -510,7 +508,9 @@
                     </div>
                 `;
             }
-            //attachAllInstancesEventListeners()
+            if (countInstances > 1) {
+                attachAllInstancesEventListeners();
+            }
             attachInstanceEventListeners();
             attachAccountButtonListeners();
             attachFlavorCalculationListeners();
