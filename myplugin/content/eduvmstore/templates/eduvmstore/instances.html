@@ -217,6 +217,11 @@
        const TAB_PREFIX = 'instanceTab_'
        const CONTENT_PREFIX = 'instanceContent_'
 
+       let allInstanceChangedFieldInfo = {
+            element: null,
+            fieldType: ''
+        };
+
        //Volumes
         const attachableVolumes = [
             {% for volume in attachable_volumes %}
@@ -551,8 +556,45 @@
         }
 
         function showWarningModal() {
+            changedFieldInfo.element = event.target;
+
+            // Determine field type based on ID
+            const fieldId = event.target.id;
+            if (fieldId.includes('flavor_id')) {
+                changedFieldInfo.fieldType = 'flavor';
+            } else if (fieldId.includes('network_id')) {
+                changedFieldInfo.fieldType = 'network';
+            } else if (fieldId.includes('use_existing_volume')) {
+                changedFieldInfo.fieldType = 'volume_type';
+            } else if (fieldId.includes('existing_volume_id')) {
+                changedFieldInfo.fieldType = 'volume_selection';
+            } else if (fieldId.includes('_instantiation')) {
+                changedFieldInfo.fieldType = 'instantiation';
+                changedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
+            }
+
+            const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
+            if (warningText) {
+                warningText.innerHTML = `<strong>{{ _("Warning:") }}</strong> {{ _("This will apply the selected ") }}
+                    <strong>${getFieldTypeDisplayName(changedFieldInfo.fieldType)}</strong>
+                    {{ _(" to all individual instances.") }}`;
+            }
+
             $('#allInstancesWarningModal').modal('show');
         }
+
+// Helper function to get a display name for the field type
+function getFieldTypeDisplayName(fieldType) {
+    switch (fieldType) {
+        case 'flavor': return 'flavor';
+        case 'network': return 'network';
+        case 'volume_type': return 'volume type';
+        case 'volume_selection': return 'volume selection';
+        case 'instantiation':
+            return `instantiation attribute "${changedFieldInfo.attrName}"`;
+        default: return 'setting';
+    }
+}
 
         function hideWarningModal(){
             $('#allInstancesWarningModal').modal('hide');
@@ -561,62 +603,74 @@
         function applyAllInstancesSettings() {
             const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
 
-            // Apply flavor selection to all instances
-            const allFlavorSelect = document.getElementById(`flavor_id_${ALL_INSTANCES_INDEX}`);
-            if (allFlavorSelect && allFlavorSelect.value) {
-                for (let i = 1; i <= countInstances; i++) {
-                    const instanceFlavorSelect = document.getElementById(`flavor_id_${i}`);
-                    if (instanceFlavorSelect) {
-                        instanceFlavorSelect.value = allFlavorSelect.value;
+            // Only apply the specific changed setting
+            switch (changedFieldInfo.fieldType) {
+                case 'flavor':
+                    const allFlavorSelect = document.getElementById(`flavor_id_${ALL_INSTANCES_INDEX}`);
+                    if (allFlavorSelect && allFlavorSelect.value) {
+                        for (let i = 1; i <= countInstances; i++) {
+                            const instanceFlavorSelect = document.getElementById(`flavor_id_${i}`);
+                            if (instanceFlavorSelect) {
+                                instanceFlavorSelect.value = allFlavorSelect.value;
+                            }
+                        }
                     }
-                }
-            }
+                    break;
 
-            // Apply network selection to all instances
-            const allNetworkSelect = document.getElementById(`network_id_${ALL_INSTANCES_INDEX}`);
-            if (allNetworkSelect && allNetworkSelect.value) {
-                for (let i = 1; i <= countInstances; i++) {
-                    const instanceNetworkSelect = document.getElementById(`network_id_${i}`);
-                    if (instanceNetworkSelect) {
-                        instanceNetworkSelect.value = allNetworkSelect.value;
+                case 'network':
+                    const allNetworkSelect = document.getElementById(`network_id_${ALL_INSTANCES_INDEX}`);
+                    if (allNetworkSelect && allNetworkSelect.value) {
+                        for (let i = 1; i <= countInstances; i++) {
+                            const instanceNetworkSelect = document.getElementById(`network_id_${i}`);
+                            if (instanceNetworkSelect) {
+                                instanceNetworkSelect.value = allNetworkSelect.value;
+                            }
+                        }
                     }
-                }
-            }
+                    break;
 
-            // Apply volume settings
-            const allVolumeOption = document.getElementById(`use_existing_volume_${ALL_INSTANCES_INDEX}`);
-            if (allVolumeOption) {
-                const volumeChoice = allVolumeOption.value;
-                for (let i = 1; i <= countInstances; i++) {
-                    const instanceVolumeOption = document.getElementById(`use_existing_volume_${i}`);
-                    if (instanceVolumeOption) {
-                        instanceVolumeOption.value = volumeChoice;
-                        instanceVolumeOption.dispatchEvent(new Event('change'));
+                case 'volume_type':
+                    const allVolumeOption = document.getElementById(`use_existing_volume_${ALL_INSTANCES_INDEX}`);
+                    if (allVolumeOption) {
+                        const volumeChoice = allVolumeOption.value;
+                        for (let i = 1; i <= countInstances; i++) {
+                            const instanceVolumeOption = document.getElementById(`use_existing_volume_${i}`);
+                            if (instanceVolumeOption) {
+                                instanceVolumeOption.value = volumeChoice;
+                                instanceVolumeOption.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    }
+                    break;
 
-                        // If existing volume is selected, apply volume selection
-                        if (volumeChoice === 'existing') {
-                            const allVolumeSelect = document.getElementById(`existing_volume_id_${ALL_INSTANCES_INDEX}`);
+                case 'volume_selection':
+                    const allVolumeSelect = document.getElementById(`existing_volume_id_${ALL_INSTANCES_INDEX}`);
+                    if (allVolumeSelect && allVolumeSelect.value) {
+                        for (let i = 1; i <= countInstances; i++) {
                             const instanceVolumeSelect = document.getElementById(`existing_volume_id_${i}`);
-                            if (allVolumeSelect && instanceVolumeSelect && allVolumeSelect.value) {
+                            if (instanceVolumeSelect) {
                                 instanceVolumeSelect.value = allVolumeSelect.value;
                             }
                         }
                     }
-                }
-            }
+                    break;
 
-            // Apply instantiation attributes
-            instantiationAttribute.forEach(attr => {
-                const allAttrInput = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
-                if (allAttrInput && allAttrInput.value) {
-                    for (let i = 1; i <= countInstances; i++) {
-                        const instanceAttrInput = document.getElementById(`${attr}_${i}_instantiation`);
-                        if (instanceAttrInput) {
-                            instanceAttrInput.value = allAttrInput.value;
+                case 'instantiation':
+                    if (changedFieldInfo.attrName) {
+                        const allAttrInput = document.getElementById(`${changedFieldInfo.attrName}_${ALL_INSTANCES_INDEX}_instantiation`);
+                        if (allAttrInput && allAttrInput.value !== undefined) {
+                            for (let i = 1; i <= countInstances; i++) {
+                                const instanceAttrInput = document.getElementById(`${changedFieldInfo.attrName}_${i}_instantiation`);
+                                if (instanceAttrInput) {
+                                    instanceAttrInput.value = allAttrInput.value;
+                                }
+                            }
                         }
                     }
-                }
-            });
+                    break;
+            }
+
+            changedFieldInfo = { element: null, fieldType: '', attrName: null };
         }
 
         function attachInstanceEventListeners() {
