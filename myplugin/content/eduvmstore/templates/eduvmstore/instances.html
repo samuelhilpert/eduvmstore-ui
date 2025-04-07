@@ -583,7 +583,7 @@
             const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
 
             // Apply flavor selection to all instances
-            const allFlavorSelect = document.getElementById('flavor_id_{{ ALL_INSTANCES_INDEX }}');
+            const allFlavorSelect = document.getElementById(`flavor_id_${ALL_INSTANCES_INDEX}`);
             if (allFlavorSelect && allFlavorSelect.value) {
                 for (let i = 1; i <= countInstances; i++) {
                     const instanceFlavorSelect = document.getElementById(`flavor_id_${i}`);
@@ -594,7 +594,7 @@
             }
 
             // Apply network selection to all instances
-            const allNetworkSelect = document.getElementById('network_id_{{ ALL_INSTANCES_INDEX }}');
+            const allNetworkSelect = document.getElementById(`network_id_${ALL_INSTANCES_INDEX}`);
             if (allNetworkSelect && allNetworkSelect.value) {
                 for (let i = 1; i <= countInstances; i++) {
                     const instanceNetworkSelect = document.getElementById(`network_id_${i}`);
@@ -605,7 +605,7 @@
             }
 
             // Apply volume settings
-            const allVolumeOption = document.getElementById('use_existing_volume_{{ ALL_INSTANCES_INDEX }}');
+            const allVolumeOption = document.getElementById(`use_existing_volume_${ALL_INSTANCES_INDEX}`);
             if (allVolumeOption) {
                 const volumeChoice = allVolumeOption.value;
                 for (let i = 1; i <= countInstances; i++) {
@@ -616,7 +616,7 @@
 
                         // If existing volume is selected, apply volume selection
                         if (volumeChoice === 'existing') {
-                            const allVolumeSelect = document.getElementById('existing_volume_id_{{ ALL_INSTANCES_INDEX }}');
+                            const allVolumeSelect = document.getElementById(`existing_volume_id_${ALL_INSTANCES_INDEX}`);
                             const instanceVolumeSelect = document.getElementById(`existing_volume_id_${i}`);
                             if (allVolumeSelect && instanceVolumeSelect && allVolumeSelect.value) {
                                 instanceVolumeSelect.value = allVolumeSelect.value;
@@ -628,7 +628,7 @@
 
             // Apply instantiation attributes
             instantiationAttribute.forEach(attr => {
-                const allAttrInput = document.getElementById(`${attr}_{{ ALL_INSTANCES_INDEX }}_instantiation`);
+                const allAttrInput = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
                 if (allAttrInput && allAttrInput.value) {
                     for (let i = 1; i <= countInstances; i++) {
                         const instanceAttrInput = document.getElementById(`${attr}_${i}_instantiation`);
