@@ -373,7 +373,11 @@
 <div class="form-group row">
  <h3 class="ml-4">Security Groups</h3>
     <div class="col-md-4">
-        <label for="security_groups" class="mt-4 mb-4">Select Security Groups:</label>
+        <label for="security_groups" class="mt-4 mb-4">Select Security Groups
+          <span data-toggle="tooltip" title="Choose one or multiple security groups..">
+                <i class="fa fa-question-circle"></i>
+            </span>
+        </label>
         <div class="dropdown">
             <!-- Display the selected groups (including 'default') -->
             <div class="selected-groups">
@@ -403,7 +407,7 @@
         <h3>Script</h3>
         <div class="form-group">
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="generate_ssh_script" onchange="toggleSshScript(this)">
+                <input class="form-check-input mr-4 mb-1" type="checkbox" id="generate_ssh_script" onchange="toggleSshScript(this)">
                 <label class="form-check-label" for="generate_ssh_script">
                     Generate SSH setup for users
                 </label>
