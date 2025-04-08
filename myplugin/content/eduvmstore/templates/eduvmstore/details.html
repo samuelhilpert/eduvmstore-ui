@@ -239,7 +239,7 @@
                 {% if app_template.security_groups %}
                     <ul class="list-unstyled">
                         {% for group in app_template.security_groups %}
-                            <li>{{ group }}</li>
+                            <li>{{ group.name }}</li>  <!-- Access the name property -->
                         {% endfor %}
                     </ul>
                 {% else %}
