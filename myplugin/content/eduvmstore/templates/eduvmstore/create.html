@@ -127,12 +127,9 @@
 
 
 
-
-    .security-group-option {
-    position: relative;
-    display: block;
-    flex: 1 1 220px;
-    max-width: 260px;
+.security-group-option {
+    flex: 1 1 240px;
+    max-width: 100%;
 }
 
 .security-group-option input[type="checkbox"] {
@@ -142,18 +139,24 @@
 .security-group-box {
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 1rem;
-    background-color: #f9f9f9;
+    padding: 0.75rem 1rem;
+    background-color: #fdfdfd;
     transition: all 0.2s ease-in-out;
-    height: 100%;
     cursor: pointer;
+    height: 100%;
     position: relative;
+    min-height: 90px;
 }
 
 .security-group-name {
     font-weight: 600;
-    margin-bottom: 0.4rem;
-    font-size: 0.95rem;
+    font-size: 14px;
+    margin-bottom: 0.3rem;
+}
+
+.security-group-description {
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 .security-group-option input[type="checkbox"]:checked + .security-group-box {
@@ -168,10 +171,8 @@
     position: absolute;
     top: 8px;
     right: 10px;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
-
-
 
 </style>
 
@@ -344,8 +345,9 @@
             </div>
 
 
-            <div class="form-group mt-4">
-    <label class="font-weight-bold mb-2">Security Groups</label>
+       <h3 class="mt-5">Security Groups</h3>
+<div class="form-group">
+    <label class="font-weight-bold mb-2" for="security_groups">Choose one or more:</label>
     <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
         {% for sg in security_groups %}
             <label class="security-group-option">
@@ -353,9 +355,8 @@
                 <div class="security-group-box">
                     <div class="security-group-name">{{ sg.name }}</div>
                     {% if sg.description %}
-                        <small class="text-muted">{{ sg.description }}</small>
+                        <div class="security-group-description text-muted">{{ sg.description }}</div>
                     {% endif %}
-                    <div class="security-group-check"></div>
                 </div>
             </label>
         {% endfor %}
