@@ -1,0 +1,55 @@
+packages:
+  - python3-pip
+  - python3-venv
+  - ufw
+
+runcmd:
+  # 1. Create users and set up everything under a loop
+  - |
+    while IFS=':' read -r username password; do
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+        usermod -aG sudo "$username"
+      fi
+
+      # Setup Jupyter environment
+      su - "$username" -c "python3 -m venv jupyter_env"
+      su - "$username" -c "~/jupyter_env/bin/pip install --upgrade pip"
+      su - "$username" -c "~/jupyter_env/bin/pip install notebook"
+      
+      # Generate Jupyter config
+      su - "$username" -c "~/jupyter_env/bin/jupyter notebook --generate-config"
+      CONFIG_PATH="/home/$username/.jupyter/jupyter_notebook_config.py"
+      echo "c = get_config()" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.ip = '0.0.0.0'" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.open_browser = False" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.port = 8888" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.token = ''" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
+      chown "$username:$username" "$CONFIG_PATH"
+
+      # Create systemd service
+      echo "[Unit]
+      Description=Jupyter Notebook for $username
+      After=network.target
+
+      [Service]
+      Type=simple
+      User=$username
+      WorkingDirectory=/home/$username
+      ExecStart=/home/$username/jupyter_env/bin/jupyter-notebook
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target" > "/etc/systemd/system/jupyter-$username.service"
+
+      systemctl daemon-reload
+      systemctl enable "jupyter-$username"
+      systemctl start "jupyter-$username"
+
+    done < /etc/users.txt
+
+  # 2. Allow Jupyter port through firewall
+  - ufw allow 8888
+  - ufw --force enable
