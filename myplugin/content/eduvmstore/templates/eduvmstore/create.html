@@ -370,27 +370,25 @@
 
         </div>
 
-<h3>Security Groups</h3>
-<div class="form-group row">
+     <h3>Security Groups</h3>
+        <div class="form-group row ">
     <div class="col-md-4">
-        <label for="security_groups" style="margin-top: 10px">
-            Select Security Groups
-            <span data-toggle="tooltip" title="Choose one or multiple security groups..">
+        <label for="security_groups" style="margin-top: 10px">Select Security Groups
+          <span data-toggle="tooltip" title="Choose one or multiple security groups..">
                 <i class="fa fa-question-circle"></i>
             </span>
         </label>
-        <!-- Use a multiple select input -->
-        <select name="security_groups" id="security_groups" multiple class="form-control" style="height: auto; min-height: 38px;">
-            {% for group in security_groups %}
-                <option value="{{ group.name }}"
-                    {% if group.name == 'default' %}selected{% endif %}>
-                    {{ group.name }}
-                </option>
-            {% endfor %}
-        </select>
-        <small class="text-muted">Hold Ctrl/Cmd to select multiple groups</small>
-    </div>
-</div>
+        <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
+            <!-- Display the selected groups (including 'default') -->
+            <div class="selected-groups">
+                <span class="selected-group">
+                    {% if selected_groups %}
+                        {{ selected_group }}
+                    {% else %}
+                        default
+                    {% endif %}
+                </span>
+            </div>
 
             <!-- Dropdown content with checkboxes for all groups -->
             <div class="dropdown-content">
