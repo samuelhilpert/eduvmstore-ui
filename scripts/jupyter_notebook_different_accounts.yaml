@@ -1,7 +1,7 @@
 packages:
   - python3-pip
   - python3-venv
-  - ufw
+  - curl
 
 runcmd:
   - |
@@ -13,12 +13,12 @@ runcmd:
         usermod -aG sudo "$username"
       fi
 
-      # Setup Jupyter environment on different port for each user
+      # Jupyter-Umgebung einrichten
       su - "$username" -c "python3 -m venv jupyter_env"
       su - "$username" -c "~/jupyter_env/bin/pip install --upgrade pip"
       su - "$username" -c "~/jupyter_env/bin/pip install notebook"
-      
-      # Generate Jupyter config
+
+      # Jupyter-Konfiguration generieren
       su - "$username" -c "~/jupyter_env/bin/jupyter notebook --generate-config"
       CONFIG_PATH="/home/$username/.jupyter/jupyter_notebook_config.py"
       echo "c = get_config()" >> "$CONFIG_PATH"
@@ -29,9 +29,15 @@ runcmd:
       echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
       chown "$username:$username" "$CONFIG_PATH"
 
-      # Create systemd service
+      # Beispiel-Notebook herunterladen
+      NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
+      NOTEBOOK_PATH="/home/$username/test.ipynb"
+      su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
+      chown "$username:$username" "$NOTEBOOK_PATH"
+
+      # Systemd-Dienst erstellen
       echo "[Unit]
-      Description=Jupyter Notebook for $username
+      Description=Jupyter Notebook für $username
       After=network.target
 
       [Service]
@@ -48,7 +54,6 @@ runcmd:
       systemctl enable "jupyter-$username"
       systemctl start "jupyter-$username"
 
-      # Increment the port number for the next user
       PORT=$((PORT + 1))
 
     done < /etc/users.txt
