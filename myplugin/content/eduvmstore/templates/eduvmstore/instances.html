@@ -529,7 +529,6 @@
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
-            hideWarningModal();
         }
 
         function attachAllInstancesEventListeners() {
@@ -539,26 +538,28 @@
                 hideWarningModal();
             });
 
-            // All instance tab value change
-            document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
-                // Remove existing event listeners to prevent duplicates
-                element.removeEventListener('change', showWarningModal);
-                element.addEventListener('change', showWarningModal);
-            });
-
-            // Add handlers for instantiation attributes if they exist
-            if (instantiationAttribute.length > 0) {
-                instantiationAttribute.forEach(attr => {
-                    const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
-                    if (element) {
-                        // Remove existing event listeners to prevent duplicates
-                        element.removeEventListener('change', showWarningModal);
-                        element.addEventListener('change', showWarningModal);
-                    }
+            // All instance tab value change - ADD THIS TIMEOUT
+            setTimeout(() => {
+                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
+                    // Remove existing event listeners to prevent duplicates
+                    element.removeEventListener('change', showWarningModal);
+                    element.addEventListener('change', showWarningModal);
                 });
-            }
+
+                // Add handlers for instantiation attributes if they exist
+                if (instantiationAttribute.length > 0) {
+                    instantiationAttribute.forEach(attr => {
+                        const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
+                        if (element) {
+                            // Remove existing event listeners to prevent duplicates
+                            element.removeEventListener('change', showWarningModal);
+                            element.addEventListener('change', showWarningModal);
+                        }
+                    });
+                }
+            }, 100);  // Short delay to prevent immediate triggering
             hideWarningModal();
-        }
+}
 
         function showWarningModal() {
             allInstanceChangedFieldInfo.element = event.target;
