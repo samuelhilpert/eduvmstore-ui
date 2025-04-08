@@ -124,32 +124,59 @@
         margin-bottom: 30px;
     }
 
+
+    /* Dropdown Button */
 .select-box {
-    appearance: none;
     background-color: #fff;
-    background-image: none;
-    height: auto;
-    line-height: 1.5;
-    padding: 8px 12px;
-    font-size: 14px;
-    box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 4px;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.select-box:hover {
+    background-color: #f1f1f1;
+}
+
+/* Dropdown Container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    max-height: 200px;
     overflow-y: auto;
-    max-height: 200px; /* Adds scrolling if the list is too long */
     width: 100%;
 }
 
-.select-box:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    border-color: #007bff;
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
 }
 
-.select-box option {
-    padding: 8px;
+/* Label style for checkboxes */
+.dropdown-content label {
+    display: block;
+    margin-top: 10px;
     font-size: 14px;
 }
+
+.dropdown-content input {
+    margin-right: 10px;
+}
+
 
 </style>
 
@@ -324,14 +351,19 @@
         </div>
 
 
-<div class="form-group row">
+    <div class="form-group row">
     <div class="col-md-4">
         <label for="security_groups">Select Security Groups:</label>
-        <select name="security_groups" id="security_groups" class="form-control select-box" multiple required size="5">
-            {% for sg in security_groups %}
-                <option value="{{ sg.name }}" {% if "default" in sg.name or sg.name in selected_groups %}selected{% endif %}>{{ sg.name }}</option>
-            {% endfor %}
-        </select>
+        <div class="dropdown">
+            <button type="button" class="form-control select-box">Select Groups</button>
+            <div class="dropdown-content">
+                {% for sg in security_groups %}
+                    <label><input type="checkbox" name="security_groups" value="{{ sg.name }}"
+                                  {% if "default" in sg.name or sg.name in selected_groups %}checked{% endif %}>
+                                  {{ sg.name }}</label>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -654,5 +686,31 @@ runcmd:
         });
     });
 
+
+    // Close dropdown if clicked outside
+document.addEventListener('click', function(event) {
+  var dropdown = document.querySelector('.dropdown-content');
+  if (!dropdown.contains(event.target) && !event.target.closest('.dropdown')) {
+    dropdown.style.display = 'none';
+  }
+});
+
+// Show dropdown when button is clicked
+document.querySelector('.dropdown button').addEventListener('click', function() {
+  var dropdown = document.querySelector('.dropdown-content');
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+});
+
+// Collect selected values
+function getSelectedGroups() {
+  var checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
+  var selectedGroups = [];
+  checkboxes.forEach(function(checkbox) {
+    if (checkbox.checked) {
+      selectedGroups.push(checkbox.value);
+    }
+  });
+  console.log(selectedGroups);  // Use this for testing, or submit the data
+}
 </script>
 {% endblock %}
