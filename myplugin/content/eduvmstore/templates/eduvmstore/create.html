@@ -144,8 +144,49 @@
 .dropdown {
     position: relative;
     display: inline-block;
+    width: 100%;
 }
 
+/* Display selected items */
+.selected-groups {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.selected-group {
+    background-color: #e1e1e1;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: #333;
+}
+
+.clear-selection {
+    background-color: #f44336;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.clear-selection:hover {
+    background-color: #d32f2f;
+}
+
+/* Placeholder text when no groups are selected */
+.placeholder {
+    color: #888;
+}
+
+/* Dropdown Content */
 .dropdown-content {
     display: none;
     position: absolute;
@@ -161,7 +202,7 @@
     width: 100%;
 }
 
-/* Show dropdown on hover */
+/* Show dropdown on click */
 .dropdown:hover .dropdown-content {
     display: block;
 }
@@ -176,8 +217,6 @@
 .dropdown-content input {
     margin-right: 10px;
 }
-
-
 </style>
 
 <div class="form-container">
@@ -351,21 +390,33 @@
         </div>
 
 
-    <div class="form-group row">
+<div class="form-group row">
     <div class="col-md-4">
         <label for="security_groups">Select Security Groups:</label>
         <div class="dropdown">
-            <button type="button" class="form-control select-box">Select Groups</button>
+            <div class="selected-groups">
+                <!-- Display selected groups here -->
+                {% for sg in selected_groups %}
+                    <span class="selected-group">{{ sg }}</span>
+                {% endfor %}
+                {% if selected_groups %}
+                    <span class="clear-selection" onclick="clearSelection()">Clear</span>
+                {% else %}
+                    <span class="placeholder">Select Groups</span>
+                {% endif %}
+            </div>
             <div class="dropdown-content">
                 {% for sg in security_groups %}
-                    <label><input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                  {% if "default" in sg.name or sg.name in selected_groups %}checked{% endif %}>
-                                  {{ sg.name }}</label>
+                    <label>
+                        <input type="checkbox" name="security_groups" value="{{ sg.name }}"
+                               {% if sg.name in selected_groups %}checked{% endif %}>
+                               {{ sg.name }}
+                    </label>
                 {% endfor %}
             </div>
         </div>
     </div>
-</div>
+</div>>
 
 
         <h3>Script</h3>
@@ -687,7 +738,7 @@ runcmd:
     });
 
 
-    // Close dropdown if clicked outside
+ // Close dropdown if clicked outside
 document.addEventListener('click', function(event) {
   var dropdown = document.querySelector('.dropdown-content');
   if (!dropdown.contains(event.target) && !event.target.closest('.dropdown')) {
@@ -695,8 +746,8 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// Show dropdown when button is clicked
-document.querySelector('.dropdown button').addEventListener('click', function() {
+// Toggle dropdown visibility
+document.querySelector('.selected-groups').addEventListener('click', function() {
   var dropdown = document.querySelector('.dropdown-content');
   dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 });
@@ -711,6 +762,16 @@ function getSelectedGroups() {
     }
   });
   console.log(selectedGroups);  // Use this for testing, or submit the data
+}
+
+// Clear selected groups
+function clearSelection() {
+  var checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
+  checkboxes.forEach(function(checkbox) {
+    checkbox.checked = false;
+  });
+  // Clear the selected groups from the UI
+  document.querySelector('.selected-groups').innerHTML = '<span class="placeholder">Select Groups</span>';
 }
 </script>
 {% endblock %}
