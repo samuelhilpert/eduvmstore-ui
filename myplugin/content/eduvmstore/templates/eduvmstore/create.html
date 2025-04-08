@@ -386,7 +386,6 @@
 
         </div>
 
-
 <div class="form-group row">
     <div class="col-md-4">
         <label for="security_groups">Select Security Groups:</label>
@@ -394,7 +393,7 @@
             <!-- Display the selected groups (including 'default') -->
             <div class="selected-groups">
                 <span class="selected-group">
-                    {% if selected_groups %}
+                    {% if selected_groups and selected_groups|length > 0 %}
                         {{ selected_groups|join(", ") }}
                     {% else %}
                         default
@@ -415,7 +414,6 @@
         </div>
     </div>
 </div>
-
 
         <h3>Script</h3>
         <div class="form-group">
@@ -735,8 +733,7 @@ runcmd:
         });
     });
 
-
-   // Function to update the display of selected groups
+  // Function to update the display of selected groups
     function updateSelectedGroups() {
         const selectedGroups = [];
         const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
@@ -759,7 +756,7 @@ runcmd:
         checkbox.addEventListener('change', updateSelectedGroups);
     });
 
-    // Initialize the display with 'default' group selected
+    // Initialize the display with 'default' group selected if nothing is selected
     document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 </script>
 {% endblock %}
