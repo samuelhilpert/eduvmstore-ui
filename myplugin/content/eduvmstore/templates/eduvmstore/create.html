@@ -155,9 +155,6 @@
     padding: 10px;
     font-size: 14px;
     cursor: pointer;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
 }
 
 .selected-group {
@@ -389,18 +386,14 @@
 
         </div>
 
-
 <div class="form-group row">
     <div class="col-md-4">
         <label for="security_groups">Select Security Groups:</label>
         <div class="dropdown">
             <div class="selected-groups">
                 <!-- Display selected groups here -->
-                {% for sg in selected_groups %}
-                    <span class="selected-group">{{ sg }}</span>
-                {% endfor %}
                 {% if selected_groups %}
-                    <span class="clear-selection" onclick="clearSelection()">Clear</span>
+                    <span class="selected-group">{{ selected_groups|join(", ") }}</span>
                 {% else %}
                     <span class="placeholder">Select Groups</span>
                 {% endif %}
@@ -416,8 +409,7 @@
             </div>
         </div>
     </div>
-</div>>
-
+</div>
 
         <h3>Script</h3>
         <div class="form-group">
@@ -738,7 +730,7 @@ runcmd:
     });
 
 
- // Close dropdown if clicked outside
+ /// Close dropdown if clicked outside
 document.addEventListener('click', function(event) {
   var dropdown = document.querySelector('.dropdown-content');
   if (!dropdown.contains(event.target) && !event.target.closest('.dropdown')) {
