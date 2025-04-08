@@ -124,51 +124,53 @@
         margin-bottom: 30px;
     }
 
-    .security-group-card {
+
+
+
+
+    .security-group-option {
     position: relative;
-    display: flex;
-    flex: 1 1 200px;
-    max-width: 240px;
-    background: #f8f9fa;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    padding: 0;
+    display: block;
+    flex: 1 1 220px;
+    max-width: 260px;
 }
 
-.security-group-card input[type="checkbox"] {
+.security-group-option input[type="checkbox"] {
     display: none;
 }
 
-.security-group-card .card-body {
+.security-group-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
     padding: 1rem;
-    width: 100%;
+    background-color: #f9f9f9;
+    transition: all 0.2s ease-in-out;
+    height: 100%;
+    cursor: pointer;
     position: relative;
 }
 
 .security-group-name {
     font-weight: 600;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
 }
 
-.security-group-card .checkmark {
+.security-group-option input[type="checkbox"]:checked + .security-group-box {
+    border-color: #28a745;
+    background-color: #e9fbe7;
+}
+
+.security-group-option input[type="checkbox"]:checked + .security-group-box::after {
+    content: "✓";
+    color: #28a745;
+    font-weight: bold;
     position: absolute;
-    top: 10px;
+    top: 8px;
     right: 10px;
-    color: green;
-    font-size: 1.2rem;
-    display: none;
+    font-size: 1.1rem;
 }
 
-.security-group-card input[type="checkbox"]:checked + .card-body .checkmark {
-    display: block;
-}
-
-.security-group-card:hover {
-    border-color: #007bff;
-    background-color: #e9f5ff;
-}
 
 
 </style>
@@ -341,23 +343,25 @@
                 </div>
             </div>
 
-<div class="form-group mt-4">
-    <label class="font-weight-bold d-block mb-2">Security Groups</label>
-    <div class="d-flex flex-wrap" id="security-group-options" style="gap: 1rem;">
+
+            <div class="form-group mt-4">
+    <label class="font-weight-bold mb-2">Security Groups</label>
+    <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
         {% for sg in security_groups %}
-            <label class="security-group-card" for="sg_{{ sg.id }}">
-                <input type="checkbox" name="security_groups" id="sg_{{ sg.id }}" value="{{ sg.id }}">
-                <div class="card-body">
+            <label class="security-group-option">
+                <input type="checkbox" name="security_groups" value="{{ sg.id }}">
+                <div class="security-group-box">
                     <div class="security-group-name">{{ sg.name }}</div>
                     {% if sg.description %}
-                        <small class="text-muted d-block">{{ sg.description }}</small>
+                        <small class="text-muted">{{ sg.description }}</small>
                     {% endif %}
-                    <div class="checkmark"><i class="fas fa-check"></i></div>
+                    <div class="security-group-check"></div>
                 </div>
             </label>
         {% endfor %}
     </div>
 </div>
+
 
         </div>
         <h3>Script</h3>
