@@ -19,6 +19,14 @@
     <link rel="stylesheet" href="{% static 'css/create.css' %}">
     <script src="{% static 'javascript/create.js' %}"></script>
 
+    <script>
+        window.appTemplateData = {
+            accountAttributes: {{ app_template.account_attributes|default:"[]"|safe }},
+            instantiationAttributes: {{ app_template.instantiation_attributes|default:"[]"|safe }}
+        };
+    </script>
+
+
     <div class="form-container">
     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}">
     {% csrf_token %}

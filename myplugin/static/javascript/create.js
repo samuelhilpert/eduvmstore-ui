@@ -7,11 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
+let accountAttributes = window.appTemplateData.accountAttributes || [];
 let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
 document.getElementById("account_attributes").value = formattedAccounts;
 
-let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
+let instantiationAttributes = window.appTemplateData.instantiationAttributes || [];
 let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
 document.getElementById("instantiation_attributes").value = formattedInstantiation;
 
