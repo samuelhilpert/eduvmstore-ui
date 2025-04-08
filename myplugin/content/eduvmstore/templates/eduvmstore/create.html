@@ -93,13 +93,6 @@
         margin-left: 10px;
     }
 
-    .is-valid {
-        border: 2px solid green !important;
-    }
-
-    .is-invalid {
-        border: 2px solid red !important;
-    }
 
     .select-box, .form-control {
         height: auto;
@@ -124,26 +117,37 @@
         margin-bottom: 30px;
     }
 
-    .select-box {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: white;
-}
+   /* Style for multiple select dropdown */
+    .multi-select {
+        height: auto;
+        min-height: 38px;
+    }
 
-.select-box option:checked {
-    background-color: #e9fbe7;
-    color: #28a745;
-    font-weight: bold;
-}
+    .multi-select option {
+        padding: 8px 12px;
+    }
 
-.select-box option:checked::after {
-    content: " ✓";
-    color: #28a745;
-    font-weight: bold;
-    margin-left: 5px;
-}
+    .multi-select-container {
+        position: relative;
+    }
+
+    .multi-select-container::after {
+        content: "▼";
+        font-size: 12px;
+        color: #777;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .selected-count {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+
 
 
 
@@ -211,8 +215,6 @@
 
        <div class="form-group row">
             <div class="col-md-4">
-
-
             <label for="public">Available for:<span style="color: red;">*</span>
                 <span data-toggle="tooltip" title="Select whether the app template is available
                 for everyone or only the creator.">
@@ -318,19 +320,27 @@
             </div>
                     </div>
 
-<div class="form-group">
-    <h3 class="mt-5 ml-4">Security Groups</h3>
-    <label class="font-weight-bold mb-3 mt-3 ml-4" for="security_groups">Choose one or more:</label>
-    <select name="security_groups" id="security_groups" class="form-control select-box" multiple size="6">
-        {% for sg in security_groups %}
-            <option value="{{ sg.name }}" {% if sg.selected %}selected{% endif %}>{{ sg.name }}
-                {% if sg.description %}
-                    - <span class="text-muted" style="font-size: 0.9rem;">{{ sg.description }}</span>
-                {% endif %}
-            </option>
-        {% endfor %}
-    </select>
-</div>
+    <div class="form-group">
+            <h3 class="mt-5">Security Groups</h3>
+            <label for="security_groups">Select one or more Security Groups
+                <span data-toggle="tooltip" title="Select one or more security groups to apply to the app template.">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <div class="multi-select-container">
+                <select name="security_groups" id="security_groups" class="form-control multi-select" multiple required>
+                    {% for sg in security_groups %}
+                        <option value="{{ sg.name }}" {% if sg.selected %}selected{% endif %}>
+                            {{ sg.name }}
+                            {% if sg.description %}
+                                - <span class="text-muted" style="font-size: 0.9rem;">{{ sg.description }}</span>
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <small class="selected-count" id="selected-count">0 selected</small>
+        </div>
 
         <h3>Script</h3>
         <div class="form-group">
@@ -641,7 +651,18 @@ runcmd:
     }
 
 
+  // Update selected count display
+    document.getElementById('security_groups').addEventListener('change', function() {
+        const selectedCount = this.selectedOptions.length;
+        document.getElementById('selected-count').textContent = selectedCount + ' selected';
+    });
 
+    // Initialize selected count on page load
+    window.addEventListener('load', function() {
+        const select = document.getElementById('security_groups');
+        const selectedCount = select.selectedOptions.length;
+        document.getElementById('selected-count').textContent = selectedCount + ' selected';
+    });
 
 
 </script>
