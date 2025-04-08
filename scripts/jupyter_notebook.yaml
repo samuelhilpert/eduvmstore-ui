@@ -28,7 +28,7 @@ runcmd:
       echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
       chown "$username:$username" "$CONFIG_PATH"
     
-      # Beispiel-Notebook herunterladen
+      # Download sample notebook
       NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
       NOTEBOOK_PATH="/home/$username/test.ipynb"
       su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
