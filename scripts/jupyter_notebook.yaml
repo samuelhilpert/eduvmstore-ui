@@ -1,10 +1,9 @@
 packages:
   - python3-pip
   - python3-venv
-  - ufw
+  - curl
 
 runcmd:
-  # 1. Create users and set up everything under a loop
   - |
     while IFS=':' read -r username password; do
       if ! id "$username" &>/dev/null; then
@@ -28,6 +27,12 @@ runcmd:
       echo "c.NotebookApp.token = ''" >> "$CONFIG_PATH"
       echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
       chown "$username:$username" "$CONFIG_PATH"
+    
+      # Download sample notebook
+      NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
+      NOTEBOOK_PATH="/home/$username/test.ipynb"
+      su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
+      chown "$username:$username" "$NOTEBOOK_PATH"
 
       # Create systemd service
       echo "[Unit]
@@ -49,7 +54,3 @@ runcmd:
       systemctl start "jupyter-$username"
 
     done < /etc/users.txt
-
-  # 2. Allow Jupyter port through firewall
-  - ufw allow 8888
-  - ufw --force enable
