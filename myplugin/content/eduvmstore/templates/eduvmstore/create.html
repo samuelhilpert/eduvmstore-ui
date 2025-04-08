@@ -275,7 +275,7 @@
 <div class="form-group">
     <h3 class="mt-5 ml-4">Security Groups</h3>
     <label class="font-weight-bold mb-3 mt-3 ml-4" for="security_groups">Choose one or more:</label>
-    <select id="security_groups" name="security_groups" multiple class="form-control" style="height: auto;">
+    <select id="security_groups" name="security_groups" data-mdb-select-init multiple class="form-control">
         {% for sg in security_groups %}
             <option value="{{ sg.name }}">{{ sg.name }}</option>
         {% endfor %}
