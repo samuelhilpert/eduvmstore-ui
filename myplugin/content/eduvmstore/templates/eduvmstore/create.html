@@ -296,16 +296,14 @@
                 </div>
             </div>
 
-            <div class="form-group">
+ <div class="form-group">
     <label for="security_groups">Security Groups</label>
-    <select class="form-control" id="security_groups" name="security_groups" multiple>
+    <select id="security_groups" name="security_groups" class="form-control" multiple size="5">
         {% for sg in security_groups %}
-            <option value="{{ sg.id }}">{{ sg.name }} - {{ sg.description }}</option>
+            <option value="{{ sg.id }}">{{ sg.name }}{% if sg.description %} – {{ sg.description }}{% endif %}</option>
         {% endfor %}
     </select>
-    <small class="form-text text-muted">
-        Hold Ctrl (Windows) or Cmd (Mac) to select multiple security groups.
-    </small>
+    <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple groups.</small>
 </div>
 
         </div>
