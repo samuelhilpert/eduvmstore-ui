@@ -370,39 +370,41 @@
 
         </div>
 
-     <h3>Security Groups</h3>
-        <div class="form-group row ">
+<h3>Security Groups</h3>
+<div class="form-group row">
     <div class="col-md-4">
-        <label for="security_groups" style="margin-top: 10px">Select Security Groups
-          <span data-toggle="tooltip" title="Choose one or multiple security groups..">
+        <label style="margin-top: 10px">Select Security Groups
+            <span data-toggle="tooltip" title="Choose one or multiple security groups..">
                 <i class="fa fa-question-circle"></i>
             </span>
         </label>
-        <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
-            <!-- Display the selected groups (including 'default') -->
-            <div class="selected-groups">
-                <span class="selected-group">
-                    {% if selected_groups %}
-                        {{ selected_group }}
-                    {% else %}
-                        default
-                    {% endif %}
-                </span>
-            </div>
 
-            <!-- Dropdown content with checkboxes for all groups -->
-            <div class="dropdown-content">
-                {% for sg in security_groups %}
-                    <label>
-                        <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                               {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
-                               {{ sg.name }}
+        <!-- Hidden field to ensure at least default is sent -->
+        <input type="hidden" name="security_groups" value="default">
+
+        <!-- Display selected groups -->
+        <div class="selected-groups mb-2">
+            <span class="badge badge-primary">default</span>
+        </div>
+
+        <!-- Checkbox container -->
+        <div class="security-group-checkboxes">
+            {% for sg in security_groups %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           name="security_groups"
+                           id="sg_{{ sg.id }}"
+                           value="{{ sg.name }}"
+                           {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
+                    <label class="form-check-label" for="sg_{{ sg.id }}">
+                        {{ sg.name }}
                     </label>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>
+
 
 <h3>Script</h3>
 <div class="form-group">
@@ -747,5 +749,40 @@ runcmd:
 
     // Initialize the display with 'default' group selected if nothing is selected
     document.addEventListener('DOMContentLoaded', updateSelectedGroups);
+
+    // JavaScript to handle selection and display
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('input[name="security_groups"]');
+
+    function updateSelectedGroups() {
+        const selected = Array.from(document.querySelectorAll('input[name="security_groups"]:checked'))
+                            .map(cb => cb.value);
+
+        // Ensure default is always selected
+        if (!selected.includes('default')) {
+            document.querySelector('input[value="default"]').checked = true;
+            selected.push('default');
+        }
+
+        // Update display
+        const display = document.querySelector('.selected-groups');
+        display.innerHTML = selected.map(group =>
+            `<span class="badge badge-primary mr-1">${group}</span>`
+        ).join('');
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            if (this.value === 'default' && !this.checked) {
+                // Prevent unchecking default
+                this.checked = true;
+            }
+            updateSelectedGroups();
+        });
+    });
+
+    // Initialize display
+    updateSelectedGroups();
+});
 </script>
 {% endblock %}
