@@ -346,10 +346,7 @@
             <label class="security-group-option d-flex align-items-center">
                 <input type="checkbox" name="security_groups" value="{{ sg.name }}">
                 <div class="security-group-box d-flex align-items-center">
-                    <div class="security-group-name" style="flex: 1; font-weight: 600; font-size: 14px;">{{ sg.name }}</div>
-                    {% if sg.description %}
-                        <div class="security-group-description text-muted" style="font-size: 12px; margin-left: 10px;">{{ sg.description }}</div>
-                    {% endif %}
+                    <p class="security-group-name" style="flex: 1; font-weight: 600; font-size: 14px;">{{ sg.name }}</p>
                 </div>
             </label>
         {% endfor %}
