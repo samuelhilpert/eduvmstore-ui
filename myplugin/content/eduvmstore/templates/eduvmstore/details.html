@@ -37,7 +37,7 @@
         margin-bottom: 20px;
         color: #343a40;
     }
-    .system-requirements, .image-info, .script-details, .security_groups {
+    .system-requirements, .image-info, .script-details, .security_groups, .app_template_details {
         background-color: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
@@ -72,6 +72,7 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <h4>App-Template Details</h4>
+    <div class="app_template_details">
     <div class="btn-group">
                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
             Launch
@@ -161,6 +162,8 @@
 <div class="detail-group">
     <strong>Instantiation Notice:</strong>
     <p>{{ app_template.instantiation_notice }}</p>
+</div>
+
 </div>
 
 <!-- System Requirements Section -->
