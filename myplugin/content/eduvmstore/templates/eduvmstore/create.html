@@ -379,12 +379,15 @@
             </span>
         </label>
 
-        <!-- Hidden field to ensure at least default is sent -->
-        <input type="hidden" name="security_groups" value="default">
-
         <!-- Display selected groups -->
         <div class="selected-groups mb-2">
-            <span class="badge badge-primary">default</span>
+            {% if selected_groups %}
+                {% for group in selected_groups %}
+                    <span class="badge badge-primary mr-1">{{ group }}</span>
+                {% endfor %}
+            {% else %}
+                <span class="badge badge-primary">default</span>
+            {% endif %}
         </div>
 
         <!-- Checkbox container -->
@@ -395,7 +398,8 @@
                            name="security_groups"
                            id="sg_{{ sg.id }}"
                            value="{{ sg.name }}"
-                           {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
+                           {% if sg.name in selected_groups %}checked{% endif %}
+                           {% if sg.name == "default" %}data-is-default{% endif %}>
                     <label class="form-check-label" for="sg_{{ sg.id }}">
                         {{ sg.name }}
                     </label>
@@ -750,32 +754,35 @@ runcmd:
     // Initialize the display with 'default' group selected if nothing is selected
     document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 
-    // JavaScript to handle selection and display
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
     const checkboxes = document.querySelectorAll('input[name="security_groups"]');
+    const defaultCheckbox = document.querySelector('input[data-is-default]');
 
     function updateSelectedGroups() {
         const selected = Array.from(document.querySelectorAll('input[name="security_groups"]:checked'))
                             .map(cb => cb.value);
-
-        // Ensure default is always selected
-        if (!selected.includes('default')) {
-            document.querySelector('input[value="default"]').checked = true;
-            selected.push('default');
-        }
 
         // Update display
         const display = document.querySelector('.selected-groups');
         display.innerHTML = selected.map(group =>
             `<span class="badge badge-primary mr-1">${group}</span>`
         ).join('');
+
+        // If nothing selected, select default
+        if (selected.length === 0) {
+            defaultCheckbox.checked = true;
+            updateSelectedGroups();
+        }
     }
 
     checkboxes.forEach(cb => {
         cb.addEventListener('change', function() {
-            if (this.value === 'default' && !this.checked) {
-                // Prevent unchecking default
+            // If unchecking default but no others selected, prevent
+            if (this.hasAttribute('data-is-default') &&
+                !this.checked &&
+                document.querySelectorAll('input[name="security_groups"]:checked').length === 0) {
                 this.checked = true;
+                return;
             }
             updateSelectedGroups();
         });
@@ -783,6 +790,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize display
     updateSelectedGroups();
-});
+    });
 </script>
 {% endblock %}
