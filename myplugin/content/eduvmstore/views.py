@@ -426,8 +426,9 @@ class CreateView(generic.TemplateView):
         else:
             account_attributes = []
 
-        # Process security groups - get all selected groups as a list
-        security_groups = request.POST.getlist('security_groups[]')  # Note the [] for array-style form data
+        # Get security groups and convert to required format
+        security_group_names = request.POST.getlist('security_groups')
+        security_groups = [{"name": name} for name in security_group_names]
 
         data = {
             'image_id': request.POST.get('image_id'),
