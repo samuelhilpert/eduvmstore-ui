@@ -93,6 +93,29 @@
         margin-left: 10px;
     }
 
+    .is-valid {
+        border: 2px solid green !important;
+    }
+
+    .is-invalid {
+        border: 2px solid red !important;
+    }
+
+    .select-box, .form-control {
+        height: auto;
+        line-height: 1.5;
+        padding: 8px 12px;
+        font-size: 14px;
+        box-sizing: border-box;
+        appearance: none;
+    }
+
+    .select-box:focus, .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #007bff;
+    }
+
     .custom-topmargin{
         margin-top: 10px;
     }
@@ -100,6 +123,8 @@
     .custom-bottommargin{
         margin-bottom: 30px;
     }
+
+
 
 </style>
 
@@ -270,17 +295,21 @@
                            value="{{ app_template.per_user_cores }}">
                 </div>
             </div>
-                    </div>
 
-<div class="form-group">
+        </div>
+
+
+
+    <div class="form-group">
     <h3 class="mt-5 ml-4">Security Groups</h3>
     <label class="font-weight-bold mb-3 mt-3 ml-4" for="security_groups">Choose one or more:</label>
-    <select id="security_groups" name="security_groups" data-mdb-select-init multiple class="form-control">
+    <select id="security_groups" name="security_groups[]" multiple="multiple" class="form-control">
         {% for sg in security_groups %}
             <option value="{{ sg.name }}">{{ sg.name }}</option>
         {% endfor %}
     </select>
 </div>
+
 
         <h3>Script</h3>
         <div class="form-group">
@@ -590,9 +619,15 @@ runcmd:
         }
     }
 
-
-
-
+     $(document).ready(function() {
+        $('#security_groups').multiselect({
+            nonSelectedText: 'Select Groups',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            buttonWidth: '100%',
+            includeSelectAllOption: true
+        });
+    });
 
 </script>
 {% endblock %}
