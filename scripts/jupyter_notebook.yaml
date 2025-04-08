@@ -1,0 +1,62 @@
+#cloud-config
+packages:
+  - python3-pip
+  - python3-venv
+  - ufw
+
+write_files:
+  - path: /etc/users.txt
+    permissions: '0644'
+    content: |
+      adminuser:adminpassword123
+
+runcmd:
+  # 1. Create user from /etc/users.txt
+  - |
+    while IFS=':' read -r username password; do
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+        usermod -aG sudo "$username"
+      fi
+    done < /etc/users.txt
+
+  # 2. Setup Jupyter Notebook environment for user
+  - su - adminuser -c "python3 -m venv jupyter_env"
+  - su - adminuser -c "~/jupyter_env/bin/pip install --upgrade pip"
+  - su - adminuser -c "~/jupyter_env/bin/pip install notebook"
+
+  # 3. Generate Jupyter config and token-less config
+  - su - adminuser -c "~/jupyter_env/bin/jupyter notebook --generate-config"
+  - |
+    echo "c = get_config()" >> /home/adminuser/.jupyter/jupyter_notebook_config.py
+    echo "c.NotebookApp.ip = '0.0.0.0'" >> /home/adminuser/.jupyter/jupyter_notebook_config.py
+    echo "c.NotebookApp.open_browser = False" >> /home/adminuser/.jupyter/jupyter_notebook_config.py
+    echo "c.NotebookApp.port = 8888" >> /home/adminuser/.jupyter/jupyter_notebook_config.py
+    echo "c.NotebookApp.token = ''" >> /home/adminuser/.jupyter/jupyter_notebook_config.py
+    echo "c.NotebookApp.password = ''" >> /home/adminuser/.jupyter/jupyter_notebook_config.py
+    chown adminuser:adminuser /home/adminuser/.jupyter/jupyter_notebook_config.py
+
+  # 4. Enable Jupyter to start on boot (via systemd service)
+  - |
+    echo "[Unit]
+    Description=Jupyter Notebook
+    After=network.target
+
+    [Service]
+    Type=simple
+    User=adminuser
+    WorkingDirectory=/home/adminuser
+    ExecStart=/home/adminuser/jupyter_env/bin/jupyter-notebook
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target" > /etc/systemd/system/jupyter.service
+  - systemctl daemon-reexec
+  - systemctl daemon-reload
+  - systemctl enable jupyter
+  - systemctl start jupyter
+
+  # 5. Allow port 8888 in firewall
+  - ufw allow 8888
+  - ufw --force enable
