@@ -8,7 +8,7 @@
             <h1 class="page-title mb-0">{{ app_template.name }}</h1>
         </div>
         <div>
-            <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
         </div>
     </div>
 {% endblock %}
@@ -87,6 +87,11 @@
                                     Edit App-Template
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
+                                    Clone AppTemplate
+                                </a>
+                            </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
@@ -113,20 +118,38 @@
             <strong>App-Template ID:</strong>
             <p>{{ app_template.id }}</p>
         </div>
+        <div class="detail-group">
+            <strong>Created at:</strong>
+            <p>{{ created_at }}</p>
+        </div>
     </div>
     <div class="col-md-6">
         <div class="detail-group">
-            <strong>Image ID:</strong>
+            <strong>Available for:</strong>
             <p>
-                <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
-                    {{ app_template.image_id }}
-                </a>
+                {% if app_template.public and app_template.approved %}
+                    Everyone
+                {% elif app_template.public and not app_template.approved %}
+                    Waiting for approval
+                {% elif not app_template.public and not app_template.approved %}
+                    Creator only
+                {% endif %}
             </p>
+
         </div>
+
+        <div class="detail-group">
+            <strong>App Template Creator:</strong>
+            <p>{{ app_template_creator }}</p>
+        </div>
+
         <div class="detail-group">
             <strong>Short Description:</strong>
             <p>{{ app_template.short_description }}</p>
         </div>
+
+
+
     </div>
 </div>
 
@@ -158,6 +181,10 @@
                 <strong>Fixed Cores:</strong>
                 <p>{{ app_template.fixed_cores }}</p>
             </div>
+            <div class="detail-group">
+                <strong>Volume Size:</strong>
+                <p>{{ app_template.volume_size_gb }}</p>
+            </div>
         </div>
         <div class="col-md-6">
             <h5>Resources per User</h5>
@@ -183,15 +210,12 @@
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Available for:</strong>
+                <strong>Image ID:</strong>
                 <p>
-                    {% if app_template.public %}
-                    Everyone
-                {% else %}
-                    Creator only
-                {% endif %}
+                    <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
+                        {{ app_template.image_id }}
+                    </a>
                 </p>
-
             </div>
         </div>
         <div class="col-md-6">
@@ -200,12 +224,7 @@
                 <p>{{ image_owner }}</p>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Created at:</strong>
-                <p>{{ image_created_at }}</p>
-            </div>
-        </div>
+
     </div>
 </div>
 
@@ -223,6 +242,12 @@ write_files:
   - path: /etc/users.txt
     content: |
       <span id="formatted-accounts"></span>
+    permissions: '0644'
+    owner: root:root
+
+  - path: /etc/attributes.txt
+    content: |
+      <span id="instantiationContent"></span>
     permissions: '0644'
     owner: root:root
                         </pre>
@@ -249,6 +274,17 @@ write_files:
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
+    let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
+
+    document.getElementById("structured-accounts").textContent =
+        accountAttributes.length ? accountAttributes.map(acc => acc.name).join(": ") : "No account attributes available.";
+
+    document.getElementById("structured-instantiation").textContent =
+        instantiationAttributes.length ? instantiationAttributes.map(attr => attr.name).join(": ") : "No instantiation attributes available.";
+});
+
         let accountAttributes = {{ app_template.account_attributes|safe }};
         let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
         document.getElementById("formatted-accounts").textContent = formattedAccounts;
@@ -257,6 +293,8 @@ write_files:
         let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
         let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
         document.getElementById("structured-instantiation").textContent = formattedInstatiation;
+        document.getElementById("instantiationContent").textContent = formattedInstatiation;
+
         document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".delete-btn").forEach(button => {
         button.addEventListener("click", function (event) {

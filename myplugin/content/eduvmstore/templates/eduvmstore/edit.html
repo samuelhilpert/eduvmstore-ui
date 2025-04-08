@@ -8,7 +8,7 @@
              <h1 class="page-title mb-0">Edit App-Template</h1>
          </div>
          <div>
-             <img src="{% static 'images/Unbenannt.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+             <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
          </div>
      </div>
  {% endblock %}
@@ -166,18 +166,18 @@
          </div>
          <div class="form-group">
              <label for="instantiation_notice">Instantiation Notice:</label>
-             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" required>{{ app_template.instantiation_notice }}</textarea>
+             <textarea id="instantiation_notice" name="instantiation_notice" class="form-control" >{{ app_template.instantiation_notice }}</textarea>
          </div>
 
         <div class="form-group row">
             <div class="col-md-4">
 
 
-            <label for="public">Available for:</label>
-            <select name="public" id="public" class="form-control select-box" required>
-                <option value="True" {% if app_template.visibility == "True" %}selected{% endif %}>Everyone</option>
-                 <option value="False" {% if app_template.visibility == "False" %}selected{% endif %}>Creator only</option>
-            </select>
+                <label for="public">Available for:</label>
+                <select name="public" id="public" class="form-control select-box" required>
+                    <option value="True" {% if app_template.public %}selected{% endif %}>Everyone</option>
+                    <option value="False" {% if not app_template.public %}selected{% endif %}>Creator only</option>
+                </select>
 
             </div>
         </div>
@@ -203,6 +203,11 @@
                      <label for="fixed_cores">Fixed Cores:</label>
                      <input type="text" id="fixed_cores" name="fixed_cores" value="{{ app_template.fixed_cores }}" class="form-control" required
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                 </div>
+                 <div class="form-group">
+                     <label for="volume_size">Volume Size::</label>
+                     <input type="text" id="volume_size" name="volume_size" value="{{ app_template.volume_size_gb }}" class="form-control"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                  </div>
              </div>
 
@@ -269,7 +274,7 @@ write_files:
          </pre>
 
                  <textarea id="scriptText" name="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
-                 <button type="button" class="btn btn-primary mt-3" onclick="saveScript()">Save Script</button>
+                 <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">Save Script</button>
 
              </div>
          </div>
@@ -306,6 +311,14 @@ write_files:
  </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var scriptText = document.getElementById('scriptText').value;
+        document.getElementById('hiddenScriptField').value = scriptText;
+    document.querySelectorAll("input[type='text']").forEach(function(input) {
+        input.value = input.value.replace(",", ".");
+    });
+});
+
     document.getElementById('script_file').addEventListener('change', function(event) {
         var file = event.target.files[0];
         if (file) {
@@ -391,7 +404,7 @@ write_files:
 
         try {
             const response = await fetch(url, {
-                method: "PUT",
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrftoken
