@@ -101,20 +101,6 @@
         border: 2px solid red !important;
     }
 
-    .select-box, .form-control {
-        height: auto;
-        line-height: 1.5;
-        padding: 8px 12px;
-        font-size: 14px;
-        box-sizing: border-box;
-        appearance: none;
-    }
-
-    .select-box:focus, .form-control:focus {
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        border-color: #007bff;
-    }
 
     .custom-topmargin{
         margin-top: 10px;
@@ -124,40 +110,38 @@
         margin-bottom: 30px;
     }
 
+    .select-box {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+}
 
-  .security-group-option {
-        flex: 1 1 220px;
-        max-width: 240px;
-        margin-bottom: 10px;
-    }
+.select-box option:checked {
+    background-color: #e9fbe7;
+    color: #28a745;
+    font-weight: bold;
+}
+
+.select-box option:checked::after {
+    content: " ✓";
+    color: #28a745;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
 
     .security-group-option input[type="checkbox"] {
         display: none;
     }
 
-    .security-group-box {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 1rem;
-        background-color: #f9f9f9;
-        transition: all 0.2s ease-in-out;
-        cursor: pointer;
-        position: relative;
-        min-height: 50px;
-    }
-
-    .security-group-name {
-        font-weight: 600;
-        font-size: 14px;
-        margin-bottom: 0.3rem;
-    }
-
-    .security-group-option input[type="checkbox"]:checked + .security-group-box {
+    .security-group-option input[type="checkbox"]:checked  {
         border-color: #28a745;
         background-color: #e9fbe7;
     }
 
-    .security-group-option input[type="checkbox"]:checked + .security-group-box::after {
+    .security-group-option input[type="checkbox"]:checked {
         content: "✓";
         color: #28a745;
         font-weight: bold;
@@ -341,16 +325,15 @@
 <div class="form-group">
     <h3 class="mt-5 ml-4">Security Groups</h3>
     <label class="font-weight-bold mb-3 mt-3 ml-4" for="security_groups">Choose one or more:</label>
-    <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
+    <select name="security_groups" id="security_groups" class="form-control select-box" multiple size="6">
         {% for sg in security_groups %}
-            <label class="security-group-option d-flex align-items-center">
-                <input type="checkbox" name="security_groups" value="{{ sg.name }}">
-                <div class="security-group-box d-flex align-items-center">
-                    <p class="security-group-name" style="flex: 1; font-weight: 600; font-size: 14px;">{{ sg.name }}</p>
-                </div>
-            </label>
+            <option value="{{ sg.name }}" {% if sg.selected %}selected{% endif %}>{{ sg.name }}
+                {% if sg.description %}
+                    - <span class="text-muted" style="font-size: 0.9rem;">{{ sg.description }}</span>
+                {% endif %}
+            </option>
         {% endfor %}
-    </div>
+    </select>
 </div>
 
         <h3>Script</h3>
