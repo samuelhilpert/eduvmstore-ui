@@ -385,14 +385,16 @@
             </div>
 
         </div>
-<div class="form-group row">
+
+
+    <div class="form-group row">
     <div class="col-md-4">
         <label for="security_groups">Select Security Groups:</label>
         <div class="dropdown">
             <div class="selected-groups">
                 <!-- Display selected groups here -->
-                {% if selected_groups and selected_groups|length > 0 %}
-                    <span class="selected-group">{{ selected_groups|join(", ") }}</span>
+                {% if selected_groups %}
+                    <span class="selected-group">{{ selected_groups|join:", " }}</span>
                 {% else %}
                     <span class="placeholder">Select Groups</span>
                 {% endif %}
@@ -401,7 +403,7 @@
                 {% for sg in security_groups %}
                     <label>
                         <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                               {% if sg.name in selected_groups %}checked{% endif %}>
+                               {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
                                {{ sg.name }}
                     </label>
                 {% endfor %}
