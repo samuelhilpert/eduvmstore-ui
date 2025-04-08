@@ -393,8 +393,8 @@
             <!-- Display the selected groups (including 'default') -->
             <div class="selected-groups">
                 <span class="selected-group">
-                    {% if selected_groups and selected_groups|length > 0 %}
-                        {{ selected_groups|join(", ") }}
+                    {% if selected_groups %}
+                        {{ selected_group }}
                     {% else %}
                         default
                     {% endif %}
