@@ -338,23 +338,23 @@
             </div>
                     </div>
 
-      <div class="form-group">
-        <h3 class="mt-5 ml-4">Security Groups</h3>
-            <label class="font-weight-bold mb-3 mt-3 ml-4" for="security_groups">Choose one or more:</label>
-            <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
-                {% for sg in security_groups %}
-                    <label class="security-group-option">
-                        <input type="checkbox" name="security_groups" value="{{ sg.name }}">
-                        <div class="security-group-box">
-                            <div class="security-group-name">{{ sg.name }}</div>
-                            {% if sg.description %}
-                                <div class="security-group-description text-muted">{{ sg.description }}</div>
-                            {% endif %}
-                        </div>
-                    </label>
-                {% endfor %}
-            </div>
-        </div>
+<div class="form-group">
+    <h3 class="mt-5 ml-4">Security Groups</h3>
+    <label class="font-weight-bold mb-3 mt-3 ml-4" for="security_groups">Choose one or more:</label>
+    <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
+        {% for sg in security_groups %}
+            <label class="security-group-option d-flex align-items-center">
+                <input type="checkbox" name="security_groups" value="{{ sg.name }}">
+                <div class="security-group-box d-flex align-items-center">
+                    <div class="security-group-name" style="flex: 1; font-weight: 600; font-size: 14px;">{{ sg.name }}</div>
+                    {% if sg.description %}
+                        <div class="security-group-description text-muted" style="font-size: 12px; margin-left: 10px;">{{ sg.description }}</div>
+                    {% endif %}
+                </div>
+            </label>
+        {% endfor %}
+    </div>
+</div>
 
         <h3>Script</h3>
         <div class="form-group">
