@@ -117,7 +117,28 @@
         margin-bottom: 30px;
     }
 
-   /* Style for multiple select dropdown */
+    .select-box {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: white;
+    }
+
+    .select-box option:checked {
+        background-color: #e9fbe7;
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .select-box option:checked::after {
+        content: " ✓";
+        color: #28a745;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+
+    /* Style for multiple select dropdown */
     .multi-select {
         height: auto;
         min-height: 38px;
@@ -147,10 +168,6 @@
         color: #666;
         margin-top: 5px;
     }
-
-
-
-
 </style>
 
 <div class="form-container">
