@@ -143,7 +143,7 @@
         transition: all 0.2s ease-in-out;
         cursor: pointer;
         position: relative;
-        min-height: 90px;
+        min-height: 50px;
     }
 
     .security-group-name {
@@ -344,7 +344,7 @@
             <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
                 {% for sg in security_groups %}
                     <label class="security-group-option">
-                        <input type="checkbox" name="security_groups" value="{{ sg.id }}">
+                        <input type="checkbox" name="security_groups" value="{{ sg.name }}">
                         <div class="security-group-box">
                             <div class="security-group-name">{{ sg.name }}</div>
                             {% if sg.description %}
