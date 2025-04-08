@@ -93,56 +93,79 @@
         margin-left: 10px;
     }
 
+    .is-valid {
+        border: 2px solid green !important;
+    }
+
+    .is-invalid {
+        border: 2px solid red !important;
+    }
+
+    .select-box, .form-control {
+        height: auto;
+        line-height: 1.5;
+        padding: 8px 12px;
+        font-size: 14px;
+        box-sizing: border-box;
+        appearance: none;
+    }
+
+    .select-box:focus, .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #007bff;
+    }
+
+    .custom-topmargin{
+        margin-top: 10px;
+    }
+
+    .custom-bottommargin{
+        margin-bottom: 30px;
+    }
 
 
+  .security-group-option {
+        flex: 1 1 220px;
+        max-width: 240px;
+        margin-bottom: 10px;
+    }
 
+    .security-group-option input[type="checkbox"] {
+        display: none;
+    }
 
-.security-group-option {
-    flex: 1 1 240px;
-    max-width: 100%;
-}
+    .security-group-box {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 1rem;
+        background-color: #f9f9f9;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        position: relative;
+        min-height: 90px;
+    }
 
-.security-group-option input[type="checkbox"] {
-    display: none;
-}
+    .security-group-name {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 0.3rem;
+    }
 
-.security-group-box {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0.75rem 1rem;
-    background-color: #fdfdfd;
-    transition: all 0.2s ease-in-out;
-    cursor: pointer;
-    height: 100%;
-    position: relative;
-    min-height: 90px;
-}
+    .security-group-option input[type="checkbox"]:checked + .security-group-box {
+        border-color: #28a745;
+        background-color: #e9fbe7;
+    }
 
-.security-group-name {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 0.3rem;
-}
-
-.security-group-description {
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-.security-group-option input[type="checkbox"]:checked + .security-group-box {
-    border-color: #28a745;
-    background-color: #e9fbe7;
-}
-
-.security-group-option input[type="checkbox"]:checked + .security-group-box::after {
-    content: "✓";
-    color: #28a745;
-    font-weight: bold;
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    font-size: 1rem;
-}
+    .security-group-option input[type="checkbox"]:checked + .security-group-box::after {
+        content: "✓";
+        color: #28a745;
+        font-weight: bold;
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 1.1rem;
+    }
 
 </style>
 
@@ -315,23 +338,23 @@
             </div>
 
 
-       <h3 class="mt-5">Security Groups</h3>
-<div class="form-group">
-    <label class="font-weight-bold mb-2" for="security_groups">Choose one or more:</label>
-    <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
-        {% for sg in security_groups %}
-            <label class="security-group-option">
-                <input type="checkbox" name="security_groups" value="{{ sg.id }}">
-                <div class="security-group-box">
-                    <div class="security-group-name">{{ sg.name }}</div>
-                    {% if sg.description %}
-                        <div class="security-group-description text-muted">{{ sg.description }}</div>
-                    {% endif %}
-                </div>
-            </label>
-        {% endfor %}
-    </div>
-</div>
+        <h3 class="mt-5">Security Groups</h3>
+        <div class="form-group">
+            <label class="font-weight-bold mb-2" for="security_groups">Choose one or more:</label>
+            <div class="security-group-list d-flex flex-wrap" style="gap: 1rem;">
+                {% for sg in security_groups %}
+                    <label class="security-group-option">
+                        <input type="checkbox" name="security_groups" value="{{ sg.id }}">
+                        <div class="security-group-box">
+                            <div class="security-group-name">{{ sg.name }}</div>
+                            {% if sg.description %}
+                                <div class="security-group-description text-muted">{{ sg.description }}</div>
+                            {% endif %}
+                        </div>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
 
 
         </div>
