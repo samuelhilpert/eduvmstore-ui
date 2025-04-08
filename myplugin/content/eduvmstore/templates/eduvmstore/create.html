@@ -387,18 +387,22 @@
         </div>
 
 
-  <div class="form-group row">
+<div class="form-group row">
     <div class="col-md-4">
         <label for="security_groups">Select Security Groups:</label>
         <div class="dropdown">
-            <!-- Display the selected groups -->
+            <!-- Display the selected groups (including 'default') -->
             <div class="selected-groups">
-                {% if selected_groups %}
-                    <span class="selected-group">{{ selected_groups|join:", " }}</span>
-                {% else %}
-                    <span class="placeholder">Select Groups</span>
-                {% endif %}
+                <span class="selected-group">
+                    {% if selected_groups %}
+                        {{ selected_groups|join(", ") }}
+                    {% else %}
+                        default
+                    {% endif %}
+                </span>
             </div>
+
+            <!-- Dropdown content with checkboxes for all groups -->
             <div class="dropdown-content">
                 {% for sg in security_groups %}
                     <label>
@@ -410,7 +414,7 @@
             </div>
         </div>
     </div>
-</div>g
+</div>
 
         <h3>Script</h3>
         <div class="form-group">
@@ -731,40 +735,29 @@ runcmd:
     });
 
 
- /// Close dropdown if clicked outside
-document.addEventListener('click', function(event) {
-  var dropdown = document.querySelector('.dropdown-content');
-  if (!dropdown.contains(event.target) && !event.target.closest('.dropdown')) {
-    dropdown.style.display = 'none';
-  }
-});
+   // Function to update the display of selected groups
+    function updateSelectedGroups() {
+        const selectedGroups = [];
+        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+        checkboxes.forEach(function(checkbox) {
+            selectedGroups.push(checkbox.value);
+        });
 
-// Toggle dropdown visibility
-document.querySelector('.selected-groups').addEventListener('click', function() {
-  var dropdown = document.querySelector('.dropdown-content');
-  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-});
-
-// Collect selected values
-function getSelectedGroups() {
-  var checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
-  var selectedGroups = [];
-  checkboxes.forEach(function(checkbox) {
-    if (checkbox.checked) {
-      selectedGroups.push(checkbox.value);
+        // Update the displayed selected groups
+        const selectedGroupsDisplay = document.querySelector('.selected-group');
+        if (selectedGroups.length > 0) {
+            selectedGroupsDisplay.textContent = selectedGroups.join(", ");
+        } else {
+            selectedGroupsDisplay.textContent = 'default';
+        }
     }
-  });
-  console.log(selectedGroups);  // Use this for testing, or submit the data
-}
 
-// Clear selected groups
-function clearSelection() {
-  var checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
-  checkboxes.forEach(function(checkbox) {
-    checkbox.checked = false;
-  });
-  // Clear the selected groups from the UI
-  document.querySelector('.selected-groups').innerHTML = '<span class="placeholder">Select Groups</span>';
-}
+    // Event listener to detect changes in the checkboxes
+    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateSelectedGroups);
+    });
+
+    // Initialize the display with 'default' group selected
+    document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 </script>
 {% endblock %}
