@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova, cinder, keystone
+from openstack_dashboard.api import neutron
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -443,6 +444,7 @@ class CreateView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+           # 'security_groups' : request.POST.getlist('security_groups')
         }
 
         try:
@@ -488,10 +490,13 @@ class CreateView(generic.TemplateView):
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'security_groups': self.get_security_groups(),
         })
 
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
+
+        context['security_groups'] = self.get_security_groups()
 
         return context
 
@@ -543,6 +548,19 @@ class CreateView(generic.TemplateView):
             exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
             return {}
 
+    def get_security_groups(self):
+        """
+        Retrieve the list of available security groups using Horizon's Neutron API.
+
+        :return: List of security group objects.
+        :rtype: list
+        """
+        try:
+            return neutron.security_group_list(self.request)
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            return []
+
     def get_images_data(self):
         """
         Fetch images from the Glance API using Horizon API.
@@ -565,6 +583,8 @@ class CreateView(generic.TemplateView):
         except Exception as e:
             logging.error(f"Unable to retrieve images: {e}")
             return []
+
+
 
 
 class EditView(generic.TemplateView):
