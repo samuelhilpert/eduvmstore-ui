@@ -297,21 +297,24 @@
             </div>
 
 <div class="form-group">
-    <label>Security Groups</label>
-    <div class="form-check-group border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+    <label class="form-label font-weight-bold mb-2">Select Security Groups</label>
+    <div class="border rounded p-3" style="max-height: 250px; overflow-y: auto; background-color: #f9f9f9;">
         {% for sg in security_groups %}
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox"
+            <div class="custom-control custom-checkbox mb-2">
+                <input type="checkbox" class="custom-control-input"
                        id="sg_{{ sg.id }}"
                        name="security_groups"
                        value="{{ sg.id }}">
-                <label class="form-check-label" for="sg_{{ sg.id }}">
-                    {{ sg.name }}{% if sg.description %} – {{ sg.description }}{% endif %}
+                <label class="custom-control-label" for="sg_{{ sg.id }}">
+                    {{ sg.name }}
+                    {% if sg.description %}
+                        <small class="text-muted d-block">{{ sg.description }}</small>
+                    {% endif %}
                 </label>
             </div>
         {% endfor %}
     </div>
-    <small class="form-text text-muted">You can select one or more security groups.</small>
+    <small class="form-text text-muted mt-1">Hold Ctrl/Cmd or click to select multiple.</small>
 </div>
 
         </div>
