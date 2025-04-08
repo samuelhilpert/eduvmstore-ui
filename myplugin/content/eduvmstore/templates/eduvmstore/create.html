@@ -404,8 +404,6 @@
         </div>
     </div>
 </div>
-
-
 <h3>Script</h3>
 <div class="form-group">
     <div class="form-check" style="margin-bottom: 12px;">
@@ -749,40 +747,5 @@ runcmd:
 
     // Initialize the display with 'default' group selected if nothing is selected
     document.addEventListener('DOMContentLoaded', updateSelectedGroups);
-
-    // JavaScript to handle selection and display
-document.addEventListener('DOMContentLoaded', function() {
-    const checkboxes = document.querySelectorAll('input[name="security_groups"]');
-
-    function updateSelectedGroups() {
-        const selected = Array.from(document.querySelectorAll('input[name="security_groups"]:checked'))
-                            .map(cb => cb.value);
-
-        // Ensure default is always selected
-        if (!selected.includes('default')) {
-            document.querySelector('input[value="default"]').checked = true;
-            selected.push('default');
-        }
-
-        // Update display
-        const display = document.querySelector('.selected-groups');
-        display.innerHTML = selected.map(group =>
-            `<span class="badge badge-primary mr-1">${group}</span>`
-        ).join('');
-    }
-
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', function() {
-            if (this.value === 'default' && !this.checked) {
-                // Prevent unchecking default
-                this.checked = true;
-            }
-            updateSelectedGroups();
-        });
-    });
-
-    // Initialize display
-    updateSelectedGroups();
-});
 </script>
 {% endblock %}
