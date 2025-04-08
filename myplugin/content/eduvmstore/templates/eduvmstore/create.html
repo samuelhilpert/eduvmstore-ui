@@ -101,6 +101,20 @@
         border: 2px solid red !important;
     }
 
+    .select-box, .form-control {
+        height: auto;
+        line-height: 1.5;
+        padding: 8px 12px;
+        font-size: 14px;
+        box-sizing: border-box;
+        appearance: none;
+    }
+
+    .select-box:focus, .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        border-color: #007bff;
+    }
 
     .custom-topmargin{
         margin-top: 10px;
@@ -132,24 +146,6 @@
 }
 
 
-    .security-group-option input[type="checkbox"] {
-        display: none;
-    }
-
-    .security-group-option input[type="checkbox"]:checked  {
-        border-color: #28a745;
-        background-color: #e9fbe7;
-    }
-
-    .security-group-option input[type="checkbox"]:checked {
-        content: "✓";
-        color: #28a745;
-        font-weight: bold;
-        position: absolute;
-        top: 8px;
-        right: 10px;
-        font-size: 1.1rem;
-    }
 
 </style>
 
