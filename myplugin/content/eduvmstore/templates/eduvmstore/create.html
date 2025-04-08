@@ -300,14 +300,15 @@
 
 
 
-    <div class="form-group">
-    <h3 class="mt-5 ml-4">Security Groups</h3>
-    <label class="font-weight-bold mb-3 mt-3 ml-4" for="security_groups">Choose one or more:</label>
-    <select id="security_groups" name="security_groups[]" multiple="multiple" class="form-control">
-        {% for sg in security_groups %}
-            <option value="{{ sg.name }}">{{ sg.name }}</option>
-        {% endfor %}
-    </select>
+<div class="form-group row">
+    <div class="col-md-4">
+        <label for="security_groups">Select Security Groups:</label>
+        <select name="security_groups" id="security_groups" class="form-control select-box" multiple required>
+            {% for sg in security_groups %}
+                <option value="{{ sg.name }}" {% if sg.name in selected_groups %}selected{% endif %}>{{ sg.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
 </div>
 
 
