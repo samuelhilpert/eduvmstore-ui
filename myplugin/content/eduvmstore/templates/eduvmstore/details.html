@@ -37,7 +37,7 @@
         margin-bottom: 20px;
         color: #343a40;
     }
-    .system-requirements, .image-info, .script-details {
+    .system-requirements, .image-info, .script-details, .security_groups {
         background-color: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
@@ -239,11 +239,11 @@
                 {% if app_template.security_groups %}
                     <ul class="list-unstyled">
                         {% for group in app_template.security_groups %}
-                            <li>{{ group.name }}</li>  <!-- Access the name property -->
+                            <li>{{ group.name }}</li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p>default</p>
+                    <p>No security group selected.</p>
                 {% endif %}
             </div>
         </div>
