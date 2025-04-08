@@ -303,13 +303,14 @@
 <div class="form-group row">
     <div class="col-md-4">
         <label for="security_groups">Select Security Groups:</label>
-        <select name="security_groups" id="security_groups" multiple>
+        <select name="security_groups" id="security_groups" class="form-control select-box" multiple required>
             {% for sg in security_groups %}
-                <option value="{{ sg.name }}" {% if sg.name in selected_groups %}selected{% endif %}>{{ sg.name }}</option>
+                <option value="{{ sg.name }}" {% if "default" in sg.name or sg.name in selected_groups %}selected{% endif %}>{{ sg.name }}</option>
             {% endfor %}
         </select>
     </div>
 </div>
+
 
         <h3>Script</h3>
         <div class="form-group">
@@ -422,20 +423,6 @@ write_files:
 
 <!-- JavaScript to handle modal -->
 <script>
-
- src="multiselect-dropdown.js"
-
-  // Initialize the multi-select dropdown
-    document.addEventListener('DOMContentLoaded', function() {
-        var multiSelectElement = document.getElementById('security_groups');
-
-        new MultiselectDropdown(multiSelectElement, {
-            // Optional: You can configure more options here
-            placeholder: "Select Security Groups",
-            selectedTags: true, // Display selected options as tags/tokens
-        });
-    });
-
 
     document.addEventListener("DOMContentLoaded", function () {
         checkName();
