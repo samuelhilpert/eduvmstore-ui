@@ -1,14 +1,7 @@
-#cloud-config
 packages:
   - python3-pip
   - python3-venv
   - ufw
-
-write_files:
-  - path: /etc/users.txt
-    permissions: '0644'
-    content: |
-      adminuser:adminpassword123
 
 runcmd:
   # 1. Create user from /etc/users.txt
