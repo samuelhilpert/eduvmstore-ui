@@ -416,6 +416,7 @@
     </div>
 </div>
 
+
         <h3>Script</h3>
         <div class="form-group">
             <div class="form-check">
@@ -743,13 +744,14 @@ runcmd:
             selectedGroups.push(checkbox.value);
         });
 
+        // Ensure 'default' is always selected if no groups are selected
+        if (selectedGroups.length === 0) {
+            selectedGroups.push('default');
+        }
+
         // Update the displayed selected groups
         const selectedGroupsDisplay = document.querySelector('.selected-group');
-        if (selectedGroups.length > 0) {
-            selectedGroupsDisplay.textContent = selectedGroups.join(", ");
-        } else {
-            selectedGroupsDisplay.textContent = 'default';
-        }
+        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
     }
 
     // Event listener to detect changes in the checkboxes
