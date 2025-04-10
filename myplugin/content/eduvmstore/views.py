@@ -1,3 +1,5 @@
+from ipaddress import ip_address
+
 import requests
 import socket
 import logging
@@ -728,7 +730,7 @@ class EditView(generic.TemplateView):
             return {}
 
 
-def generate_pdf(accounts, name, app_template, created, instantiations):
+def generate_pdf(accounts, name, app_template, created, instantiations, ip_address):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
 
@@ -750,7 +752,8 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
 
     subtitle = Paragraph(
         f"Instantiation Attributes for the created instance {name} from the EduVMStore. "
-        f"This instance was created with the app template {app_template} on {created}.",
+        f"This instance was created with the app template {app_template} on {created}. The ip "
+        f"adress is {ip_address}.",
         styles['Normal']
 
     )
@@ -1078,6 +1081,10 @@ class InstancesView(generic.TemplateView):
                     description=description,
                     block_device_mapping_v2=block_device_mapping_v2,
                 )
+
+                server = nova.server_get(request, instance_name)
+                ip_addresses = self.wait_for_floating_ip(request, server.id)
+                request.session[f"ip_addresses_{i}"] = ip_addresses
                 instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
@@ -1116,6 +1123,39 @@ class InstancesView(generic.TemplateView):
                 raise Exception(f"Volume {volume_id} failed to build.")
             time.sleep(1)
         raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
+    def wait_for_floating_ip(self, request, server_id, timeout=60):
+        """
+        Warte auf eine zugewiesene Floating IP für eine Instanz.
+
+        Gibt nur Floating IPs zurück, keine privaten (fixed).
+        Bricht nach dem Timeout ab, falls keine Floating IP verfügbar ist.
+        """
+        for i in range(timeout):
+            try:
+                server = nova.server_get(request, server_id)
+                floating_ips = []
+
+                for nets in server.addresses.values():
+                    for net in nets:
+                        if net.get("OS-EXT-IPS:type") == "floating":
+                            ip = net.get("addr")
+                            if ip:
+                                floating_ips.append(ip)
+
+                if floating_ips:
+                    return floating_ips
+
+            except Exception as e:
+                logging.warning(f"[Floating IP] Versuch {i + 1}/{timeout} fehlgeschlagen: {e}")
+
+            time.sleep(1)
+
+        logging.error(f"[Floating IP] Keine Floating IP innerhalb von {timeout} Sekunden für {server_id}")
+        return ["Keine Floating IP zugewiesen"]
+
+
+
 
 
     def get_context_data(self, **kwargs):
@@ -1422,9 +1462,10 @@ class InstanceSuccessView(generic.TemplateView):
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
                 instantiation = request.session.get(f"instantiations_{i}", [])
+                floating_ip = request.session.get(f"ip_addresses_{i}", [])
 
                 if accounts or instantiation:
-                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation)
+                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation, floating_ip)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             if not separate_keys:
