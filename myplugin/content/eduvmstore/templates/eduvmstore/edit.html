@@ -311,7 +311,7 @@
          </div>
 
 
-<h3>Security Groups</h3>
+h3>Security Groups</h3>
 <div class="security_groups">
     <div class="form-group row">
         <div class="col-md-6">
@@ -322,19 +322,12 @@
             </label>
             <div class="dropdown">
                 <div class="selected-groups" id="selectedGroupsDisplay">
-                    {% if app_template.security_groups %}
-                        {% for group in app_template.security_groups %}
-                            <span class="selected-group">{{ group.name }}</span>
-                        {% endfor %}
-                    {% else %}
-                        <span class="selected-group">No security group.</span>
-                    {% endif %}
+                    <!-- This will show selected groups dynamically -->
                 </div>
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
                         <label>
-                            <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                   {% if sg.name in app_template.security_groups %}checked{% endif %}>
+                            <input type="checkbox" name="security_groups" value="{{ sg.name }}">
                             {{ sg.name }}
                         </label>
                     {% endfor %}
@@ -559,20 +552,13 @@ write_files:
         input.value = input.value.replace(",", ".");
     });
 
-  $(document).ready(function() {
-    // Initialize multiselect plugin
-    $('#security_groups').multiselect({
-        nonSelectedText: 'Select Groups',
-        enableFiltering: true,
-        enableCaseInsensitiveFiltering: true,
-        buttonWidth: '100%',
-        includeSelectAllOption: true
-    });
-
+  document.addEventListener('DOMContentLoaded', function() {
     // Function to update the display of selected groups
     function updateSelectedGroups() {
         const selectedGroups = [];
         const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+
+        // Collect selected groups from checkboxes
         checkboxes.forEach(function(checkbox) {
             selectedGroups.push(checkbox.value);
         });
@@ -593,14 +579,28 @@ write_files:
         });
     }
 
+    // Function to check which groups are in app_template.security_groups and mark them as checked
+    function checkSelectedGroupsFromAppTemplate() {
+        const selectedGroups = {% if app_template.security_groups %}{{ app_template.security_groups|tojson }}{% else %}[]{% endif %};
+        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
+
+        checkboxes.forEach(function(checkbox) {
+            // Mark checkboxes as checked if their value matches any group in app_template.security_groups
+            if (selectedGroups.includes(checkbox.value)) {
+                checkbox.checked = true;
+            }
+        });
+    }
+
     // Event listener to detect changes in the checkboxes
     document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
         checkbox.addEventListener('change', updateSelectedGroups);
     });
 
-    // Initialize the display with 'default' group selected if nothing is selected
-    document.addEventListener('DOMContentLoaded', updateSelectedGroups);
-    });
+    // Initialize the display with selected groups from app_template
+    checkSelectedGroupsFromAppTemplate();  // Mark groups from app_template as selected
+    updateSelectedGroups();  // Update the display with selected groups
+});
   });
 </script>
 
