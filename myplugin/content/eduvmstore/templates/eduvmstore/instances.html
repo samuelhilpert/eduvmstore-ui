@@ -221,6 +221,7 @@
        const TAB_PREFIX = 'instanceTab_'
        const CONTENT_PREFIX = 'instanceContent_'
        const VOLUME_SELCTION = 'use_existing_volume_'
+       const VOLUME_SIZE = 'volume_size'
 
        let allInstanceChangedFieldInfo = {
             element: null,
@@ -333,9 +334,9 @@
                     </select>
                 </div>
                 
-                <div class="form-group create-volume-size-group" id="create_volume_size_group_${instanceIndex}" style="display: none;">
-                    <label for="volume_size_instance_${instanceIndex}">Volume Size (GB)</label>
-                    <input type="number" class="form-control" id="volume_size_instance_${instanceIndex}" name="volume_size_instance_${instanceIndex}"  value="{{ volume_size }}" min="{{ volume_size }}">
+                <div class="form-group create-volume-size-group" id="volume_size_input_${instanceIndex}" style="display: none;">
+                    <label for="${VOLUME_SIZE}${instanceIndex}">Volume Size (GB)</label>
+                    <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="{{ volume_size }}" min="{{ volume_size }}">
                 </div>
             `;
         }
@@ -532,7 +533,7 @@
 
             // All instance tab value change - ADD THIS TIMEOUT
             setTimeout(() => {
-                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}, #volume_size_instance_${ALL_INSTANCES_INDEX}`).forEach(element => {
+                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}, #${VOLUME_SIZE}${ALL_INSTANCES_INDEX}`).forEach(element => {
                     // Remove existing event listeners to prevent duplicates
                     element.removeEventListener('change', showWarningModal);
                     element.addEventListener('change', showWarningModal);
@@ -568,7 +569,7 @@
                 case fieldId.includes('use_existing_volume'):
                     allInstanceChangedFieldInfo.fieldType = 'volume_selection';
                     break;
-                case fieldId.includes('volume_size_instance'):
+                case fieldId.includes(VOLUME_SIZE):
                     allInstanceChangedFieldInfo.fieldType = 'new_volume_size';
                 case fieldId.includes('_instantiation'):
                     allInstanceChangedFieldInfo.fieldType = 'instantiation';
@@ -646,13 +647,12 @@ function getFieldTypeDisplayName(fieldType) {
                         }
                     }
                     break;
-
                 case 'new_volume_size':
-                    const allVolumeSizeInput = document.getElementById(`volume_size_instance_${ALL_INSTANCES_INDEX}`);
+                    const allVolumeSizeInput = document.getElementById(`${VOLUME_SIZE}${ALL_INSTANCES_INDEX}`);
                     if (allVolumeSizeInput && allVolumeSizeInput.value) {
                         const volumeSize = allVolumeSizeInput.value;
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceVolumeSizeInput = document.getElementById(`volume_size_instance_${i}`);
+                            const instanceVolumeSizeInput = document.getElementById(`${VOLUME_SIZE}${i}`);
                             if (instanceVolumeSizeInput) {
                                 instanceVolumeSizeInput.value = volumeSize;
                             }
@@ -701,7 +701,7 @@ function getFieldTypeDisplayName(fieldType) {
          }
      
         function attachVolumeCreateListeners(instance) {
-            const volumeSizeInputField = document.getElementById(`create_volume_size_group_${instance}`);
+            const volumeSizeInputField = document.getElementById(`volume_size_input_${instance}`);
             const volumeSelection = document.getElementById(`${VOLUME_SELECTION}${instance}`);
 
             try {
