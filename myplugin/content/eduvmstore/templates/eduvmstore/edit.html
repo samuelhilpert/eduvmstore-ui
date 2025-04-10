@@ -238,8 +238,8 @@
     <label for="security_groups">Select Security Groups:</label>
     <div class="dropdown" style="position: relative;">
         <button class="form-control dropdown-toggle text-left" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% if selected_groups %}
-                {{ selected_groups}}
+            {% if all_security_groups %}
+                {{ all_security_groups}}
             {% else %}
                 No Security Groups selected
             {% endif %}
