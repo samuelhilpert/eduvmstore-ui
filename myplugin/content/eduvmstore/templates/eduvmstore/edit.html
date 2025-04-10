@@ -339,8 +339,8 @@
                         </label>
                     {% endfor %}
                 </div>
-                </div>
             </div>
+        </div>
     </div>
 </div>
 
@@ -559,7 +559,7 @@ write_files:
         input.value = input.value.replace(",", ".");
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
+    ocument.addEventListener('DOMContentLoaded', function () {
     // Function to update the selected security groups in the UI
     function updateSecurityGroups() {
         // Get all checked security groups
@@ -595,9 +595,12 @@ write_files:
     // Add event listeners to update the display when any checkbox is clicked
     document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            // Ensure default is always selected if no groups are checked
+            // Ensure default is always selected if no other groups are checked
             const defaultCheckbox = document.querySelector('.dropdown-content input[value="default"]');
-            if (this.value === 'default' && !this.checked && !Array.from(document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked')).some(cb => cb.value !== 'default')) {
+            const selectedCheckboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
+
+            if (this.value === 'default' && !this.checked && selectedCheckboxes.length === 0) {
+                // Don't uncheck default if no other group is selected
                 defaultCheckbox.checked = true;
             }
             updateSecurityGroups();
