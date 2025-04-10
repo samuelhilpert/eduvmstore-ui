@@ -589,7 +589,7 @@
 
             const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
             if (warningText) {
-                warningText.innerHTML = `<strong>{{ _("Warning:") }}</strong> {{ _("This will apply the selected ") }}
+                warningText.innerHTML = `{{ _("This will apply the selected ") }}
                     <strong>${getFieldTypeDisplayName(allInstanceChangedFieldInfo.fieldType)}</strong>
                     {{ _(" to all individual instances.") }}`;
             }
