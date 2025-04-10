@@ -339,7 +339,7 @@
                         </label>
                     {% endfor %}
                 </div>
-            </div>
+                </div>
             </div>
     </div>
 </div>
@@ -559,51 +559,57 @@ write_files:
         input.value = input.value.replace(",", ".");
     });
 
-    // Security Groups Handling
+    document.addEventListener('DOMContentLoaded', function () {
+    // Function to update the selected security groups in the UI
     function updateSecurityGroups() {
+        // Get all checked security groups
         const checkboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
         const selectedGroups = Array.from(checkboxes).map(cb => cb.value);
 
-        // Update display
         const display = document.getElementById('selectedGroupsDisplay');
-        display.innerHTML = '';
+        display.innerHTML = ''; // Clear the display
 
+        // If no groups are selected, show default
         if (selectedGroups.length === 0) {
-            display.innerHTML = '<span class="selected-group">default</span>';
-            document.getElementById('securityGroupsInput').value = 'default';
+            const defaultSpan = document.createElement('span');
+            defaultSpan.className = 'selected-group';
+            defaultSpan.textContent = 'default';
+            display.appendChild(defaultSpan);
+            document.getElementById('securityGroupsInput').value = 'default';  // Set hidden input to default
         } else {
-            checkboxes.forEach(checkbox => {
-                const groupName = checkbox.parentElement.textContent.trim();
+            // Loop through selected checkboxes and display their group names
+            selectedGroups.forEach(group => {
                 const span = document.createElement('span');
                 span.className = 'selected-group';
-                span.textContent = groupName;
+                span.textContent = group;
                 display.appendChild(span);
             });
+            // Update hidden input with selected groups (comma-separated)
             document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
         }
     }
 
-    // Initialize security groups
+    // Initialize security groups when the page loads
     updateSecurityGroups();
 
-    // Add event listeners for security groups checkboxes
+    // Add event listeners to update the display when any checkbox is clicked
     document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            // Ensure default is always selected
-            if (this.value === 'default' && !this.checked) {
-                this.checked = true;
-                return;
+            // Ensure default is always selected if no groups are checked
+            const defaultCheckbox = document.querySelector('.dropdown-content input[value="default"]');
+            if (this.value === 'default' && !this.checked && !Array.from(document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked')).some(cb => cb.value !== 'default')) {
+                defaultCheckbox.checked = true;
             }
             updateSecurityGroups();
         });
     });
 
-    // Form submission handler
+    // Handle form submission to check required fields
     document.querySelector('form').addEventListener('submit', function(e) {
-        // Ensure all required fields are filled
         const requiredFields = document.querySelectorAll('[required]');
         let isValid = true;
 
+        // Check if all required fields are filled
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 field.classList.add('is-invalid');
@@ -614,12 +620,9 @@ write_files:
         if (!isValid) {
             e.preventDefault();
             alert('Please fill all required fields');
-            return;
         }
-
-        // Update security groups input before submission
-        updateSecurityGroups();
     });
+});
 });
 
 </script>
