@@ -5,7 +5,7 @@ class MyNewDashboard(horizon.Dashboard):
     name = "EduVMStore"
     slug = "eduvmstore_dashboard"
     panels = ('admin', 'eduvmstore')  # Die beiden existierenden Panels
-    panel_groups = ('tutorial_group')
+    panel_groups = ('tutorial_group',)
     default_panel = 'eduvmstore'  # Standardmäßig das Admin-Panel anzeigen
 
 # Dashboard registrieren
