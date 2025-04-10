@@ -221,6 +221,7 @@
        const TAB_PREFIX = 'instanceTab_';
        const CONTENT_PREFIX = 'instanceContent_';
        const VOLUME_SELECTION = 'use_existing_volume_';
+       const VOLUME_SELECTION_CLASS = VOLUME_SELECTION.replace(/_/g, '-').slice(0, -1);
        const FLAVOR_ID = 'flavor_id_';
        const NETWORK_ID = 'network_id';
        const VOLUME_SIZE = 'volume_size';
@@ -319,7 +320,7 @@
                 <!-- Volumes -->
                 <div class="form-group">
                     <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _('Select Volume') }}</label>
-                    <select class="form-control use-existing-volume"
+                    <select class="form-control ${VOLUME_SELECTION_CLASS}"
                             id="${VOLUME_SELECTION}${instanceIndex}"
                             name="${VOLUME_SELECTION}${instanceIndex}"
                             data-instance="${instanceIndex}">
@@ -488,7 +489,7 @@
                 instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
             }
 
-              document.querySelectorAll(".use-existing-volume").forEach(select => {
+              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
                     select.addEventListener("change", function () {
                         const instance = this.dataset.instance;
                         const group = document.getElementById(`existing_volume_group_${instance}`);
@@ -673,7 +674,7 @@ function getFieldTypeDisplayName(fieldType) {
         }
         
         function attachVolumeOptionListeners() {
-             document.querySelectorAll(".use-existing-volume").forEach(select => {
+             document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
                  select.addEventListener("change", function () {
                      const instance = this.dataset.instance;
                      const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
