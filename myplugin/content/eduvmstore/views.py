@@ -950,8 +950,7 @@ class InstancesView(generic.TemplateView):
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
-                existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
-                create_volume_size = request.POST.get(f"volume_size_instance_{i}")
+                create_volume_size = request.POST.get(f"volume_size_{i}")
                 accounts = []
                 instantiations = []
                 try:
@@ -1024,18 +1023,9 @@ class InstancesView(generic.TemplateView):
                         metadata[key] = part_content
 
                 block_device_mapping_v2 = []
-                if use_existing == "existing" and existing_volume_id:
-                    block_device_mapping_v2.append({
-                        "boot_index": -1,
-                        "uuid": existing_volume_id,
-                        "source_type": "volume",
-                        "destination_type": "volume",
-                        "delete_on_termination": True,
-                        "device_name": "/dev/vdb",
-                    })
-                    logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
+
                 # OpenStack only allows Volumes larger than 1 GB
-                elif use_existing == "new" and volume_size >= 1:
+                if use_existing == "new" and volume_size >= 1:
 
                     volume_name = f"{instance_name}-volume"
                     # Create Volume via Cinder
@@ -1058,12 +1048,15 @@ class InstancesView(generic.TemplateView):
                         "device_name": "/dev/vdb",
                     })
                 else:
-                    logging.info(f"{instance_name} is without additional volume")
-
-
-
-
-
+                    block_device_mapping_v2.append({
+                        "boot_index": -1,
+                        "uuid": use_existing,
+                        "source_type": "volume",
+                        "destination_type": "volume",
+                        "delete_on_termination": True,
+                        "device_name": "/dev/vdb",
+                    })
+                    logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
 
                 nova.server_create(
                     request,
