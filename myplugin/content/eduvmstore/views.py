@@ -425,6 +425,9 @@ class CreateView(generic.TemplateView):
         else:
             account_attributes = []
 
+        volume_size = request.POST.get('volume_size', '').strip()
+        volume_size_gb = int(volume_size) if volume_size else 0
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -436,7 +439,7 @@ class CreateView(generic.TemplateView):
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
-            'volume_size_gb': request.POST.get('volume_size'),
+            'volume_size_gb': volume_size_gb,
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
