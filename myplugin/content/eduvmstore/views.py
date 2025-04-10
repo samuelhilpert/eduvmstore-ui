@@ -910,7 +910,7 @@ class InstancesView(generic.TemplateView):
         :rtype: HttpResponse
         """
         try:
-            num_instances = int(request.POST.get('num_instances', 1))
+            num_instances = int(request.POST.get('instance_count', 1))
             base_name = request.POST.get('instances_name')
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
@@ -950,8 +950,7 @@ class InstancesView(generic.TemplateView):
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
-                existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
-                create_volume_size = request.POST.get(f"volume_size_instance_{i}")
+                create_volume_size = request.POST.get(f"volume_size_{i}")
                 accounts = []
                 instantiations = []
                 try:
@@ -1024,18 +1023,9 @@ class InstancesView(generic.TemplateView):
                         metadata[key] = part_content
 
                 block_device_mapping_v2 = []
-                if use_existing == "existing" and existing_volume_id:
-                    block_device_mapping_v2.append({
-                        "boot_index": -1,
-                        "uuid": existing_volume_id,
-                        "source_type": "volume",
-                        "destination_type": "volume",
-                        "delete_on_termination": True,
-                        "device_name": "/dev/vdb",
-                    })
-                    logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
+
                 # OpenStack only allows Volumes larger than 1 GB
-                elif use_existing == "new" and volume_size >= 1:
+                if use_existing == "new" and volume_size >= 1:
 
                     volume_name = f"{instance_name}-volume"
                     # Create Volume via Cinder
@@ -1057,13 +1047,19 @@ class InstancesView(generic.TemplateView):
                         "delete_on_termination": True,
                         "device_name": "/dev/vdb",
                     })
+                elif use_existing == "none":
+                    logging.info(f"Skipping {instance_name}")
+                elif use_existing == "new" and volume_size < 1:
+                    logging.error(f"Volume size must be at least 1 GB. Skipping {instance_name}.")
                 else:
-                    logging.info(f"{instance_name} is without additional volume")
-
-
-
-
-
+                    block_device_mapping_v2.append({
+                        "boot_index": -1,
+                        "uuid": use_existing,
+                        "source_type": "volume",
+                        "destination_type": "volume",
+                        "delete_on_termination": True,
+                        "device_name": "/dev/vdb",
+                    })
 
                 nova.server_create(
                     request,
@@ -1251,7 +1247,7 @@ class InstancesView(generic.TemplateView):
         expected_fields = self.get_expected_fields()
 
         extracted_data = {
-            field: request.POST.getlist(f"{field}_{instance_id}[]")
+            field: request.POST.getlist(f"{field}_{instance_id}")
             for field in expected_fields
         }
 
@@ -1299,7 +1295,7 @@ class InstancesView(generic.TemplateView):
         expected_fields_instantiation = self.get_expected_fields_instantiation()
 
         extracted_data_instantiations = {
-            field: request.POST.getlist(f"{field}_{instance_id}_instantiation[]")
+            field: request.POST.getlist(f"{field}_{instance_id}_instantiation")
             for field in expected_fields_instantiation
         }
 
