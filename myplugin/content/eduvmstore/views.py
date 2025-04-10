@@ -710,12 +710,23 @@ class EditView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
 
+
+        all_security_groups = self.get_security_groups()
+
+        selected_sg_names = {sg.get("name") for sg in app_template.get('security_groups', [])}
+
+        # markiere sie im Kontext
+        for sg in all_security_groups:
+            sg.selected = sg.name in selected_sg_names
+
         image_data = self.get_image_data(app_template.get('image_id', ''))
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'security_groups': all_security_groups,
         })
+
         return context
 
     def get_app_template(self):
@@ -738,6 +749,19 @@ class EditView(generic.TemplateView):
         except requests.RequestException as e:
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
+
+    def get_security_groups(self):
+        """
+        Retrieve the list of available security groups using Horizon's Neutron API.
+
+        :return: List of security group objects.
+        :rtype: list
+        """
+        try:
+            return neutron.security_group_list(self.request)
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            return []
 
     def get_image_data(self, image_id):
         """
