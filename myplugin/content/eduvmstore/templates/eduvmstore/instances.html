@@ -836,7 +836,7 @@ function getFieldTypeDisplayName(fieldType) {
             fieldsHtml += `
                 <div class="form-group md-5">
                     <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}[]" required>
+                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
                 </div>
             `;
         });
@@ -866,7 +866,7 @@ function renumberAccounts(instanceIndex) {
             const input = section.querySelector(`input[id$="${attr}_${instanceIndex}_${index+1}"]`);
             if (input) {
                 input.id = `${attr}_${instanceIndex}_${newNumber}`;
-                input.name = `${attr}_${instanceIndex}[]`;
+                input.name = `${attr}_${instanceIndex}`;
             }
         });
     });
@@ -1142,7 +1142,7 @@ document.addEventListener("change", function(event) {
                         <label for="${attr}_${instanceIndex}_${index+1}">${attr}</label>
                         <input type="text" class="form-control"
                                id="${attr}_${instanceIndex}_${index+1}"
-                               name="${attr}_${instanceIndex}[]"
+                               name="${attr}_${instanceIndex}"
                                value="${account[attr] || ''}"
                                required>
                     </div>
