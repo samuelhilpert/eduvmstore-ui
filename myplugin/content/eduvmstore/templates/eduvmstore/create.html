@@ -355,7 +355,8 @@ You can also write your script in the modal below. Link to YAML Documentation: h
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">×</span>
                 <h5>Write Script</h5>
-                <pre class="p-2 border rounded bg-light">
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+    <pre class="p-2 border rounded bg-light" style="flex: 1;">
 #cloud-config
 write_files:
   - path: /etc/users.txt
@@ -369,8 +370,19 @@ write_files:
       <span id="instantiationContent"></span>
     permissions: '0644'
     owner: root:root
+    </pre>
 
-        </pre>
+                    <div style="flex: 0 0 250px; font-size: 13px; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                        <strong>YAML Hilfe</strong>
+                        <ul style="padding-left: 18px; margin-top: 10px;">
+                            <li><code>path</code>: Zielpfad</li>
+                            <li><code>content</code>: Dateiinhalt</li>
+                            <li><code>permissions</code>: Dateiberechtigungen</li>
+                            <li><code>owner</code>: Besitzer:Gruppe</li>
+                        </ul>
+                        <p style="margin-top: 10px;">Siehe auch <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.</p>
+                    </div>
+                </div>
 
                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
                 <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">Save Script</button>
