@@ -752,12 +752,14 @@ def generate_pdf(accounts, name, app_template, created, instantiations, ip_addre
 
     subtitle = Paragraph(
         f"Instantiation Attributes for the created instance {name} from the EduVMStore. "
-        f"This instance was created with the app template {app_template} on {created}. The ip "
-        f"adress is {ip_address}.",
+        f"This instance was created with the app template {app_template} on {created}.",
         styles['Normal']
 
     )
     elements.append(subtitle)
+    if ip_address:
+        ip = Paragraph(f"IP Address: {ip_address}", styles['Normal'])
+        elements.append(ip)
     elements.append(Spacer(1, 0.2 * inch))
 
     if accounts:
