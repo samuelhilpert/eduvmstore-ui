@@ -40,8 +40,8 @@
         </div>
 
         <div class="form-group">
-            <label for="num_instances">{{ _("Number of Instances") }}</label>
-            <input type="number" class="form-control" id="num_instances" name="num_instances"
+            <label for="instance_count">{{ _("Number of Instances") }}</label>
+            <input type="number" class="form-control" id="instance_count" name="instance_count"
                    min="1" max="100" placeholder="1-100" required>
         </div>
 
@@ -237,7 +237,7 @@
             {% endfor %}
         ];
 
-        document.getElementById("num_instances").addEventListener("input", function () {
+        document.getElementById("instance_count").addEventListener("input", function () {
             const MAX_NUM_INSTANCES = 100;
             if (this.value > MAX_NUM_INSTANCES) {
                 this.value = MAX_NUM_INSTANCES;
@@ -457,7 +457,7 @@
             let instanceTabs = document.getElementById("instanceTabs");
             let instancesContainer = document.getElementById("instancesContainer");
 
-            let countInstancesInput = document.getElementById("num_instances");
+            let countInstancesInput = document.getElementById("instance_count");
             //ensure countInstances is a natural number base 10, if not 1
             let countInstances = parseInt(countInstancesInput.value, 10) || 1;
             countInstancesInput.value = countInstances;
@@ -597,7 +597,7 @@ function getFieldTypeDisplayName(fieldType) {
         }
 
         function applyAllInstancesSettings() {
-            const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
+            const countInstances = parseInt(document.getElementById('instance_count').value, 10) || 1;
 
             // Only apply the specific changed setting
             switch (allInstanceChangedFieldInfo.fieldType) {
@@ -705,7 +705,7 @@ function getFieldTypeDisplayName(fieldType) {
         }
 
         function updateVolumeSelectionOptions() {
-            const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
+            const countInstances = parseInt(document.getElementById('instance_count').value, 10) || 1;
 
             // For each instance, update available volume options
             for (let i = 1; i <= countInstances; i++) {
@@ -1002,7 +1002,7 @@ function selectAutomaticFlavor(instanceIndex) {
     }
 
     window.onload = function () {
-        let countInstancesInput = document.getElementById("num_instances");
+        let countInstancesInput = document.getElementById("instance_count");
         let instancesNameInput = document.getElementById("instances_name");
         let instanceTabs = document.getElementById("instanceTabs");
         let instancesContainer = document.getElementById("instancesContainer");
