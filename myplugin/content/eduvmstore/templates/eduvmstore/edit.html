@@ -561,18 +561,19 @@ write_files:
         input.value = input.value.replace(",", ".");
     });
 
-    // Security Groups Handling
+  document.addEventListener('DOMContentLoaded', function () {
     function updateSecurityGroups() {
         const checkboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
         const selectedGroups = Array.from(checkboxes).map(cb => cb.value);
 
-        // Update display
         const display = document.getElementById('selectedGroupsDisplay');
         display.innerHTML = '';
 
         if (selectedGroups.length === 0) {
-            display.innerHTML = '<span class="selected-group">default</span>';
-            document.getElementById('securityGroupsInput').value = 'default';
+            const span = document.createElement('span');
+            span.className = 'selected-group';
+            span.textContent = 'default';
+            display.appendChild(span);
         } else {
             checkboxes.forEach(checkbox => {
                 const groupName = checkbox.parentElement.textContent.trim();
@@ -581,28 +582,19 @@ write_files:
                 span.textContent = groupName;
                 display.appendChild(span);
             });
-            document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
         }
     }
 
-    // Initialize security groups
+    // Initialize on page load
     updateSecurityGroups();
 
-    // Add event listeners for security groups checkboxes
+    // Listen for changes
     document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            // Ensure default is always selected
-            if (this.value === 'default' && !this.checked) {
-                this.checked = true;
-                return;
-            }
-            updateSecurityGroups();
-        });
+        checkbox.addEventListener('change', updateSecurityGroups);
     });
 
-    // Form submission handler
-    document.querySelector('form').addEventListener('submit', function(e) {
-        // Ensure all required fields are filled
+    // Form validation on submit
+    document.querySelector('form').addEventListener('submit', function (e) {
         const requiredFields = document.querySelectorAll('[required]');
         let isValid = true;
 
@@ -616,14 +608,10 @@ write_files:
         if (!isValid) {
             e.preventDefault();
             alert('Please fill all required fields');
-            return;
         }
-
-        // Update security groups input before submission
-        updateSecurityGroups();
     });
 });
-
+});
 </script>
 
 
