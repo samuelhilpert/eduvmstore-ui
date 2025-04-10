@@ -340,10 +340,7 @@
                     {% endfor %}
                 </div>
             </div>
-            <!-- Hidden input to store the actual selected values for form submission -->
-            <input type="hidden" id="securityGroupsInput" name="security_groups"
-                   value="{% for sg in app_template.security_groups %}{{ sg.name }}{% if not forloop.last %},{% endif %}{% endfor %}">
-        </div>
+            </div>
     </div>
 </div>
 
