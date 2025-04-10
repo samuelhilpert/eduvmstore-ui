@@ -372,8 +372,8 @@ write_files:
     owner: root:root
     </pre>
 
-                    <div style="flex: 0 0 250px; height: 340px; font-size: 13px; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                        <strong>Cloud Init Support</strong>
+                    <div class="cloudinit-info" style="flex: 0 0 250px; font-size: 13px; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                    <strong>Cloud Init Support</strong>
                         <p>This script will run immediately after the start of the virtual machine. It can be used for configuration of instances. For more information look at the tutorial of cloud init documentation.</p>
                         <p style="margin-top: 10px;">Look at <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.</p>
                         <p style="margin-top: 10px;">Look at <a href="{% url 'horizon:eduvmstore_dashboard:tutorial:index' %}" target="_blank">Tutorial</a>. </p>
@@ -421,6 +421,17 @@ write_files:
 
 <!-- JavaScript to handle modal -->
 <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const preElement = document.querySelector("#scriptModal pre");
+        const infoBox = document.querySelector("#scriptModal .cloudinit-info");
+
+        if (preElement && infoBox) {
+            const preHeight = preElement.offsetHeight;
+            infoBox.style.height = preHeight + "px";
+        }
+    });
+
 
     document.addEventListener("DOMContentLoaded", function () {
         checkName();
