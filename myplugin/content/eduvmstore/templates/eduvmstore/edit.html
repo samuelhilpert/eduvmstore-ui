@@ -333,21 +333,19 @@
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
                         <label>
-                            <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                   {% if sg.name in app_template.security_group_ids %}checked{% endif %}
-                                   {% if sg.name == "default" %}checked disabled{% endif %}>
+                            <input type="checkbox" class="security-group-checkbox"
+                                   value="{{ sg.id }}"
+                                   {% if sg.id in app_template.security_group_ids %}checked{% endif %}>
                             {{ sg.name }}
                         </label>
                     {% endfor %}
                 </div>
             </div>
-            <!-- Hidden input to store the actual selected values for form submission -->
-            <input type="hidden" id="securityGroupsInput" name="security_groups"
-                   value="{% for sg in app_template.security_groups %}{{ sg.name }}{% if not forloop.last %},{% endif %}{% endfor %}">
+            <!-- Hidden input to store selected security group IDs -->
+            <input type="hidden" id="securityGroupsInput" name="security_groups">
         </div>
     </div>
 </div>
-
 
          <h3>Script</h3>
          <div class="form-group row">
@@ -564,23 +562,27 @@ write_files:
     });
 
     // Security Groups Handling
-     function updateSecurityGroups() {
+    function updateSecurityGroups() {
         const checkboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
         const selectedGroups = Array.from(checkboxes).map(cb => cb.value);
 
-          const display = document.getElementById('selectedGroupsDisplay');
+        // Update display
+        const display = document.getElementById('selectedGroupsDisplay');
         display.innerHTML = '';
 
-        checkboxes.forEach(checkbox => {
-            const groupName = checkbox.parentElement.textContent.trim();
-            const span = document.createElement('span');
-            span.className = 'selected-group';
-            span.textContent = groupName;
-            display.appendChild(span);
-        });
-
-        // Update hidden input value
-        document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
+        if (selectedGroups.length === 0) {
+            display.innerHTML = '<span class="selected-group">default</span>';
+            document.getElementById('securityGroupsInput').value = 'default';
+        } else {
+            checkboxes.forEach(checkbox => {
+                const groupName = checkbox.parentElement.textContent.trim();
+                const span = document.createElement('span');
+                span.className = 'selected-group';
+                span.textContent = groupName;
+                display.appendChild(span);
+            });
+            document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
+        }
     }
 
     // Initialize security groups
@@ -589,7 +591,7 @@ write_files:
     // Add event listeners for security groups checkboxes
     document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            // Default group cannot be unchecked
+            // Ensure default is always selected
             if (this.value === 'default' && !this.checked) {
                 this.checked = true;
                 return;
@@ -598,27 +600,25 @@ write_files:
         });
     });
 
-    // Form submission handler
-    document.querySelector('form').addEventListener('submit', function(e) {
-        // Ensure all required fields are filled
-        const requiredFields = document.querySelectorAll('[required]');
-        let isValid = true;
+     function updateSelectedSecurityGroups() {
+        const checkboxes = document.querySelectorAll('.security-group-checkbox');
+        const selectedIds = [];
 
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('is-invalid');
-                isValid = false;
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                selectedIds.push(cb.value);
             }
         });
 
-        if (!isValid) {
-            e.preventDefault();
-            alert('Please fill all required fields');
-            return;
-        }
+        document.getElementById('securityGroupsInput').value = selectedIds.join(',');
+    }
 
-        // Update security groups input before submission
-        updateSecurityGroups();
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.security-group-checkbox');
+        checkboxes.forEach(cb => cb.addEventListener('change', updateSelectedSecurityGroups));
+
+        // Initialize hidden input with currently checked values
+        updateSelectedSecurityGroups();
     });
 });
 
