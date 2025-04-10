@@ -308,6 +308,7 @@
         }
 
         function generateVolumeSection(instanceIndex) {
+            const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Choose Volume Size (GB) for all Instances') }}" : "{{ _('Choose Volume Size GB') }}";
             let volumeOptions = `<option value="new" selected>Create new volume</option>`;
             let requiredVolumeSize = {{ volume_size }};
             attachableVolumes.forEach(volume => {
@@ -325,7 +326,7 @@
             return `
                 <!-- Volumes -->
                 <div class="form-group">
-                    <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _("Additional Volumes") }}</label>
+                    <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _('Select Volume') }}</label>
                     <select class="form-control use-existing-volume"
                             id="${VOLUME_SELECTION}${instanceIndex}"
                             name="${VOLUME_SELECTION}${instanceIndex}"
@@ -335,7 +336,7 @@
                 </div>
                 
                 <div class="form-group create-volume-size-group" id="volume_size_input_${instanceIndex}" style="display: none;">
-                    <label for="${VOLUME_SIZE}${instanceIndex}">Volume Size (GB)</label>
+                    <label for="${VOLUME_SIZE}${instanceIndex}">${labelVolumeSizePrefix}</label>
                     <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="{{ volume_size }}" min="{{ volume_size }}">
                 </div>
             `;
