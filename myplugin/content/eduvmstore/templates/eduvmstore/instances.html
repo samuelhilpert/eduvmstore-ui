@@ -220,6 +220,7 @@
        const ALL_INSTANCES_INDEX = 0
        const TAB_PREFIX = 'instanceTab_'
        const CONTENT_PREFIX = 'instanceContent_'
+       const VOLUME_SELCTION = 'use_existing_volume_'
 
        let allInstanceChangedFieldInfo = {
             element: null,
@@ -306,25 +307,30 @@
         }
 
         function generateVolumeSection(instanceIndex) {
+            let volumeOptions = `<option value="new" selected>Create new volume</option>`;
+            let requiredVolumeSize = {{ volume_size }};
+            attachableVolumes.forEach(volume => {
+                //add large enough existing volumes to volume options
+                if (volume.size >= requiredVolumeSize) {
+                    volumeOptions += `<option value="${volume.id}" data-volume-id="${volume.id}">
+                    ${volume.name} (${volume.size} GB)
+                 </option>`;
+                }
+            });
+            // Option of attaching no volume
+            if (volume_size === 0){
+                 volumeOptions += `<option value="none">No additional volumes</option>`
+            }
             return `
                 <!-- Volumes -->
                 <div class="form-group">
-                    <label for="use_existing_volume_${instanceIndex}">{{ _("Additional Volumes") }}</label>
+                    <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _("Additional Volumes") }}</label>
                     <select class="form-control use-existing-volume"
-                            id="use_existing_volume_${instanceIndex}"
-                            name="use_existing_volume_${instanceIndex}"
+                            id="${VOLUME_SELECTION}${instanceIndex}"
+                            name="${VOLUME_SELECTION}${instanceIndex}"
                             data-instance="${instanceIndex}">
-                        <option value="new" selected>Create new volume</option>
-                        {% if hasAttachableVolumes %}
-                            <option value="existing">Attach existing volume</option>
-                        {% endif %}
-                        {% if volume_size == 0 %}
-                            <option value="none">No additional volumes</option>
-                        {% endif %}
+                        ${volumeOptions}
                     </select>
-                    {% if not hasAttachableVolumes %}
-                        <small class="form-text">There are currently no available volumes that can be attached.</small>
-                    {% endif %}
                 </div>
                 
                 <div class="form-group create-volume-size-group" id="create_volume_size_group_${instanceIndex}" style="display: none;">
@@ -492,14 +498,10 @@
                     select.addEventListener("change", function () {
                         const instance = this.dataset.instance;
                         const group = document.getElementById(`existing_volume_group_${instance}`);
-                        const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
                         if (this.value === "existing") {
                             group.style.display = "block";
-                            volumeSelect.required = true;
-                            volumeSelect.setCustomValidity("");
                         } else {
                             if (group) group.style.display = "none";
-                            if (volumeSelect) volumeSelect.required = false;
                         }
                     });
                     select.dispatchEvent(new Event("change"));
@@ -530,7 +532,7 @@
 
             // All instance tab value change - ADD THIS TIMEOUT
             setTimeout(() => {
-                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}, #volume_size_instance_${ALL_INSTANCES_INDEX}`).forEach(element => {
+                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}, #volume_size_instance_${ALL_INSTANCES_INDEX}`).forEach(element => {
                     // Remove existing event listeners to prevent duplicates
                     element.removeEventListener('change', showWarningModal);
                     element.addEventListener('change', showWarningModal);
@@ -564,9 +566,6 @@
                     allInstanceChangedFieldInfo.fieldType = 'network';
                     break;
                 case fieldId.includes('use_existing_volume'):
-                    allInstanceChangedFieldInfo.fieldType = 'volume_type';
-                    break;
-                case fieldId.includes('existing_volume_id'):
                     allInstanceChangedFieldInfo.fieldType = 'volume_selection';
                     break;
                 case fieldId.includes('volume_size_instance'):
@@ -594,7 +593,6 @@ function getFieldTypeDisplayName(fieldType) {
     switch (fieldType) {
         case 'flavor': return 'flavor';
         case 'network': return 'network';
-        case 'volume_type': return 'volume type';
         case 'volume_selection': return 'volume selection';
         case 'instantiation':
             return `instantiation attribute "${allInstanceChangedFieldInfo.attrName}"`;
@@ -635,13 +633,12 @@ function getFieldTypeDisplayName(fieldType) {
                     }
                     break;
 
-                case 'volume_type':
-                    console.log("volume_type")
-                    const allVolumeOption = document.getElementById(`use_existing_volume_${ALL_INSTANCES_INDEX}`);
+                case 'volume_selection':
+                    const allVolumeOption = document.getElementById(`${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}`);
                     if (allVolumeOption) {
                         const volumeChoice = allVolumeOption.value;
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceVolumeOption = document.getElementById(`use_existing_volume_${i}`);
+                            const instanceVolumeOption = document.getElementById(`${VOLUME_SELECTION}${i}`);
                             if (instanceVolumeOption) {
                                 instanceVolumeOption.value = volumeChoice;
                                 instanceVolumeOption.dispatchEvent(new Event('change'));
@@ -658,19 +655,6 @@ function getFieldTypeDisplayName(fieldType) {
                             const instanceVolumeSizeInput = document.getElementById(`volume_size_instance_${i}`);
                             if (instanceVolumeSizeInput) {
                                 instanceVolumeSizeInput.value = volumeSize;
-                            }
-                        }
-                    }
-                    break;
-
-                case 'volume_selection':
-                    console.log("volume selcetion")
-                    const allVolumeSelect = document.getElementById(`existing_volume_id_${ALL_INSTANCES_INDEX}`);
-                    if (allVolumeSelect && allVolumeSelect.value) {
-                        for (let i = 1; i <= countInstances; i++) {
-                            const instanceVolumeSelect = document.getElementById(`existing_volume_id_${i}`);
-                            if (instanceVolumeSelect) {
-                                instanceVolumeSelect.value = allVolumeSelect.value;
                             }
                         }
                     }
@@ -699,16 +683,13 @@ function getFieldTypeDisplayName(fieldType) {
                  select.addEventListener("change", function () {
                      const instance = this.dataset.instance;
                      const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
-                     const selectedVolume = document.getElementById(`existing_volume_id_${instance}`);
                       // Check if the volumeGroup and selectedVolumeId exist for attaching existing volumes
                      // If they do, toggle their visibility to block or none
                      if (volumeGroup && selectedVolume) {
                          if (this.value === "existing") {
                              volumeGroup.style.display = "block";
-                             selectedVolume.required = true;
                          } else {
                              volumeGroup.style.display = "none";
-                             selectedVolume.required = false;
                          }
                      }
                      attachVolumeCreateListeners(instance);
@@ -721,10 +702,10 @@ function getFieldTypeDisplayName(fieldType) {
      
         function attachVolumeCreateListeners(instance) {
             const volumeSizeInputField = document.getElementById(`create_volume_size_group_${instance}`);
-            const volumeModeSelect = document.getElementById(`use_existing_volume_${instance}`);
+            const volumeSelection = document.getElementById(`${VOLUME_SELECTION}${instance}`);
 
             try {
-                if (volumeModeSelect.value === "new") {
+                if (volumeSelection.value === "new") {
                     volumeSizeInputField.style.display = "block";
                 } else {
                     volumeSizeInputField.style.display = "none";
