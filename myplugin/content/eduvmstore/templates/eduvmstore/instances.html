@@ -696,6 +696,9 @@ function getFieldTypeDisplayName(fieldType) {
             // Only actual volumes need to be tracked (Not Create New Volume or no addtional volumes)
             if (value !== "new" && value !== "none") {
                 volumeSelections[instance] = value;
+            } else {
+                //ensure that old selection is deleted
+                delete volumeSelections[instance];
             }
             // Update all volume dropdowns
             updateVolumeSelectionOptions();
