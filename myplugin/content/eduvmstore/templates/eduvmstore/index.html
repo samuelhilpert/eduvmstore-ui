@@ -221,7 +221,7 @@
 {% endif %}
     <h2>All App-Templates</h2>
 
-<form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}">
+<form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" style="margin-bottom: 30px;">
     <input type="text" id="search" name="search" class="form-control"
            placeholder="Search app templates" value="{{ request.GET.search }}">
 </form>
