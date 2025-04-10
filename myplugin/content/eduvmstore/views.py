@@ -1295,7 +1295,7 @@ class InstancesView(generic.TemplateView):
         expected_fields_instantiation = self.get_expected_fields_instantiation()
 
         extracted_data_instantiations = {
-            field: request.POST.getlist(f"{field}_{instance_id}_instantiation[]")
+            field: request.POST.getlist(f"{field}_{instance_id}_instantiation")
             for field in expected_fields_instantiation
         }
 
