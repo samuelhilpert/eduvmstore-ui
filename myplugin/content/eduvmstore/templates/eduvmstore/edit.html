@@ -327,15 +327,15 @@
                             <span class="selected-group">{{ group.name }}</span>
                         {% endfor %}
                     {% else %}
-                        <span class="selected-group">default</span>
-                    {% endif %}
+                    <p>No security group selected.</p>
+                {% endif %}
                 </div>
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
                         <label>
                             <input type="checkbox" class="security-group-checkbox"
-                                   value="{{ sg.id }}"
-                                   {% if sg.id in app_template.security_group_ids %}checked{% endif %}>
+                                   value="{{ sg.name }}"
+                                   {% if sg.name in app_template.security_group %}checked{% endif %}>
                             {{ sg.name }}
                         </label>
                     {% endfor %}
