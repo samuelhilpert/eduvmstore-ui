@@ -327,7 +327,7 @@
                             <span class="selected-group">{{ group.name }}</span>
                         {% endfor %}
                     {% else %}
-                        <span class="selected-group">default</span>
+                        <span class="selected-group">No security group.</span>
                     {% endif %}
                 </div>
                 <div class="dropdown-content">
@@ -559,22 +559,20 @@ write_files:
         input.value = input.value.replace(",", ".");
     });
 
-    ocument.addEventListener('DOMContentLoaded', function () {
+   document.addEventListener('DOMContentLoaded', function () {
     // Function to update the selected security groups in the UI
     function updateSecurityGroups() {
         // Get all checked security groups
         const checkboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
         const selectedGroups = Array.from(checkboxes).map(cb => cb.value);
 
+        // Update display
         const display = document.getElementById('selectedGroupsDisplay');
         display.innerHTML = ''; // Clear the display
 
         // If no groups are selected, show default
         if (selectedGroups.length === 0) {
-            const defaultSpan = document.createElement('span');
-            defaultSpan.className = 'selected-group';
-            defaultSpan.textContent = 'default';
-            display.appendChild(defaultSpan);
+            display.innerHTML = '<span class="selected-group">default</span>';
             document.getElementById('securityGroupsInput').value = 'default';  // Set hidden input to default
         } else {
             // Loop through selected checkboxes and display their group names
@@ -595,15 +593,7 @@ write_files:
     // Add event listeners to update the display when any checkbox is clicked
     document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            // Ensure default is always selected if no other groups are checked
-            const defaultCheckbox = document.querySelector('.dropdown-content input[value="default"]');
-            const selectedCheckboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
-
-            if (this.value === 'default' && !this.checked && selectedCheckboxes.length === 0) {
-                // Don't uncheck default if no other group is selected
-                defaultCheckbox.checked = true;
-            }
-            updateSecurityGroups();
+            updateSecurityGroups(); // Dynamically update display
         });
     });
 
@@ -627,7 +617,6 @@ write_files:
     });
 });
 });
-
 </script>
 
 
