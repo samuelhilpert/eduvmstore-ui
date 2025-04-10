@@ -223,6 +223,8 @@
        const VOLUME_SELECTION = 'use_existing_volume_'
        const VOLUME_SIZE = 'volume_size'
 
+       let volumeSelections = {};
+
        let allInstanceChangedFieldInfo = {
             element: null,
             fieldType: ''
@@ -682,12 +684,51 @@ function getFieldTypeDisplayName(fieldType) {
                          }
                      }
                      attachVolumeCreateListeners(instance);
+                     updateVolumeSelection(instance, this.value)
                  });
 
                  select.dispatchEvent(new Event("change"));
 
              });
          }
+
+         function updateVolumeSelection(instance, value) {
+            // Only actual volumes need to be tracked (Not Create New Volume or no addtional volumes)
+            if (value !== "new" && value !== "none") {
+                volumeSelections[instance] = value;
+            }
+            // Update all volume dropdowns
+            updateVolumeSelectionOptions();
+        }
+
+        function updateVolumeSelectionOptions() {
+            const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
+
+            // For each instance, update available volume options
+            for (let i = 1; i <= countInstances; i++) {
+                const volumeSelect = document.getElementById(`${VOLUME_SELECTION}${i}`);
+                if (!volumeSelect) continue;
+
+                // For each option in the select
+                Array.from(volumeSelect.options).forEach(option => {
+                    const volumeId = option.value;
+
+                    // Check if this volume is selected in another instance
+                    let selectedInInstance = null;
+                    for (const [instanceIdx, selectedVolumeId] of Object.entries(volumeSelections)) {
+                        if (selectedVolumeId === volumeId && instanceIdx != i) {
+                            selectedInInstance = instanceIdx;
+                            break; //one other instance is sufficient for blocking
+                        }
+                    }
+                    //Disable the volume
+                    if (selectedInInstance && volumeId) {
+                        option.disabled = true;
+                        option.textContent = `${option.textContent.split('(')[0]} (already selected in instance ${selectedInInstance})`;
+                    }
+                });
+            }
+        }
      
         function attachVolumeCreateListeners(instance) {
             const volumeSizeInputField = document.getElementById(`volume_size_input_${instance}`);
