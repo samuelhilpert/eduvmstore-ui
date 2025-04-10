@@ -233,11 +233,11 @@
          </div>
 
 
-     <h3>Security Groups</h3>
+<h3>Security Groups</h3>
 <div class="form-group">
     <label for="security_groups">Select Security Groups:</label>
     <div class="dropdown" style="position: relative;">
-        <button class="form-control dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="form-control dropdown-toggle text-left" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {% if selected_groups %}
                 {{ selected_groups}}
             {% else %}
@@ -247,7 +247,7 @@
         <div class="dropdown-menu p-3 border shadow-sm" aria-labelledby="dropdownMenuButton" style="max-height: 300px; overflow-y: auto; min-width: 300px;">
             {% for sg in all_security_groups %}
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="security_groups" id="sg_{{ sg.name }}" value="{{ sg.name }}"
+                    <input class="form-check-input" type="checkbox" name="security_groups[]" id="sg_{{ sg.name }}" value="{{ sg.name }}"
                            {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
                     <label class="form-check-label" for="sg_{{ sg.name }}">{{ sg.name }}</label>
                 </div>
@@ -255,7 +255,6 @@
         </div>
     </div>
 </div>
-
 
          <h3>Script</h3>
          <div class="form-group row">
