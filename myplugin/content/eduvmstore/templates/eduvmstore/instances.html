@@ -235,21 +235,6 @@
             {% endfor %}
         ];
 
-        function generateVolumeDropdown(instanceIndex) {
-            let html = `<option value="" disabled selected>Select Volume</option>`;
-            let requiredVolumeSize = {{ volume_size }};
-            attachableVolumes.forEach(volume => {
-                if (volume.size >= requiredVolumeSize) {
-                    html += `<option value="${volume.id}" data-volume-id="${volume.id}">
-                    ${volume.name} (${volume.size} GB)
-                 </option>`;
-                }
-
-            });
-            return html;
-        }
-
-
         document.getElementById("num_instances").addEventListener("input", function () {
             const MAX_NUM_INSTANCES = 100;
             if (this.value > MAX_NUM_INSTANCES) {
