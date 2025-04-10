@@ -910,7 +910,7 @@ class InstancesView(generic.TemplateView):
         :rtype: HttpResponse
         """
         try:
-            num_instances = int(request.POST.get('num_instances', 1))
+            num_instances = int(request.POST.get('instance_count', 1))
             base_name = request.POST.get('instances_name')
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
@@ -1049,6 +1049,8 @@ class InstancesView(generic.TemplateView):
                     })
                 elif use_existing == "none":
                     logging.info(f"Skipping {instance_name}")
+                elif use_existing == "new" and volume_size < 1:
+                    logging.error(f"Volume size must be at least 1 GB. Skipping {instance_name}.")
                 else:
                     block_device_mapping_v2.append({
                         "boot_index": -1,
