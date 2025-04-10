@@ -399,15 +399,6 @@
             `;
         }
 
-        function generateNavigationSection(instanceIndex, countInstances){
-            return `
-                <div class="d-flex justify-content-between mt-3">
-                    ${(countInstances != 1 &&  instanceIndex > ALL_INSTANCES_INDEX ) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
-                    ${(instanceIndex < countInstances || instanceIndex === ALL_INSTANCES_INDEX) ? `<button type="button" class="btn btn-primary next-instance" data-instance="${instanceIndex}">→ {{ _("Next Instance") }}</button>` : ""}
-                </div>
-            `;
-        }
-
         function generateCSVAllInstanceSection(){
             return`
                 <div class="section-container">
@@ -461,7 +452,6 @@
                     ${generateInstantiationAttributesSection(instanceIndex)}
                      <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
                      ${instanceIndex === ALL_INSTANCES_INDEX ? generateCSVAllInstanceSection() : generateAccountAttributesSection(instanceIndex)}
-                    ${generateNavigationSection(instanceIndex, countInstances)}
                 </div>
             `
         }
@@ -589,7 +579,7 @@
 
             const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
             if (warningText) {
-                warningText.innerHTML = `<strong>{{ _("Warning:") }}</strong> {{ _("This will apply the selected ") }}
+                warningText.innerHTML = `{{ _("This will apply the selected ") }}
                     <strong>${getFieldTypeDisplayName(allInstanceChangedFieldInfo.fieldType)}</strong>
                     {{ _(" to all individual instances.") }}`;
             }
@@ -728,20 +718,6 @@ function getFieldTypeDisplayName(fieldType) {
         }
 
         function attachInstanceEventListeners() {
-            document.querySelectorAll(".next-instance").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceIndex = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceIndex + 1);
-                });
-            });
-
-             document.querySelectorAll(".prev-instance").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceIndex = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceIndex - 1);
-                });
-            });
-
             document.querySelectorAll(".nav-link").forEach(tab => {
                 tab.addEventListener("click", function (event) {
                     event.preventDefault();
