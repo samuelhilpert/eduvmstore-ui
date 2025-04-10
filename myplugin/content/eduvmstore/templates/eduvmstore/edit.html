@@ -484,34 +484,34 @@ write_files:
         });
     });
 
-  // Function to update the display of selected groups
-    function updateSelectedGroups() {
-        const selectedGroups = [];
-        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
-        checkboxes.forEach(function(checkbox) {
-            selectedGroups.push(checkbox.value);
-        });
+      document.addEventListener("DOMContentLoaded", function () {
+        // Funktion zur Aktualisierung der Anzeige der ausgewählten Gruppen
+        function updateSelectedGroups() {
+            const selectedGroups = [];
+            const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+            checkboxes.forEach(function(checkbox) {
+                selectedGroups.push(checkbox.value);
+            });
 
-        // Ensure 'default' is always selected if no groups are selected
-        if (selectedGroups.length === 0) {
-            selectedGroups.push('default');
+            // Falls keine Gruppe ausgewählt wurde, 'default' hinzufügen
+            if (selectedGroups.length === 0) {
+                selectedGroups.push('default');
+                document.querySelector('input[value="default"]').checked = true;
+            }
+
+            // Anzeige aktualisieren
+            const selectedGroupsDisplay = document.querySelector('.selected-group');
+            selectedGroupsDisplay.textContent = selectedGroups.join(", ");
         }
 
-        // Update the displayed selected groups
-        const selectedGroupsDisplay = document.querySelector('.selected-group');
-        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
-    }
+        // Event Listener setzen, nachdem DOM geladen ist
+        document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.addEventListener('change', updateSelectedGroups);
+        });
 
-    // Event listener to detect changes in the checkboxes
-    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
-        checkbox.addEventListener('change', updateSelectedGroups);
-    });
-
-    // Initialize the display with 'default' group selected if nothing is selected
-    document.addEventListener('DOMContentLoaded', updateSelectedGroups);
-
-
-
+        // Initial aufrufen
+        updateSelectedGroups();
+         });
 </script>
 
 
