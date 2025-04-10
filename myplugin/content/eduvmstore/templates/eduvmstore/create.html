@@ -422,16 +422,6 @@ write_files:
 <!-- JavaScript to handle modal -->
 <script>
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const preElement = document.querySelector("#scriptModal pre");
-        const infoBox = document.querySelector("#scriptModal .cloudinit-info");
-
-        if (preElement && infoBox) {
-            const preHeight = preElement.offsetHeight;
-            infoBox.style.height = preHeight + "px";
-        }
-    });
-
 
     document.addEventListener("DOMContentLoaded", function () {
         checkName();
@@ -478,6 +468,14 @@ write_files:
         document.getElementById("accountContent").innerText = accountStructure;
         document.getElementById("instantiationContent").innerText = instantiationStructure;
         document.getElementById('scriptModal').style.display = 'block';
+
+        setTimeout(function () {
+            const preElement = document.querySelector("#scriptModal pre");
+            const infoBox = document.querySelector("#scriptModal .cloudinit-info");
+            if (preElement && infoBox) {
+                infoBox.style.height = preElement.offsetHeight + "px";
+            }
+        }, 0);
     }
 
     function closeModal() {
