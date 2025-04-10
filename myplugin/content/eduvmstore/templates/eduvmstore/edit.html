@@ -561,40 +561,28 @@ write_files:
 
   document.addEventListener('DOMContentLoaded', function () {
     // Function to update the selected security groups in the UI
-    function updateSecurityGroups() {
-        // Get all checked security groups
-        const checkboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
-        const selectedGroups = Array.from(checkboxes).map(cb => cb.value);
+      // Function to update the display of selected groups
+    function updateSelectedGroups() {
+        const selectedGroups = [];
+        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+        checkboxes.forEach(function(checkbox) {
+            selectedGroups.push(checkbox.value);
+        });
 
-        // Update display
-        const display = document.getElementById('selectedGroupsDisplay');
-        display.innerHTML = ''; // Clear the display
-
-        // If no groups are selected, show default
+        // Ensure 'default' is always selected if no groups are selected
         if (selectedGroups.length === 0) {
-            display.innerHTML = '<span class="selected-group">default</span>';
-            document.getElementById('securityGroupsInput').value = 'default';  // Set hidden input to default
-        } else {
-            // Loop through selected checkboxes and display their group names
-            selectedGroups.forEach(group => {
-                const span = document.createElement('span');
-                span.className = 'selected-group';
-                span.textContent = group;
-                display.appendChild(span);
-            });
-            // Update hidden input with selected groups (comma-separated)
-            document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
+            selectedGroups.push('default');
         }
+
+        // Update the displayed selected groups
+        const selectedGroupsDisplay = document.querySelector('.selected-group');
+        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
     }
 
-    // Initialize security groups when the page loads
-    updateSecurityGroups();
 
-    // Add event listeners to update the display when any checkbox is clicked
-    document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            updateSecurityGroups(); // Dynamically update display
-        });
+     // Event listener to detect changes in the checkboxes
+    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateSelectedGroups);
     });
 
     // Handle form submission to check required fields
