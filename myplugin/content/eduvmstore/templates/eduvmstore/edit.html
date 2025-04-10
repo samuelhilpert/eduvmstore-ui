@@ -334,7 +334,7 @@
                     {% for sg in security_groups %}
                         <label>
                             <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                   {% if sg.name in app_template.security_group_ or sg.name == "default" %}checked{% endif %}>
+                                   {% if sg.name in app_template.security_groups %}checked{% endif %}>
                             {{ sg.name }}
                         </label>
                     {% endfor %}
@@ -559,7 +559,7 @@ write_files:
         input.value = input.value.replace(",", ".");
     });
 
-   document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', function () {
     // Function to update the selected security groups in the UI
     function updateSecurityGroups() {
         // Get all checked security groups
