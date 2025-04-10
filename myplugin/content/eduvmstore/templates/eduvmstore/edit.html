@@ -311,7 +311,6 @@
          </div>
 
 
-<h3>Security Groups</h3>
 <div class="security_groups">
     <div class="form-group row">
         <div class="col-md-6">
@@ -326,12 +325,11 @@
                         <span class="selected-group">No Security Group.</span>
                     {% endif %}
                 </div>
-
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
                         <label>
                             <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                   {% if app_template.security_groups in sg %}checked{% endif %}>
+                                {% if sg in app_template.security_groups %}checked{% endif %}>
                             {{ sg.name }}
                         </label>
                     {% endfor %}
@@ -570,31 +568,48 @@ write_files:
         input.value = input.value.replace(",", ".");
     });
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // Function to update the display of selected groups
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize the display with selected groups from app_template
+    function initializeSelectedGroups() {
+        const selectedGroups = [];
+        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
+
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                selectedGroups.push(checkbox.value);
+            }
+        });
+
+        // Update the displayed selected groups
+        const selectedGroupsDisplay = document.getElementById('selectedGroupsDisplay');
+        selectedGroupsDisplay.innerHTML = selectedGroups.length
+            ? selectedGroups.map(group => `<span class="selected-group">${group}</span>`).join("")
+            : `<span class="selected-group">No Security Group.</span>`;
+    }
+
+    // Function to dynamically update the display of selected groups
     function updateSelectedGroups() {
         const selectedGroups = [];
         const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
 
-        // Collect selected groups from checkboxes
-        checkboxes.forEach(function(checkbox) {
+        checkboxes.forEach(function (checkbox) {
             selectedGroups.push(checkbox.value);
         });
 
-  // Update the displayed selected groups
-        const selectedGroupsDisplay = document.querySelector('.selected-group');
-        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
+        const selectedGroupsDisplay = document.getElementById('selectedGroupsDisplay');
+        selectedGroupsDisplay.innerHTML = selectedGroups.length
+            ? selectedGroups.map(group => `<span class="selected-group">${group}</span>`).join("")
+            : `<span class="selected-group">No Security Group.</span>`;
     }
 
-    // Event listener to detect changes in the checkboxes
-    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
+    // Add event listeners to checkboxes for dynamic updates
+    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function (checkbox) {
         checkbox.addEventListener('change', updateSelectedGroups);
     });
 
-    // Initialize the display with selected groups from app_template
-    updateSelectedGroups();  // Update the display with selected groups
+    // Initialize the selected groups display on page load
+    initializeSelectedGroups();
 });
-
   });
 </script>
 
