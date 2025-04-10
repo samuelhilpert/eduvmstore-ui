@@ -721,10 +721,20 @@ function getFieldTypeDisplayName(fieldType) {
                             break; //one other instance is sufficient for blocking
                         }
                     }
-                    //Disable the volume
+
                     if (selectedInInstance && volumeId) {
+                         //Disable the volume
                         option.disabled = true;
                         option.textContent = `${option.textContent.split('(')[0]} (already selected in instance ${selectedInInstance})`;
+                    } else if (volumeId !== "new" && volumeId !== "none") {
+                        // Reset text
+                        const originalVolume = attachableVolumes.find(v => v.id === volumeId);
+                        if (originalVolume) {
+                            const isTooSmall = originalVolume.size < parseFloat("{{ volume_size }}");
+                            //now disabled status depends only on size
+                            option.disabled = isTooSmall;
+                            option.textContent = `${originalVolume.name} (${originalVolume.size} GB)${isTooSmall ? ' (Too small)' : ''}`;
+                        }
                     }
                 });
             }
