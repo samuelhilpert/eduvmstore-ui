@@ -600,25 +600,27 @@ write_files:
         });
     });
 
-     function updateSelectedSecurityGroups() {
-        const checkboxes = document.querySelectorAll('.security-group-checkbox');
-        const selectedIds = [];
+    // Form submission handler
+    document.querySelector('form').addEventListener('submit', function(e) {
+        // Ensure all required fields are filled
+        const requiredFields = document.querySelectorAll('[required]');
+        let isValid = true;
 
-        checkboxes.forEach(cb => {
-            if (cb.checked) {
-                selectedIds.push(cb.value);
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
             }
         });
 
-        document.getElementById('securityGroupsInput').value = selectedIds.join(',');
-    }
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill all required fields');
+            return;
+        }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const checkboxes = document.querySelectorAll('.security-group-checkbox');
-        checkboxes.forEach(cb => cb.addEventListener('change', updateSelectedSecurityGroups));
-
-        // Initialize hidden input with currently checked values
-        updateSelectedSecurityGroups();
+        // Update security groups input before submission
+        updateSecurityGroups();
     });
 });
 
