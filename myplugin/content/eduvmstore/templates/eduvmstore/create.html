@@ -136,7 +136,7 @@
         <h3>App-Template Details</h3>
         <div class="form-group row">
             <div class="col-md-4">
-                <label for="image_id">Select Image<span style="color: rgb(85,137,197);">*</span></label>
+                <label for="image_id">Select Image <span style="color: rgb(85,137,197);">*</span></label>
                 <select name="image_id" id="image_id" class="form-control select-box" required>
                     {% for image in images %}
                         <option value="{{ image.0 }}" {% if app_template.image_id == image.0 %}selected{% endif %}>{{ image.1 }}</option>
@@ -160,7 +160,7 @@
                 <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
-                <label for="short_description">Short Description<span style="color: rgb(85,137,197);">*</span>
+                <label for="short_description">Short Description <span style="color: rgb(85,137,197);">*</span>
                     <span data-toggle="tooltip" title="Enter a brief description of the app template.">
                 <i class="fa fa-question-circle"></i>
             </span>
@@ -170,7 +170,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="description">Description<span style="color: rgb(85,137,197);">*</span>
+            <label for="description">Description <span style="color: rgb(85,137,197);">*</span>
                 <span data-toggle="tooltip" title="Provide a detailed description of the app template.">
             <i class="fa fa-question-circle"></i>
         </span>
@@ -192,7 +192,7 @@
             <div class="col-md-4">
 
 
-            <label for="public">Available for<span style="color: rgb(85,137,197);">*</span>
+            <label for="public">Available for <span style="color: rgb(85,137,197);">*</span>
                 <span data-toggle="tooltip" title="Select whether the app template is available
                 for everyone or only the creator.">
                             <i class="fa fa-question-circle"></i>
@@ -208,9 +208,9 @@
         <h3>System Requirements</h3>
         <div class="row">
             <div class="col-md-6">
-                <h4>Fixed Resources</h4>
+                <h4>Fixed Minimum Resources</h4>
                 <div class="form-group mt-5">
-                    <label for="fixed_ram_gb">Fixed RAM (GB)<span style="color: rgb(85,137,197);">*</span>
+                    <label for="fixed_ram_gb">Fixed RAM (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed RAM in gigabytes.
                          Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -223,7 +223,7 @@
                            required>
                 </div>
                 <div class="form-group">
-                    <label for="fixed_disk_gb">Fixed Disk (GB)<span style="color: rgb(85,137,197);">*</span>
+                    <label for="fixed_disk_gb">Fixed Disk (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed Disk in gigabytes.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -234,7 +234,7 @@
                            value="{{ app_template.fixed_disk_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="fixed_cores">Fixed Cores<span style="color: rgb(85,137,197);">*</span>
+                    <label for="fixed_cores">Fixed Cores <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed Cores in gigabytes.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -260,9 +260,9 @@
             </div>
 
             <div class="col-md-6">
-                <h4>Resources per User</h4>
+                <h4>Minimum Resources per User</h4>
                 <div class="form-group mt-5">
-                    <label for="per_user_ram_gb">Per User RAM (GB)<span style="color: rgb(85,137,197);">*</span>
+                    <label for="per_user_ram_gb">Per User RAM (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of RAM per user in gigabytes.
                          Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -273,7 +273,7 @@
                            value="{{ app_template.per_user_ram_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_disk_gb">Per User Disk (GB)<span style="color: rgb(85,137,197);">*</span>
+                    <label for="per_user_disk_gb">Per User Disk (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of disk space per user
                         in gigabytes. Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -284,7 +284,7 @@
                            value="{{ app_template.per_user_disk_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_cores">Per User Cores<span style="color: rgb(85,137,197);">*</span>
+                    <label for="per_user_cores">Per User Cores <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the number of CPU cores per user.
                         Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
