@@ -4,8 +4,8 @@ import horizon
 class MyNewDashboard(horizon.Dashboard):
     name = "EduVMStore"
     slug = "eduvmstore_dashboard"
-    panels = ()  # Die beiden existierenden Panels
-    panel_groups = ('admin', 'eduvmstore', 'tutorial_group')
+    panels = ('admin', 'eduvmstore')  # Die beiden existierenden Panels
+    panel_groups = ('tutorial_group')
     default_panel = 'eduvmstore'  # Standardmäßig das Admin-Panel anzeigen
 
 # Dashboard registrieren

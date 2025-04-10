@@ -1,5 +1,6 @@
-from horizon import panel
+from django.utils.translation import gettext_lazy as _
+import horizon
 
-class InstructionsPanel(panel.Panel):
+class InstructionsPanel(horizon.Panel):
     name = "Instructions"
     slug = "instructions"
