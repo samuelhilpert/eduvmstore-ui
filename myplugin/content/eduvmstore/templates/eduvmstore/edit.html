@@ -563,41 +563,54 @@ write_files:
 
   document.addEventListener('DOMContentLoaded', function () {
     function updateSecurityGroups() {
+        // Get all checked security groups
         const checkboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
         const selectedGroups = Array.from(checkboxes).map(cb => cb.value);
 
         const display = document.getElementById('selectedGroupsDisplay');
-        display.innerHTML = '';
+        display.innerHTML = ''; // Clear the display
 
+        // If no groups are selected, show default
         if (selectedGroups.length === 0) {
-            const span = document.createElement('span');
-            span.className = 'selected-group';
-            span.textContent = 'default';
-            display.appendChild(span);
+            const defaultSpan = document.createElement('span');
+            defaultSpan.className = 'selected-group';
+            defaultSpan.textContent = 'default';
+            display.appendChild(defaultSpan);
+            document.getElementById('securityGroupsInput').value = 'default';  // Set hidden input to default
         } else {
-            checkboxes.forEach(checkbox => {
-                const groupName = checkbox.parentElement.textContent.trim();
+            // Loop through selected checkboxes and display their group names
+            selectedGroups.forEach(group => {
                 const span = document.createElement('span');
                 span.className = 'selected-group';
-                span.textContent = groupName;
+                span.textContent = group;
                 display.appendChild(span);
             });
+            // Update hidden input with selected groups (comma-separated)
+            document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
         }
     }
 
-    // Initialize on page load
+    // Initialize security groups on page load
     updateSecurityGroups();
 
-    // Listen for changes
+    // Add event listeners to update display when any checkbox is clicked
     document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
-        checkbox.addEventListener('change', updateSecurityGroups);
+        checkbox.addEventListener('change', function() {
+            // Ensure default is always selected if no groups are checked
+            const defaultCheckbox = document.querySelector('.dropdown-content input[value="default"]');
+            if (this.value === 'default' && !this.checked && !Array.from(document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked')).some(cb => cb.value !== 'default')) {
+                defaultCheckbox.checked = true;
+            }
+            updateSecurityGroups();
+        });
     });
 
-    // Form validation on submit
-    document.querySelector('form').addEventListener('submit', function (e) {
+    // Handle form submission to check required fields
+    document.querySelector('form').addEventListener('submit', function(e) {
         const requiredFields = document.querySelectorAll('[required]');
         let isValid = true;
 
+        // Check if all required fields are filled
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 field.classList.add('is-invalid');
