@@ -217,11 +217,14 @@
 
    <script>
        //For the all instances tab index 0 is used for easier calculation
-       const ALL_INSTANCES_INDEX = 0
-       const TAB_PREFIX = 'instanceTab_'
-       const CONTENT_PREFIX = 'instanceContent_'
-       const VOLUME_SELECTION = 'use_existing_volume_'
-       const VOLUME_SIZE = 'volume_size'
+       const ALL_INSTANCES_INDEX = 0;
+       const TAB_PREFIX = 'instanceTab_';
+       const CONTENT_PREFIX = 'instanceContent_';
+       const VOLUME_SELECTION = 'use_existing_volume_';
+       const FLAVOR_ID = 'flavor_id_';
+       const NETWORK_ID = 'network_id';
+       const VOLUME_SIZE = 'volume_size';
+       const INSTANTIATION_POSTFIX = '_instantiation'
 
        let volumeSelections = {};
 
@@ -254,10 +257,10 @@
             return `
                  <!-- Flavor Selection -->
                 <div class="form-group">
-                    <label for="flavor_id_${instanceIndex}">${labelPrefix}</label>
+                    <label for="${FLAVOR_ID}${instanceIndex}">${labelPrefix}</label>
                      <select class="form-control flavor-dropdown"
-                            id="flavor_id_${instanceIndex}"
-                            name="flavor_id_${instanceIndex}" required>
+                            id="${FLAVOR_ID}${instanceIndex}"
+                            name="${FLAVOR_ID}${instanceIndex}" required>
                      {% if flavors.suitable_flavors %}
                         {% for flavor_id, flavor_data in flavors.suitable_flavors.items %}
                             <option value="{{ flavor_id }}"
@@ -278,10 +281,10 @@
             const labelPrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Select Network for all Instances') }}" : "{{ _('Select Network') }}";
             return `
                 <div class="form-group">
-                    <label for="network_id_${instanceIndex}">${labelPrefix}</label>
+                    <label for="${NETWORK_ID}${instanceIndex}">${labelPrefix}</label>
                     <select class="form-control"
-                            id="network_id_${instanceIndex}"
-                            name="network_id_${instanceIndex}" required>
+                            id="${NETWORK_ID}${instanceIndex}"
+                            name="${NETWORK_ID}${instanceIndex}" required>
                         {% if networks %}
                             {% for network_id, network_name in networks.items %}
                                 <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
@@ -523,7 +526,7 @@
 
             // All instance tab value change - ADD THIS TIMEOUT
             setTimeout(() => {
-                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}, #${VOLUME_SIZE}${ALL_INSTANCES_INDEX}`).forEach(element => {
+                document.querySelectorAll(`#${FLAVOR_ID}${ALL_INSTANCES_INDEX}, #${NETWORK_ID}${ALL_INSTANCES_INDEX}, #${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}, #${VOLUME_SIZE}${ALL_INSTANCES_INDEX}`).forEach(element => {
                     // Remove existing event listeners to prevent duplicates
                     element.removeEventListener('change', showWarningModal);
                     element.addEventListener('change', showWarningModal);
@@ -532,7 +535,7 @@
                 // Add handlers for instantiation attributes if they exist
                 if (instantiationAttribute.length > 0) {
                     instantiationAttribute.forEach(attr => {
-                        const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
+                        const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}${INSTANTIATION_POSTFIX}`);
                         if (element) {
                             // Remove existing event listeners to prevent duplicates
                             element.removeEventListener('change', showWarningModal);
@@ -550,19 +553,19 @@
 
             // Determine field type based on ID
             switch (true) {
-                case fieldId.includes('flavor_id'):
+                case fieldId.includes(FLAVOR_ID):
                     allInstanceChangedFieldInfo.fieldType = 'flavor';
                     break;
-                case fieldId.includes('network_id'):
+                case fieldId.includes(NETWORK_ID):
                     allInstanceChangedFieldInfo.fieldType = 'network';
                     break;
-                case fieldId.includes('use_existing_volume'):
+                case fieldId.includes(VOLUME_SELECTION):
                     allInstanceChangedFieldInfo.fieldType = 'volume_selection';
                     break;
                 case fieldId.includes(VOLUME_SIZE):
                     allInstanceChangedFieldInfo.fieldType = 'new_volume_size';
                     break;
-                case fieldId.includes('_instantiation'):
+                case fieldId.includes(INSTANTIATION_POSTFIX):
                     allInstanceChangedFieldInfo.fieldType = 'instantiation';
                     allInstanceChangedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
                     break;
@@ -602,10 +605,10 @@ function getFieldTypeDisplayName(fieldType) {
             // Only apply the specific changed setting
             switch (allInstanceChangedFieldInfo.fieldType) {
                 case 'flavor':
-                    const allFlavorSelect = document.getElementById(`flavor_id_${ALL_INSTANCES_INDEX}`);
+                    const allFlavorSelect = document.getElementById(`${FLAVOR_ID}${ALL_INSTANCES_INDEX}`);
                     if (allFlavorSelect && allFlavorSelect.value) {
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceFlavorSelect = document.getElementById(`flavor_id_${i}`);
+                            const instanceFlavorSelect = document.getElementById(`${FLAVOR_ID}${i}`);
                             if (instanceFlavorSelect) {
                                 instanceFlavorSelect.value = allFlavorSelect.value;
                             }
@@ -614,10 +617,10 @@ function getFieldTypeDisplayName(fieldType) {
                     break;
 
                 case 'network':
-                    const allNetworkSelect = document.getElementById(`network_id_${ALL_INSTANCES_INDEX}`);
+                    const allNetworkSelect = document.getElementById(`${NETWORK_ID}${ALL_INSTANCES_INDEX}`);
                     if (allNetworkSelect && allNetworkSelect.value) {
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceNetworkSelect = document.getElementById(`network_id_${i}`);
+                            const instanceNetworkSelect = document.getElementById(`${NETWORK_ID}${i}`);
                             if (instanceNetworkSelect) {
                                 instanceNetworkSelect.value = allNetworkSelect.value;
                             }
@@ -653,10 +656,10 @@ function getFieldTypeDisplayName(fieldType) {
 
                 case 'instantiation':
                     if (allInstanceChangedFieldInfo.attrName) {
-                        const allAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${ALL_INSTANCES_INDEX}_instantiation`);
+                        const allAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${ALL_INSTANCES_INDEX}${INSTANTIATION_POSTFIX}`);
                         if (allAttrInput && allAttrInput.value !== undefined) {
                             for (let i = 1; i <= countInstances; i++) {
-                                const instanceAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${i}_instantiation`);
+                                const instanceAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${i}${INSTANTIATION_POSTFIX}`);
                                 if (instanceAttrInput) {
                                     instanceAttrInput.value = allAttrInput.value;
                                 }
@@ -901,11 +904,11 @@ function renumberAccounts(instanceIndex) {
             instantiationAttribute.forEach(attr => {
                 fieldsHtmlInstance += `
                     <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}_instantiation">${attr}</label>
+                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr}</label>
                         <input type="text"
                                class="form-control"
-                               id="${attr}_${instanceIndex}_instantiation"
-                               name="${attr}_${instanceIndex}_instantiation"
+                               id="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}"
+                               name="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}"
                                data-attr-name="${attr}"
                                required>
                     </div>
@@ -915,7 +918,7 @@ function renumberAccounts(instanceIndex) {
         }
 
 function selectAutomaticFlavor(instanceIndex) {
-    const flavorDropdown = document.getElementById(`flavor_id_${instanceIndex}`);
+    const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
     if (!flavorDropdown) return;
 
     const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
