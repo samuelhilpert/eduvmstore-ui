@@ -1068,7 +1068,7 @@ class InstancesView(generic.TemplateView):
 
 
 
-                nova.server_create(
+                created_server = nova.server_create(
                     request,
                     name=instance_name,
                     image=image_id,
@@ -1082,7 +1082,7 @@ class InstancesView(generic.TemplateView):
                     block_device_mapping_v2=block_device_mapping_v2,
                 )
 
-                server = self.wait_for_server(request, instance_name)
+                server = self.wait_for_server(request, created_server.id)
                 ip_addresses = self.wait_for_floating_ip(request, server.id)
                 request.session[f"ip_addresses_{i}"] = ip_addresses
                 instances.append(instance_name)
@@ -1154,13 +1154,13 @@ class InstancesView(generic.TemplateView):
         logging.error(f"[Floating IP] Keine Floating IP innerhalb von {timeout} Sekunden für {server_id}")
         return ["Keine Floating IP zugewiesen"]
 
-    def wait_for_server(self, request, instance_name, timeout=30):
+    def wait_for_server(self, request, instance_id, timeout=30):
         """
         Warte, bis eine Instanz im Nova-API erscheint.
         """
         for i in range(timeout):
             try:
-                server = nova.server_get(request, instance_name)
+                server = nova.server_get(request, instance_id)
                 if server:
                     return server
             except Exception as e:
