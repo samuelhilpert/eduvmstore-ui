@@ -311,7 +311,7 @@
          </div>
 
 
-  <h3>Security Groups</h3>
+ <h3>Security Groups</h3>
         <div class="security_groups">
             <div class="form-group row ">
                 <div class="col-md-4">
@@ -322,9 +322,9 @@
                     </label>
                     <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
                         <div class="selected-groups">
-                            {% if selected_groups %}
-                                {% for group_name in selected_groups %}
-                                    <span class="selected-group">{{ group_name }}</span>
+                            {% if app_template.security_groups %}
+                                {% for group in app_template.security_groups %}
+                                    <span class="selected-group">{{ group.name }}</span>
                                 {% endfor %}
                             {% else %}
                                 <span class="selected-group">default</span>
@@ -333,12 +333,12 @@
 
                         <div class="dropdown-content">
                             <label>
-                                <input type="checkbox" name="security_groups" value="default" {% if not selected_groups or 'default' in selected_groups %}checked{% endif %}>
+                                <input type="checkbox" name="security_groups" value="default" {% if not app_template.security_groups or 'default' in app_template.security_groups|mapattr:'name' %}checked{% endif %}>
                                 default
                             </label>
                             {% for sg in security_groups %}
                                 <label>
-                                    <input type="checkbox" name="security_groups" value="{{ sg.name }}" {% if sg.name in selected_groups %}checked{% endif %}>
+                                    <input type="checkbox" name="security_groups" value="{{ sg.name }}" {% if sg.name in app_template.security_groups|mapattr:'name' %}checked{% endif %}>
                                     {{ sg.name }}
                                 </label>
                             {% endfor %}
@@ -350,6 +350,7 @@
 
         </form>
 </div>
+
 
          <h3>Script</h3>
          <div class="form-group row">
@@ -555,18 +556,10 @@ write_files:
         }
     }
 
-   $(document).ready(function() {
-        $('#security_groups').multiselect({
-            nonSelectedText: 'Select Groups',
-            enableFiltering: true,
-            enableCaseInsensitiveFiltering: true,
-            buttonWidth: '100%',
-            includeSelectAllOption: true
-        });
-    });
+  document.addEventListener("DOMContentLoaded", function () {
+        // ... (your existing JavaScript) ...
 
-    document.addEventListener("DOMContentLoaded", function () {
-  /// Function to update the display of selected groups
+        // Function to update the display of selected groups
         function updateSelectedGroups() {
             const selectedGroups = [];
             const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
@@ -595,11 +588,11 @@ write_files:
             checkbox.addEventListener('change', updateSelectedGroups);
         });
 
-        // Initialize checkboxes based on selected_groups from the backend
-        const initialSelectedGroups = {{ selected_groups|safe }};
+        // Initialize checkboxes based on app_template.security_groups from the backend
+        const initialSelectedGroups = {{ app_template.security_groups|safe }};
         if(initialSelectedGroups){
             document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
-                if (initialSelectedGroups.includes(checkbox.value)) {
+                if (initialSelectedGroups.map(group => group.name).includes(checkbox.value)) {
                     checkbox.checked = true;
                 }
             });
