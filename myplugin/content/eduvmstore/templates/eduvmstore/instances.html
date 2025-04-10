@@ -530,7 +530,7 @@
 
             // All instance tab value change - ADD THIS TIMEOUT
             setTimeout(() => {
-                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
+                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}, #volume_size_instance_${ALL_INSTANCES_INDEX}`).forEach(element => {
                     // Remove existing event listeners to prevent duplicates
                     element.removeEventListener('change', showWarningModal);
                     element.addEventListener('change', showWarningModal);
@@ -569,6 +569,8 @@
                 case fieldId.includes('existing_volume_id'):
                     allInstanceChangedFieldInfo.fieldType = 'volume_selection';
                     break;
+                case fieldId.includes('volume_size_instance'):
+                    allInstanceChangedFieldInfo.fieldType = 'new_volume_size';
                 case fieldId.includes('_instantiation'):
                     allInstanceChangedFieldInfo.fieldType = 'instantiation';
                     allInstanceChangedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
@@ -634,6 +636,7 @@ function getFieldTypeDisplayName(fieldType) {
                     break;
 
                 case 'volume_type':
+                    console.log("volume_type")
                     const allVolumeOption = document.getElementById(`use_existing_volume_${ALL_INSTANCES_INDEX}`);
                     if (allVolumeOption) {
                         const volumeChoice = allVolumeOption.value;
@@ -647,7 +650,21 @@ function getFieldTypeDisplayName(fieldType) {
                     }
                     break;
 
+                case 'new_volume_size':
+                    const allVolumeSizeInput = document.getElementById(`volume_size_instance_${ALL_INSTANCES_INDEX}`);
+                    if (allVolumeSizeInput && allVolumeSizeInput.value) {
+                        const volumeSize = allVolumeSizeInput.value;
+                        for (let i = 1; i <= countInstances; i++) {
+                            const instanceVolumeSizeInput = document.getElementById(`volume_size_instance_${i}`);
+                            if (instanceVolumeSizeInput) {
+                                instanceVolumeSizeInput.value = volumeSize;
+                            }
+                        }
+                    }
+                    break;
+
                 case 'volume_selection':
+                    console.log("volume selcetion")
                     const allVolumeSelect = document.getElementById(`existing_volume_id_${ALL_INSTANCES_INDEX}`);
                     if (allVolumeSelect && allVolumeSelect.value) {
                         for (let i = 1; i <= countInstances; i++) {
