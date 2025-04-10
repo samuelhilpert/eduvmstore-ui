@@ -101,7 +101,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p>{{ _("Changes made here will override settings for all individual instances.") }}</p>
+                <p><strong>{{ _("Warning:") }}</strong> {{ _("Changes made here will override settings for all individual instances.") }}</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-warning confirm-apply-modal">{{ _("Apply to All Instances") }}</button>
@@ -589,7 +589,7 @@
 
             const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
             if (warningText) {
-                warningText.innerHTML = `{{ _("This will apply the selected ") }}
+                warningText.innerHTML = `<strong>{{ _("Warning:") }}</strong> {{ _("This will apply the selected ") }}
                     <strong>${getFieldTypeDisplayName(allInstanceChangedFieldInfo.fieldType)}</strong>
                     {{ _(" to all individual instances.") }}`;
             }
