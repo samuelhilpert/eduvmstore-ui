@@ -315,29 +315,23 @@
 <div class="security_groups">
     <div class="form-group row">
         <div class="col-md-6">
-            <label for="security_groups">Security Groups
-                <span data-toggle="tooltip" title="Choose one or multiple security groups">
-                    <i class="fa fa-question-circle"></i>
-                </span>
-            </label>
+            <label for="security_groups">Security Groups</label>
             <div class="dropdown">
-                <!-- Display the selected security groups -->
                 <div class="selected-groups" id="selectedGroupsDisplay">
                     {% if app_template.security_groups %}
                         {% for group in app_template.security_groups %}
                             <span class="selected-group">{{ group.name }}</span>
                         {% endfor %}
                     {% else %}
-                        <span class="selected-group">default</span>
+                        <span class="selected-group">No Security Group.</span>
                     {% endif %}
                 </div>
 
-                <!-- Dropdown list for security groups -->
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
                         <label>
                             <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                   {% if sg.name in app_template.security_groups or sg.name == "default" %}checked{% endif %}>
+                                   {% if sg in app_template.security_groups %}checked{% endif %}>
                             {{ sg.name }}
                         </label>
                     {% endfor %}
@@ -576,11 +570,6 @@ write_files:
             selectedGroups.push(checkbox.value);
         });
 
-        // Ensure 'default' is always selected if no groups are selected
-        if (selectedGroups.length === 0) {
-            selectedGroups.push('default');
-        }
-
         // Update the displayed selected groups in the #selectedGroupsDisplay
         const selectedGroupsDisplay = document.getElementById('selectedGroupsDisplay');
         selectedGroupsDisplay.innerHTML = '';  // Clear previous display
@@ -592,29 +581,12 @@ write_files:
         });
     }
 
-    // Function to check which groups are in app_template.security_groups and mark them as checked
-    function checkSelectedGroupsFromAppTemplate() {
-        // Get security groups from the backend embedded in the data attribute
-        const securityGroupsData = document.getElementById('securityGroupsData').getAttribute('data-security-groups');
-        const selectedGroups = JSON.parse(securityGroupsData).map(group => group.name);
-
-        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
-
-        checkboxes.forEach(function(checkbox) {
-            // Mark checkboxes as checked if their value matches any group in app_template.security_groups
-            if (selectedGroups.includes(checkbox.value)) {
-                checkbox.checked = true;
-            }
-        });
-    }
-
     // Event listener to detect changes in the checkboxes
     document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
         checkbox.addEventListener('change', updateSelectedGroups);
     });
 
     // Initialize the display with selected groups from app_template
-    checkSelectedGroupsFromAppTemplate();  // Mark groups from app_template as selected
     updateSelectedGroups();  // Update the display with selected groups
 });
 
