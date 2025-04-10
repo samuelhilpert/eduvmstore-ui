@@ -329,12 +329,13 @@
 
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
-                        <label>
-                            <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                   {% if sg.name in (app_template.security_groups | map(attribute='name') | list) %}checked{% endif %}>
-                            {{ sg.name }}
-                        </label>
-                    {% endfor %}
+    <label>
+        <input type="checkbox" name="security_groups" value="{{ sg.name }}"
+               {% if sg.name in (app_template.security_groups | map('name') | list) %}checked{% endif %}>
+        {{ sg.name }}
+    </label>
+    {{ sg.name }} - {% if sg.name in (app_template.security_groups | map('name') | list) %}True{% else %}False{% endif %} <br>
+{% endfor %}
                 </div>
             </div>
         </div>
