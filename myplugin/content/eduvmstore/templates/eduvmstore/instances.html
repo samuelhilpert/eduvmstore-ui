@@ -559,6 +559,7 @@
                     break;
                 case fieldId.includes(VOLUME_SIZE):
                     allInstanceChangedFieldInfo.fieldType = 'new_volume_size';
+                    break;
                 case fieldId.includes('_instantiation'):
                     allInstanceChangedFieldInfo.fieldType = 'instantiation';
                     allInstanceChangedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
