@@ -311,42 +311,45 @@
          </div>
 
 
- <h3>Security Groups</h3>
-    <div class="security_groups">
-        <div class="form-group row ">
-    <div class="col-md-4">
-        <label for="security_groups" style="margin-top: 10px">Select Security Groups
-          <span data-toggle="tooltip" title="Choose one or multiple security groups..">
-                <i class="fa fa-question-circle"></i>
-            </span>
-        </label>
-        <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
-            <!-- Display the selected groups (including 'default') -->
-            <div class="selected-groups">
-                <span class="selected-group">
-                    {% if selected_groups %}
-                        {{ selected_group }}
-                    {% else %}
-                        default
-                    {% endif %}
-                </span>
-            </div>
-
-            <!-- Dropdown content with checkboxes for all groups -->
-            <div class="dropdown-content">
-                {% for sg in security_groups %}
-                    <label>
-                        <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                               {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
-                               {{ sg.name }}
+  <h3>Security Groups</h3>
+        <div class="security_groups">
+            <div class="form-group row ">
+                <div class="col-md-4">
+                    <label for="security_groups" style="margin-top: 10px">Select Security Groups
+                        <span data-toggle="tooltip" title="Choose one or multiple security groups..">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
                     </label>
-                {% endfor %}
+                    <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
+                        <div class="selected-groups">
+                            {% if selected_groups %}
+                                {% for group_name in selected_groups %}
+                                    <span class="selected-group">{{ group_name }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="selected-group">default</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="dropdown-content">
+                            <label>
+                                <input type="checkbox" name="security_groups" value="default" {% if not selected_groups or 'default' in selected_groups %}checked{% endif %}>
+                                default
+                            </label>
+                            {% for sg in security_groups %}
+                                <label>
+                                    <input type="checkbox" name="security_groups" value="{{ sg.name }}" {% if sg.name in selected_groups %}checked{% endif %}>
+                                    {{ sg.name }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-    </div>
 
+        </form>
+</div>
 
          <h3>Script</h3>
          <div class="form-group row">
@@ -562,31 +565,49 @@ write_files:
         });
     });
 
-  // Function to update the display of selected groups
-    function updateSelectedGroups() {
-        const selectedGroups = [];
-        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
-        checkboxes.forEach(function(checkbox) {
-            selectedGroups.push(checkbox.value);
-        });
+    document.addEventListener("DOMContentLoaded", function () {
+  /// Function to update the display of selected groups
+        function updateSelectedGroups() {
+            const selectedGroups = [];
+            const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+            checkboxes.forEach(function (checkbox) {
+                selectedGroups.push(checkbox.value);
+            });
 
-        // Ensure 'default' is always selected if no groups are selected
-        if (selectedGroups.length === 0) {
-            selectedGroups.push('default');
+            // Ensure 'default' is always selected if no groups are selected
+            if (selectedGroups.length === 0) {
+                selectedGroups.push('default');
+            }
+
+            // Update the displayed selected groups
+            const selectedGroupsDisplay = document.querySelector('.selected-groups');
+            selectedGroupsDisplay.innerHTML = '';
+            selectedGroups.forEach(group =>{
+                const span = document.createElement("span");
+                span.classList.add("selected-group");
+                span.textContent = group;
+                selectedGroupsDisplay.appendChild(span);
+            })
         }
 
-        // Update the displayed selected groups
-        const selectedGroupsDisplay = document.querySelector('.selected-group');
-        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
-    }
+        // Event listener to detect changes in the checkboxes
+        document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function (checkbox) {
+            checkbox.addEventListener('change', updateSelectedGroups);
+        });
 
-    // Event listener to detect changes in the checkboxes
-    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
-        checkbox.addEventListener('change', updateSelectedGroups);
+        // Initialize checkboxes based on selected_groups from the backend
+        const initialSelectedGroups = {{ selected_groups|safe }};
+        if(initialSelectedGroups){
+            document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
+                if (initialSelectedGroups.includes(checkbox.value)) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+
+        // Initialize the display with 'default' group selected if nothing is selected
+        updateSelectedGroups();
     });
-
-    // Initialize the display with 'default' group selected if nothing is selected
-    document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 </script>
 
 
