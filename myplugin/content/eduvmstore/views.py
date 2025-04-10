@@ -709,6 +709,7 @@ class EditView(generic.TemplateView):
         """
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
+
         image_data = self.get_image_data(app_template.get('image_id', ''))
         context.update({
             'app_template': app_template,

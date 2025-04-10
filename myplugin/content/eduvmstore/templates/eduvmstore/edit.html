@@ -233,42 +233,42 @@
          </div>
 
 
-        <!-- Security Groups Section -->
-        <h3>Security Groups</h3>
-        <div class="security_groups">
-            <div class="form-group row">
-                <div class="col-md-4">
-                    <label for="security_groups" style="margin-top: 10px">Select Security Groups
-                        <span data-toggle="tooltip" title="Choose one or multiple security groups..">
-                            <i class="fa fa-question-circle"></i>
-                        </span>
-                    </label>
-                    <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
-                        <!-- Display the selected groups (including 'default') -->
-                        <div class="selected-groups">
-                            <span class="selected-group">
-                                {% if selected_groups %}
-                                    {{ selected_group }}
-                                {% else %}
-                                    default
-                                {% endif %}
-                            </span>
-                        </div>
+       <h3>Security Groups</h3>
+<div class="security_groups">
+    <div class="form-group row">
+        <div class="col-md-4">
+            <label for="security_groups" style="margin-top: 10px">Select Security Groups
+                <span data-toggle="tooltip" title="Choose one or multiple security groups..">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
+                <!-- Display the selected groups (including 'default') -->
+                <div class="selected-groups">
+                    <span class="selected-group">
+                        {% if selected_groups %}
+                            {{ selected_groups|join(", ") }}
+                        {% else %}
+                            default
+                        {% endif %}
+                    </span>
+                </div>
 
-                        <!-- Dropdown content with checkboxes for all groups -->
-                        <div class="dropdown-content">
-                            {% for sg in security_groups %}
-                                <label>
-                                    <input type="checkbox" name="security_groups[]" value="{{ sg.name }}"
-                                     {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
-                                           {{ sg.name }}
-                                </label>
-                            {% endfor %}
-                        </div>
-                    </div>
+                <!-- Dropdown content with checkboxes for all groups -->
+                <div class="dropdown-content">
+                    {% for sg in app_template.security_groups %}
+                        <label>
+                            <input type="checkbox" name="security_groups" value="{{ sg.name }}"
+                                   {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
+                                   {{ sg.name }}
+                        </label>
+                    {% endfor %}
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
 
          <h3>Script</h3>
          <div class="form-group row">
