@@ -1056,7 +1056,6 @@ class InstancesView(generic.TemplateView):
                         "delete_on_termination": True,
                         "device_name": "/dev/vdb",
                     })
-                    logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
 
                 nova.server_create(
                     request,
