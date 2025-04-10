@@ -74,17 +74,5 @@ class IndexView(generic.TemplateView):
         except requests.exceptions.RequestException as e:
             return JsonResponse({'error': str(e)}, status=400)
 
-class TutorialPanelOneView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/tutorial/index.html'
-
-class TutorialPanelTwoView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/tutorial/index.html'
-
-class TutorialPanelThreeView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/tutorial/index.html'
-
-class TutorialPanelFourView(generic.TemplateView):
-    template_name = 'eduvmstore_dashboard/tutorial/index.html'
-
 
 
