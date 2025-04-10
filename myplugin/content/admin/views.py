@@ -6,6 +6,15 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
+from openstack_dashboard.api import keystone
+
+def get_username_from_id(request, user_id):
+    try:
+        user = keystone.user_get(request, user_id)
+        return user.name
+    except Exception:
+        return user_id
+
 
 
 def get_token_id(request):
@@ -134,6 +143,12 @@ class IndexView(generic.TemplateView):
 
         approvable_app_templates = get_app_templates_to_approve(self.request)
         context['approvable_app_templates'] = approvable_app_templates
+        for template in approvable_app_templates:
+            creator_id = template.get("creator_id")
+            if creator_id:
+                app_template_creator_id = creator_id.replace('-', '')
+                creator_name = get_username_from_id(self.request, app_template_creator_id)
+                template["creator_name"] = creator_name
 
         app_templates = get_app_templates(self.request)
         context['app_templates'] = app_templates
@@ -143,9 +158,12 @@ class IndexView(generic.TemplateView):
             user_id = user.get('id')
             if user_id:
                 user_details = get_user_details(self.request, user_id)
+                user_details_id = user_id.replace('-', '')
+                user_details['username'] = get_username_from_id(self.request, user_details_id)
                 detailed_users.append(user_details)
 
         context['detailed_users'] = detailed_users
+
 
         # Add user details and admin status to the context
         context['username'] = userdev.username
