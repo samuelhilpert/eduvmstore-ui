@@ -1,7 +1,7 @@
 PANEL = 'script'
 PANEL_GROUP = 'tutorial_group'
 PANEL_DASHBOARD = 'eduvmstore_dashboard'
-ADD_PANEL = 'myplugin.content.script.panel.Script'
+ADD_PANEL = 'myplugin.content.script.panel.ScriptPanel'
 
 #ADD_ANGULAR_MODULES = ['horizon.dashboard.eduvmstore_dashboard.myplugin.tutorial']
 
