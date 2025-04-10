@@ -452,7 +452,6 @@
                     ${generateInstantiationAttributesSection(instanceIndex)}
                      <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
                      ${instanceIndex === ALL_INSTANCES_INDEX ? generateCSVAllInstanceSection() : generateAccountAttributesSection(instanceIndex)}
-                    ${generateNavigationSection(instanceIndex, countInstances)}
                 </div>
             `
         }
