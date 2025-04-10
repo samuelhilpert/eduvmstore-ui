@@ -303,7 +303,7 @@
                     <!-- AllInstance Tab can't select volumes as they are only at one instance and too small Values are not selectable -->
                     ${(isTooSmall || instanceIndex === ALL_INSTANCES_INDEX) ? 'disabled style="color: gray;"' : ''}>
                     ${volume.name} (${volume.size} GB)
-                    ${isTooSmall ? ' (Too small)' : ''
+                    ${isTooSmall ? ' (Too small)' : ''}
                     ${(instancewIndex === ALL_INSTANCE_INDEX) ? '(Select Volume for each instance)' : ''}
                 </option>`;
                 }
