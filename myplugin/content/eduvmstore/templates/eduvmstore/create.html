@@ -136,7 +136,7 @@
         <h3>App-Template Details</h3>
         <div class="form-group row">
             <div class="col-md-4">
-                <label for="image_id">Select Image:<span style="color: red;">*</span></label>
+                <label for="image_id">Select Image<span style="color: rgb(85,137,197);">*</span></label>
                 <select name="image_id" id="image_id" class="form-control select-box" required>
                     {% for image in images %}
                         <option value="{{ image.0 }}" {% if app_template.image_id == image.0 %}selected{% endif %}>{{ image.1 }}</option>
@@ -148,7 +148,7 @@
 
         <div class="form-group row">
             <div class="col-md-6">
-                <label for="name">App-Template Name:<span style="color: red;">*</span>
+                <label for="name">App-Template Name<span style="color: rgb(85,137,197);">*</span>
                     <span data-toggle="tooltip" title="Enter the name of the app template.
                     Only letters, numbers, '-', '_', and spaces are allowed.">
                 <i class="fa fa-question-circle"></i>
@@ -160,7 +160,7 @@
                 <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
-                <label for="short_description">Short Description:<span style="color: red;">*</span>
+                <label for="short_description">Short Description<span style="color: rgb(85,137,197);">*</span>
                     <span data-toggle="tooltip" title="Enter a brief description of the app template.">
                 <i class="fa fa-question-circle"></i>
             </span>
@@ -170,7 +170,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="description">Description:<span style="color: red;">*</span>
+            <label for="description">Description<span style="color: rgb(85,137,197);">*</span>
                 <span data-toggle="tooltip" title="Provide a detailed description of the app template.">
             <i class="fa fa-question-circle"></i>
         </span>
@@ -178,7 +178,7 @@
             <textarea id="description" name="description" class="form-control" required>{{ app_template.description }}</textarea>
         </div>
         <div class="form-group">
-            <label for="instantiation_notice">Instantiation Notice:
+            <label for="instantiation_notice">Instantiation Notice
                 <span data-toggle="tooltip" title="Enter any special instructions or
                 notices for instantiation.">
             <i class="fa fa-question-circle"></i>
@@ -192,7 +192,7 @@
             <div class="col-md-4">
 
 
-            <label for="public">Available for:<span style="color: red;">*</span>
+            <label for="public">Available for<span style="color: rgb(85,137,197);">*</span>
                 <span data-toggle="tooltip" title="Select whether the app template is available
                 for everyone or only the creator.">
                             <i class="fa fa-question-circle"></i>
@@ -210,7 +210,7 @@
             <div class="col-md-6">
                 <h4>Fixed Resources</h4>
                 <div class="form-group mt-5">
-                    <label for="fixed_ram_gb">Fixed RAM (GB):<span style="color: red;">*</span>
+                    <label for="fixed_ram_gb">Fixed RAM (GB)<span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed RAM in gigabytes.
                          Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -223,7 +223,7 @@
                            required>
                 </div>
                 <div class="form-group">
-                    <label for="fixed_disk_gb">Fixed Disk (GB):<span style="color: red;">*</span>
+                    <label for="fixed_disk_gb">Fixed Disk (GB)<span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed Disk in gigabytes.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -234,7 +234,7 @@
                            value="{{ app_template.fixed_disk_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="fixed_cores">Fixed Cores:<span style="color: red;">*</span>
+                    <label for="fixed_cores">Fixed Cores<span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed Cores in gigabytes.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -245,7 +245,7 @@
                            value="{{ app_template.fixed_cores }}">
                 </div>
                 <div class="form-group">
-                    <label for="volume_size">Volume Size (GB):<span style="color: red;">*</span>
+                    <label for="volume_size">Volume Size (GB)
                         <span data-toggle="tooltip" title="Enter the amount of Volume Size in gigabytes.
                         You will get a extra volume additional to your selected flavor if you start
                         these app template. Only numbers and one decimal point are allowed.
@@ -262,7 +262,7 @@
             <div class="col-md-6">
                 <h4>Resources per User</h4>
                 <div class="form-group mt-5">
-                    <label for="per_user_ram_gb">Per User RAM (GB):<span style="color: red;">*</span>
+                    <label for="per_user_ram_gb">Per User RAM (GB)<span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of RAM per user in gigabytes.
                          Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -273,7 +273,7 @@
                            value="{{ app_template.per_user_ram_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_disk_gb">Per User Disk (GB):<span style="color: red;">*</span>
+                    <label for="per_user_disk_gb">Per User Disk (GB)<span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of disk space per user
                         in gigabytes. Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -284,7 +284,7 @@
                            value="{{ app_template.per_user_disk_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_cores">Per User Cores:<span style="color: red;">*</span>
+                    <label for="per_user_cores">Per User Cores<span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the number of CPU cores per user.
                         Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -309,7 +309,7 @@
 
         <div class="form-group row">
             <div class="col-md-4">
-                <label for="instantiation_attributes">Instantiation Attributes:
+                <label for="instantiation_attributes">Instantiation Attributes
                     <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
 For example, you can specify a version or something else that is needed for the script.
 For more than one instantiation attribute separate by using ':' in between. E.g. 'version:script'.
@@ -320,7 +320,7 @@ The values will be written to the file /etc/attributes.txt.">
                 <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control">
             </div>
             <div class="col-md-4">
-                <label for="account_attributes">Account Attributes:
+                <label for="account_attributes">Account Attributes
                     <span data-toggle="tooltip" title="Enter any account-related attributes.
                     For example, you can specify the account name, email, password, etc. used in the script.
                     For more than one account attribute separate by using ':' in between. E.g. 'name:password'.
@@ -333,7 +333,7 @@ The values will be written to the file /etc/users.txt.">
 
 
             <div class="col-md-4">
-                <label for="script_file">Upload Script:
+                <label for="script_file">Upload Script
                     <span data-toggle="tooltip"  data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
 You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
                 <i class="fa fa-question-circle"></i>
