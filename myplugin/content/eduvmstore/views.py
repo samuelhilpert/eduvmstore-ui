@@ -1047,6 +1047,8 @@ class InstancesView(generic.TemplateView):
                         "delete_on_termination": True,
                         "device_name": "/dev/vdb",
                     })
+                elif use_existing == "none":
+                    logging.info(f"Skipping {instance_name}")
                 else:
                     block_device_mapping_v2.append({
                         "boot_index": -1,
