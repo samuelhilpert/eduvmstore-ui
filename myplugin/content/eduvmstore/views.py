@@ -646,6 +646,9 @@ class EditView(generic.TemplateView):
             ]
         else:
             account_attributes = []
+        # Get security groups and convert to required format
+        security_group_names = request.POST.getlist('security_groups')
+        security_groups = [{"name": name} for name in security_group_names]
 
         data = {
             'image_id': request.POST.get('image_id'),
@@ -666,6 +669,7 @@ class EditView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+            'security_groups': security_groups
         }
         app_template_id = kwargs.get("template_id")  # ID aus der URL holen
 

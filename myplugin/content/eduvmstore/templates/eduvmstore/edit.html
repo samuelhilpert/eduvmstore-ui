@@ -259,8 +259,8 @@
                         <div class="dropdown-content">
                             {% for sg in security_groups %}
                                 <label>
-                                    <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                           {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
+                                    <input type="checkbox" name="security_groups[]" value="{{ sg.name }}"
+                                     {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
                                            {{ sg.name }}
                                 </label>
                             {% endfor %}
