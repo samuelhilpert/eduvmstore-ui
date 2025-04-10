@@ -230,8 +230,46 @@
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                  </div>
              </div>
-
          </div>
+
+
+        <!-- Security Groups Section -->
+        <h3>Security Groups</h3>
+        <div class="security_groups">
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <label for="security_groups" style="margin-top: 10px">Select Security Groups
+                        <span data-toggle="tooltip" title="Choose one or multiple security groups..">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                    </label>
+                    <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
+                        <!-- Display the selected groups (including 'default') -->
+                        <div class="selected-groups">
+                            <span class="selected-group">
+                                {% if selected_groups %}
+                                    {{ selected_group }}
+                                {% else %}
+                                    default
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <!-- Dropdown content with checkboxes for all groups -->
+                        <div class="dropdown-content">
+                            {% for sg in security_groups %}
+                                <label>
+                                    <input type="checkbox" name="security_groups" value="{{ sg.name }}"
+                                           {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
+                                           {{ sg.name }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
          <h3>Script</h3>
          <div class="form-group row">
              <div class="col-md-4">
@@ -436,7 +474,41 @@ write_files:
         }
     }
 
+ $(document).ready(function() {
+        $('#security_groups').multiselect({
+            nonSelectedText: 'Select Groups',
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            buttonWidth: '100%',
+            includeSelectAllOption: true
+        });
+    });
 
+  // Function to update the display of selected groups
+    function updateSelectedGroups() {
+        const selectedGroups = [];
+        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+        checkboxes.forEach(function(checkbox) {
+            selectedGroups.push(checkbox.value);
+        });
+
+        // Ensure 'default' is always selected if no groups are selected
+        if (selectedGroups.length === 0) {
+            selectedGroups.push('default');
+        }
+
+        // Update the displayed selected groups
+        const selectedGroupsDisplay = document.querySelector('.selected-group');
+        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
+    }
+
+    // Event listener to detect changes in the checkboxes
+    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateSelectedGroups);
+    });
+
+    // Initialize the display with 'default' group selected if nothing is selected
+    document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 
 
 
