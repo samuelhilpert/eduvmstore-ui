@@ -311,7 +311,7 @@
          </div>
 
 
-h3>Security Groups</h3>
+<h3>Security Groups</h3>
 <div class="security_groups">
     <div class="form-group row">
         <div class="col-md-6">
@@ -321,13 +321,23 @@ h3>Security Groups</h3>
                 </span>
             </label>
             <div class="dropdown">
+                <!-- Display the selected security groups -->
                 <div class="selected-groups" id="selectedGroupsDisplay">
-                    <!-- This will show selected groups dynamically -->
+                    {% if app_template.security_groups %}
+                        {% for group in app_template.security_groups %}
+                            <span class="selected-group">{{ group.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="selected-group">default</span>
+                    {% endif %}
                 </div>
+
+                <!-- Dropdown list for security groups -->
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
                         <label>
-                            <input type="checkbox" name="security_groups" value="{{ sg.name }}">
+                            <input type="checkbox" name="security_groups" value="{{ sg.name }}"
+                                   {% if sg.name in app_template.security_groups or sg.name == "default" %}checked{% endif %}>
                             {{ sg.name }}
                         </label>
                     {% endfor %}
@@ -336,6 +346,9 @@ h3>Security Groups</h3>
         </div>
     </div>
 </div>
+
+<!-- Add a div that holds the security groups data without tojson -->
+<div id="securityGroupsData" data-security-groups="{{ app_template.security_groups }}"></div>
 
 
          <h3>Script</h3>
@@ -581,8 +594,9 @@ write_files:
 
     // Function to check which groups are in app_template.security_groups and mark them as checked
     function checkSelectedGroupsFromAppTemplate() {
-        // Parse security groups from backend, mapping the 'name' property to an array
-        const selectedGroups = JSON.parse('{{ app_template.security_groups | tojson | safe }}').map(group => group.name);
+        // Get security groups from the backend embedded in the data attribute
+        const securityGroupsData = document.getElementById('securityGroupsData').getAttribute('data-security-groups');
+        const selectedGroups = JSON.parse(securityGroupsData).map(group => group.name);
 
         const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
 
