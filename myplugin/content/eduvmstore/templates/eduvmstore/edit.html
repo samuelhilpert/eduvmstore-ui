@@ -581,7 +581,9 @@ write_files:
 
     // Function to check which groups are in app_template.security_groups and mark them as checked
     function checkSelectedGroupsFromAppTemplate() {
-        const selectedGroups = {% if app_template.security_groups %}{{ app_template.security_groups|tojson }}{% else %}[]{% endif %};
+        // Parse security groups from backend, mapping the 'name' property to an array
+        const selectedGroups = JSON.parse('{{ app_template.security_groups | tojson | safe }}').map(group => group.name);
+
         const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
 
         checkboxes.forEach(function(checkbox) {
@@ -601,6 +603,7 @@ write_files:
     checkSelectedGroupsFromAppTemplate();  // Mark groups from app_template as selected
     updateSelectedGroups();  // Update the display with selected groups
 });
+
   });
 </script>
 
