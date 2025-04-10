@@ -333,8 +333,9 @@
                 <div class="dropdown-content">
                     {% for sg in security_groups %}
                         <label>
-                            <input type="checkbox" name="security_groups" value="{{ sg.id }}"
-                                   {% if sg.id in app_template.security_group_ids or sg.name == "default" %}checked{% endif %}>
+                            <input type="checkbox" name="security_groups" value="{{ sg.name }}"
+                                   {% if sg.name in app_template.security_group_ids %}checked{% endif %}
+                                   {% if sg.name == "default" %}checked disabled{% endif %}>
                             {{ sg.name }}
                         </label>
                     {% endfor %}
@@ -563,27 +564,23 @@ write_files:
     });
 
     // Security Groups Handling
-    function updateSecurityGroups() {
+     function updateSecurityGroups() {
         const checkboxes = document.querySelectorAll('.dropdown-content input[name="security_groups"]:checked');
         const selectedGroups = Array.from(checkboxes).map(cb => cb.value);
 
-        // Update display
-        const display = document.getElementById('selectedGroupsDisplay');
+          const display = document.getElementById('selectedGroupsDisplay');
         display.innerHTML = '';
 
-        if (selectedGroups.length === 0) {
-            display.innerHTML = '<span class="selected-group">default</span>';
-            document.getElementById('securityGroupsInput').value = 'default';
-        } else {
-            checkboxes.forEach(checkbox => {
-                const groupName = checkbox.parentElement.textContent.trim();
-                const span = document.createElement('span');
-                span.className = 'selected-group';
-                span.textContent = groupName;
-                display.appendChild(span);
-            });
-            document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
-        }
+        checkboxes.forEach(checkbox => {
+            const groupName = checkbox.parentElement.textContent.trim();
+            const span = document.createElement('span');
+            span.className = 'selected-group';
+            span.textContent = groupName;
+            display.appendChild(span);
+        });
+
+        // Update hidden input value
+        document.getElementById('securityGroupsInput').value = selectedGroups.join(',');
     }
 
     // Initialize security groups
@@ -592,7 +589,7 @@ write_files:
     // Add event listeners for security groups checkboxes
     document.querySelectorAll('.dropdown-content input[name="security_groups"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            // Ensure default is always selected
+            // Default group cannot be unchecked
             if (this.value === 'default' && !this.checked) {
                 this.checked = true;
                 return;
