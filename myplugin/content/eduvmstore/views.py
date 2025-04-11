@@ -926,8 +926,12 @@ class InstancesView(generic.TemplateView):
             volume_size = int(app_template.get('volume_size_gb') or 0)
 
             for key in list(request.session.keys()):
-                if key.startswith("ip_addresses_"):
+                if key.startswith("ip_addresses_") or key.startswith("keypair_name_") or key.startswith("private_key_"):
                     request.session.pop(key, None)
+
+            request.session.pop("keypair_name", None)
+            request.session.pop("private_key", None)
+
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
@@ -1453,14 +1457,22 @@ class InstanceSuccessView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         num_instances = int(self.request.session.get("num_instances", 1))
+        separate_keys = self.request.session.get("separate_keys", False)
         context['instances'] = []
 
         for i in range(1, num_instances + 1):
             instance_name = self.request.session.get(f"names_{i}", f"Instance-{i}")
             ip_address = self.request.session.get(f"ip_addresses_{i}", "unbekannt")
+
+            if separate_keys:
+                key_file = self.request.session.get(f"keypair_name_{i}", f"instance_key_{i}") + ".pem"
+            else:
+                key_file = self.request.session.get("keypair_name", "shared_instance_key") + ".pem"
+
             context['instances'].append({
                 'name': instance_name,
                 'ip': ip_address,
+                'key': key_file,
             })
 
         return context
