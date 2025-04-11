@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 import requests
 from django.views.decorators.csrf import csrf_exempt
 
-#THIS CODE IS NOT USED AT THE MOMENT
+
 
 class IndexView(generic.TemplateView):
     """
