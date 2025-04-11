@@ -1446,7 +1446,9 @@ class InstanceSuccessView(generic.TemplateView):
         :return: Rendered HTML response.
         :rtype: HttpResponse
         """
-        return render(request, self.template_name)
+        context = self.get_context_data(**kwargs)
+
+        return render(request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
