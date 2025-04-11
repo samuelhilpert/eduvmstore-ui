@@ -1,3 +1,5 @@
+from ipaddress import ip_address
+
 import requests
 import socket
 import logging
@@ -728,7 +730,7 @@ class EditView(generic.TemplateView):
             return {}
 
 
-def generate_pdf(accounts, name, app_template, created, instantiations):
+def generate_pdf(accounts, name, app_template, created, instantiations, ip_address):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
 
@@ -755,6 +757,9 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
 
     )
     elements.append(subtitle)
+    if ip_address:
+        ip = Paragraph(f"IP Address: {ip_address}", styles['Normal'])
+        elements.append(ip)
     elements.append(Spacer(1, 0.2 * inch))
 
     if accounts:
@@ -920,6 +925,15 @@ class InstancesView(generic.TemplateView):
             created = app_template.get('created_at', '').split('T')[0]
             volume_size = int(app_template.get('volume_size_gb') or 0)
 
+            for key in list(request.session.keys()):
+                if key.startswith("ip_addresses_") or key.startswith("keypair_name_") or \
+                   key.startswith("private_key_"):
+                    request.session.pop(key, None)
+
+            request.session.pop("keypair_name", None)
+            request.session.pop("private_key", None)
+
+
             request.session["app_template"] = app_template_name
             request.session["created"] = created
             request.session["num_instances"] = num_instances
@@ -949,6 +963,7 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
+                network_name = self.get_network_name_by_id(request, network_id)
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 create_volume_size = request.POST.get(f"volume_size_{i}")
                 accounts = []
@@ -1061,7 +1076,7 @@ class InstancesView(generic.TemplateView):
                         "device_name": "/dev/vdb",
                     })
 
-                nova.server_create(
+                created_server = nova.server_create(
                     request,
                     name=instance_name,
                     image=image_id,
@@ -1074,6 +1089,10 @@ class InstancesView(generic.TemplateView):
                     description=description,
                     block_device_mapping_v2=block_device_mapping_v2,
                 )
+
+                server = self.wait_for_server(request, created_server.id)
+                ip_list = self.wait_for_ip_in_network(request, server.id, network_name)
+                request.session[f"ip_addresses_{i}"] = ip_list
                 instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
@@ -1112,6 +1131,54 @@ class InstancesView(generic.TemplateView):
                 raise Exception(f"Volume {volume_id} failed to build.")
             time.sleep(1)
         raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
+    def get_network_name_by_id(self, request, network_id):
+        try:
+            networks = api.neutron.network_list(request)
+            for network in networks:
+                if network.id == network_id:
+                    return network.name
+        except Exception as e:
+            logging.error(f"Failed to resolve network name: {e}")
+        return None
+
+
+    def wait_for_ip_in_network(self, request, server_id, network_name, timeout=30):
+        """
+        Warte auf eine IP-Adresse aus einem bestimmten Netzwerk.
+        """
+        for i in range(timeout):
+            try:
+                server = nova.server_get(request, server_id)
+                addresses = server.addresses.get(network_name)
+                if addresses:
+                    ip_list = [addr.get("addr") for addr in addresses if addr.get("addr")]
+                    if ip_list:
+                        return ip_list[0] if ip_list else f"No IP found in network '{network_name}'"
+            except Exception as e:
+                logging.debug(f"IP attempt {i+1}/{timeout} for network '{network_name}': {e}")
+            time.sleep(1)
+
+        return [f"No IP found in the network '{network_name}'"]
+
+
+    def wait_for_server(self, request, instance_id, timeout=30):
+        """
+        Warte, bis eine Instanz im Nova-API erscheint.
+        """
+        for i in range(timeout):
+            try:
+                server = nova.server_get(request, instance_id)
+                if server:
+                    return server
+            except Exception as e:
+                logging.debug(f"Waiting for instance {instance_id}: Attempt {i + 1}, Error: {e}")
+            time.sleep(1)
+        raise Exception(f"Instance {instance_id} could not be found after {timeout} seconds.")
+
+
+
+
 
 
     def get_context_data(self, **kwargs):
@@ -1380,14 +1447,33 @@ class InstanceSuccessView(generic.TemplateView):
         :return: Rendered HTML response.
         :rtype: HttpResponse
         """
-        return render(request, self.template_name)
+        context = self.get_context_data(**kwargs)
 
-    class DownloadInstanceDataView(generic.View):
-        """
-        View to generate and return a ZIP file containing:
-        - PDFs with instance user account information
-        - Private keys (either one shared key or separate keys per instance)
-        """
+        return render(request, self.template_name, context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        num_instances = int(self.request.session.get("num_instances", 1))
+        separate_keys = self.request.session.get("separate_keys", False)
+        context['instances'] = []
+
+        for i in range(1, num_instances + 1):
+            instance_name = self.request.session.get(f"names_{i}", "unknown")
+            ip_address = self.request.session.get(f"ip_addresses_{i}", "unknown")
+
+            if separate_keys:
+                key_file = self.request.session.get(f"keypair_name_{i}", "unknown") + ".pem"
+            else:
+                key_file = self.request.session.get("keypair_name", "unknown") + ".pem"
+
+            context['instances'].append({
+                'name': instance_name,
+                'ip': ip_address,
+                'key': key_file,
+            })
+
+        return context
+
 
     def post(self, request, *args, **kwargs):
         """
@@ -1418,9 +1504,10 @@ class InstanceSuccessView(generic.TemplateView):
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
                 instantiation = request.session.get(f"instantiations_{i}", [])
+                ip_adr = request.session.get(f"ip_addresses_{i}", [])
 
                 if accounts or instantiation:
-                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation)
+                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation, ip_adr)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             if not separate_keys:
@@ -1448,6 +1535,7 @@ class InstanceSuccessView(generic.TemplateView):
             request.session.pop(f"names_{i}", None)
             request.session.pop(f"private_key_{i}", None)
             request.session.pop(f"keypair_name_{i}", None)
+            request.session.pop(f"ip_addresses_{i}", None)
 
         request.session.pop("private_key", None)
         request.session.pop("keypair_name", None)
