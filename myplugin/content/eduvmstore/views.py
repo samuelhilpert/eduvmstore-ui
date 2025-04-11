@@ -714,12 +714,15 @@ class EditView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
 
+        selected_sg_names = [sg["name"] for sg in app_template.get("security_groups", [])]
+
         image_data = self.get_image_data(app_template.get('image_id', ''))
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
-            'security_groups': self.get_security_groups()
+            'security_groups': self.get_security_groups(),
+            'selected_security_groups': selected_sg_names,
         })
 
         return context
