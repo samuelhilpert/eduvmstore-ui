@@ -926,7 +926,8 @@ class InstancesView(generic.TemplateView):
             volume_size = int(app_template.get('volume_size_gb') or 0)
 
             for key in list(request.session.keys()):
-                if key.startswith("ip_addresses_") or key.startswith("keypair_name_") or key.startswith("private_key_"):
+                if key.startswith("ip_addresses_") or key.startswith("keypair_name_") or \
+                   key.startswith("private_key_"):
                     request.session.pop(key, None)
 
             request.session.pop("keypair_name", None)
