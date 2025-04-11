@@ -1142,7 +1142,7 @@ class InstancesView(generic.TemplateView):
                 if network.id == network_id:
                     return network.name
         except Exception as e:
-            logging.error(f"Netzwerkname konnte nicht aufgelöst werden: {e}")
+            logging.error(f"Failed to resolve network name: {e}")
         return None
 
 
@@ -1157,12 +1157,12 @@ class InstancesView(generic.TemplateView):
                 if addresses:
                     ip_list = [addr.get("addr") for addr in addresses if addr.get("addr")]
                     if ip_list:
-                        return ip_list[0] if ip_list else f"Keine IP im Netzwerk '{network_name}' gefunden"
+                        return ip_list[0] if ip_list else f"No IP found in network '{network_name}'"
             except Exception as e:
-                logging.debug(f"IP-Warteversuch {i+1}/{timeout} für Netz '{network_name}': {e}")
+                logging.debug(f"IP attempt {i+1}/{timeout} for network '{network_name}': {e}")
             time.sleep(1)
 
-        return [f"Keine IP im Netzwerk '{network_name}' gefunden"]
+        return [f"No IP found in the network '{network_name}'"]
 
 
     def wait_for_server(self, request, instance_id, timeout=30):
@@ -1175,9 +1175,9 @@ class InstancesView(generic.TemplateView):
                 if server:
                     return server
             except Exception as e:
-                logging.debug(f"Warte auf Instanz {instance_id}: Versuch {i + 1}, Fehler: {e}")
+                logging.debug(f"Waiting for instance {instance_id}: Attempt {i + 1}, Error: {e}")
             time.sleep(1)
-        raise Exception(f"Instanz {instance_id} konnte nach {timeout} Sekunden nicht gefunden werden.")
+        raise Exception(f"Instance {instance_id} could not be found after {timeout} seconds.")
 
 
 
@@ -1507,10 +1507,10 @@ class InstanceSuccessView(generic.TemplateView):
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
                 instantiation = request.session.get(f"instantiations_{i}", [])
-                floating_ip = request.session.get(f"ip_addresses_{i}", [])
+                ip_adr = request.session.get(f"ip_addresses_{i}", [])
 
                 if accounts or instantiation:
-                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation, floating_ip)
+                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation, ip_adr)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             if not separate_keys:
