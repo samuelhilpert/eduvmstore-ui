@@ -18,96 +18,9 @@
 {% block main %}
 
     <style>
-        .tile-container {
-            display: flex;
-            gap: 20px;
-            padding: 40px;
-            justify-content: center;
-            flex-wrap: nowrap;
-        }
 
-        .tile {
-            background: linear-gradient(135deg, #333, #777);
-            color: white;
-            border-radius: 12px;
-            width: 300px;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.6s, box-shadow 0.3s ease;
-            position: relative;
-            perspective: 1200px;
-        }
 
-        .tile:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
 
-        .tile-inner {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-        }
-
-        .tile.flip .tile-inner {
-            transform: rotateY(180deg);
-        }
-
-        .tile-front, .tile-back {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .tile-back {
-            transform: rotateY(180deg);
-            background: #f8f9fa;
-            color: #333;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-            font-size: 12px;
-            display: flex;
-            justify-content: flex-start;
-            text-align: left;
-            padding: 10px;
-        }
-
-        .tile-back h3 {
-            font-size: 14px;
-            margin-bottom: 5px;
-            text-align: center;
-            width: 100%;
-        }
-
-        .tile-back ul {
-            padding: 0;
-            list-style: none;
-            margin: 0;
-            width: 100%;
-        }
-
-        .tile-back ul li {
-            padding: 3px 0;
-            border-bottom: 1px solid #bbb;
-            font-size: 11px;
-        }
-
-        .tile-back ul li:last-child {
-            border-bottom: none;
-        }
 
         .accordion {
             background: linear-gradient(135deg, #333, #777);
@@ -149,73 +62,7 @@
 
     </style>
 
-    <h2 style="text-align: center; color: #333;">Instructions</h2>
-    <p style="text-align: center; color: #666; font-size: 16px;">Here you find numerous instructions.</p>
-    <hr>
 
-    <div class="tile-container">
-        <div class="tile" onclick="flipTile(this)">
-            <div class="tile-inner">
-                <div class="tile-front">
-                    <h3>Create App Template</h3>
-                </div>
-                <div class="tile-back">
-                    <h3>Create App Template</h3>
-                    <ul>
-                        <li><strong>Step 1:</strong> Open the EduVMStore dashboard.</li>
-                        <li><strong>Step 2:</strong> Click ‘Create App Template’.</li>
-                        <li><strong>Step 3:</strong> Select an image from the dropdown.</li>
-                        <li><strong>Step 4:</strong> Enter a name for the template.</li>
-                        <li><strong>Step 5:</strong> Provide a short and detailed description.</li>
-                        <li><strong>Step 6:</strong> Add an instantiation notice (optional).
-                        <li><strong>Step 7:</strong> Set available for Everyone or Creator only.</li>
-                        <li><strong>Step 8:</strong> Define system requirements for the template.</li>
-                        <li><strong>Step 9:</strong> Set instantiation and account attributes</li>
-                        <li><strong>Step 10:</strong> Upload or write the script.</li>
-                        <li><strong>Step 11:</strong> Click ‘Create’ to finalize.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="tile" onclick="flipTile(this)">
-            <div class="tile-inner">
-                <div class="tile-front">
-                    <h3>Launch Instance</h3>
-                </div>
-                <div class="tile-back">
-                    <h3>Launch Instance</h3>
-                    <ul>
-                        <li><strong>Step 1:</strong> Open the EduVMStore dashboard.</li>
-                        <li><strong>Step 2:</strong> Navigate to the App-Template Overview page.</li>
-                        <li><strong>Step 3:</strong> Click on the 'Launch' button.</li>
-                        <li><strong>Step 4:</strong>  Enter a custom name for the instance if needed.</li>
-                        <li><strong>Step 5:</strong> Select the number of instances.</li>
-                        <li><strong>Step 6:</strong>  Choose one or separate keys for the templates.</li>
-                        <li><strong>Step 7:</strong> Decide if instances should be identical.</li>
-                        <li><strong>Step 8:</strong> Modify template properties if not identical.</li>
-                        <li><strong>Step 9:</strong> Enter instantiation attributes.</li>
-                        <li><strong>Step 10:</strong>  Add users via attribute fields or CSV upload.</li>
-                        <li><strong>Step 11:</strong> Click on the 'Launch Instance' button.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="tile" onclick="flipTile(this)">
-            <div class="tile-inner">
-                <div class="tile-front">
-                    <h3>Publish App</h3>
-                </div>
-                <div class="tile-back">
-                    <h3>Publish App</h3>
-                    <ul>
-                        <li><strong>Step 1:</strong> Ensure the app is complete.</li>
-                        <li><strong>Step 2:</strong> Go to the publishing settings.</li>
-                        <li><strong>Step 3:</strong> Set visibility to "Public" and click "Publish".</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
     <hr>
   <h2 style="text-align: center; color: #333;">FAQ</h2>
     <p style="text-align: center; color: #666; font-size: 16px;">Here are frequently asked questions.</p>
@@ -244,9 +91,7 @@
 
 
     <script>
-        function flipTile(tile) {
-            tile.classList.toggle('flip');
-        }
+
 
         var acc = document.getElementsByClassName("accordion");
         for (var i = 0; i < acc.length; i++) {
