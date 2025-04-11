@@ -954,6 +954,7 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
+                network_name = self.get_network_name_by_id(request, network_id)
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
                 create_volume_size = request.POST.get(f"volume_size_instance_{i}")
@@ -1085,8 +1086,8 @@ class InstancesView(generic.TemplateView):
                 )
 
                 server = self.wait_for_server(request, created_server.id)
-                ip_addresses = self.wait_for_floating_ip(request, server.id)
-                request.session[f"ip_addresses_{i}"] = ip_addresses
+                ip_list = self.wait_for_ip_in_network(request, server.id, network_name)
+                request.session[f"ip_addresses_{i}"] = ip_list
                 instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
@@ -1126,35 +1127,35 @@ class InstancesView(generic.TemplateView):
             time.sleep(1)
         raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
 
-    def wait_for_floating_ip(self, request, server_id, timeout=60):
-        """
-        Warte auf eine zugewiesene Floating IP für eine Instanz.
+    def get_network_name_by_id(self, request, network_id):
+        try:
+            networks = api.neutron.network_list(request)
+            for network in networks:
+                if network.id == network_id:
+                    return network.name
+        except Exception as e:
+            logging.error(f"Netzwerkname konnte nicht aufgelöst werden: {e}")
+        return None
 
-        Gibt nur Floating IPs zurück, keine privaten (fixed).
-        Bricht nach dem Timeout ab, falls keine Floating IP verfügbar ist.
+
+    def wait_for_ip_in_network(self, request, server_id, network_name, timeout=30):
+        """
+        Warte auf eine IP-Adresse aus einem bestimmten Netzwerk.
         """
         for i in range(timeout):
             try:
                 server = nova.server_get(request, server_id)
-                floating_ips = []
-
-                for nets in server.addresses.values():
-                    for net in nets:
-                        if net.get("OS-EXT-IPS:type") == "floating":
-                            ip = net.get("addr")
-                            if ip:
-                                floating_ips.append(ip)
-
-                if floating_ips:
-                    return floating_ips
-
+                addresses = server.addresses.get(network_name)
+                if addresses:
+                    ip_list = [addr.get("addr") for addr in addresses if addr.get("addr")]
+                    if ip_list:
+                        return ip_list
             except Exception as e:
-                logging.warning(f"[Floating IP] Versuch {i + 1}/{timeout} fehlgeschlagen: {e}")
-
+                logging.debug(f"IP-Warteversuch {i+1}/{timeout} für Netz '{network_name}': {e}")
             time.sleep(1)
 
-        logging.error(f"[Floating IP] Keine Floating IP innerhalb von {timeout} Sekunden für {server_id}")
-        return ["Keine Floating IP zugewiesen"]
+        return [f"Keine IP im Netzwerk '{network_name}' gefunden"]
+
 
     def wait_for_server(self, request, instance_id, timeout=30):
         """
@@ -1166,9 +1167,9 @@ class InstancesView(generic.TemplateView):
                 if server:
                     return server
             except Exception as e:
-                logging.debug(f"Warte auf Instanz {instance_name}: Versuch {i + 1}, Fehler: {e}")
+                logging.debug(f"Warte auf Instanz {instance_id}: Versuch {i + 1}, Fehler: {e}")
             time.sleep(1)
-        raise Exception(f"Instanz {instance_name} konnte nach {timeout} Sekunden nicht gefunden werden.")
+        raise Exception(f"Instanz {instance_id} konnte nach {timeout} Sekunden nicht gefunden werden.")
 
 
 
