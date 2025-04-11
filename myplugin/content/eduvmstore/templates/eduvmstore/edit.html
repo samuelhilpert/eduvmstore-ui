@@ -329,7 +329,8 @@
                     {% for sg in security_groups %}
                         <label>
                             <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                                {% if sg in app_template.security_groups %}checked{% endif %}>
+                                   {% if sg.name in app_template.security_groups.values_list('name', flat=True) %}checked{% endif %}>
+
                             {{ sg.name }}
                         </label>
                     {% endfor %}
