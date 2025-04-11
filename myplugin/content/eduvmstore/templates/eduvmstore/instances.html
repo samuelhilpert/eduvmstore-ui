@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block main %}
-
+    <link rel="stylesheet" href="{% static 'css/instances.css' %}">
 
 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
     {% csrf_token %}
@@ -40,8 +40,8 @@
         </div>
 
         <div class="form-group">
-            <label for="num_instances">{{ _("Number of Instances") }}</label>
-            <input type="number" class="form-control" id="num_instances" name="num_instances"
+            <label for="instance_count">{{ _("Number of Instances") }}</label>
+            <input type="number" class="form-control" id="instance_count" name="instance_count"
                    min="1" max="100" placeholder="1-100" required>
         </div>
 
@@ -217,9 +217,17 @@
 
    <script>
        //For the all instances tab index 0 is used for easier calculation
-       const ALL_INSTANCES_INDEX = 0
-       const TAB_PREFIX = 'instanceTab_'
-       const CONTENT_PREFIX = 'instanceContent_'
+       const ALL_INSTANCES_INDEX = 0;
+       const TAB_PREFIX = 'instanceTab_';
+       const CONTENT_PREFIX = 'instanceContent_';
+       const VOLUME_SELECTION = 'use_existing_volume_';
+       const VOLUME_SELECTION_CLASS = VOLUME_SELECTION.replace(/_/g, '-').slice(0, -1);
+       const FLAVOR_ID = 'flavor_id_';
+       const NETWORK_ID = 'network_id_';
+       const VOLUME_SIZE = 'volume_size_';
+       const INSTANTIATION_POSTFIX = '_instantiation'
+
+       let volumeSelections = {};
 
        let allInstanceChangedFieldInfo = {
             element: null,
@@ -233,22 +241,7 @@
             {% endfor %}
         ];
 
-        function generateVolumeDropdown(instanceIndex) {
-            let html = `<option value="" disabled selected>Select Volume</option>`;
-            let requiredVolumeSize = {{ volume_size }};
-            attachableVolumes.forEach(volume => {
-                if (volume.size >= requiredVolumeSize) {
-                    html += `<option value="${volume.id}" data-volume-id="${volume.id}">
-                    ${volume.name} (${volume.size} GB)
-                 </option>`;
-                }
-
-            });
-            return html;
-        }
-
-
-        document.getElementById("num_instances").addEventListener("input", function () {
+        document.getElementById("instance_count").addEventListener("input", function () {
             const MAX_NUM_INSTANCES = 100;
             if (this.value > MAX_NUM_INSTANCES) {
                 this.value = MAX_NUM_INSTANCES;
@@ -265,10 +258,10 @@
             return `
                  <!-- Flavor Selection -->
                 <div class="form-group">
-                    <label for="flavor_id_${instanceIndex}">${labelPrefix}</label>
+                    <label for="${FLAVOR_ID}${instanceIndex}">${labelPrefix}</label>
                      <select class="form-control flavor-dropdown"
-                            id="flavor_id_${instanceIndex}"
-                            name="flavor_id_${instanceIndex}" required>
+                            id="${FLAVOR_ID}${instanceIndex}"
+                            name="${FLAVOR_ID}${instanceIndex}" required>
                      {% if flavors.suitable_flavors %}
                         {% for flavor_id, flavor_data in flavors.suitable_flavors.items %}
                             <option value="{{ flavor_id }}"
@@ -289,10 +282,10 @@
             const labelPrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Select Network for all Instances') }}" : "{{ _('Select Network') }}";
             return `
                 <div class="form-group">
-                    <label for="network_id_${instanceIndex}">${labelPrefix}</label>
+                    <label for="${NETWORK_ID}${instanceIndex}">${labelPrefix}</label>
                     <select class="form-control"
-                            id="network_id_${instanceIndex}"
-                            name="network_id_${instanceIndex}" required>
+                            id="${NETWORK_ID}${instanceIndex}"
+                            name="${NETWORK_ID}${instanceIndex}" required>
                         {% if networks %}
                             {% for network_id, network_name in networks.items %}
                                 <option value="{{ network_id }}" {% if loop.first %}selected{% endif %}>{{ network_name }}</option>
@@ -306,30 +299,38 @@
         }
 
         function generateVolumeSection(instanceIndex) {
+            const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Choose Volume Size (GB) for all Instances') }}" : "{{ _('Choose Volume Size GB') }}";
+            let volumeOptions = `<option value="new" selected>Create new volume</option>`;
+            let requiredVolumeSize = {{ volume_size }};
+            //add existing volumes to selection options
+            attachableVolumes.forEach(volume => {
+                const isTooSmall = volume.size < requiredVolumeSize;
+                // AllInstance Tab can't select volumes as they are only at one instance and too small Values are not selectable
+                volumeOptions += `<option value="${volume.id}" data-volume-id="${volume.id}"
+                                  ${(isTooSmall || instanceIndex === ALL_INSTANCES_INDEX) ? 'disabled style="color: gray;"' : ''}>
+                    ${volume.name} (${volume.size} GB) ${isTooSmall ? ' (Too small)' : ''}
+                    ${(instanceIndex === ALL_INSTANCES_INDEX) ? '(Select Volume for each instance)' : ''}
+                </option>`;
+            });
+            // Option of attaching no volume
+            if (requiredVolumeSize === 0){
+                 volumeOptions += `<option value="none">No additional volumes</option>`
+            }
             return `
                 <!-- Volumes -->
                 <div class="form-group">
-                    <label for="use_existing_volume_${instanceIndex}">{{ _("Additional Volumes") }}</label>
-                    <select class="form-control use-existing-volume"
-                            id="use_existing_volume_${instanceIndex}"
-                            name="use_existing_volume_${instanceIndex}"
+                    <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _('Select Volume') }}</label>
+                    <select class="form-control ${VOLUME_SELECTION_CLASS}"
+                            id="${VOLUME_SELECTION}${instanceIndex}"
+                            name="${VOLUME_SELECTION}${instanceIndex}"
                             data-instance="${instanceIndex}">
-                        <option value="new" selected>Create new volume</option>
-                        {% if hasAttachableVolumes %}
-                            <option value="existing">Attach existing volume</option>
-                        {% endif %}
-                        {% if volume_size == 0 %}
-                            <option value="none">No additional volumes</option>
-                        {% endif %}
+                        ${volumeOptions}
                     </select>
-                    {% if not hasAttachableVolumes %}
-                        <small class="form-text">There are currently no available volumes that can be attached.</small>
-                    {% endif %}
                 </div>
                 
-                <div class="form-group create-volume-size-group" id="create_volume_size_group_${instanceIndex}" style="display: none;">
-                    <label for="volume_size_instance_${instanceIndex}">Volume Size (GB)</label>
-                    <input type="number" class="form-control" id="volume_size_instance_${instanceIndex}" name="volume_size_instance_${instanceIndex}"  value="{{ volume_size }}" min="{{ volume_size }}">
+                <div class="form-group create-volume-size-group" id="volume_size_input_${instanceIndex}" style="display: none;">
+                    <label for="${VOLUME_SIZE}${instanceIndex}">${labelVolumeSizePrefix}</label>
+                    <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="{{ volume_size }}" min="{{ volume_size }}">
                 </div>
             `;
         }
@@ -399,15 +400,6 @@
             `;
         }
 
-        function generateNavigationSection(instanceIndex, countInstances){
-            return `
-                <div class="d-flex justify-content-between mt-3">
-                    ${(countInstances != 1 &&  instanceIndex > ALL_INSTANCES_INDEX ) ? `<button type="button" class="btn btn-secondary prev-instance" data-instance="${instanceIndex}">← {{ _("Previous Instance") }}</button>` : ""}
-                    ${(instanceIndex < countInstances || instanceIndex === ALL_INSTANCES_INDEX) ? `<button type="button" class="btn btn-primary next-instance" data-instance="${instanceIndex}">→ {{ _("Next Instance") }}</button>` : ""}
-                </div>
-            `;
-        }
-
         function generateCSVAllInstanceSection(){
             return`
                 <div class="section-container">
@@ -461,7 +453,6 @@
                     ${generateInstantiationAttributesSection(instanceIndex)}
                      <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
                      ${instanceIndex === ALL_INSTANCES_INDEX ? generateCSVAllInstanceSection() : generateAccountAttributesSection(instanceIndex)}
-                    ${generateNavigationSection(instanceIndex, countInstances)}
                 </div>
             `
         }
@@ -470,7 +461,7 @@
             let instanceTabs = document.getElementById("instanceTabs");
             let instancesContainer = document.getElementById("instancesContainer");
 
-            let countInstancesInput = document.getElementById("num_instances");
+            let countInstancesInput = document.getElementById("instance_count");
             //ensure countInstances is a natural number base 10, if not 1
             let countInstances = parseInt(countInstancesInput.value, 10) || 1;
             countInstancesInput.value = countInstances;
@@ -498,18 +489,14 @@
                 instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
             }
 
-              document.querySelectorAll(".use-existing-volume").forEach(select => {
+              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
                     select.addEventListener("change", function () {
                         const instance = this.dataset.instance;
                         const group = document.getElementById(`existing_volume_group_${instance}`);
-                        const volumeSelect = document.getElementById(`existing_volume_id_${instance}`);
                         if (this.value === "existing") {
                             group.style.display = "block";
-                            volumeSelect.required = true;
-                            volumeSelect.setCustomValidity("");
                         } else {
                             if (group) group.style.display = "none";
-                            if (volumeSelect) volumeSelect.required = false;
                         }
                     });
                     select.dispatchEvent(new Event("change"));
@@ -540,7 +527,7 @@
 
             // All instance tab value change - ADD THIS TIMEOUT
             setTimeout(() => {
-                document.querySelectorAll(`#flavor_id_${ALL_INSTANCES_INDEX}, #network_id_${ALL_INSTANCES_INDEX}, #use_existing_volume_${ALL_INSTANCES_INDEX}, #existing_volume_id_${ALL_INSTANCES_INDEX}`).forEach(element => {
+                document.querySelectorAll(`#${FLAVOR_ID}${ALL_INSTANCES_INDEX}, #${NETWORK_ID}${ALL_INSTANCES_INDEX}, #${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}, #${VOLUME_SIZE}${ALL_INSTANCES_INDEX}`).forEach(element => {
                     // Remove existing event listeners to prevent duplicates
                     element.removeEventListener('change', showWarningModal);
                     element.addEventListener('change', showWarningModal);
@@ -549,7 +536,7 @@
                 // Add handlers for instantiation attributes if they exist
                 if (instantiationAttribute.length > 0) {
                     instantiationAttribute.forEach(attr => {
-                        const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}_instantiation`);
+                        const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}${INSTANTIATION_POSTFIX}`);
                         if (element) {
                             // Remove existing event listeners to prevent duplicates
                             element.removeEventListener('change', showWarningModal);
@@ -567,19 +554,19 @@
 
             // Determine field type based on ID
             switch (true) {
-                case fieldId.includes('flavor_id'):
+                case fieldId.includes(FLAVOR_ID):
                     allInstanceChangedFieldInfo.fieldType = 'flavor';
                     break;
-                case fieldId.includes('network_id'):
+                case fieldId.includes(NETWORK_ID):
                     allInstanceChangedFieldInfo.fieldType = 'network';
                     break;
-                case fieldId.includes('use_existing_volume'):
-                    allInstanceChangedFieldInfo.fieldType = 'volume_type';
-                    break;
-                case fieldId.includes('existing_volume_id'):
+                case fieldId.includes(VOLUME_SELECTION):
                     allInstanceChangedFieldInfo.fieldType = 'volume_selection';
                     break;
-                case fieldId.includes('_instantiation'):
+                case fieldId.includes(VOLUME_SIZE):
+                    allInstanceChangedFieldInfo.fieldType = 'new_volume_size';
+                    break;
+                case fieldId.includes(INSTANTIATION_POSTFIX):
                     allInstanceChangedFieldInfo.fieldType = 'instantiation';
                     allInstanceChangedFieldInfo.attrName = event.target.getAttribute('data-attr-name');
                     break;
@@ -589,7 +576,7 @@
 
             const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
             if (warningText) {
-                warningText.innerHTML = `<strong>{{ _("Warning:") }}</strong> {{ _("This will apply the selected ") }}
+                warningText.innerHTML = `{{ _("This will apply the selected ") }}
                     <strong>${getFieldTypeDisplayName(allInstanceChangedFieldInfo.fieldType)}</strong>
                     {{ _(" to all individual instances.") }}`;
             }
@@ -602,7 +589,6 @@ function getFieldTypeDisplayName(fieldType) {
     switch (fieldType) {
         case 'flavor': return 'flavor';
         case 'network': return 'network';
-        case 'volume_type': return 'volume type';
         case 'volume_selection': return 'volume selection';
         case 'instantiation':
             return `instantiation attribute "${allInstanceChangedFieldInfo.attrName}"`;
@@ -615,15 +601,15 @@ function getFieldTypeDisplayName(fieldType) {
         }
 
         function applyAllInstancesSettings() {
-            const countInstances = parseInt(document.getElementById('num_instances').value, 10) || 1;
+            const countInstances = parseInt(document.getElementById('instance_count').value, 10) || 1;
 
             // Only apply the specific changed setting
             switch (allInstanceChangedFieldInfo.fieldType) {
                 case 'flavor':
-                    const allFlavorSelect = document.getElementById(`flavor_id_${ALL_INSTANCES_INDEX}`);
+                    const allFlavorSelect = document.getElementById(`${FLAVOR_ID}${ALL_INSTANCES_INDEX}`);
                     if (allFlavorSelect && allFlavorSelect.value) {
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceFlavorSelect = document.getElementById(`flavor_id_${i}`);
+                            const instanceFlavorSelect = document.getElementById(`${FLAVOR_ID}${i}`);
                             if (instanceFlavorSelect) {
                                 instanceFlavorSelect.value = allFlavorSelect.value;
                             }
@@ -632,10 +618,10 @@ function getFieldTypeDisplayName(fieldType) {
                     break;
 
                 case 'network':
-                    const allNetworkSelect = document.getElementById(`network_id_${ALL_INSTANCES_INDEX}`);
+                    const allNetworkSelect = document.getElementById(`${NETWORK_ID}${ALL_INSTANCES_INDEX}`);
                     if (allNetworkSelect && allNetworkSelect.value) {
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceNetworkSelect = document.getElementById(`network_id_${i}`);
+                            const instanceNetworkSelect = document.getElementById(`${NETWORK_ID}${i}`);
                             if (instanceNetworkSelect) {
                                 instanceNetworkSelect.value = allNetworkSelect.value;
                             }
@@ -643,12 +629,12 @@ function getFieldTypeDisplayName(fieldType) {
                     }
                     break;
 
-                case 'volume_type':
-                    const allVolumeOption = document.getElementById(`use_existing_volume_${ALL_INSTANCES_INDEX}`);
+                case 'volume_selection':
+                    const allVolumeOption = document.getElementById(`${VOLUME_SELECTION}${ALL_INSTANCES_INDEX}`);
                     if (allVolumeOption) {
                         const volumeChoice = allVolumeOption.value;
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceVolumeOption = document.getElementById(`use_existing_volume_${i}`);
+                            const instanceVolumeOption = document.getElementById(`${VOLUME_SELECTION}${i}`);
                             if (instanceVolumeOption) {
                                 instanceVolumeOption.value = volumeChoice;
                                 instanceVolumeOption.dispatchEvent(new Event('change'));
@@ -656,14 +642,14 @@ function getFieldTypeDisplayName(fieldType) {
                         }
                     }
                     break;
-
-                case 'volume_selection':
-                    const allVolumeSelect = document.getElementById(`existing_volume_id_${ALL_INSTANCES_INDEX}`);
-                    if (allVolumeSelect && allVolumeSelect.value) {
+                case 'new_volume_size':
+                    const allVolumeSizeInput = document.getElementById(`${VOLUME_SIZE}${ALL_INSTANCES_INDEX}`);
+                    if (allVolumeSizeInput && allVolumeSizeInput.value) {
+                        const volumeSize = allVolumeSizeInput.value;
                         for (let i = 1; i <= countInstances; i++) {
-                            const instanceVolumeSelect = document.getElementById(`existing_volume_id_${i}`);
-                            if (instanceVolumeSelect) {
-                                instanceVolumeSelect.value = allVolumeSelect.value;
+                            const instanceVolumeSizeInput = document.getElementById(`${VOLUME_SIZE}${i}`);
+                            if (instanceVolumeSizeInput) {
+                                instanceVolumeSizeInput.value = volumeSize;
                             }
                         }
                     }
@@ -671,10 +657,10 @@ function getFieldTypeDisplayName(fieldType) {
 
                 case 'instantiation':
                     if (allInstanceChangedFieldInfo.attrName) {
-                        const allAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${ALL_INSTANCES_INDEX}_instantiation`);
+                        const allAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${ALL_INSTANCES_INDEX}${INSTANTIATION_POSTFIX}`);
                         if (allAttrInput && allAttrInput.value !== undefined) {
                             for (let i = 1; i <= countInstances; i++) {
-                                const instanceAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${i}_instantiation`);
+                                const instanceAttrInput = document.getElementById(`${allInstanceChangedFieldInfo.attrName}_${i}${INSTANTIATION_POSTFIX}`);
                                 if (instanceAttrInput) {
                                     instanceAttrInput.value = allAttrInput.value;
                                 }
@@ -688,36 +674,85 @@ function getFieldTypeDisplayName(fieldType) {
         }
         
         function attachVolumeOptionListeners() {
-             document.querySelectorAll(".use-existing-volume").forEach(select => {
+             document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
                  select.addEventListener("change", function () {
                      const instance = this.dataset.instance;
                      const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
-                     const selectedVolume = document.getElementById(`existing_volume_id_${instance}`);
                       // Check if the volumeGroup and selectedVolumeId exist for attaching existing volumes
                      // If they do, toggle their visibility to block or none
                      if (volumeGroup && selectedVolume) {
                          if (this.value === "existing") {
                              volumeGroup.style.display = "block";
-                             selectedVolume.required = true;
                          } else {
                              volumeGroup.style.display = "none";
-                             selectedVolume.required = false;
                          }
                      }
                      attachVolumeCreateListeners(instance);
+                     updateVolumeSelection(instance, this.value)
                  });
 
                  select.dispatchEvent(new Event("change"));
 
              });
          }
+
+         function updateVolumeSelection(instance, value) {
+            // Only actual volumes need to be tracked (Not Create New Volume or no addtional volumes)
+            if (value !== "new" && value !== "none") {
+                volumeSelections[instance] = value;
+            } else {
+                //ensure that old selection is deleted
+                delete volumeSelections[instance];
+            }
+            // Update all volume dropdowns
+            updateVolumeSelectionOptions();
+        }
+
+        function updateVolumeSelectionOptions() {
+            const countInstances = parseInt(document.getElementById('instance_count').value, 10) || 1;
+
+            // For each instance, update available volume options
+            for (let i = 1; i <= countInstances; i++) {
+                const volumeSelect = document.getElementById(`${VOLUME_SELECTION}${i}`);
+                if (!volumeSelect) continue;
+
+                // For each option in the select
+                Array.from(volumeSelect.options).forEach(option => {
+                    const volumeId = option.value;
+
+                    // Check if this volume is selected in another instance
+                    let selectedInInstance = null;
+                    for (const [instanceIdx, selectedVolumeId] of Object.entries(volumeSelections)) {
+                        if (selectedVolumeId === volumeId && instanceIdx != i) {
+                            selectedInInstance = instanceIdx;
+                            break; //one other instance is sufficient for blocking
+                        }
+                    }
+
+                    if (selectedInInstance && volumeId) {
+                         //Disable the volume
+                        option.disabled = true;
+                        option.textContent = `${option.textContent.split('(')[0]} (already selected in instance ${selectedInInstance})`;
+                    } else if (volumeId !== "new" && volumeId !== "none") {
+                        // Reset text
+                        const originalVolume = attachableVolumes.find(v => v.id === volumeId);
+                        if (originalVolume) {
+                            const isTooSmall = originalVolume.size < parseFloat("{{ volume_size }}");
+                            //now disabled status depends only on size
+                            option.disabled = isTooSmall;
+                            option.textContent = `${originalVolume.name} (${originalVolume.size} GB)${isTooSmall ? ' (Too small)' : ''}`;
+                        }
+                    }
+                });
+            }
+        }
      
         function attachVolumeCreateListeners(instance) {
-            const volumeSizeInputField = document.getElementById(`create_volume_size_group_${instance}`);
-            const volumeModeSelect = document.getElementById(`use_existing_volume_${instance}`);
+            const volumeSizeInputField = document.getElementById(`volume_size_input_${instance}`);
+            const volumeSelection = document.getElementById(`${VOLUME_SELECTION}${instance}`);
 
             try {
-                if (volumeModeSelect.value === "new") {
+                if (volumeSelection.value === "new") {
                     volumeSizeInputField.style.display = "block";
                 } else {
                     volumeSizeInputField.style.display = "none";
@@ -728,20 +763,6 @@ function getFieldTypeDisplayName(fieldType) {
         }
 
         function attachInstanceEventListeners() {
-            document.querySelectorAll(".next-instance").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceIndex = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceIndex + 1);
-                });
-            });
-
-             document.querySelectorAll(".prev-instance").forEach(button => {
-                button.addEventListener("click", function () {
-                    let instanceIndex = parseInt(this.getAttribute("data-instance"));
-                    switchToInstance(instanceIndex - 1);
-                });
-            });
-
             document.querySelectorAll(".nav-link").forEach(tab => {
                 tab.addEventListener("click", function (event) {
                     event.preventDefault();
@@ -843,7 +864,7 @@ function getFieldTypeDisplayName(fieldType) {
             fieldsHtml += `
                 <div class="form-group md-5">
                     <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}[]" required>
+                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
                 </div>
             `;
         });
@@ -873,7 +894,7 @@ function renumberAccounts(instanceIndex) {
             const input = section.querySelector(`input[id$="${attr}_${instanceIndex}_${index+1}"]`);
             if (input) {
                 input.id = `${attr}_${instanceIndex}_${newNumber}`;
-                input.name = `${attr}_${instanceIndex}[]`;
+                input.name = `${attr}_${instanceIndex}`;
             }
         });
     });
@@ -884,11 +905,11 @@ function renumberAccounts(instanceIndex) {
             instantiationAttribute.forEach(attr => {
                 fieldsHtmlInstance += `
                     <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}_instantiation">${attr}</label>
+                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr}</label>
                         <input type="text"
                                class="form-control"
-                               id="${attr}_${instanceIndex}_instantiation"
-                               name="${attr}_${instanceIndex}_instantiation[]"
+                               id="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}"
+                               name="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}"
                                data-attr-name="${attr}"
                                required>
                     </div>
@@ -898,7 +919,7 @@ function renumberAccounts(instanceIndex) {
         }
 
 function selectAutomaticFlavor(instanceIndex) {
-    const flavorDropdown = document.getElementById(`flavor_id_${instanceIndex}`);
+    const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
     if (!flavorDropdown) return;
 
     const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
@@ -985,7 +1006,7 @@ function selectAutomaticFlavor(instanceIndex) {
     }
 
     window.onload = function () {
-        let countInstancesInput = document.getElementById("num_instances");
+        let countInstancesInput = document.getElementById("instance_count");
         let instancesNameInput = document.getElementById("instances_name");
         let instanceTabs = document.getElementById("instanceTabs");
         let instancesContainer = document.getElementById("instancesContainer");
@@ -1149,7 +1170,7 @@ document.addEventListener("change", function(event) {
                         <label for="${attr}_${instanceIndex}_${index+1}">${attr}</label>
                         <input type="text" class="form-control"
                                id="${attr}_${instanceIndex}_${index+1}"
-                               name="${attr}_${instanceIndex}[]"
+                               name="${attr}_${instanceIndex}"
                                value="${account[attr] || ''}"
                                required>
                     </div>
