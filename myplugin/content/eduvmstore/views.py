@@ -925,6 +925,10 @@ class InstancesView(generic.TemplateView):
             created = app_template.get('created_at', '').split('T')[0]
             volume_size = int(app_template.get('volume_size_gb') or 0)
 
+            for key in list(request.session.keys()):
+                if key.startswith("ip_addresses_"):
+                    request.session.pop(key, None)
+
             request.session["app_template"] = app_template_name
             request.session["created"] = created
             request.session["num_instances"] = num_instances
@@ -1149,7 +1153,7 @@ class InstancesView(generic.TemplateView):
                 if addresses:
                     ip_list = [addr.get("addr") for addr in addresses if addr.get("addr")]
                     if ip_list:
-                        return ip_list
+                        return ip_list[0] if ip_list else f"Keine IP im Netzwerk '{network_name}' gefunden"
             except Exception as e:
                 logging.debug(f"IP-Warteversuch {i+1}/{timeout} für Netz '{network_name}': {e}")
             time.sleep(1)
@@ -1444,12 +1448,21 @@ class InstanceSuccessView(generic.TemplateView):
         """
         return render(request, self.template_name)
 
-    class DownloadInstanceDataView(generic.View):
-        """
-        View to generate and return a ZIP file containing:
-        - PDFs with instance user account information
-        - Private keys (either one shared key or separate keys per instance)
-        """
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        num_instances = int(self.request.session.get("num_instances", 1))
+        context['instances'] = []
+
+        for i in range(1, num_instances + 1):
+            instance_name = self.request.session.get(f"names_{i}", f"Instance-{i}")
+            ip_address = self.request.session.get(f"ip_addresses_{i}", "unbekannt")
+            context['instances'].append({
+                'name': instance_name,
+                'ip': ip_address,
+            })
+
+        return context
+
 
     def post(self, request, *args, **kwargs):
         """
@@ -1511,6 +1524,7 @@ class InstanceSuccessView(generic.TemplateView):
             request.session.pop(f"names_{i}", None)
             request.session.pop(f"private_key_{i}", None)
             request.session.pop(f"keypair_name_{i}", None)
+            request.session.pop(f"ip_addresses_{i}", None)
 
         request.session.pop("private_key", None)
         request.session.pop("keypair_name", None)
