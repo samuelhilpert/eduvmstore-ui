@@ -1462,13 +1462,13 @@ class InstanceSuccessView(generic.TemplateView):
         context['instances'] = []
 
         for i in range(1, num_instances + 1):
-            instance_name = self.request.session.get(f"names_{i}", f"Instance-{i}")
-            ip_address = self.request.session.get(f"ip_addresses_{i}", "unbekannt")
+            instance_name = self.request.session.get(f"names_{i}", "unknown")
+            ip_address = self.request.session.get(f"ip_addresses_{i}", "unknown")
 
             if separate_keys:
-                key_file = self.request.session.get(f"keypair_name_{i}", f"instance_key_{i}") + ".pem"
+                key_file = self.request.session.get(f"keypair_name_{i}", "unknown") + ".pem"
             else:
-                key_file = self.request.session.get("keypair_name", "shared_instance_key") + ".pem"
+                key_file = self.request.session.get("keypair_name", "unknown") + ".pem"
 
             context['instances'].append({
                 'name': instance_name,
