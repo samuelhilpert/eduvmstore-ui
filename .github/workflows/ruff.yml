@@ -1,7 +1,6 @@
 name: Ruff Linting
 
 on:
-  # Löst Linting bei jedem Pull Request und Push auf den "main"- und "dev"-Branch aus
   pull_request:
     branches:
       - main
@@ -16,17 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Repository auschecken
+      # Checkout
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Ruff Linting ausführen
+      # Ruff Linting
       - name: Run Ruff Check
         uses: astral-sh/ruff-action@v3
         with:
           args: check --config ruff.toml --fix
 
-      # Ruff Formatierung ausführen
+      # Ruff Formatierung
       - name: Run Ruff Format
         uses: astral-sh/ruff-action@v3
         with:
