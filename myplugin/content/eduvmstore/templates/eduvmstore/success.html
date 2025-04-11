@@ -31,6 +31,7 @@
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <code id="cmd-{{ forloop.counter }}">scp -i openstackkey -r ubuntu@{{ instance.ip }}:/home/ubuntu/user_keys/ .</code>
                             <button onclick="copyToClipboard('cmd-{{ forloop.counter }}')" style="padding: 4px 10px; font-size: 13px;">Copy</button>
+                            <span id="msg-{{ forloop.counter }}" style="font-size: 13px; color: green; display: none;">Copied!</span>
                         </div>
                     </li>
                 {% endfor %}
@@ -55,25 +56,28 @@
     </div>
 
     <script>
-        function copyToClipboard(elementId) {
+        function copyToClipboard(elementId, messageId) {
             const codeElement = document.getElementById(elementId);
+            const messageElement = document.getElementById(messageId);
             const tempInput = document.createElement("textarea");
             tempInput.value = codeElement.textContent;
             document.body.appendChild(tempInput);
             tempInput.select();
             try {
                 const success = document.execCommand("copy");
-                if (success) {
-                    alert("Command copied to clipboard.");
-                } else {
-                    alert("Copy failed.");
+                if (success && messageElement) {
+                    messageElement.style.display = "inline";
+                    setTimeout(() => {
+                        messageElement.style.display = "none";
+                    }, 1500);
                 }
             } catch (err) {
-                alert("Error copying to clipboard.");
+                console.log("Copy failed:", err);
             }
             document.body.removeChild(tempInput);
         }
     </script>
+
 
 
 {% endblock %}
