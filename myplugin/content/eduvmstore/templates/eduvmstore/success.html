@@ -28,6 +28,7 @@
             <ul style="list-style: none; padding: 0;">
                 {% for instance in instances %}
                     <li style="padding: 10px 0; border-bottom: 1px solid #e0e0e0;">
+                        <strong>{{ instance.name }}</strong><br>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <code id="cmd-{{ forloop.counter }}">scp -i {{ instance.key }} -r ubuntu@{{ instance.ip }}:/home/ubuntu/user_keys/ .</code>
                             <button onclick="copyToClipboard('cmd-{{ forloop.counter }}')" style="padding: 4px 10px; font-size: 13px;">Copy</button>
