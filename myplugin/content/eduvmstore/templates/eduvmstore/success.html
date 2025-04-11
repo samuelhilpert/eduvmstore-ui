@@ -56,13 +56,24 @@
 
     <script>
         function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).textContent;
-            navigator.clipboard.writeText(text).then(function() {
-                alert("Command copied to clipboard.");
-            }, function(err) {
-                alert("Failed to copy: " + err);
-            });
+            const codeElement = document.getElementById(elementId);
+            const tempInput = document.createElement("textarea");
+            tempInput.value = codeElement.textContent;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                const success = document.execCommand("copy");
+                if (success) {
+                    alert("Command copied to clipboard.");
+                } else {
+                    alert("Copy failed.");
+                }
+            } catch (err) {
+                alert("Error copying to clipboard.");
+            }
+            document.body.removeChild(tempInput);
         }
     </script>
+
 
 {% endblock %}
