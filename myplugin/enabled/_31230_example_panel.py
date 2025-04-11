@@ -7,4 +7,4 @@ ADD_PANEL = 'myplugin.content.example.panel.ExamplePanel'
 
 AUTO_DISCOVER_STATIC_FILES = True
 ADD_JS_FILES = []
-ADD_HEADER_SECTIONS = ['myplugin.content.tutorial.views.SecondHeaderView']
+ADD_HEADER_SECTIONS = ['myplugin.content.example.views.SecondHeaderView']
