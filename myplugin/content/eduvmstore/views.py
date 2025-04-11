@@ -976,7 +976,7 @@ class InstancesView(generic.TemplateView):
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
 
-            security_groups = ["default"]
+            security_groups = [sg["name"] for sg in app_template.get("security_groups", [])]
 
             instances = []
             shared_keypair_name = f"{base_name}_shared_key"
