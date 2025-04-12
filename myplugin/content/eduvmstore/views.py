@@ -1223,7 +1223,7 @@ class InstancesView(generic.TemplateView):
         """
         app_template = self.get_app_template()
 
-        account_attributes = app_template.get('account_attributes')
+        account_attributes = app_template.get('account_attributes', [])
 
         account_attribute = [attr['name'] for attr in account_attributes]
         return account_attribute

@@ -274,12 +274,14 @@ def test_get_expected_fields():
 
 
 
-def test_get_expected_fields_instantiation():
+@mock.patch.object(views.InstancesView, 'get_app_template', return_value={'account_attributes': [{'name': 'y'}]})
+def test_get_expected_fields_instantiation(mock_get_app_template):
     view = views.InstancesView()
     view.request = mock.MagicMock()
+    view.kwargs = {'image_id': 'dummy-id'}
     view.expected_fields_raw = [{'name': 'y'}]
     result = view.get_expected_fields()
-    assert result == ['vm_0_y']
+    assert result == ['y']
 
 @mock.patch('myplugin.content.eduvmstore.views.nova.flavor_list')
 def test_get_flavors(mock_flavor_list):
