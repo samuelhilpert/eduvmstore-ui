@@ -636,6 +636,13 @@ class EditView(generic.TemplateView):
         else:
             account_attributes = []
 
+        ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
+
+        if ssh_user_requested is None:
+            ssh_user_requested = False
+        else:
+            ssh_user_requested = True
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -645,6 +652,7 @@ class EditView(generic.TemplateView):
             'public': request.POST.get('public'),
             'approved': request.POST.get('approved'),
             'script': request.POST.get('hiddenScriptField'),
+            'ssh_user_requested': ssh_user_requested,
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
@@ -940,12 +948,14 @@ class InstancesView(generic.TemplateView):
 
             request.session.pop("keypair_name", None)
             request.session.pop("private_key", None)
+            request.session.pop("image_id", None)
 
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
             request.session["num_instances"] = num_instances
             request.session["base_name"] = base_name
+            request.session["image_id"] = image_id
 
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
@@ -1501,7 +1511,7 @@ class InstanceSuccessView(generic.TemplateView):
 
         try:
             response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
-                template_id=self.kwargs['image_id']),
+                template_id=self.request.session.get('image_id')),
                 headers=headers, timeout=10))
 
             response.raise_for_status()
