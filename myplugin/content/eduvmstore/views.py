@@ -940,6 +940,7 @@ class InstancesView(generic.TemplateView):
             app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
             volume_size = int(app_template.get('volume_size_gb') or 0)
+            ssh_user_requested = app_template.get('ssh_user_requested', False)
 
             for key in list(request.session.keys()):
                 if key.startswith("ip_addresses_") or key.startswith("keypair_name_") or \
@@ -949,6 +950,7 @@ class InstancesView(generic.TemplateView):
             request.session.pop("keypair_name", None)
             request.session.pop("private_key", None)
             request.session.pop("image_id", None)
+            request.session.pop("ssh_user_requested", None)
 
 
             request.session["app_template"] = app_template_name
@@ -956,6 +958,7 @@ class InstancesView(generic.TemplateView):
             request.session["num_instances"] = num_instances
             request.session["base_name"] = base_name
             request.session["image_id"] = image_id
+            request.session["ssh_user_requested"] = ssh_user_requested
 
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
@@ -1477,8 +1480,7 @@ class InstanceSuccessView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         num_instances = int(self.request.session.get("num_instances", 1))
         separate_keys = self.request.session.get("separate_keys", False)
-        app_template = self.get_app_template()
-        ssh_user_requested = app_template.get('ssh_user_requested', False)
+        ssh_user_requested = self.request.session.get('ssh_user_requested', False)
         context['ssh_user_requested'] = ssh_user_requested
         context['instances'] = []
 
@@ -1499,26 +1501,6 @@ class InstanceSuccessView(generic.TemplateView):
 
         return context
 
-    def get_app_template(self):
-        """
-            Fetch a specific app template from the external database using token authentication.
-            :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
-            :rtype: dict
-        """
-        token_id = get_token_id(self.request)
-        headers = {"X-Auth-Token": token_id}
-
-        try:
-            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
-                template_id=self.request.session.get('image_id')),
-                headers=headers, timeout=10))
-
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            logging.error("Unable to retrieve app template details: %s", e)
-            return {}
 
 
     def post(self, request, *args, **kwargs):
