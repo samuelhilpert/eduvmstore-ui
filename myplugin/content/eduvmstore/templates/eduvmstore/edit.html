@@ -123,6 +123,84 @@
         margin-bottom: 30px;
     }
 
+        /* Dropdown Button */
+.select-box {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.select-box:hover {
+    background-color: #f1f1f1;
+}
+
+/* Dropdown Container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+/* Display selected items */
+.selected-groups {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.selected-group {
+
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Dropdown Content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* Show dropdown on click */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Label style for checkboxes */
+.dropdown-content label {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.dropdown-content input {
+    margin-right: 10px;
+}
+   .system-requirements, .script-details, .security_groups, .app_template_details {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
  </style>
 
  <div class="form-container">
@@ -230,8 +308,41 @@
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                  </div>
              </div>
-
          </div>
+
+
+<div class="security_groups">
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="security_groups">Security Groups</label>
+            <div class="dropdown">
+                <div class="selected-groups" id="selectedGroupsDisplay">
+                    {% if app_template.security_groups %}
+                        {% for group in app_template.security_groups %}
+                            <span class="selected-group">{{ group.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="selected-group">No Security Group.</span>
+                    {% endif %}
+                </div>
+                <div class="dropdown-content">
+                    {% for sg in security_groups %}
+                        <label>
+                            <input type="checkbox" name="security_groups" value="{{ sg.name }}"
+                                   {% if sg.name in selected_sg_names %}checked{% endif %}>
+                            {{ sg.name }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add a div that holds the security groups data without tojson -->
+<div id="securityGroupsData" data-security-groups="{{ app_template.security_groups }}"></div>
+
+
          <h3>Script</h3>
          <div class="form-group row">
              <div class="col-md-4">
@@ -437,9 +548,58 @@ write_files:
     }
 
 
+ document.addEventListener("DOMContentLoaded", function () {
+    // Initialize form values
+    var scriptText = document.getElementById('scriptText').value;
+    document.getElementById('hiddenScriptField').value = scriptText;
 
+    // Format numeric inputs
+    document.querySelectorAll("input[type='text']").forEach(function(input) {
+        input.value = input.value.replace(",", ".");
+    });
 
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize the display with pre-selected groups from app_template.security_groups
+    function initializeSelectedGroups() {
+        const selectedGroups = [];
+        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
 
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                selectedGroups.push(checkbox.value);
+            }
+        });
+
+        const selectedGroupsDisplay = document.getElementById('selectedGroupsDisplay');
+        selectedGroupsDisplay.innerHTML = selectedGroups.length
+            ? selectedGroups.map(group => `<span class="selected-group">${group}</span>`).join("")
+            : `<span class="selected-group">No Security Group.</span>`;
+    }
+
+    // Function to dynamically update the display of selected groups
+    function updateSelectedGroups() {
+        const selectedGroups = [];
+        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+
+        checkboxes.forEach(function (checkbox) {
+            selectedGroups.push(checkbox.value);
+        });
+
+        const selectedGroupsDisplay = document.getElementById('selectedGroupsDisplay');
+        selectedGroupsDisplay.innerHTML = selectedGroups.length
+            ? selectedGroups.map(group => `<span class="selected-group">${group}</span>`).join("")
+            : `<span class="selected-group">No Security Group.</span>`;
+    }
+
+    // Add event listeners to checkboxes for dynamic updates
+    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function (checkbox) {
+        checkbox.addEventListener('change', updateSelectedGroups);
+    });
+
+    // Initialize the selected groups display on page load
+    initializeSelectedGroups();
+});
+  });
 </script>
 
 
