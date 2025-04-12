@@ -1203,14 +1203,6 @@ class InstancesView(generic.TemplateView):
 
         return context
 
-    # def get_flavors(self, ):
-    #  """Fetch flavors from Nova to correlate instances."""
-    # try:
-    #     flavors = api.nova.flavor_list(self.request)
-    #     return {str(flavor.id): flavor.name for flavor in flavors}
-    # except Exception:
-    #     exceptions.handle(self.request, ignore=True)
-    #     return {}
 
     def get_flavors(self, app_template):
         """
