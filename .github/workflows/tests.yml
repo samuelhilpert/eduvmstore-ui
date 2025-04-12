@@ -28,7 +28,7 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
-          pip install django pytest requests
+          pip install django pytest requests reportlab
 
       - name: Run Tests
         run: |
