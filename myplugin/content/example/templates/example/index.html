@@ -100,13 +100,21 @@
             <li><strong>General Configuration:</strong>
                 <ul>
                     <li>Step 1: Select the base image for the AppTemplate. For this example, choose a
-                        suitable Linux distribution (e.g., Ubuntu or CentOS) that supports GitLab.
+                        suitable Linux distribution (e.g., Ubuntu) that supports GitLab.
                     </li>
                     <li>Step 2: Fill in the general information for the AppTemplate, including the
                         "App-Template Name", "Short Description", and any other relevant details.
                     </li>
                     <li>Step 3: Select if the AppTemplate should be available for everyone or
                         only for the creator.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Security Groups</strong>
+                <ul>
+                    <li>Select one or more existing security groups to be used for the
+                        AppTemplate. These security groups define the network access rules for the
+                        instances launched from this AppTemplate.
                     </li>
                 </ul>
             </li>
@@ -207,10 +215,39 @@ final_message: "GitLab installation and user creation completed."
         <ol>
             <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
             <li>Click the "Launch" button next to the GitLab AppTemplate.</li>
-            <li>Step 3: [Placeholder for specific step, e.g., "Provide the student access data (e.g.,
-                usernames and passwords)."]
+            <li><strong>Configure General Launch Details:</strong>
+                <ul>
+                    <li>Keep or adjust the default settings for the instance, such as the name, the number of
+                        instances, and whether to use separate keys for each instance or a shared key.
+                    </li>
+                    <li>In this case, separate keys are not required as only one instance is needed
+                        for the GitLab server.
+                    </li>
+                </ul>
             </li>
-            <li>Step 4: [Placeholder for specific step, e.g., "Start the deployment."]</li>
+            <li><strong>Configure Instance Details:</strong>
+                <ul>
+                    <li>Step 1: Select a fitting Flavor for the instance. The flavor should meet the
+                        minimum resource requirements specified in the AppTemplate.
+                    </li>
+                    <li>Step 2: Select a network for the instance.</li>
+                    <li>Step 3: Optionally create an additional volume for the instance and enter a size or
+                        select an exiting volume.
+                    </li>
+                    <li>Step 4: Enter Instantiation Attributes like versions, if required by the
+                        AppTemplate.
+                    </li>
+                    <li>Step 5: Uncheck the "No additional users" checkbox to add users to the instance.
+                        <ul>
+                            <li>Enter the number of users to be added to the instance.</li>
+                            <li>Upload a CSV file with the user data or enter the user data directly.
+                                The CSV file should contain the user data in the format
+                                <code>username:password:firstname:lastname:email</code>.
+                        </ul>
+                    </li>
+                    <li>Step 6: Click the "Launch Instance" button to start the instance.</li>
+                </ul>
+            </li>
         </ol>
     </div>
 
