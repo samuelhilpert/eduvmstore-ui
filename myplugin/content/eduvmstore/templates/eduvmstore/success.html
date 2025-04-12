@@ -19,6 +19,8 @@
             The instance was successfully created. You can now download the associated ZIP-File.
         </p>
 
+    {% if ssh_user_requested %}
+
         <div style="margin-top: 40px;">
             <h3>SHH Keys for Users</h3>
             <p style="font-size: 16px; margin-bottom: 20px;">
@@ -37,6 +39,8 @@
                 {% endfor %}
             </ul>
         </div>
+
+    {% endif %}
 
 
         <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px;">

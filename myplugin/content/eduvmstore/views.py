@@ -427,6 +427,13 @@ class CreateView(generic.TemplateView):
         else:
             account_attributes = []
 
+        ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
+
+        if ssh_user_requested is None:
+            ssh_user_requested = False
+        else:
+            ssh_user_requested = True
+
         volume_size = request.POST.get('volume_size', '').strip()
         volume_size_gb = int(volume_size) if volume_size else 0
 
@@ -438,6 +445,7 @@ class CreateView(generic.TemplateView):
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
             'script': request.POST.get('hiddenScriptField'),
+            'ssh_user_requested': ssh_user_requested,
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
@@ -1459,6 +1467,9 @@ class InstanceSuccessView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         num_instances = int(self.request.session.get("num_instances", 1))
         separate_keys = self.request.session.get("separate_keys", False)
+        app_template = self.get_app_template()
+        ssh_user_requested = app_template.get('ssh_user_requested', False)
+        context['ssh_user_requested'] = ssh_user_requested
         context['instances'] = []
 
         for i in range(1, num_instances + 1):
@@ -1477,6 +1488,27 @@ class InstanceSuccessView(generic.TemplateView):
             })
 
         return context
+
+    def get_app_template(self):
+        """
+            Fetch a specific app template from the external database using token authentication.
+            :param token_id: Authentication token for API access.
+            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :rtype: dict
+        """
+        token_id = get_token_id(self.request)
+        headers = {"X-Auth-Token": token_id}
+
+        try:
+            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
+                template_id=self.kwargs['image_id']),
+                headers=headers, timeout=10))
+
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logging.error("Unable to retrieve app template details: %s", e)
+            return {}
 
 
     def post(self, request, *args, **kwargs):
