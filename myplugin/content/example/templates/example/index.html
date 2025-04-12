@@ -3,14 +3,15 @@
 {% block title %}Instructions{% endblock %}
 
 {% block page_header %}
-     <div style="display: flex; align-items: center; justify-content: space-between;  border-bottom: 1px solid #e0e0e0;">
+    <div style="display: flex; align-items: center; justify-content: space-between;  border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
-                 <h1 class="page-title mb-0">
+            <h1 class="page-title mb-0">
                 Example
             </h1>
         </div>
         <div>
-            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img"
+                 style="height: 95px;">
         </div>
     </div>
 {% endblock page_header %}
@@ -20,5 +21,142 @@
 
 
     <h2 style="text-align: center; color: #333;">Examples</h2>
+
+    <style>
+
+        .accordion {
+            background: linear-gradient(135deg, #333, #777);
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .accordion:hover {
+            background-color: #555;
+        }
+
+        .panel {
+            display: none;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-top: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-container {
+            width: 100%;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+    </style>
+
+
+    <hr>
+    <h2 style="text-align: center; color: #333;">Examples</h2>
+    <p style="text-align: center; color: #666; font-size: 16px;">Here are some examples of use cases and how
+        to use the EduVMStore.</p>
+    <hr>
+    <button class="accordion">Use Case <strong>GitLab Server</strong>: How to set up a GitLab server for a
+        software engineering course?
+    </button>
+    <div class="panel">
+        <p><strong>Use Case for Lecturers:</strong></p>
+        <p>This example demonstrates how lecturers can set up a GitLab server for a software engineering
+            course using the EduVMStore. The setup enables students to collaborate on projects and manage
+            their code repositories effectively, providing a practical learning environment.</p>
+        <p><strong>Overview:</strong> Lecturers will create an AppTemplate that includes a cloud-init script
+            to configure the GitLab server and add students with their access credentials. This ensures a
+            streamlined process for deploying and managing the server.</p>
+        <p><strong>Steps:</strong> By following this example, lecturers will learn how to:</p>
+        <ul>
+            <li>Create an AppTemplate tailored for the course requirements.</li>
+            <li>Write a configuration script to automate the setup of the GitLab server.</li>
+            <li>Launch and manage an instance of the GitLab server for their students.</li>
+        </ul>
+        <br/>
+        <p><strong>Note:</strong> This example assumes a basic understanding of the EduVMStore platform. If
+            you are new to EduVMStore, refer to the
+            <a href="{% url 'instructions:index' %}">instructions</a> section for a comprehensive guide on
+            getting started.</p>
+        <p>For detailed information about GitLab and its features, visit the official
+            <a href="https://about.gitlab.com/" target="_blank">GitLab documentation</a>.</p>
+
+        <h3>1. Create an AppTemplate</h3>
+        <p>To create an AppTemplate for the GitLab server, follow these steps:</p>
+        <ol>
+            <li><strong>General Configuration:</strong>
+                <ul>
+                    <li>Step 1: [Placeholder for specific step, e.g., "Navigate to the AppTemplates
+                        section."]
+                    </li>
+                    <li>Step 2: [Placeholder for specific step, e.g., "Provide a name for the template."]</li>
+                    <li>Step 3: [Placeholder for specific step, e.g., "Select a base image."]</li>
+                </ul>
+            </li>
+            <li><strong>Write Configuration Script:</strong>
+                <ul>
+                    <li>Step 1: [Placeholder for specific step, e.g., "Open the script editor."]</li>
+                    <li>Step 2: [Placeholder for specific step, e.g., "Write a cloud-init script to configure
+                        the GitLab server and add students."]
+                    </li>
+                    <li>Step 3: [Placeholder for specific step, e.g., "Save the script."]</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>2. Launch an Instance</h3>
+        <p>To launch an instance using the created AppTemplate, follow these steps:</p>
+        <ol>
+            <li>Step 1: [Placeholder for specific step, e.g., "Navigate to the Deployments section."]</li>
+            <li>Step 2: [Placeholder for specific step, e.g., "Select the GitLab AppTemplate."]</li>
+            <li>Step 3: [Placeholder for specific step, e.g., "Provide the student access data (e.g.,
+                usernames and passwords)."]
+            </li>
+            <li>Step 4: [Placeholder for specific step, e.g., "Start the deployment."]</li>
+        </ol>
+    </div>
+
+    <button class="accordion">Example 2</button>
+    <div class="panel">
+        <p>Example 2</p>
+    </div>
+
+    <button class="accordion">Example 3</button>
+    <div class="panel">
+        <p>Example 3</p>
+    </div>
+    <hr>
+
+
+    <script>
+
+        var acc = document.getElementsByClassName("accordion");
+        for (var i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        }
+
+    </script>
 
 {% endblock %}
