@@ -1169,7 +1169,22 @@ class InstancesView(generic.TemplateView):
 
     def wait_for_ip_in_network(self, request, server_id, network_name, timeout=30):
         """
-        Warte auf eine IP-Adresse aus einem bestimmten Netzwerk.
+        Wait for an IP address from a specific network.
+
+        This method repeatedly checks if an IP address is available for a server in a given network.
+        If an IP address is found, it is returned. Otherwise, after the timeout, a list with an error
+        message is returned.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param server_id: The ID of the server for which the IP address is being searched.
+        :type server_id: str
+        :param network_name: The name of the network in which the IP address is being searched.
+        :type network_name: str
+        :param timeout: The maximum wait time in seconds before the search is aborted.
+        :type timeout: int
+        :return: The found IP address or a list with an error message.
+        :rtype: str or list
         """
         for i in range(timeout):
             try:
@@ -1188,7 +1203,21 @@ class InstancesView(generic.TemplateView):
 
     def wait_for_server(self, request, instance_id, timeout=30):
         """
-        Warte, bis eine Instanz im Nova-API erscheint.
+        Wait until an instance appears in the Nova API.
+
+        This method repeatedly checks if an instance with the given ID is available in the Nova API.
+        If the instance is found, it is returned. If the instance does not appear within the timeout
+        period, an exception is raised.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param instance_id: The ID of the instance to wait for.
+        :type instance_id: str
+        :param timeout: The maximum time to wait for the instance, in seconds.
+        :type timeout: int
+        :return: The instance object if found.
+        :rtype: Server
+        :raises Exception: If the instance is not found within the timeout period.
         """
         for i in range(timeout):
             try:
