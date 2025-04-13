@@ -233,6 +233,7 @@ class IndexView(generic.TemplateView):
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
+        context['page_title'] = self.page_title
 
         app_templates = search_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
@@ -266,8 +267,6 @@ class IndexView(generic.TemplateView):
         context['favorite_app_templates'] = favorite_app_templates
         context['favorite_template_ids'] = favorite_template_ids
 
-        context['page_title'] = self.page_title
-
         return context
 
     def get(self, request, *args, **kwargs):
@@ -284,7 +283,6 @@ class DetailsPageView(generic.TemplateView):
     Display detailed information for a specific app template, including associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
-    page_title = _("AppTemplate Details")
 
 
     def get_context_data(self, **kwargs):
@@ -312,7 +310,6 @@ class DetailsPageView(generic.TemplateView):
             'created_at': created_at,
         })
 
-        context['page_title'] = self.page_title
 
         return context
 
@@ -375,7 +372,6 @@ class CreateView(generic.TemplateView):
     """
 
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
-    page_title = _("Create AppTemplate")
 
     def get(self, request, *args, **kwargs):
             """
@@ -504,7 +500,6 @@ class CreateView(generic.TemplateView):
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
 
-        context['page_title'] = self.page_title
 
         return context
 
@@ -585,7 +580,6 @@ class EditView(generic.TemplateView):
     View to handle editing of an app template.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
-    page_title = _("Edit AppTemplate")
 
     def get(self, request, *args, **kwargs):
         """
@@ -702,7 +696,6 @@ class EditView(generic.TemplateView):
             'image_owner': image_data.get('owner', 'N/A'),
         })
 
-        context['page_title'] = self.page_title
         return context
 
     def get_app_template(self):
@@ -899,7 +892,6 @@ class InstancesView(generic.TemplateView):
         View for displaying instances, including form input for instance creation.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
-    page_title = _("Launch")
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
@@ -1164,8 +1156,6 @@ class InstancesView(generic.TemplateView):
 
         has_attachable_volumes = len(attachable_volumes) > 0
         context['hasAttachableVolumes'] = has_attachable_volumes
-
-        context['page_title'] = self.page_title
 
 
 
