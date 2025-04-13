@@ -1,4 +1,3 @@
-from ipaddress import ip_address
 
 import requests
 import socket
