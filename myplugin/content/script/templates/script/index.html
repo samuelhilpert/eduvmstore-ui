@@ -73,6 +73,9 @@
             initialization. In EduVMStore, these scripts are essential for setting up AppTemplates, as they
             allow you to define user accounts, install software, configure services, and more. This tutorial
             will guide you through writing effective cloud-init scripts for your AppTemplates.</p>
+        <p>Learn more about cloud-init scripts in the <a
+                        href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html#cloud-config"
+                        target="_blank">official cloud-init documentation</a>.</p>
         <p>Cloud-init scripts are written in YAML, a human-readable data serialization format. To understand
             how to structure and write YAML files, refer to the
             <a href="https://yaml.org/" target="_blank">official YAML documentation</a>.</p>
@@ -85,9 +88,6 @@
                 <strong>Start with the Shebang:</strong>
                 <p>Every cloud-init script should start with the shebang line to indicate the script type:</p>
                 <pre><code>#cloud-config</code></pre>
-                <p>Learn more in the <a
-                        href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html#cloud-config"
-                        target="_blank">official cloud-init documentation</a>.</p>
                 <p><strong>Important Note:</strong> If you choose the "Write Script" option during AppTemplate
                     creation, the <code>#cloud-config</code> header and the <code>write_files</code> section
                     are pre-filled for you. You can start writing your script directly after the pre-filled
@@ -206,6 +206,7 @@
     <div class="section">
         <h2>Tips and Tricks</h2>
         <ul>
+            <li>Work with the LLM of your choice to create aspired scripts.</li>
             <li>Leverage the `write_files` section to create configuration files dynamically.</li>
             <li>Use the `runcmd` section for tasks that require shell commands.</li>
             <li>When using CSV uploads, ensure the headers match the expected fields to avoid processing

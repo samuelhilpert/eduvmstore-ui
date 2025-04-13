@@ -96,10 +96,9 @@
             <li>Launch and manage multiple instances of the Ubuntu Linux environment for their students.</li>
         </ul>
         <br/>
-        <p><strong>Note:</strong> This example assumes a basic understanding of the EduVMStore platform. If
-            you are new to EduVMStore, refer to the
+        <p><strong>Note:</strong> Find the
             <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
-               target="_blank">instruction</a> section for a comprehensive guide on getting started.</p>
+               target="_blank">instruction</a> section for a general guide.</p>
         <p>For detailed information about Ubuntu Linux, visit the official
             <a href="https://ubuntu.com/" target="_blank">Ubuntu documentation</a>.</p>
 
@@ -133,13 +132,20 @@
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate, such as
-                        RAM, disk space, and CPU cores. Ensure that the resources meet the requirements for
-                        running Ubuntu.
+                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                        <ul>
+                            <li>RAM: 2 GB</li>
+                            <li>Disk Space: 20 GB</li>
+                            <li>CPU Cores: 2</li>
+                        </ul>
                     </li>
                     <li>Step 2: Optionally enter a volume size.</li>
-                    <li>Step 3: Choose the minimum resources per User for the AppTemplate (RAM, disk space,
-                        CPU cores).
+                    <li>Step 3: Choose the minimum resources per User for the AppTemplate:
+                        <ul>
+                            <li>RAM: 0.512 GB</li>
+                            <li>Disk Space: 5 GB</li>
+                            <li>CPU Cores: 1</li>
+                        </ul>
                     </li>
                 </ul>
             </li>
@@ -208,7 +214,8 @@
             <li><strong>Configure General Launch Details:</strong>
                 <ul>
                     <li>Keep or adjust the Instance Name
-                        (for this example you can just keep "Ubuntu Instance").</li>
+                        (for this example you can just keep "Ubuntu Instance").
+                    </li>
                     <li>Set the <strong>Number of Instances</strong> to <strong>2</strong>.</li>
                     <li>Enable the <strong>Generate Separate Keys</strong> option to ensure each instance has
                         its own unique SSH key.
@@ -273,11 +280,9 @@
             <li>Launch and manage an instance of the GitLab server for their students.</li>
         </ul>
         <br/>
-        <p><strong>Note:</strong> This example assumes a basic understanding of the EduVMStore platform. If
-            you are new to EduVMStore, refer to the
+        <p><strong>Note:</strong> Find the
             <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
-               target="_blank">instruction</a> section for a comprehensive guide on
-            getting started.</p>
+               target="_blank">instruction</a> section for a general guide.</p>
         <p>For detailed information about GitLab and its features, visit the official
             <a href="https://about.gitlab.com/" target="_blank">GitLab documentation</a>.</p>
 
@@ -311,13 +316,22 @@
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate, such as
-                        RAM, disk space, and CPU cores.
-                        Ensure that the resources meet the requirements for running Ubuntu and GitLab.
+                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                        <ul>
+                            <li>RAM: 4 GB</li>
+                            <li>Disk Space: 50 GB</li>
+                            <li>CPU Cores: 4</li>
+                        </ul>
                     </li>
-                    <li>Step 2: Optionally enter a volume size.</li>
-                    <li>Step 3: Choose the minimum resources per User for the AppTemplate
-                        (RAM, disk space, CPU cores).
+                    <li>Step 2: Optionally enter a volume size. For this example, set the volume size to 10
+                        GB.
+                    </li>
+                    <li>Step 3: Choose the minimum resources per User for the AppTemplate:
+                        <ul>
+                            <li>RAM: 1 GB</li>
+                            <li>Disk Space: 10 GB</li>
+                            <li>CPU Cores: 1</li>
+                        </ul>
                     </li>
                 </ul>
             </li>
@@ -464,10 +478,9 @@ final_message: "GitLab installation and user creation completed."
             <li>Launch and manage an instance of the Jupyter Notebook environment for their students.</li>
         </ul>
         <br/>
-        <p><strong>Note:</strong> This example assumes a basic understanding of the EduVMStore platform. If
-            you are new to EduVMStore, refer to the
+        <p><strong>Note:</strong> Find the
             <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
-               target="_blank">instruction</a> section for a comprehensive guide on getting started.</p>
+               target="_blank">instruction</a> section for a general guide.</p>
         <p>For detailed information about Jupyter Notebook and its features, visit the official
             <a href="https://jupyter.org/" target="_blank">Jupyter documentation</a>.</p>
 
@@ -501,13 +514,22 @@ final_message: "GitLab installation and user creation completed."
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate, such as
-                        RAM, disk space, and CPU cores. Ensure that the resources meet the requirements for
-                        running Ubuntu and Jupyter Notebook.
+                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                        <ul>
+                            <li>RAM: 8 GB</li>
+                            <li>Disk Space: 80 GB</li>
+                            <li>CPU Cores: 4</li>
+                        </ul>
                     </li>
-                    <li>Step 2: Optionally enter a volume size.</li>
-                    <li>Step 3: Choose the minimum resources per User for the AppTemplate (RAM, disk space,
-                        CPU cores).
+                    <li>Step 2: Optionally enter a volume size. For this example, set the volume size to 50
+                        GB.
+                    </li>
+                    <li>Step 3: Choose the minimum resources per User for the AppTemplate:
+                        <ul>
+                            <li>RAM: 2 GB</li>
+                            <li>Disk Space: 10 GB</li>
+                            <li>CPU Cores: 1</li>
+                        </ul>
                     </li>
                 </ul>
             </li>
