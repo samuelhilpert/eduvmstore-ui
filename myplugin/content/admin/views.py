@@ -109,6 +109,7 @@ class IndexView(generic.TemplateView):
         View for displaying the admin index page with user details and admin status.
     """
     template_name = 'eduvmstore_dashboard/admin/index.html'
+    page_title = _("EduVMStore Admin")
 
     def get_context_data(self, **kwargs):
         """
@@ -177,7 +178,7 @@ class IndexView(generic.TemplateView):
         else:
             context['show_content'] = False
 
-
+        context['page_title'] = self.page_title
 
         return context
 
