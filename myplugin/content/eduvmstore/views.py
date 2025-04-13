@@ -284,6 +284,7 @@ class DetailsPageView(generic.TemplateView):
     Display detailed information for a specific app template, including associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
+    page_title = _("AppTemplate Details")
 
 
     def get_context_data(self, **kwargs):
@@ -311,7 +312,7 @@ class DetailsPageView(generic.TemplateView):
             'created_at': created_at,
         })
 
-        context['page_title'] = app_template.get('name', _('App Template Details'))
+        context['page_title'] = self.page_title
 
         return context
 
