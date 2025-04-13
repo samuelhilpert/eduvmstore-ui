@@ -169,7 +169,7 @@
     <div class="section">
         <h2>Instantiation and Account Attributes</h2>
         <p>The instantiation and account attributes fields are in the format
-            <code>username:password:email</code>. These attributes are saved in a file within the pre-filled
+            <code>account_attribute_1:account_attribute_2:[...]</code>. These attributes are saved in a file within the pre-filled
             <code>write_files</code> section. You can use them in the rest of your script, for example, in the
             <code>runcmd</code> section:</p>
         <pre><code>while IFS=: read -r username password; do
@@ -201,17 +201,14 @@
     <div class="section">
         <h2>Tips and Tricks</h2>
         <ul>
-            <li>Use the <code>cloud-init analyze</code> command to debug and analyze your scripts.</li>
             <li>Leverage the <code>write_files</code> section to create configuration files dynamically.</li>
             <li>Use the <code>runcmd</code> section for tasks that require shell commands.</li>
-            <li>Combine cloud-init with version control to track changes to your scripts over time.</li>
         </ul>
     </div>
 
     <div class="section">
         <h2>Common Pitfalls</h2>
         <ul>
-            <li>Forgetting the <code>#cloud-config</code> header, which causes the script to fail.</li>
             <li>Using incorrect indentation, as YAML is sensitive to whitespace.</li>
             <li>Not escaping special characters in commands or file content.</li>
             <li>Failing to test scripts thoroughly, leading to unexpected behavior during initialization.</li>
