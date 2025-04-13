@@ -115,6 +115,28 @@
         <p>EduVMStore is designed for students, educators, and IT administrators in educational institutions
             that require virtualized environments for teaching, learning, and research.</p>
     </div>
+
+    <button class="accordion">
+        <span class="text">What happens if I exceed my resource quota?</span>
+        <span class="icon">▶</span>
+    </button>
+    <div class="panel">
+        <p>If you exceed your resource quota, you will not be able to create new instances or allocate
+            additional resources until the quota is increased or existing resources are freed.
+            Therefore, contact your administrator or IT department to discuss your needs.</p>
+    </div>
+
+    <button class="accordion">
+        <span class="text">Can I share my AppTemplates with other users?</span>
+        <span class="icon">▶</span>
+    </button>
+    <div class="panel">
+        <p>Yes, you can share your AppTemplates with other users by selecting the "Available for everyone"
+            option during the creation process. Check
+            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" target="_blank">
+                Publish a private App Template</a> in the documentation for more details.</p>
+    </div>
+
     <hr>
     <h2 style="text-align: center; color: #333;">Contact</h2>
     <p></p>
