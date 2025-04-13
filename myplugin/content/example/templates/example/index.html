@@ -200,35 +200,45 @@
             </li>
         </ol>
 
-        <h3>2. Launch an Instance</h3>
-        <p>To launch an instance using the created AppTemplate, follow these steps:</p>
+        <h3>2. Launch Instances</h3>
+        <p>To launch instances using the created AppTemplate, follow these steps:</p>
         <ol>
             <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
             <li>Click the "Launch" button next to the Ubuntu Linux AppTemplate.</li>
             <li><strong>Configure General Launch Details:</strong>
                 <ul>
-                    <li>Keep or adjust the default settings for the instance, such as the name, the number of
-                        instances, and whether to use separate keys for each instance or a shared key.
-                    </li>
-                    <li>In this case, separate keys are not required as only one instance is needed for the
-                        Ubuntu Linux environment.
+                    <li>Keep or adjust the Instance Name
+                        (for this example you can just keep "Ubuntu Instance").</li>
+                    <li>Set the <strong>Number of Instances</strong> to <strong>2</strong>.</li>
+                    <li>Enable the <strong>Generate Separate Keys</strong> option to ensure each instance has
+                        its own unique SSH key.
                     </li>
                 </ul>
             </li>
             <li><strong>Configure Instance Details:</strong>
                 <ul>
-                    <li>Step 1: Select a fitting Flavor for the instance. The flavor should meet the minimum
-                        resource requirements specified in the AppTemplate.
+                    <li>Switch to the <strong>"All Instances" tab</strong> to configure shared settings for
+                        all instances at once.
                     </li>
-                    <li>Step 2: Select a network for the instance.</li>
-                    <li>Step 3: Optionally create an additional volume for the instance and enter a size or
+                    <li>Step 1: Select a fitting <strong>Flavor</strong> for the instances. The flavor should
+                        meet the minimum resource requirements specified in the AppTemplate.
+                    </li>
+                    <li>Step 2: Select a <strong>Network</strong> for the instances.</li>
+                    <li>Step 3: Optionally create an additional volume for the instances and enter a size or
                         select an existing volume.
                     </li>
-                    <li>Step 4: Enter Instantiation Attributes like versions, if required by the AppTemplate.
-                        In this case, there are no instantiation attributes to be entered.
+                </ul>
+            </li>
+            <li><strong>Configure Users for Each Instance:</strong>
+                <ul>
+                    <li>Switch to each instance tab (e.g., "Ubuntu Instance-1", "Ubuntu Instance-2")
+                        to configure users separately.
                     </li>
-                    <li>Step 5: Uncheck the "No additional users" checkbox to add users to the instance.
+                    <li>For each instance:
                         <ul>
+                            <li>Uncheck the <strong>"No additional users"</strong> checkbox to add users to
+                                the instance.
+                            </li>
                             <li>Enter the number of users to be added to the instance.</li>
                             <li>Upload a CSV file with the user data or enter the user data directly by
                                 filling in the form fields for each user. The CSV file should contain the user
@@ -236,9 +246,9 @@
                             </li>
                         </ul>
                     </li>
-                    <li>Step 6: Click the "Launch Instance" button to start the instance.</li>
                 </ul>
             </li>
+            <li>Click the <strong>"Launch Instances"</strong> button to start the instances.</li>
         </ol>
     </div>
 
