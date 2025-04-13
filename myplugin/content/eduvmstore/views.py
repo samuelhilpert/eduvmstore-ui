@@ -199,7 +199,6 @@ class IndexView(generic.TemplateView):
         Display the main index page with available app templates and associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
-    page_title = _("EduVMStore Dashboard")
 
     def get_images_data(self):
         """
@@ -233,7 +232,6 @@ class IndexView(generic.TemplateView):
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-        context['page_title'] = self.page_title
 
         app_templates = search_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
