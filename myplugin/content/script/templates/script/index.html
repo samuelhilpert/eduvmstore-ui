@@ -169,7 +169,8 @@
     <div class="section">
         <h2>Instantiation and Account Attributes</h2>
         <p>The instantiation and account attributes fields are in the format
-            <code>account_attribute_1:account_attribute_2:[...]</code>. These attributes are saved in a file within the pre-filled
+            <code>account_attribute_1:account_attribute_2:[...]</code> (for example:
+            <code>username:password</code>). These attributes are saved in a file within the pre-filled
             <code>write_files</code> section. You can use them in the rest of your script, for example, in the
             <code>runcmd</code> section:</p>
         <pre><code>while IFS=: read -r username password; do
@@ -190,10 +191,14 @@
                 production.
             </li>
             <li>Use meaningful comments in your scripts to explain each section.</li>
-            <li>Keep your scripts modular by separating different tasks into distinct sections.</li>
-            <li>Use secure methods for handling sensitive data, such as passwords or API keys.</li>
             <li>Minimize the number of packages installed to reduce initialization time and potential
                 vulnerabilities.
+            </li>
+            <li>Ensure that the `write_files` and `runcmd` sections are used only once in the script to avoid
+                overwriting.
+            </li>
+            <li>Validate the format and content of any uploaded CSV files to prevent errors during
+                processing.
             </li>
         </ul>
     </div>
@@ -201,8 +206,15 @@
     <div class="section">
         <h2>Tips and Tricks</h2>
         <ul>
-            <li>Leverage the <code>write_files</code> section to create configuration files dynamically.</li>
-            <li>Use the <code>runcmd</code> section for tasks that require shell commands.</li>
+            <li>Leverage the `write_files` section to create configuration files dynamically.</li>
+            <li>Use the `runcmd` section for tasks that require shell commands.</li>
+            <li>When using CSV uploads, ensure the headers match the expected fields to avoid processing
+                errors.
+            </li>
+            <li>Use the `final_message` section to provide clear feedback on the initialization process.</li>
+            <li>Take advantage of the `Generate SSH setup for users` checkbox to simplify SSH configuration.
+            </li>
+            <li>Use variables or placeholders in your scripts to make them more flexible and reusable.</li>
         </ul>
     </div>
 
@@ -212,7 +224,16 @@
             <li>Using incorrect indentation, as YAML is sensitive to whitespace.</li>
             <li>Not escaping special characters in commands or file content.</li>
             <li>Failing to test scripts thoroughly, leading to unexpected behavior during initialization.</li>
-            <li>Hardcoding sensitive information like passwords instead of using secure methods.</li>
+            <li>Declaring `write_files` or `runcmd` sections multiple times, which causes only the last
+                declaration to be executed.
+            </li>
+            <li>Uploading CSV files with incorrect headers or mismatched data formats.</li>
+            <li>Overlooking the need to adjust file paths for dynamically created files in the `write_files`
+                section.
+            </li>
+            <li>Forgetting to update user counts or other dependent fields when dynamically adding or removing
+                accounts.
+            </li>
         </ul>
     </div>
 
