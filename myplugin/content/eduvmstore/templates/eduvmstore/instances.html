@@ -186,6 +186,10 @@
                                 <td>{% if app_template.public %}Everyone{% else %}Creator Only{% endif %}</td>
                             </tr>
                             <tr>
+                                <th>SSH User Script</th>
+                                <td>{% if app_template.ssh_user_requested %}Yes{% else %}No{% endif %}</td>
+                            </tr>
+                            <tr>
                                 <th>Script</th>
                                 <td>
                                     <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;">{{ app_template.script }}</pre>
