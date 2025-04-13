@@ -94,13 +94,36 @@
                     content.</p>
             </li>
             <li>
+                <strong>Write Files:</strong>
+                <p>Use the <code>write_files</code> section to create or modify files:</p>
+                <pre><code>write_files:
+      - path: /etc/motd
+        content: |
+          Welcome to your new instance!
+          Managed by EduVMStore.</code></pre>
+                <p><strong>Important Note:</strong> The <code>write_files</code> section should only be used
+                    once in a script. If declared multiple times, only the last declaration will be executed.
+                    To add more files, write them directly at the top of the script to continue from the
+                    pre-filled content we provide.</p>
+                <p>With the provided beginning of the script, start additional <code>write_files</code>
+                    parts like this:</p>
+                <pre><code>
+      - path: /etc/motd
+        content: |
+          Welcome to your new instance!
+          Managed by EduVMStore.</code></pre>
+                <p>Learn more in the <a
+                        href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#writing-out-arbitrary-files"
+                        target="_blank">official cloud-init documentation</a>.</p>
+            </li>
+            <li>
                 <strong>Define Packages to Install:</strong>
                 <p>Use the <code>packages</code> section to list the software packages you want to install:
                 </p>
                 <pre><code>packages:
-  - curl
-  - git
-  - python3</code></pre>
+      - curl
+      - git
+      - python3</code></pre>
                 <p>Learn more in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#install-arbitrary-packages"
                         target="_blank">official cloud-init documentation</a>.</p>
@@ -112,6 +135,11 @@
                 <pre><code>runcmd:
       - apt-get update
       - apt-get install -y nginx</code></pre>
+                <p><strong>Important Note:</strong> The <code>runcmd</code> section should only be used once
+                    in a script. If declared multiple times, only the last declaration will be executed.</p>
+                <p>If the "Generate SSH setup for users" checkbox is selected, an SSH setup script will
+                    automatically be added in the <code>runcmd</code> section inside the "Write Script" input
+                    field. You can write the rest of your script around this pre-filled content.</p>
                 <p>Learn more in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#run-commands-on-first-boot"
                         target="_blank">official cloud-init documentation</a>.</p>
@@ -131,23 +159,28 @@
                         target="_blank">official cloud-init documentation</a>.</p>
             </li>
             <li>
-                <strong>Write Files:</strong>
-                <p>Use the <code>write_files</code> section to create or modify files:</p>
-                <pre><code>write_files:
-      - path: /etc/motd
-        content: |
-          Welcome to your new instance!
-          Managed by EduVMStore.</code></pre>
-                <p>Learn more in the <a
-                        href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#writing-out-arbitrary-files"
-                        target="_blank">official cloud-init documentation</a>.</p>
-            </li>
-            <li>
                 <strong>Set Final Messages:</strong>
                 <p>Use the <code>final_message</code> section to display a message after initialization:</p>
                 <pre><code>final_message: "Instance setup is complete. Enjoy your environment!"</code></pre>
             </li>
         </ol>
+    </div>
+
+    <div class="section">
+        <h2>Instantiation and Account Attributes</h2>
+        <p>The instantiation and account attributes fields are in the format
+            <code>username:password:email</code>. These attributes are saved in a file within the pre-filled
+            <code>write_files</code> section. You can use them in the rest of your script, for example, in the
+            <code>runcmd</code> section:</p>
+        <pre><code>while IFS=: read -r username password; do
+        # Create users
+        if ! id "$username" &>/dev/null; then
+            useradd -m -s /bin/bash "$username"
+            echo "$username:$password" | chpasswd
+        fi
+    done &lt; /path/to/attributes/file</code></pre>
+        <p>Make sure to adjust the file path to match the location where the attributes are saved in the
+            <code>write_files</code> section.</p>
     </div>
 
     <div class="section">
