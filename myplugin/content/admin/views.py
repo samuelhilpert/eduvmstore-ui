@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
 from openstack_dashboard.api import keystone
+from django.utils.translation import gettext_lazy as _
 
 def get_username_from_id(request, user_id):
     try:
