@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
  {% load static %}
- {% block title %}Edit App-Template{% endblock %}
+ {% block title %}Edit AppTemplate{% endblock %}
 
  {% block page_header %}
      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
          <div style="margin-right: 15px;">
-             <h1 class="page-title mb-0">Edit App-Template</h1>
+             <h1 class="page-title mb-0">Edit AppTemplate</h1>
          </div>
          <div>
              <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
@@ -129,7 +129,7 @@
      <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
          {% csrf_token %}
 
-         <h3>App-Template Details</h3>
+         <h3>AppTemplate Details</h3>
 
         <div class="col-md-6" hidden="hidden">
                  <label for="image_id">Image ID:</label>
@@ -149,7 +149,7 @@
 
          <div class="form-group row">
              <div class="col-md-6">
-                 <label for="name">App-Template Name:</label>
+                 <label for="name">AppTemplate Name:</label>
                  <input type="text" id="name" name="name" class="form-control" required
                         data-url="{% url 'horizon:eduvmstore_dashboard:eduvmstore:validate_name' %}"
                         oninput="checkName()" value="{{ app_template.name }}">
@@ -182,10 +182,10 @@
             </div>
         </div>
 
-         <h3>System Requirements</h3>
+         <h3>Minimum System Requirements</h3>
          <div class="row">
              <div class="col-md-6">
-                 <h4>Fixed Resources</h4>
+                 <h4>Fixed Minimum Resources</h4>
                  <div class="form-group mt-5">
                      <label for="fixed_ram_gb">Fixed RAM (GB):</label>
                      <input type="text" id="fixed_ram_gb" value="{{ app_template.fixed_ram_gb }}"
@@ -212,7 +212,7 @@
              </div>
 
              <div class="col-md-6">
-                 <h4>Resources per User</h4>
+                 <h4>Minimum Resources per User</h4>
                  <div class="form-group mt-5">
                      <label for="per_user_ram_gb">Per User RAM (GB):</label>
                      <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" value="{{ app_template.per_user_ram_gb }}" class="form-control" required
@@ -292,7 +292,7 @@ write_files:
      <div class="modal-dialog" role="document">
          <div class="modal-content">
              <div class="modal-header">
-                 <h5 class="modal-title" id="responseModalLabel">{{ _("App-Template Creation Status") }}</h5>
+                 <h5 class="modal-title" id="responseModalLabel">{{ _("AppTemplate Creation Status") }}</h5>
                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                      <span aria-hidden="true">&times;</span>
                  </button>
@@ -301,7 +301,7 @@ write_files:
                  <p>{{ modal_message }}</p>
              </div>
              <div class="modal-footer">
-                 {% if modal_message == "App-Template created successfully." %}
+                 {% if modal_message == "AppTemplate created successfully." %}
                      <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Show Overview") }}</a>
                  {% endif %}
                  <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>

@@ -71,7 +71,7 @@
 </style>
 
 <div style="display: flex; justify-content: space-between; align-items: center;">
-    <h4>App-Template Details</h4>
+    <h4>AppTemplate Details</h4>
     <div class="btn-group">
                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
             Launch
@@ -84,7 +84,7 @@
         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
                                 <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
-                                    Edit App-Template
+                                    Edit AppTemplate
                                 </a>
                             </li>
                             <li>
@@ -95,7 +95,7 @@
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
-                                    Delete App-Template
+                                    Delete AppTemplate
                                 </a>
                                 <form id="delete-form-{{ app_template.id }}" method="post"
                                       action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
@@ -107,15 +107,15 @@
                         </ul>
     </div>
 </div>
-    <!-- App Template  Section -->
+    <!-- AppTemplate  Section -->
 <div class="row">
     <div class="col-md-6">
         <div class="detail-group">
-            <strong>App-Template Name:</strong>
+            <strong>AppTemplate Name:</strong>
             <p>{{ app_template.name }}</p>
         </div>
         <div class="detail-group">
-            <strong>App-Template ID:</strong>
+            <strong>AppTemplate ID:</strong>
             <p>{{ app_template.id }}</p>
         </div>
         <div class="detail-group">
@@ -139,7 +139,7 @@
         </div>
 
         <div class="detail-group">
-            <strong>App Template Creator:</strong>
+            <strong>AppTemplate Creator:</strong>
             <p>{{ app_template_creator }}</p>
         </div>
 
@@ -309,7 +309,7 @@ write_files:
                 return;
             }
 
-            let confirmDelete = confirm("Are you sure you want to delete this App-Template?");
+            let confirmDelete = confirm("Are you sure you want to delete this AppTemplate?");
             if (!confirmDelete) return;
 
             fetch(`/delete_template/${templateId}/`, {
@@ -322,7 +322,7 @@ write_files:
             })
             .then(response => {
                 if (response.status === 204) {
-                    alert("App-Template deleted successfully!");
+                    alert("AppTemplate deleted successfully!");
                     location.reload();
                 } else {
                     return response.json().then(data => {
