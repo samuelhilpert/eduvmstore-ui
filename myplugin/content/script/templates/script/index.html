@@ -85,15 +85,19 @@
                 <p>Learn more in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html#cloud-config"
                         target="_blank">official cloud-init documentation</a>.</p>
+                <p><strong>Important Note:</strong> If you choose the "Write Script" option during AppTemplate
+                    creation, the <code>#cloud-config</code> header and the <code>write_files</code> section
+                    are pre-filled for you. You can start writing your script directly after the pre-filled
+                    content.</p>
             </li>
             <li>
                 <strong>Define Packages to Install:</strong>
                 <p>Use the <code>packages</code> section to list the software packages you want to install:
                 </p>
                 <pre><code>packages:
-      - curl
-      - git
-      - python3</code></pre>
+  - curl
+  - git
+  - python3</code></pre>
                 <p>Learn more in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#install-arbitrary-packages"
                         target="_blank">official cloud-init documentation</a>.</p>
