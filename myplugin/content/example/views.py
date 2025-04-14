@@ -14,3 +14,8 @@ class IndexView(generic.TemplateView):
     """
     template_name = 'eduvmstore_dashboard/example/index.html'
     page_title = _("Example")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = self.page_title
+        return context

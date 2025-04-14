@@ -1,25 +1,241 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Script{% endblock %}
+{% block title %}Script Tutorial{% endblock %}
 
 {% block page_header %}
-     <div style="display: flex; align-items: center; justify-content: space-between;  border-bottom: 1px solid #e0e0e0;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
-                 <h1 class="page-title mb-0">
-                Script
-            </h1>
+            <h1 class="page-title mb-0">Script Tutorial</h1>
         </div>
         <div>
-            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img"
+                 style="height: 95px;">
         </div>
     </div>
 {% endblock page_header %}
 
 {% block main %}
 
+    <style>
+        .section {
+            margin-bottom: 40px;
+        }
 
+        .section h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
 
-    <h2 style="text-align: center; color: #333;">Script</h2>
+        .section p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
 
+        .section ul {
+            padding-left: 20px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .section ul li {
+            margin-bottom: 10px;
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 14px;
+            color: #333;
+        }
+
+        code {
+            font-family: monospace;
+            color: #d63384;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+    <div class="section">
+        <h2>Introduction</h2>
+        <p>Cloud-init scripts are used to automate the configuration of virtual machines during their
+            initialization. In EduVMStore, these scripts are essential for setting up AppTemplates, as they
+            allow you to define user accounts, install software, configure services, and more. This tutorial
+            will guide you through writing effective cloud-init scripts for your AppTemplates.</p>
+        <p>Learn more about cloud-init scripts in the <a
+                        href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html#cloud-config"
+                        target="_blank">official cloud-init documentation</a>.</p>
+        <p>Cloud-init scripts are written in YAML, a human-readable data serialization format. To understand
+            how to structure and write YAML files, refer to the
+            <a href="https://yaml.org/" target="_blank">official YAML documentation</a>.</p>
+    </div>
+
+    <div class="section">
+        <h2>Step-by-Step Guide to Writing Cloud-Init Scripts</h2>
+        <ol>
+            <li>
+                <strong>Start with the Shebang:</strong>
+                <p>Every cloud-init script should start with the shebang line to indicate the script type:</p>
+                <pre><code>#cloud-config</code></pre>
+                <p><strong>Important Note:</strong> If you choose the "Write Script" option during AppTemplate
+                    creation, the <code>#cloud-config</code> header and the <code>write_files</code> section
+                    are pre-filled for you. You can start writing your script directly after the pre-filled
+                    content.</p>
+            </li>
+            <li>
+                <strong>Write Files:</strong>
+                <p>Use the <code>write_files</code> section to create or modify files:</p>
+                <pre><code>write_files:
+      - path: /etc/motd
+        content: |
+          Welcome to your new instance!
+          Managed by EduVMStore.</code></pre>
+                <p><strong>Important Note:</strong> The <code>write_files</code> section should only be used
+                    once in a script. If declared multiple times, only the last declaration will be executed.
+                    To add more files, write them directly at the top of the script to continue from the
+                    pre-filled content we provide.</p>
+                <p>With the provided beginning of the script, start additional <code>write_files</code>
+                    parts like this:</p>
+                <pre><code>
+      - path: /etc/motd
+        content: |
+          Welcome to your new instance!
+          Managed by EduVMStore.</code></pre>
+                <p>Learn more in the <a
+                        href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#writing-out-arbitrary-files"
+                        target="_blank">official cloud-init documentation</a>.</p>
+            </li>
+            <li>
+                <strong>Define Packages to Install:</strong>
+                <p>Use the <code>packages</code> section to list the software packages you want to install:
+                </p>
+                <pre><code>packages:
+      - curl
+      - git
+      - python3</code></pre>
+                <p>Learn more in the <a
+                        href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#install-arbitrary-packages"
+                        target="_blank">official cloud-init documentation</a>.</p>
+            </li>
+            <li>
+                <strong>Run Commands:</strong>
+                <p>Use the <code>runcmd</code> section to specify shell commands to execute during
+                    initialization:</p>
+                <pre><code>runcmd:
+      - apt-get update
+      - apt-get install -y nginx</code></pre>
+                <p><strong>Important Note:</strong> The <code>runcmd</code> section should only be used once
+                    in a script. If declared multiple times, only the last declaration will be executed.</p>
+                <p>If the "Generate SSH setup for users" checkbox is selected, an SSH setup script will
+                    automatically be added in the <code>runcmd</code> section inside the "Write Script" input
+                    field. You can write the rest of your script around this pre-filled content.</p>
+                <p>Learn more in the <a
+                        href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#run-commands-on-first-boot"
+                        target="_blank">official cloud-init documentation</a>.</p>
+            </li>
+            <li>
+                <strong>Create Users:</strong>
+                <p>Use the <code>users</code> section to define user accounts:</p>
+                <pre><code>users:
+      - name: student
+        groups: sudo
+        shell: /bin/bash
+        sudo: ['ALL=(ALL) NOPASSWD:ALL']
+        lock_passwd: false
+        passwd: $6$rounds=4096$randomsalt$hashedpassword</code></pre>
+                <p>Learn more in the <a
+                        href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#including-users-and-groups"
+                        target="_blank">official cloud-init documentation</a>.</p>
+            </li>
+            <li>
+                <strong>Set Final Messages:</strong>
+                <p>Use the <code>final_message</code> section to display a message after initialization:</p>
+                <pre><code>final_message: "Instance setup is complete. Enjoy your environment!"</code></pre>
+            </li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>Instantiation and Account Attributes</h2>
+        <p>The instantiation and account attributes fields are in the format
+            <code>account_attribute_1:account_attribute_2:[...]</code> (for example:
+            <code>username:password</code>). These attributes are saved in a file within the pre-filled
+            <code>write_files</code> section. You can use them in the rest of your script, for example, in the
+            <code>runcmd</code> section:</p>
+        <pre><code>while IFS=: read -r username password; do
+        # Create users
+        if ! id "$username" &>/dev/null; then
+            useradd -m -s /bin/bash "$username"
+            echo "$username:$password" | chpasswd
+        fi
+    done &lt; /path/to/attributes/file</code></pre>
+        <p>Make sure to adjust the file path to match the location where the attributes are saved in the
+            <code>write_files</code> section.</p>
+    </div>
+
+    <div class="section">
+        <h2>Best Practices</h2>
+        <ul>
+            <li>Always test your cloud-init scripts in a development environment before using them in
+                production.
+            </li>
+            <li>Use meaningful comments in your scripts to explain each section.</li>
+            <li>Minimize the number of packages installed to reduce initialization time and potential
+                vulnerabilities.
+            </li>
+            <li>Ensure that the `write_files` and `runcmd` sections are used only once in the script to avoid
+                overwriting.
+            </li>
+            <li>Validate the format and content of any uploaded CSV files to prevent errors during
+                processing.
+            </li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Tips and Tricks</h2>
+        <ul>
+            <li>Work with the LLM of your choice to create aspired scripts.</li>
+            <li>Leverage the `write_files` section to create configuration files dynamically.</li>
+            <li>Use the `runcmd` section for tasks that require shell commands.</li>
+            <li>When using CSV uploads, ensure the headers match the expected fields to avoid processing
+                errors.
+            </li>
+            <li>Use the `final_message` section to provide clear feedback on the initialization process.</li>
+            <li>Take advantage of the `Generate SSH setup for users` checkbox to simplify SSH configuration.
+            </li>
+            <li>Use variables or placeholders in your scripts to make them more flexible and reusable.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Common Pitfalls</h2>
+        <ul>
+            <li>Using incorrect indentation, as YAML is sensitive to whitespace.</li>
+            <li>Not escaping special characters in commands or file content.</li>
+            <li>Failing to test scripts thoroughly, leading to unexpected behavior during initialization.</li>
+            <li>Declaring `write_files` or `runcmd` sections multiple times, which causes only the last
+                declaration to be executed.
+            </li>
+            <li>Uploading CSV files with incorrect headers or mismatched data formats.</li>
+            <li>Overlooking the need to adjust file paths for dynamically created files in the `write_files`
+                section.
+            </li>
+            <li>Forgetting to update user counts or other dependent fields when dynamically adding or removing
+                accounts.
+            </li>
+        </ul>
+    </div>
 
 {% endblock %}

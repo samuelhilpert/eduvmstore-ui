@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
 from openstack_dashboard.api import keystone
+from django.utils.translation import gettext_lazy as _
 
 def get_username_from_id(request, user_id):
     try:
@@ -109,6 +110,7 @@ class IndexView(generic.TemplateView):
         View for displaying the admin index page with user details and admin status.
     """
     template_name = 'eduvmstore_dashboard/admin/index.html'
+    page_title = _("EduVMStore Admin")
 
     def get_context_data(self, **kwargs):
         """
@@ -177,7 +179,7 @@ class IndexView(generic.TemplateView):
         else:
             context['show_content'] = False
 
-
+        context['page_title'] = self.page_title
 
         return context
 
