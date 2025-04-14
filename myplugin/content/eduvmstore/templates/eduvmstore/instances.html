@@ -271,7 +271,7 @@
                             <option value="{{ flavor_id }}"
                                     data-flavor-details='{"id": "{{ flavor_id }}", "name": "{{ flavor_data.name }}", "ram": {{ flavor_data.ram }}, "disk": {{ flavor_data.disk }}, "vcpus": {{ flavor_data.cores }} }'
                                     {% if flavor_id == flavors.selected_flavor %} selected {% endif %}>
-                                {{ flavor_data.name }}
+                                {{ flavor_data.name }} — {{ flavor_data.ram }} MB RAM, {{ flavor_data.cores }} vCPU, {{ flavor_data.disk }} GB Disk
                             </option>
                         {% endfor %}
                         {% else %}
@@ -963,7 +963,7 @@ function selectAutomaticFlavor(instanceIndex) {
         const flavorCores = flavorDetails.vcpus;
 
 
-        option.textContent = flavorDetails.name;
+        option.textContent = `${flavorDetails.name} — ${flavorRAM} GB RAM, ${flavorDetails.vcpus} vCPU, ${flavorDetails.disk} GB Disk`;
 
         if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
             if (!selectedFlavor ||

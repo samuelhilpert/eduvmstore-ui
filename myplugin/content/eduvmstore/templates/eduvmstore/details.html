@@ -25,7 +25,7 @@
         margin-bottom: 0;
         color: #6c757d;
     }
-    h2, h4 {
+    h2, h3 {
         margin-top: 30px;
         margin-bottom: 20px;
         color: #343a40;
@@ -37,7 +37,7 @@
         margin-bottom: 20px;
         color: #343a40;
     }
-    .system-requirements, .image-info, .script-details {
+    .system-requirements, .image-info, .script-details, .security_groups, .app_template_details {
         background-color: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
@@ -72,6 +72,7 @@
 
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <h4>AppTemplate Details</h4>
+
     <div class="btn-group">
                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
             Launch
@@ -107,7 +108,12 @@
                         </ul>
     </div>
 </div>
+
     <!-- AppTemplate  Section -->
+
+
+    <div class="app_template_details">
+
 <div class="row">
     <div class="col-md-6">
         <div class="detail-group">
@@ -163,8 +169,10 @@
     <p>{{ app_template.instantiation_notice }}</p>
 </div>
 
+</div>
+
 <!-- System Requirements Section -->
-<h4>System Requirements</h4>
+<h3>System Requirements</h3>
 <div class="system-requirements">
     <div class="row">
         <div class="col-md-6">
@@ -205,7 +213,7 @@
 </div>
 
 <!-- Image Information Section -->
-<h4>Image Information</h4>
+<h3>Image Information</h3>
 <div class="image-info">
     <div class="row">
         <div class="col-md-6">
@@ -228,7 +236,30 @@
     </div>
 </div>
 
-    <h4>Script</h4>
+
+<!-- Security Information Section -->
+<h3>Security Information</h3>
+<div class="security_groups">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="detail-group">
+                <strong>Security Groups:</strong>
+                {% if app_template.security_groups %}
+                    <ul class="list-unstyled">
+                        {% for group in app_template.security_groups %}
+                            <li>{{ group.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No security group selected.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <h3>Script</h3>
     <div class="script-details">
         <div class="row">
             <div class="col-md-6">
