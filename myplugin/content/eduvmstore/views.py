@@ -310,7 +310,8 @@ class DetailsPageView(generic.TemplateView):
             'created_at': created_at,
         })
 
-        context['page_title'] = app_template.get('name', 'Details')
+        page_title = app_template.get('name', 'Details')
+        context['page_title'] = page_title
 
 
         return context
