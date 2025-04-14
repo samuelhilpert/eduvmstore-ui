@@ -963,7 +963,7 @@ function selectAutomaticFlavor(instanceIndex) {
         const flavorCores = flavorDetails.vcpus;
 
 
-        option.textContent = `${flavorDetails.name} — ${flavorDetails.ram} MB RAM, ${flavorDetails.vcpus} vCPU, ${flavorDetails.disk} GB Disk`;
+        option.textContent = `${flavorDetails.name} — ${flavorRAM} GB RAM, ${flavorDetails.vcpus} vCPU, ${flavorDetails.disk} GB Disk`;
 
         if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
             if (!selectedFlavor ||
