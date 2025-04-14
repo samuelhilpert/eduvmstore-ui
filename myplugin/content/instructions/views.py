@@ -14,8 +14,8 @@ class IndexView(generic.TemplateView):
     """
         View for displaying the tutorial index page and handling data retrieval from a backend API.
     """
-    template_name = 'eduvmstore_dashboard/tutorial/index.html'
-    page_title = _("About EduVMStore")
+    template_name = 'eduvmstore_dashboard/instructions/index.html'
+    page_title = _("Instructions")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

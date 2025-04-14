@@ -1,3 +1,4 @@
+
 import requests
 import socket
 import logging
@@ -200,6 +201,7 @@ class IndexView(generic.TemplateView):
         Display the main index page with available AppTemplates and associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
+    page_title = _("EduVMStore Dashboard")
 
     def get_images_data(self):
         """
@@ -264,7 +266,8 @@ class IndexView(generic.TemplateView):
 
         context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
-        context['favorite_template_ids'] = favorite_template_ids  # Add this line
+        context['favorite_template_ids'] = favorite_template_ids
+        context['page_title'] = self.page_title
 
         return context
 
@@ -282,6 +285,7 @@ class DetailsPageView(generic.TemplateView):
     Display detailed information for a specific AppTemplate, including associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
+
 
     def get_context_data(self, **kwargs):
         """
@@ -307,6 +311,10 @@ class DetailsPageView(generic.TemplateView):
             'app_template_creator': app_template_creator_name,
             'created_at': created_at,
         })
+
+        page_title = app_template.get('name', 'Details')
+        context['page_title'] = page_title
+
 
         return context
 
@@ -369,6 +377,7 @@ class CreateView(generic.TemplateView):
     """
 
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
+    page_title = _("Create AppTemplate")
 
     def get(self, request, *args, **kwargs):
             """
@@ -427,6 +436,14 @@ class CreateView(generic.TemplateView):
             account_attributes = []
 
 
+        ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
+
+        if ssh_user_requested is None:
+            ssh_user_requested = False
+        else:
+            ssh_user_requested = True
+
+
         volume_size = request.POST.get('volume_size', '').strip()
         volume_size_gb = int(volume_size) if volume_size else 0
 
@@ -442,6 +459,7 @@ class CreateView(generic.TemplateView):
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
             'script': request.POST.get('hiddenScriptField'),
+            'ssh_user_requested': ssh_user_requested,
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
@@ -503,6 +521,8 @@ class CreateView(generic.TemplateView):
 
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
+        context['page_title'] = self.page_title
+
 
         context['security_groups'] = self.get_security_groups()
 
@@ -600,6 +620,7 @@ class EditView(generic.TemplateView):
     View to handle editing of an AppTemplate.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
+    page_title = _("Edit AppTemplate")
 
     def get(self, request, *args, **kwargs):
         """
@@ -654,6 +675,13 @@ class EditView(generic.TemplateView):
         security_group_names = request.POST.getlist('security_groups')
         security_groups = [{"name": name} for name in security_group_names]
 
+        ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
+
+        if ssh_user_requested is None:
+            ssh_user_requested = False
+        else:
+            ssh_user_requested = True
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -663,6 +691,7 @@ class EditView(generic.TemplateView):
             'public': request.POST.get('public'),
             'approved': request.POST.get('approved'),
             'script': request.POST.get('hiddenScriptField'),
+            'ssh_user_requested': ssh_user_requested,
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
@@ -725,6 +754,9 @@ class EditView(generic.TemplateView):
             'selected_security_groups': selected_sg_names,
         })
 
+        context['page_title'] = self.page_title
+
+
         return context
 
     def get_app_template(self):
@@ -776,7 +808,7 @@ class EditView(generic.TemplateView):
             return {}
 
 
-def generate_pdf(accounts, name, app_template, created, instantiations):
+def generate_pdf(accounts, name, app_template, created, instantiations, ip_address):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
 
@@ -803,6 +835,9 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
 
     )
     elements.append(subtitle)
+    if ip_address:
+        ip = Paragraph(f"IP Address: {ip_address}", styles['Normal'])
+        elements.append(ip)
     elements.append(Spacer(1, 0.2 * inch))
 
     if accounts:
@@ -934,6 +969,7 @@ class InstancesView(generic.TemplateView):
         View for displaying instances, including form input for instance creation.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
+    page_title = _("Launch")
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
@@ -967,11 +1003,25 @@ class InstancesView(generic.TemplateView):
             app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
             volume_size = int(app_template.get('volume_size_gb') or 0)
+            ssh_user_requested = app_template.get('ssh_user_requested', False)
+
+            for key in list(request.session.keys()):
+                if key.startswith("ip_addresses_") or key.startswith("keypair_name_") or \
+                   key.startswith("private_key_"):
+                    request.session.pop(key, None)
+
+            request.session.pop("keypair_name", None)
+            request.session.pop("private_key", None)
+            request.session.pop("image_id", None)
+            request.session.pop("ssh_user_requested", None)
+
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
             request.session["num_instances"] = num_instances
             request.session["base_name"] = base_name
+            request.session["image_id"] = image_id
+            request.session["ssh_user_requested"] = ssh_user_requested
 
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
@@ -997,6 +1047,7 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
+                network_name = self.get_network_name_by_id(request, network_id)
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 create_volume_size = request.POST.get(f"volume_size_{i}")
                 accounts = []
@@ -1109,7 +1160,7 @@ class InstancesView(generic.TemplateView):
                         "device_name": "/dev/vdb",
                     })
 
-                nova.server_create(
+                created_server = nova.server_create(
                     request,
                     name=instance_name,
                     image=image_id,
@@ -1122,6 +1173,10 @@ class InstancesView(generic.TemplateView):
                     description=description,
                     block_device_mapping_v2=block_device_mapping_v2,
                 )
+
+                server = self.wait_for_server(request, created_server.id)
+                ip_list = self.wait_for_ip_in_network(request, server.id, network_name)
+                request.session[f"ip_addresses_{i}"] = ip_list
                 instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
@@ -1161,6 +1216,83 @@ class InstancesView(generic.TemplateView):
             time.sleep(1)
         raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
 
+    def get_network_name_by_id(self, request, network_id):
+        try:
+            networks = api.neutron.network_list(request)
+            for network in networks:
+                if network.id == network_id:
+                    return network.name
+        except Exception as e:
+            logging.error(f"Failed to resolve network name: {e}")
+        return None
+
+
+    def wait_for_ip_in_network(self, request, server_id, network_name, timeout=30):
+        """
+        Wait for an IP address from a specific network.
+
+        This method repeatedly checks if an IP address is available for a server in a given network.
+        If an IP address is found, it is returned. Otherwise, after the timeout, a list with an error
+        message is returned.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param server_id: The ID of the server for which the IP address is being searched.
+        :type server_id: str
+        :param network_name: The name of the network in which the IP address is being searched.
+        :type network_name: str
+        :param timeout: The maximum wait time in seconds before the search is aborted.
+        :type timeout: int
+        :return: The found IP address or a list with an error message.
+        :rtype: str or list
+        """
+        for i in range(timeout):
+            try:
+                server = nova.server_get(request, server_id)
+                addresses = server.addresses.get(network_name)
+                if addresses:
+                    ip_list = [addr.get("addr") for addr in addresses if addr.get("addr")]
+                    if ip_list:
+                        return ip_list[0] if ip_list else f"No IP found in network '{network_name}'"
+            except Exception as e:
+                logging.debug(f"IP attempt {i+1}/{timeout} for network '{network_name}': {e}")
+            time.sleep(1)
+
+        return [f"No IP found in the network '{network_name}'"]
+
+
+    def wait_for_server(self, request, instance_id, timeout=30):
+        """
+        Wait until an instance appears in the Nova API.
+
+        This method repeatedly checks if an instance with the given ID is available in the Nova API.
+        If the instance is found, it is returned. If the instance does not appear within the timeout
+        period, an exception is raised.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param instance_id: The ID of the instance to wait for.
+        :type instance_id: str
+        :param timeout: The maximum time to wait for the instance, in seconds.
+        :type timeout: int
+        :return: The instance object if found.
+        :rtype: Server
+        :raises Exception: If the instance is not found within the timeout period.
+        """
+        for i in range(timeout):
+            try:
+                server = nova.server_get(request, instance_id)
+                if server:
+                    return server
+            except Exception as e:
+                logging.debug(f"Waiting for instance {instance_id}: Attempt {i + 1}, Error: {e}")
+            time.sleep(1)
+        raise Exception(f"Instance {instance_id} could not be found after {timeout} seconds.")
+
+
+
+
+
 
     def get_context_data(self, **kwargs):
         """
@@ -1199,7 +1331,7 @@ class InstancesView(generic.TemplateView):
         has_attachable_volumes = len(attachable_volumes) > 0
         context['hasAttachableVolumes'] = has_attachable_volumes
 
-
+        context['page_title'] = self.page_title
 
         return context
 
@@ -1408,6 +1540,12 @@ class InstancesView(generic.TemplateView):
 
 class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
+    page_title = _("Success")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = self.page_title
+        return context
 
     def get(self, request, *args, **kwargs):
         """
@@ -1420,14 +1558,36 @@ class InstanceSuccessView(generic.TemplateView):
         :return: Rendered HTML response.
         :rtype: HttpResponse
         """
-        return render(request, self.template_name)
+        context = self.get_context_data(**kwargs)
 
-    class DownloadInstanceDataView(generic.View):
-        """
-        View to generate and return a ZIP file containing:
-        - PDFs with instance user account information
-        - Private keys (either one shared key or separate keys per instance)
-        """
+        return render(request, self.template_name, context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        num_instances = int(self.request.session.get("num_instances", 1))
+        separate_keys = self.request.session.get("separate_keys", False)
+        ssh_user_requested = self.request.session.get('ssh_user_requested', False)
+        context['ssh_user_requested'] = ssh_user_requested
+        context['instances'] = []
+
+        for i in range(1, num_instances + 1):
+            instance_name = self.request.session.get(f"names_{i}", "unknown")
+            ip_address = self.request.session.get(f"ip_addresses_{i}", "unknown")
+
+            if separate_keys:
+                key_file = self.request.session.get(f"keypair_name_{i}", "unknown") + ".pem"
+            else:
+                key_file = self.request.session.get("keypair_name", "unknown") + ".pem"
+
+            context['instances'].append({
+                'name': instance_name,
+                'ip': ip_address,
+                'key': key_file,
+            })
+
+        return context
+
+
 
     def post(self, request, *args, **kwargs):
         """
@@ -1458,9 +1618,10 @@ class InstanceSuccessView(generic.TemplateView):
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
                 instantiation = request.session.get(f"instantiations_{i}", [])
+                ip_adr = request.session.get(f"ip_addresses_{i}", [])
 
                 if accounts or instantiation:
-                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation)
+                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation, ip_adr)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             if not separate_keys:
@@ -1488,6 +1649,7 @@ class InstanceSuccessView(generic.TemplateView):
             request.session.pop(f"names_{i}", None)
             request.session.pop(f"private_key_{i}", None)
             request.session.pop(f"keypair_name_{i}", None)
+            request.session.pop(f"ip_addresses_{i}", None)
 
         request.session.pop("private_key", None)
         request.session.pop("keypair_name", None)

@@ -1,0 +1,679 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Instructions{% endblock %}
+
+{% block page_header %}
+    <div style="display: flex; align-items: center; justify-content: space-between;  border-bottom: 1px solid #e0e0e0;">
+        <div style="margin-right: 15px;">
+            <h1 class="page-title mb-0">
+                Example
+            </h1>
+        </div>
+        <div>
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img"
+                 style="height: 95px;">
+        </div>
+    </div>
+{% endblock page_header %}
+
+{% block main %}
+
+    <style>
+
+        .accordion {
+            background: linear-gradient(135deg, #333, #777);
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion:hover {
+            background-color: #555;
+        }
+
+        .accordion .text {
+            flex-shrink: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .accordion .icon {
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .accordion.active .icon {
+            transform: rotate(90deg);
+        }
+
+        .panel {
+            display: none;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-top: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+    </style>
+
+
+    <hr>
+    <h2 style="text-align: center; color: #333;">Examples</h2>
+    <p style="text-align: center; color: #666; font-size: 16px;">Here are some examples of use cases and how
+        to use the EduVMStore.</p>
+    <hr>
+
+
+    <button class="accordion">
+        <span class="text">Use Case <strong>Ubuntu Linux</strong>:
+            How to set up simple Ubuntu Linux instances with SSH setup for users?</span>
+        <span class="icon">▶</span>
+    </button>
+    <div class="panel">
+        <p><strong>Use Case for Lecturers:</strong></p>
+        <p>This example demonstrates how lecturers can set up simple Ubuntu Linux instances with SSH setup
+            for multiple users. Each user will have their own SSH key generated and securely stored.</p>
+        <p><strong>Overview:</strong> Lecturers will create an AppTemplate that includes a cloud-init script
+            to configure the Ubuntu Linux environment and automatically set up SSH access for users. This
+            ensures a streamlined process for deploying and managing the instances.</p>
+        <p><strong>Steps:</strong> By following this example, lecturers will learn how to:</p>
+        <ul>
+            <li>Create an AppTemplate tailored for the course requirements.</li>
+            <li>Enable the "Generate SSH setup for users" option to automate the SSH setup.</li>
+            <li>Launch and manage multiple instances of the Ubuntu Linux environment for their students.</li>
+        </ul>
+        <br/>
+        <p><strong>Note:</strong> Find the
+            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
+               target="_blank">instruction</a> section for a general guide.</p>
+        <p>For detailed information about Ubuntu Linux, visit the official
+            <a href="https://ubuntu.com/" target="_blank">Ubuntu documentation</a>.</p>
+
+        <h3>1. Create an AppTemplate</h3>
+        <p>To create an AppTemplate for the Ubuntu Linux instance, follow these steps:</p>
+        <ol>
+            <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
+            <li>Click on the "Create New AppTemplate" button.</li>
+            <li><strong>General Configuration:</strong>
+                <ul>
+                    <li>Step 1: Select the base image for the AppTemplate. For this example, choose a suitable
+                        Linux distribution (e.g., Ubuntu).
+                    </li>
+                    <li>Step 2: Fill in the general information for the AppTemplate, including the
+                        "AppTemplate Name", "Short Description", and any other relevant details. For this
+                        example, use "Ubuntu Linux" as the name and provide a short and a more detailed
+                        description, and optionally an instantiation notice.
+                    </li>
+                    <li>Step 3: Select whether the AppTemplate should be available for everyone (e.g., other
+                        lecturers) or only for you (the creator).
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Security Groups</strong>
+                <ul>
+                    <li>Select one or more existing security groups to be used for the AppTemplate. These
+                        security groups define the network access rules for the instances launched from this
+                        AppTemplate.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure minimum resources requirements:</strong>
+                <ul>
+                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                        <ul>
+                            <li>RAM: 2 GB</li>
+                            <li>Disk Space: 20 GB</li>
+                            <li>CPU Cores: 2</li>
+                        </ul>
+                    </li>
+                    <li>Step 2: Optionally enter a volume size.</li>
+                    <li>Step 3: Choose the minimum resources per User for the AppTemplate:
+                        <ul>
+                            <li>RAM: 0.512 GB</li>
+                            <li>Disk Space: 5 GB</li>
+                            <li>CPU Cores: 1</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Write Configuration Script:</strong>
+                <ul>
+                    <li>Step 1: Select the checkbox to automatically generate the SSH setup for users. This
+                        will create a script that sets up SSH access for the students.
+                    </li>
+                    <li>Step 2: Enter instantiation and account attributes to be used in the configuration
+                        script. For example <code>username:password</code> as account attributes.
+                    </li>
+                    <li>Step 3: The following cloud-init script will be automatically generated:</li>
+                    {% verbatim %}
+                        <pre>
+    <code>
+    runcmd:
+      - |
+        # Create directory for private keys
+        mkdir -p /home/ubuntu/user_keys
+        chmod 700 /home/ubuntu/user_keys
+        chown ubuntu:ubuntu /home/ubuntu/user_keys
+
+        while IFS=: read -r username password; do
+          # Create users
+          if ! id "$username" &>/dev/null; then
+            useradd -m -s /bin/bash "$username"
+            echo "$username:$password" | chpasswd
+          fi
+
+          # Create SSH directory and key
+          sudo -u "$username" mkdir -p /home/"$username"/.ssh
+          chmod 700 /home/"$username"/.ssh
+
+          # Generate SSH key
+          sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
+
+          # Set Public Key as authorized_key
+          cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
+          chmod 600 /home/"$username"/.ssh/authorized_keys
+          chown -R "$username:$username" /home/"$username"/.ssh
+
+          # Secure private keys for the admin & Ubuntu user
+          cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
+          chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
+          chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
+        done < /etc/users.txt
+
+        # SSH configuration: Disable password login
+        sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+        sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+        systemctl restart ssh
+    </code>
+    </pre>
+                    {% endverbatim %}
+                    <li>Step 4: Click the "Save" button and the "Create" button to create the AppTemplate.
+                    </li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>2. Launch Instances</h3>
+        <p>To launch instances using the created AppTemplate, follow these steps:</p>
+        <ol>
+            <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
+            <li>Click the "Launch" button next to the Ubuntu Linux AppTemplate.</li>
+            <li><strong>Configure General Launch Details:</strong>
+                <ul>
+                    <li>Keep or adjust the Instance Name
+                        (for this example you can just keep "Ubuntu Instance").
+                    </li>
+                    <li>Set the <strong>Number of Instances</strong> to <strong>2</strong>.</li>
+                    <li>Enable the <strong>Generate Separate Keys</strong> option to ensure each instance has
+                        its own unique SSH key.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Instance Details:</strong>
+                <ul>
+                    <li>Switch to the <strong>"All Instances" tab</strong> to configure shared settings for
+                        all instances at once.
+                    </li>
+                    <li>Step 1: Select a fitting <strong>Flavor</strong> for the instances. The flavor should
+                        meet the minimum resource requirements specified in the AppTemplate.
+                    </li>
+                    <li>Step 2: Select a <strong>Network</strong> for the instances.</li>
+                    <li>Step 3: Optionally create an additional volume for the instances and enter a size or
+                        select an existing volume.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Users for Each Instance:</strong>
+                <ul>
+                    <li>Switch to each instance tab (e.g., "Ubuntu Instance-1", "Ubuntu Instance-2")
+                        to configure users separately.
+                    </li>
+                    <li>For each instance:
+                        <ul>
+                            <li>Uncheck the <strong>"No additional users"</strong> checkbox to add users to
+                                the instance.
+                            </li>
+                            <li>Enter the number of users to be added to the instance.</li>
+                            <li>Upload a CSV file with the user data or enter the user data directly by
+                                filling in the form fields for each user. The CSV file should contain the user
+                                data in the format <code>username:password</code>.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>Click the <strong>"Launch Instances"</strong> button to start the instances.</li>
+        </ol>
+    </div>
+
+
+    <button class="accordion">
+        <span class="text">Use Case <strong>GitLab Server</strong>: How to set up a GitLab server for a
+        software engineering course?</span>
+        <span class="icon">▶</span>
+    </button>
+    <div class="panel">
+        <p><strong>Use Case for Lecturers:</strong></p>
+        <p>This example demonstrates how lecturers can set up a GitLab server for a software engineering
+            course using the EduVMStore. The setup enables students to collaborate on projects and manage
+            their code repositories effectively, providing a practical learning environment.</p>
+        <p><strong>Overview:</strong> Lecturers will create an AppTemplate that includes a cloud-init script
+            to configure the GitLab server and add students with their access credentials. This ensures a
+            streamlined process for deploying and managing the server.</p>
+        <p><strong>Steps:</strong> By following this example, lecturers will learn how to:</p>
+        <ul>
+            <li>Create an AppTemplate tailored for the course requirements.</li>
+            <li>Write a configuration script to automate the setup of the GitLab server.</li>
+            <li>Launch and manage an instance of the GitLab server for their students.</li>
+        </ul>
+        <br/>
+        <p><strong>Note:</strong> Find the
+            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
+               target="_blank">instruction</a> section for a general guide.</p>
+        <p>For detailed information about GitLab and its features, visit the official
+            <a href="https://about.gitlab.com/" target="_blank">GitLab documentation</a>.</p>
+
+        <h3>1. Create an AppTemplate</h3>
+        <p>To create an AppTemplate for the GitLab server, follow these steps:</p>
+        <ol>
+            <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
+            <li>Click on the "Create New AppTemplate" button.</li>
+            <li><strong>General Configuration:</strong>
+                <ul>
+                    <li>Step 1: Select the base image for the AppTemplate. For this example, choose a
+                        suitable Linux distribution (e.g., Ubuntu) that supports GitLab.
+                    </li>
+                    <li>Step 2: Fill in the general information for the AppTemplate, including the
+                        "AppTemplate Name", "Short Description", and any other relevant details.
+                        For this example, use "GitLab Server" as the name and provide a short and a more
+                        detailed description, and optionally an instantiation notice.
+                    </li>
+                    <li>Step 3: Select whether the AppTemplate should be available for everyone
+                        (e.g. other lecturers) or only for you (the creator).
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Security Groups</strong>
+                <ul>
+                    <li>Select one or more existing security groups to be used for the
+                        AppTemplate. These security groups define the network access rules for the
+                        instances launched from this AppTemplate.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure minimum resources requirements:</strong>
+                <ul>
+                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                        <ul>
+                            <li>RAM: 4 GB</li>
+                            <li>Disk Space: 50 GB</li>
+                            <li>CPU Cores: 4</li>
+                        </ul>
+                    </li>
+                    <li>Step 2: Optionally enter a volume size. For this example, set the volume size to 10
+                        GB.
+                    </li>
+                    <li>Step 3: Choose the minimum resources per User for the AppTemplate:
+                        <ul>
+                            <li>RAM: 1 GB</li>
+                            <li>Disk Space: 10 GB</li>
+                            <li>CPU Cores: 1</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Write Configuration Script:</strong>
+                <ul>
+                    <li>Step 1: Optionally select the checkbox to automatically generate the SSH setup for
+                        users.
+                        This will create a script that sets up SSH access for the students.
+                    </li>
+                    <li>Step 2: Enter instantiation and account attributes to be used in the configuration
+                        script. For example <code>username:password:firstname:lastname:email</code>
+                        as account attributes.
+                    </li>
+                    <li>Step 3: Upload a configuration script (cloud-init script) or write it directly after
+                        clicking the "Write Script" button. Below is an example script for setting up a GitLab
+                        server:
+                    </li>
+                    {% verbatim %}
+                        <pre>
+<code>
+packages:
+  - curl
+  - openssh-server
+  - ca-certificates
+  - tzdata
+  - postfix
+  - jq
+
+runcmd:
+  - cat /etc/users.txt > /etc/testtesttest
+  - |
+    FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
+    while IFS=':' read -r username password firstname lastname email; do
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+        if [ "$username" = "$FIRST_USER" ]; then
+          usermod -aG sudo "$username"
+        fi
+      fi
+    done < /etc/users.txt
+
+  # Install GitLab
+  - apt-get update
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y curl openssh-server ca-certificates tzdata postfix jq
+  - curl -fsSL https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
+  - apt-get install -y gitlab-ce
+  - gitlab-ctl reconfigure
+  - gitlab-ctl restart
+
+  # Wait until GitLab starts
+  - sleep 60
+
+  # Generate Root-Token for API
+  - |
+    export GITLAB_ROOT_TOKEN=$(openssl rand -hex 20)
+    gitlab-rails runner "token = User.find_by(username: 'root').personal_access_tokens.create(scopes: ['api'], name: 'root-token', expires_at: 1.year.from_now); token.set_token('$GITLAB_ROOT_TOKEN'); token.save!"
+    echo "$GITLAB_ROOT_TOKEN" > /root/gitlab_token.txt
+
+  # Create user in GitLab
+  - |
+    export GITLAB_ROOT_TOKEN=$(cat /root/gitlab_token.txt)
+    while IFS=':' read -r username password firstname lastname email; do
+    response=$(curl --silent --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" "http://localhost/api/v4/users?username=$username")
+    user_exists=$(echo "$response" | jq -r 'if . == [] then 0 else 1 end')
+
+    if [ "$user_exists" -eq 0 ]; then
+      curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" \
+        --data "username=$username&name=$firstname $lastname&email=$email&password=$password&skip_confirmation=true" \
+        "http://localhost/api/v4/users"
+    fi
+    done < /etc/users.txt
+
+final_message: "GitLab installation and user creation completed."
+</code>
+</pre>
+                    {% endverbatim %}
+                    <li>Step 4: Click the "Save" button and the "Create" button to create the AppTemplate.
+                    </li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>2. Launch an Instance</h3>
+        <p>To launch an instance using the created AppTemplate, follow these steps:</p>
+        <ol>
+            <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
+            <li>Click the "Launch" button next to the GitLab AppTemplate.</li>
+            <li><strong>Configure General Launch Details:</strong>
+                <ul>
+                    <li>Keep or adjust the default settings for the instance, such as the name, the number of
+                        instances, and whether to use separate keys for each instance or a shared key.
+                    </li>
+                    <li>In this case, separate keys are not required as only one instance is needed
+                        for the GitLab server.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Instance Details:</strong>
+                <ul>
+                    <li>Step 1: Select a fitting Flavor for the instance. The flavor should meet the
+                        minimum resource requirements specified in the AppTemplate.
+                    </li>
+                    <li>Step 2: Select a network for the instance.</li>
+                    <li>Step 3: Optionally create an additional volume for the instance and enter a size or
+                        select an exiting volume.
+                    </li>
+                    <li>Step 4: Enter Instantiation Attributes like versions, if required by the
+                        AppTemplate. In this case there are no instantiation attributes to be entered.
+                    </li>
+                    <li>Step 5: Uncheck the "No additional users" checkbox to add users to the instance.
+                        <ul>
+                            <li>Enter the number of users to be added to the instance.</li>
+                            <li>Upload a CSV file with the user data or enter the user data directly by
+                                filling in the form fields for each user.
+                                The CSV file should contain the user data in the format
+                                <code>username:password:firstname:lastname:email</code>.
+                        </ul>
+                    </li>
+                    <li>Step 6: Click the "Launch Instance" button to start the instance.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+
+    <button class="accordion">
+        <span class="text">Use Case <strong>Jupyter Notebook</strong>:
+            How to set up a Jupyter Notebook instance with multiple user accounts?</span>
+        <span class="icon">▶</span>
+    </button>
+    <div class="panel">
+        <p><strong>Use Case for Lecturers:</strong></p>
+        <p>This example demonstrates how lecturers can set up a Jupyter Notebook instance with multiple user
+            accounts. Each user will have their own isolated Jupyter Notebook environment accessible on
+            different ports of the instance.</p>
+        <p><strong>Overview:</strong> Lecturers will create an AppTemplate that includes a cloud-init script
+            to configure the Jupyter Notebook environment and add students with their access credentials. This
+            ensures a streamlined process for deploying and managing the instance.</p>
+        <p><strong>Steps:</strong> By following this example, lecturers will learn how to:</p>
+        <ul>
+            <li>Create an AppTemplate tailored for the course requirements.</li>
+            <li>Write a configuration script to automate the setup of the Jupyter Notebook environment.</li>
+            <li>Launch and manage an instance of the Jupyter Notebook environment for their students.</li>
+        </ul>
+        <br/>
+        <p><strong>Note:</strong> Find the
+            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
+               target="_blank">instruction</a> section for a general guide.</p>
+        <p>For detailed information about Jupyter Notebook and its features, visit the official
+            <a href="https://jupyter.org/" target="_blank">Jupyter documentation</a>.</p>
+
+        <h3>1. Create an AppTemplate</h3>
+        <p>To create an AppTemplate for the Jupyter Notebook instance, follow these steps:</p>
+        <ol>
+            <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
+            <li>Click on the "Create New AppTemplate" button.</li>
+            <li><strong>General Configuration:</strong>
+                <ul>
+                    <li>Step 1: Select the base image for the AppTemplate. For this example, choose a suitable
+                        Linux distribution (e.g., Ubuntu).
+                    </li>
+                    <li>Step 2: Fill in the general information for the AppTemplate, including the
+                        "AppTemplate Name", "Short Description", and any other relevant details. For this
+                        example, use "Jupyter Notebook" as the name and provide a short and a more detailed
+                        description, and optionally an instantiation notice.
+                    </li>
+                    <li>Step 3: Select whether the AppTemplate should be available for everyone (e.g., other
+                        lecturers) or only for you (the creator).
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Security Groups</strong>
+                <ul>
+                    <li>Select one or more existing security groups to be used for the AppTemplate. These
+                        security groups define the network access rules for the instances launched from this
+                        AppTemplate.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure minimum resources requirements:</strong>
+                <ul>
+                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                        <ul>
+                            <li>RAM: 8 GB</li>
+                            <li>Disk Space: 80 GB</li>
+                            <li>CPU Cores: 4</li>
+                        </ul>
+                    </li>
+                    <li>Step 2: Optionally enter a volume size. For this example, set the volume size to 50
+                        GB.
+                    </li>
+                    <li>Step 3: Choose the minimum resources per User for the AppTemplate:
+                        <ul>
+                            <li>RAM: 2 GB</li>
+                            <li>Disk Space: 10 GB</li>
+                            <li>CPU Cores: 1</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Write Configuration Script:</strong>
+                <ul>
+                    <li>Step 1: Optionally select the checkbox to automatically generate the SSH setup for
+                        users. This will create a script that sets up SSH access for the students.
+                    </li>
+                    <li>Step 2: Enter instantiation and account attributes to be used in the configuration
+                        script. For example <code>username:password</code> as account attributes.
+                    </li>
+                    <li>Step 3: Upload a configuration script (cloud-init script) or write it directly after
+                        clicking the "Write Script" button. Below is an example script for setting up a
+                        Jupyter Notebook instance:
+                    </li>
+                    {% verbatim %}
+                        <pre>
+    <code>
+    packages:
+      - python3-pip
+      - python3-venv
+      - curl
+
+    runcmd:
+      - |
+        PORT=8888
+        while IFS=':' read -r username password; do
+          if ! id "$username" &>/dev/null; then
+            useradd -m -s "/bin/bash" "$username"
+            echo "$username:$password" | chpasswd
+            usermod -aG sudo "$username"
+          fi
+
+          # Setup Jupyter environment
+          su - "$username" -c "python3 -m venv jupyter_env"
+          su - "$username" -c "~/jupyter_env/bin/pip install --upgrade pip"
+          su - "$username" -c "~/jupyter_env/bin/pip install notebook"
+
+          # Generate Jupyter config
+          su - "$username" -c "~/jupyter_env/bin/jupyter notebook --generate-config"
+          CONFIG_PATH="/home/$username/.jupyter/jupyter_notebook_config.py"
+          echo "c = get_config()" >> "$CONFIG_PATH"
+          echo "c.NotebookApp.ip = '0.0.0.0'" >> "$CONFIG_PATH"
+          echo "c.NotebookApp.open_browser = False" >> "$CONFIG_PATH"
+          echo "c.NotebookApp.port = $PORT" >> "$CONFIG_PATH"
+          echo "c.NotebookApp.token = ''" >> "$CONFIG_PATH"
+          echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
+          chown "$username:$username" "$CONFIG_PATH"
+
+          # Download sample notebook
+          NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
+          NOTEBOOK_PATH="/home/$username/test.ipynb"
+          su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
+          chown "$username:$username" "$NOTEBOOK_PATH"
+
+          # Create systemd service
+          echo "[Unit]
+          Description=Jupyter Notebook for $username
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=$username
+          WorkingDirectory=/home/$username
+          ExecStart=/home/$username/jupyter_env/bin/jupyter-notebook
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target" > "/etc/systemd/system/jupyter-$username.service"
+
+          systemctl daemon-reload
+          systemctl enable "jupyter-$username"
+          systemctl start "jupyter-$username"
+
+          PORT=$((PORT + 1))
+
+        done < /etc/users.txt
+    </code>
+    </pre>
+                    {% endverbatim %}
+                    <li>Step 4: Click the "Save" button and the "Create" button to create the AppTemplate.
+                    </li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>2. Launch an Instance</h3>
+        <p>To launch an instance using the created AppTemplate, follow these steps:</p>
+        <ol>
+            <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
+            <li>Click the "Launch" button next to the Jupyter Notebook AppTemplate.</li>
+            <li><strong>Configure General Launch Details:</strong>
+                <ul>
+                    <li>Keep or adjust the default settings for the instance, such as the name, the number of
+                        instances, and whether to use separate keys for each instance or a shared key.
+                    </li>
+                    <li>In this case, separate keys are not required as only one instance is needed for the
+                        Jupyter Notebook environment.
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Instance Details:</strong>
+                <ul>
+                    <li>Step 1: Select a fitting Flavor for the instance. The flavor should meet the minimum
+                        resource requirements specified in the AppTemplate.
+                    </li>
+                    <li>Step 2: Select a network for the instance.</li>
+                    <li>Step 3: Optionally create an additional volume for the instance and enter a size or
+                        select an existing volume.
+                    </li>
+                    <li>Step 4: Enter Instantiation Attributes like versions, if required by the AppTemplate.
+                        In this case, there are no instantiation attributes to be entered.
+                    </li>
+                    <li>Step 5: Uncheck the "No additional users" checkbox to add users to the instance.
+                        <ul>
+                            <li>Enter the number of users to be added to the instance.</li>
+                            <li>Upload a CSV file with the user data or enter the user data directly by
+                                filling in the form fields for each user. The CSV file should contain the user
+                                data in the format <code>username:password</code>.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Step 6: Click the "Launch Instance" button to start the instance.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+
+    <script>
+
+        var acc = document.getElementsByClassName("accordion");
+        for (var i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var panel = this.nextElementSibling;
+                if (panel.style.display === "block") {
+                    panel.style.display = "none";
+                } else {
+                    panel.style.display = "block";
+                }
+            });
+        }
+
+    </script>
+
+{% endblock %}
