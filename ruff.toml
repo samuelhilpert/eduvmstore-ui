@@ -6,6 +6,7 @@ exclude = ["migrations", "tests/"]
 # F: Flake8 (standard Python errors)
 # N: PEP 8 naming conventions (e.g., CamelCase for classes, snake_case for functions)
 # I: Import check (unused imports, import order)
+[lint]
 select = ["E", "F", "N", "I"]
 
 
