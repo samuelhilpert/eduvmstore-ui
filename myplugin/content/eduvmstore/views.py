@@ -10,8 +10,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
-from openstack_dashboard.api import glance, nova, cinder, keystone
-from openstack_dashboard.api import neutron
+from openstack_dashboard.api import glance, nova, cinder, keystone, neutron
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
