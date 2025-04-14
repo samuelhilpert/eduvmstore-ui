@@ -1,6 +1,6 @@
-Django==4.2.16
+Django==4.2.20
 openstacksdk==4.0.0
-ruff==0.6.8
+ruff==0.11.4
 vulture==2.12
 bandit==1.7.10
 reportlab==4.3.1
