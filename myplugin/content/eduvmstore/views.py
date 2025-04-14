@@ -1384,7 +1384,7 @@ class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
     page_title = _("Success")
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs): # noqa: F811
         context = super().get_context_data(**kwargs)
         context['page_title'] = self.page_title
         return context
