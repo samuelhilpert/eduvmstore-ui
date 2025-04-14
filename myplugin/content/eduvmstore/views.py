@@ -11,6 +11,7 @@ from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova, cinder, keystone
+from openstack_dashboard.api import neutron
 from django.views import generic
 from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
@@ -71,16 +72,16 @@ def get_token_id(request):
 
 def fetch_app_templates(request):
     """
-    Fetches app templates from the external API using a provided token ID.
+    Fetches AppTemplates from the external API using a provided token ID.
 
     This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the external API to fetch app templates. If the request
+    and makes a GET request to the external API to fetch AppTemplates. If the request
     is successful, it returns the JSON response. In case of an error, it logs the error
     and returns an empty list.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
-    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :return: A list of AppTemplates in JSON format or an empty list if the request fails.
     :rtype: list
     """
 
@@ -98,16 +99,16 @@ def fetch_app_templates(request):
 
 def search_app_templates(request) -> list:
     """
-    Search for app templates via the backend API using a provided token ID.
+    Search for AppTemplates via the backend API using a provided token ID.
 
     This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the EduVMStore Backend API to search for app templates.
+    and makes a GET request to the EduVMStore Backend API to search for AppTemplates.
     If the request is successful, it returns the JSON response of AppTemplates.
     In case of an error, it logs the error and returns an empty list.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
-    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :return: A list of AppTemplates in JSON format or an empty list if the request fails.
     :rtype: list
     """
 
@@ -127,16 +128,16 @@ def search_app_templates(request) -> list:
 
 def fetch_favorite_app_templates(request):
     """
-    Fetches favorite app templates from the external API using a provided token ID.
+    Fetches favorite AppTemplates from the external API using a provided token ID.
 
     This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the external API to fetch favorite app templates.
+    and makes a GET request to the external API to fetch favorite AppTemplates.
     If the request is successful, it returns the JSON response. In case of an error,
     it logs the error and returns an empty list.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
-    :return: A list of favorite app templates in JSON format or an empty list if the request fails.
+    :return: A list of favorite AppTemplates in JSON format or an empty list if the request fails.
     :rtype: list
     """
 
@@ -197,7 +198,7 @@ def validate_name(request):
 
 class IndexView(generic.TemplateView):
     """
-        Display the main index page with available app templates and associated image data.
+        Display the main index page with available AppTemplates and associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
     page_title = _("EduVMStore Dashboard")
@@ -225,12 +226,12 @@ class IndexView(generic.TemplateView):
         """
         Add AppTemplates, favorite AppTemplates, and associated image data to the context.
 
-        This method fetches app templates and favorite app templates from the external API,
+        This method fetches AppTemplates and favorite AppTemplates from the external API,
         retrieves image data from the Glance API, and adds this information to the context
         for rendering the template.
 
         :param kwargs: Additional context parameters.
-        :return: Context dictionary with app templates, favorite app templates, and image details.
+        :return: Context dictionary with AppTemplates, favorite AppTemplates, and image details.
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
@@ -281,15 +282,15 @@ class IndexView(generic.TemplateView):
 
 class DetailsPageView(generic.TemplateView):
     """
-    Display detailed information for a specific app template, including associated image data.
+    Display detailed information for a specific AppTemplate, including associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
 
     def get_context_data(self, **kwargs):
         """
-        Add app template and image data to the context.
-        :return: Context dictionary with app template and image details.
+        Add AppTemplate and image data to the context.
+        :return: Context dictionary with AppTemplate and image details.
         """
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
@@ -328,8 +329,8 @@ class DetailsPageView(generic.TemplateView):
 
     def get_app_template(self):
         """
-        Fetch a specific app template from the external database using token authentication.
-        :return: JSON response of app template details if successful, otherwise an empty dict.
+        Fetch a specific AppTemplate from the external database using token authentication.
+        :return: JSON response of AppTemplate details if successful, otherwise an empty dict.
         """
         token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
@@ -369,9 +370,9 @@ class DetailsPageView(generic.TemplateView):
 
 class CreateView(generic.TemplateView):
     """
-    View for creating a new app template.
+    View for creating a new AppTemplate.
 
-    This view handles the display and submission of the form for creating a new app template.
+    This view handles the display and submission of the form for creating a new AppTemplate.
     It processes the form data, validates it, and sends it to the backend API for creation.
     """
 
@@ -380,7 +381,7 @@ class CreateView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
             """
-            Handle GET requests to render the create app template form.
+            Handle GET requests to render the create AppTemplate form.
 
             This method retrieves the context data required for rendering the form
             and returns an HTTP response with the rendered template.
@@ -397,10 +398,10 @@ class CreateView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to create a new app template.
+        Handle POST requests to create a new AppTemplate.
 
         This method processes the form data submitted via POST request, validates it,
-        and sends it to the backend API for creating a new app template. It handles
+        and sends it to the backend API for creating a new AppTemplate. It handles
         the response and displays appropriate success or error messages.
 
         :param request: The incoming HTTP request.
@@ -434,6 +435,7 @@ class CreateView(generic.TemplateView):
         else:
             account_attributes = []
 
+
         ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
 
         if ssh_user_requested is None:
@@ -441,8 +443,13 @@ class CreateView(generic.TemplateView):
         else:
             ssh_user_requested = True
 
+
         volume_size = request.POST.get('volume_size', '').strip()
         volume_size_gb = int(volume_size) if volume_size else 0
+
+        security_group_names = request.POST.getlist('security_groups')
+        security_groups = [{"name": name} for name in security_group_names]
+
 
         data = {
             'image_id': request.POST.get('image_id'),
@@ -463,6 +470,7 @@ class CreateView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+            'security_groups': security_groups
         }
 
         try:
@@ -485,13 +493,13 @@ class CreateView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-        Add app template and image data to the context for rendering the template.
+        Add AppTemplate and image data to the context for rendering the template.
 
-        This method fetches the app template and associated image data if a template ID is provided.
+        This method fetches the AppTemplate and associated image data if a template ID is provided.
         It also retrieves a list of available images from Glance and adds this information to the context.
 
         :param kwargs: Additional context parameters.
-        :return: Context dictionary with app template, image visibility, image owner, and available images.
+        :return: Context dictionary with AppTemplate, image visibility, image owner, and available images.
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
@@ -508,6 +516,7 @@ class CreateView(generic.TemplateView):
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'security_groups': self.get_security_groups(),
         })
 
         glance_images = self.get_images_data()
@@ -515,20 +524,22 @@ class CreateView(generic.TemplateView):
         context['page_title'] = self.page_title
 
 
+        context['security_groups'] = self.get_security_groups()
+
         return context
 
     def get_app_template(self, template_id):
         """
-        Fetch a specific app template from the external database using token authentication.
+        Fetch a specific AppTemplate from the external database using token authentication.
 
         This function retrieves the token ID from the request, constructs the headers,
-        and makes a GET request to the external API to fetch the app template details.
+        and makes a GET request to the external API to fetch the AppTemplate details.
         If the request is successful, it returns the JSON response. In case of an error,
         it logs the error and returns an empty dictionary.
 
-        :param template_id: The ID of the app template to retrieve.
+        :param template_id: The ID of the AppTemplate to retrieve.
         :type template_id: str
-        :return: JSON response of app template details if successful, otherwise an empty dict.
+        :return: JSON response of AppTemplate details if successful, otherwise an empty dict.
         :rtype: dict
         """
         token_id = get_token_id(self.request)
@@ -565,6 +576,19 @@ class CreateView(generic.TemplateView):
             exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
             return {}
 
+    def get_security_groups(self):
+        """
+        Retrieve the list of available security groups using Horizon's Neutron API.
+
+        :return: List of security group objects.
+        :rtype: list
+        """
+        try:
+            return neutron.security_group_list(self.request)
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            return []
+
     def get_images_data(self):
         """
         Fetch images from the Glance API using Horizon API.
@@ -589,9 +613,11 @@ class CreateView(generic.TemplateView):
             return []
 
 
+
+
 class EditView(generic.TemplateView):
     """
-    View to handle editing of an app template.
+    View to handle editing of an AppTemplate.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
     page_title = _("Edit AppTemplate")
@@ -607,9 +633,9 @@ class EditView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to update an existing app template.
+        Handle POST requests to update an existing AppTemplate.
 
-        This method processes the form data submitted via POST request to update an existing app template
+        This method processes the form data submitted via POST request to update an existing AppTemplate
         by sending the updated data to the backend API. It handles the extraction of instantiation and account
         attributes, constructs the data payload, and makes a PUT request to the API endpoint.
 
@@ -619,7 +645,7 @@ class EditView(generic.TemplateView):
         :type args: tuple
         :param kwargs: Additional keyword arguments.
         :type kwargs: dict
-        :return: Rendered HTML response with the updated app template details or an error message.
+        :return: Rendered HTML response with the updated AppTemplate details or an error message.
         :rtype: HttpResponse
         """
 
@@ -645,6 +671,9 @@ class EditView(generic.TemplateView):
             ]
         else:
             account_attributes = []
+        # Get security groups and convert to required format
+        security_group_names = request.POST.getlist('security_groups')
+        security_groups = [{"name": name} for name in security_group_names]
 
         ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
 
@@ -673,6 +702,7 @@ class EditView(generic.TemplateView):
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+            'security_groups': security_groups
         }
         app_template_id = kwargs.get("template_id")  # ID aus der URL holen
 
@@ -705,28 +735,35 @@ class EditView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-            Add app template and image data to the context.
+            Add AppTemplate and image data to the context.
             :param kwargs: Additional context parameters.
-            :return: Context dictionary with app template and image details.
+            :return: Context dictionary with AppTemplate and image details.
             :rtype: dict
         """
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
+
+        selected_sg_names = [sg["name"] for sg in app_template.get("security_groups", [])]
+
         image_data = self.get_image_data(app_template.get('image_id', ''))
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'security_groups': self.get_security_groups(),
+            'selected_security_groups': selected_sg_names,
         })
+
         context['page_title'] = self.page_title
+
 
         return context
 
     def get_app_template(self):
         """
-            Fetch a specific app template from the external database using token authentication.
+            Fetch a specific AppTemplate from the external database using token authentication.
             :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :return: JSON response of AppTemplate details if successful, otherwise an empty dict.
             :rtype: dict
         """
         token_id = get_token_id(self.request)
@@ -742,6 +779,19 @@ class EditView(generic.TemplateView):
         except requests.RequestException as e:
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
+
+    def get_security_groups(self):
+        """
+        Retrieve the list of available security groups using Horizon's Neutron API.
+
+        :return: List of security group objects.
+        :rtype: list
+        """
+        try:
+            return neutron.security_group_list(self.request)
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            return []
 
     def get_image_data(self, image_id):
         """
@@ -931,7 +981,7 @@ class InstancesView(generic.TemplateView):
         Handle POST requests to create multiple instances.
 
         This method processes the form data submitted via POST request to create multiple instances
-        based on the provided app template. It handles the creation of key pairs, user data,
+        based on the provided AppTemplate. It handles the creation of key pairs, user data,
         and metadata for each instance, and initiates the instance creation process using the Nova API.
 
         :param request: The incoming HTTP request.
@@ -976,7 +1026,7 @@ class InstancesView(generic.TemplateView):
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
 
-            security_groups = ["default"]
+            security_groups = [sg["name"] for sg in app_template.get("security_groups", [])]
 
             instances = []
             shared_keypair_name = f"{base_name}_shared_key"
@@ -1285,21 +1335,13 @@ class InstancesView(generic.TemplateView):
 
         return context
 
-    # def get_flavors(self, ):
-    #  """Fetch flavors from Nova to correlate instances."""
-    # try:
-    #     flavors = api.nova.flavor_list(self.request)
-    #     return {str(flavor.id): flavor.name for flavor in flavors}
-    # except Exception:
-    #     exceptions.handle(self.request, ignore=True)
-    #     return {}
 
     def get_flavors(self, app_template):
         """
         Fetch all available flavors from Nova and filter them based on the system requirements
-        specified in the app template.
+        specified in the AppTemplate.
 
-        :param app_template: The app template containing system requirements.
+        :param app_template: The AppTemplate containing system requirements.
         :type app_template: dict
         :return: A dictionary containing all flavors, suitable flavors, and the selected flavor.
         :rtype: dict
@@ -1343,9 +1385,9 @@ class InstancesView(generic.TemplateView):
 
     def get_expected_fields(self):
         """
-        Retrieve the expected fields for account creation from the app template.
+        Retrieve the expected fields for account creation from the AppTemplate.
 
-        This function fetches the app template and extracts the account attributes,
+        This function fetches the AppTemplate and extracts the account attributes,
         which are the expected fields for account creation.
 
         :return: A list of expected field names for account creation.
@@ -1391,9 +1433,9 @@ class InstancesView(generic.TemplateView):
 
     def get_expected_fields_instantiation(self):
         """
-        Retrieve the expected fields for account creation from the app template.
+        Retrieve the expected fields for account creation from the AppTemplate.
 
-        This function fetches the app template and extracts the instantiation attributes,
+        This function fetches the AppTemplate and extracts the instantiation attributes,
         which are the expected fields for account creation.
 
         :return: A list of expected field names for account creation.
@@ -1460,9 +1502,9 @@ class InstancesView(generic.TemplateView):
     # Get AppTemplate Details to display while launching an instance
     def get_app_template(self):
         """
-            Fetch a specific app template from the external database using token authentication.
+            Fetch a specific AppTemplate from the external database using token authentication.
             :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :return: JSON response of AppTemplate details if successful, otherwise an empty dict.
             :rtype: dict
         """
         token_id = get_token_id(self.request)
@@ -1623,9 +1665,9 @@ class GetFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to mark an app template as a favorite via the external API.
+        Handle POST requests to mark an AppTemplate as a favorite via the external API.
 
-        This method retrieves the app template ID and name from the POST request,
+        This method retrieves the AppTemplate ID and name from the POST request,
         constructs the API URL and payload, and sends a POST request to the external API.
         It handles the response and displays appropriate success or error messages.
 
@@ -1672,9 +1714,9 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to delete a favorite app template via the external API.
+        Handle POST requests to delete a favorite AppTemplate via the external API.
 
-        This method retrieves the app template ID and name from the POST request,
+        This method retrieves the AppTemplate ID and name from the POST request,
         constructs the API URL and payload, and sends a DELETE request to the external API.
         It handles the response and displays appropriate success or error messages.
 
@@ -1719,7 +1761,7 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
 
 class DeleteTemplateView(View):
-    """Handles app template deletion.
+    """Handles AppTemplate deletion.
        Deletion is allowed only if the image owner (from Glance) matches the user ID returned from Keystone.
        After deletion, it also attempts to remove the template from favorites.
     """
