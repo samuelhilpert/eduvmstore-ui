@@ -220,7 +220,7 @@ class IndexView(generic.TemplateView):
             logging.error(f"Unable to retrieve images: {e}")
             return {}
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs): # noqa: F811
         """
         Add AppTemplates, favorite AppTemplates, and associated image data to the context.
 
@@ -285,7 +285,7 @@ class DetailsPageView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs): # noqa: F811
         """
         Add app template and image data to the context.
         :return: Context dictionary with app template and image details.
@@ -1384,7 +1384,7 @@ class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
     page_title = _("Success")
 
-    def get_context_data(self, **kwargs): # noqa: F811
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = self.page_title
         return context
