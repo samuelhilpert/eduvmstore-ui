@@ -1127,12 +1127,13 @@ class InstancesView(generic.TemplateView):
 
                     volume_name = f"{instance_name}-volume"
                     # Create Volume via Cinder
+                    volume_type = self.get_available_volume_types(request)
                     volume = cinder.volume_create(
                         request,
                         size=volume_size,
                         name=volume_name,
                         description=f"Extra volume for {instance_name}",
-                        volume_type="__DEFAULT__"
+                        volume_type=volume_type
                     )
                     volume = self.wait_for_volume_available(request, volume.id)
 
@@ -1186,6 +1187,19 @@ class InstancesView(generic.TemplateView):
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
+
+    def get_available_volume_types(self, request):
+        try:
+
+            volume_types = cinder.volume_type_list(request)
+            if not volume_types:
+                logging.error("No volume types available.")
+                return None
+            # choose the first volume type
+            return volume_types[0].name
+        except Exception as e:
+            logging.error(f"Error during get volume types: {e}")
+            return None
 
     def wait_for_volume_available(self, request, volume_id, timeout=60):
         """
