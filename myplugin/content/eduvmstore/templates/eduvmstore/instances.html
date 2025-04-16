@@ -1321,6 +1321,7 @@ function resetCSVUpload(instanceIndex) {
            try {
                const response = await fetch(url, {
                    method: "POST",
+                   credentials: "same-origin",
                    headers: {
                        "Content-Type": "application/json",
                        "X-CSRFToken": csrftoken  // Übergebe den CSRF-Token im Header
