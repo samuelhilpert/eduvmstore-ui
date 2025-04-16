@@ -219,22 +219,14 @@
 </div>
 
     <!-- Modal for Loading Indicator -->
-    <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loadingModalLabel">{{ _("Instance Creation in Progress...") }}</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex justify-content-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">{{ _("Loading...") }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Lade-Pop-up -->
+    <div id="loadingModal" class="loading-modal">
+        <div class="loading-modal-content">
+            <p>{{ _("Instance Creation in Progress...") }}</p>
+            <div class="loader"></div>
         </div>
     </div>
+
 
 
 
@@ -1312,12 +1304,59 @@ function resetCSVUpload(instanceIndex) {
             });
         }
 
-       document.querySelector("form").addEventListener("submit", function (event) {
-           $('#loadingModal').modal('show');
+       document.querySelector("form").addEventListener("submit", function(event) {
+
+           document.getElementById('loadingModal').style.display = 'flex';
        });
 
 
 
+
     </script>
+
+    <style>
+        /* Modal-Hintergrund */
+        .loading-modal {
+            display: none; /* Modal ist zunächst unsichtbar */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Dunkler Hintergrund */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Sehr oben auf der Seite */
+        }
+
+        /* Inhalt des Modals */
+        .loading-modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Der Lade-Kreis */
+        .loader {
+            border: 8px solid #f3f3f3; /* Grau Hintergrund */
+            border-top: 8px solid #3498db; /* Blau für den Lade-Kreis */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        /* Die Animation für den Lade-Kreis */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
 
 {% endblock %}
