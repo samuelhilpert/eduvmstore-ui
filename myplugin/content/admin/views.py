@@ -130,7 +130,7 @@ class IndexView(generic.TemplateView):
 
         user_id = self.request.user.id
         user_details = get_user_details(self.request, user_id)
-        role_level = user_details['role']['access_level']
+        role_level = user_details.get('role', {}).get('access_level', 1)
         user_data = get_users(self.request)
         context['users'] = user_data
 
