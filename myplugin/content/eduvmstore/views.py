@@ -195,9 +195,6 @@ def validate_name(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def get_launch_instance_status(request):
-    status = request.session.get('launch_instance_status', 'Launch Instance')
-    return JsonResponse({'status': status})
 
 class IndexView(generic.TemplateView):
     """
@@ -997,8 +994,6 @@ class InstancesView(generic.TemplateView):
         :rtype: HttpResponse
         """
         try:
-            request.session.pop("launch_instance_status",None)
-            request.session["launch_instance_status"] = "Start Launch Instance Process"
             num_instances = int(request.POST.get('instance_count', 1))
             base_name = request.POST.get('instances_name')
             app_template = self.get_app_template()
@@ -1064,9 +1059,6 @@ class InstancesView(generic.TemplateView):
 
                 no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
 
-                request.session.pop("launch_instance_status",None)
-                request.session["launch_instance_status"] = f"Get Account and Instantiation Data for Instance {i}"
-
                 if no_additional_users is None:
                     try:
                         accounts = self.extract_accounts_from_form_new(request, i)
@@ -1081,8 +1073,6 @@ class InstancesView(generic.TemplateView):
 
                 description = self.format_description(app_template_description)
 
-                request.session.pop("launch_instance_status",None)
-                request.session["launch_instance_status"] = f"Generate Script for Instance {i}"
 
                 if not script and not accounts:
                     user_data = None
@@ -1171,8 +1161,6 @@ class InstancesView(generic.TemplateView):
                         "delete_on_termination": True,
                         "device_name": "/dev/vdb",
                     })
-                request.session.pop("launch_instance_status",None)
-                request.session["launch_instance_status"] = f"Launch Instance {i}"
 
                 created_server = nova.server_create(
                     request,
@@ -1188,11 +1176,7 @@ class InstancesView(generic.TemplateView):
                     block_device_mapping_v2=block_device_mapping_v2,
                 )
 
-                request.session.pop("launch_instance_status",None)
-                request.session["launch_instance_status"] = f"Wait for instance {i} to start"
                 server = self.wait_for_server(request, created_server.id)
-                request.session.pop("launch_instance_status",None)
-                request.session["launch_instance_status"] = f"Wait for ip address for instance {i}"
                 ip_list = self.wait_for_ip_in_network(request, server.id, network_name)
                 request.session[f"ip_addresses_{i}"] = ip_list
                 instances.append(instance_name)
