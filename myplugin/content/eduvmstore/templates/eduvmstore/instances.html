@@ -218,8 +218,7 @@
     </div>
 </div>
 
-    <!-- Modal for Loading Indicator -->
-    <!-- Lade-Pop-up -->
+
     <div id="loadingModal" class="loading-modal">
         <div class="loading-modal-content">
             <p>{{ _("Instance Creation in Progress...") }}</p>
@@ -1307,6 +1306,35 @@ function resetCSVUpload(instanceIndex) {
        document.querySelector("form").addEventListener("submit", function(event) {
 
            document.getElementById('loadingModal').style.display = 'flex';
+       });
+
+       function updateLoadingModal(message) {
+           document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
+       }
+
+       // Funktion für den Ajax-Call, um den Status vom Backend abzurufen
+       function fetchStatus() {
+           fetch('/instance-status/')
+               .then(response => response.json())
+               .then(data => {
+                   updateLoadingModal(data.status);  // Den Lade-Text mit dem Status aus dem Backend aktualisieren
+               })
+               .catch(error => {
+                   console.error("Error fetching status:", error);
+                   updateLoadingModal("An error occurred while checking the status.");
+               });
+       }
+
+       // Funktion, die beim Absenden des Formulars ausgeführt wird
+       document.querySelector("form").addEventListener("submit", function(event) {
+           // Zeige das Lade-Pop-up an
+           document.getElementById('loadingModal').style.display = 'flex';
+
+           // Initiale Nachricht
+           updateLoadingModal("Starting instance creation...");
+
+           // Beginne mit der regelmäßigen Statusabfrage alle 3 Sekunden
+           setInterval(fetchStatus, 3000);  // Abfrage alle 3 Sekunden
        });
 
 
