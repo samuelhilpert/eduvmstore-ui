@@ -509,7 +509,7 @@ write_files:
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
         <div class="custom-bottommargin">
-        <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
+        <button type="submit" class="btn btn-primary" id="submit-button" disabled>{{ _("Create") }}</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
         </div>
     </form>
