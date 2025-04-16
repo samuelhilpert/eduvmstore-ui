@@ -17,5 +17,5 @@ urlpatterns = [
     path('delete_template/<str:template_id>/', views.DeleteTemplateView.as_view(), name='delete_template'),
     path('delete_favorite_template', views.DeleteFavoriteAppTemplateView.as_view(),
          name='delete_favorite_template'),
-    path('get_launch_instance_status/', views.get_launch_instance_status(),name='get_launch_instance_status'),
+    path('get_launch_instance_status/', views.get_launch_instance_status,name='get_launch_instance_status'),
 ]
