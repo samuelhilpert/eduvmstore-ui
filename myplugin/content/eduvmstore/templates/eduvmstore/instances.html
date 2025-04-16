@@ -1314,7 +1314,8 @@ function resetCSVUpload(instanceIndex) {
 
        // Funktion für den Ajax-Call, um den Status vom Backend abzurufen
        function fetchStatus() {
-           fetch('/instance-status/')
+           const instanceStatusUrl = "{% url 'horizon:eduvmstore_dashboard:eduvmstore:get_launch_instance_status' %}";
+           fetch(instanceStatusUrl)
                .then(response => response.json())
                .then(data => {
                    updateLoadingModal(data.status);  // Den Lade-Text mit dem Status aus dem Backend aktualisieren
