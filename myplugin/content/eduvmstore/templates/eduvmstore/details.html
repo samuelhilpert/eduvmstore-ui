@@ -60,16 +60,12 @@
     .btn-launch {
         background-color: #E8E8E8;
         color: black;
-        margin-top: 20px;
-        margin-bottom: 20px;
     }
     .btn:hover {
         opacity: 0.9;
     }
      .dropdown-toggle {
          background-color: #E8E8E8;
-         margin-top: 20px;
-         margin-bottom: 20px;
    }
 
 </style>
@@ -78,11 +74,11 @@
     <h4>AppTemplate Details</h4>
 
     <div class="btn-group">
-                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
+                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch" style="margin-top: 20px; margin-bottom: 20px;">
             Launch
         </a>
 
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" style="margin-top: 20px; margin-bottom: 20px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="caret"></span>
         </button>
 
