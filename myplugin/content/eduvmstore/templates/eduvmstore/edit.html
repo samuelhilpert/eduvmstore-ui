@@ -343,9 +343,15 @@
 
 
          <h3>Script</h3>
-         <div style="display: flex; align-items: center; margin-bottom: 12px;">
-             <input type="checkbox" id="ssh_user_requested" name="ssh_user_requested" {% if app_template.ssh_user_requested %}checked{% endif %} onchange="toggleSshScript(this)" style="margin-right: 8px;">
-             <label for="ssh_user_requested" style="margin: 0;">Generate SSH setup for users</label>
+         <div class="form-group">
+             <div class="form-check">
+                 <input class="form-check-input" type="checkbox" id="ssh_user_requested" name="ssh_user_requested"
+                        {% if app_template.ssh_user_requested %}checked{% endif %}
+                        onchange="toggleSshScript(this)">
+                 <label class="form-check-label" for="ssh_user_requested">
+                     Generate SSH setup for users
+                 </label>
+             </div>
          </div>
 
          <div class="form-group row">
