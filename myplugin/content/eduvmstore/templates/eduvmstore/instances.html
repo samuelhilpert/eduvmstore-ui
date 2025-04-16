@@ -1313,7 +1313,7 @@ function resetCSVUpload(instanceIndex) {
        }
        const csrftoken = getCookie("csrftoken");
        // Funktion für den Ajax-Call, um den Status vom Backend abzurufen
-       async function fetchStatus(name) {
+       async function fetchStatus() {
            const url = "{% url 'horizon:eduvmstore_dashboard:eduvmstore:get_launch_instance_status' %}";  // Dynamische URL mit Django-Tag
 
 
@@ -1325,7 +1325,7 @@ function resetCSVUpload(instanceIndex) {
                        "Content-Type": "application/json",
                        "X-CSRFToken": csrftoken  // Übergebe den CSRF-Token im Header
                    },
-                   body: JSON.stringify({ name: name })  // Daten, die du sendest
+
                });
 
                const data = await response.json();  // JSON-Antwort vom Backend parsen
@@ -1346,7 +1346,7 @@ function resetCSVUpload(instanceIndex) {
            updateLoadingModal("Starting instance creation...");
 
            // Beginne mit der regelmäßigen Statusabfrage alle 3 Sekunden
-           setInterval(fetchStatus, 3000);  // Abfrage alle 3 Sekunden
+           setInterval(fetchStatus(), 3000);  // Abfrage alle 3 Sekunden
        });
 
        function getCookie(name) {
