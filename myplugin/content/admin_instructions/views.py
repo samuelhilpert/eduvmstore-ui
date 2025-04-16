@@ -63,7 +63,9 @@ class IndexView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        user_id = self.request.user.id
+        userdev = self.request.user
+        user_id = userdev.id
+
         user_details = get_user_details(self.request, user_id)
         role_level = user_details.get('role', {}).get('access_level', 1)
 
@@ -82,5 +84,6 @@ class IndexView(generic.TemplateView):
         else:
             context['show_content'] = False
 
+        context['username'] = userdev.username
         context['page_title'] = self.page_title
         return context
