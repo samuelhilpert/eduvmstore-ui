@@ -408,7 +408,7 @@
     <div class="security_groups">
         <div class="form-group row ">
     <div class="col-md-4">
-        <label for="security_groups" style="margin-top: 10px">Select Security Groups
+        <label for="security_groups" style="margin-top: 10px">Select Security Groups <span style="color: rgb(85,137,197);">*</span>
           <span data-toggle="tooltip" title="Choose one or multiple security groups..">
                 <i class="fa fa-question-circle"></i>
             </span>
@@ -443,11 +443,6 @@
 
 <h3>Script</h3>
    <div class="script-details">
-       <div style="display: flex; align-items: center; margin-bottom: 12px;">
-           <input type="checkbox" id="ssh_user_requested" name="ssh_user_requested" onchange="toggleSshScript(this)" style="margin-right: 8px;">
-           <label for="ssh_user_requested" style="margin: 0;">Generate SSH setup for users</label>
-       </div>
-
 
         <div class="form-group row">
             <div class="col-md-4">
@@ -495,6 +490,10 @@ You can also write your script in the modal below. Link to YAML Documentation: h
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">×</span>
                 <h5>Write Script</h5>
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <input type="checkbox" id="ssh_user_requested" name="ssh_user_requested" onchange="toggleSshScript(this)" style="margin-right: 8px;">
+                    <label for="ssh_user_requested" style="margin: 0;">Generate SSH setup for users</label>
+                </div>
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
     <pre class="p-2 border rounded bg-light" style="flex: 1;">
 #cloud-config
