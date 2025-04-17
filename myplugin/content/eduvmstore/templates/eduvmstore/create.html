@@ -574,6 +574,10 @@ write_files:
         {% if not is_edit %}
         checkName();
         {% endif %}
+        {% if is_edit %}
+            document.getElementById("name-feedback").textContent = "";
+            document.getElementById("submit-button").disabled = false;
+        {% endif %}
         var scriptText = document.getElementById('scriptText').value;
         document.getElementById('hiddenScriptField').value = scriptText;
         document.querySelectorAll("input[type='text']").forEach(function(input) {
