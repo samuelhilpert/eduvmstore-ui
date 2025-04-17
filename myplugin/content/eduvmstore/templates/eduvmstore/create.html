@@ -1,12 +1,18 @@
 {% extends 'base.html' %}
 
 {% load static %}
-{% block title %}Create AppTemplate{% endblock %}
+{% block title %}
+    {% if is_edit %}Edit AppTemplate{% elif is_clone %}Clone AppTemplate{% else %}Create AppTemplate{% endif %}
+{% endblock %}
+
 
 {% block page_header %}
     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
-            <h1 class="page-title mb-0">Create AppTemplate</h1>
+            <h1 class="page-title mb-0">
+                {% if is_edit %}Edit AppTemplate{% elif is_clone %}Clone AppTemplate{% else %}Create AppTemplate{% endif %}
+            </h1>
+
         </div>
         <div>
             <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
@@ -202,8 +208,26 @@
 </style>
 
 <div class="form-container">
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}">
+    <form method="post" action="">
+
     {% csrf_token %}
+
+    {% if is_edit  %}
+
+        <div class="col-md-6" hidden="hidden">
+            <label for="image_id">Image ID:</label>
+            <input type="text" hidden="hidden"  name="app_template_id" value="{{ app_template.id }}">
+        </div>
+        <div class="col-md-6" hidden="hidden">
+            <label for="image_id">Image ID:</label>
+            <input type="text" id="image_id" name="image_id" class="form-control" value="{{ app_template.image_id }}" required>
+        </div>
+        <div class="col-md-6" hidden="hidden">
+            <label for="approved">Approved:</label>
+            <input type="text" id="approved" name="approved" class="form-control" value="{{ app_template.approved }}" required>
+        </div>
+
+    {% endif %}
 
 
 
@@ -509,8 +533,11 @@ write_files:
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
         <div class="custom-bottommargin">
-        <button type="submit" class="btn btn-primary" id="submit-button" disabled>{{ _("Create") }}</button>
-         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+            <button type="submit" class="btn btn-primary" id="submit-button" disabled>
+                {% if is_edit %}{{ _("Update") }}{% elif is_clone %}{{ _("Clone") }}{% else %}{{ _("Create") }}{% endif %}
+            </button>
+
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
         </div>
     </form>
 </div>

@@ -368,7 +368,7 @@ class DetailsPageView(generic.TemplateView):
             return {}
 
 
-class CreateView(generic.TemplateView):
+class AppTemplateView(generic.TemplateView):
     """
     View for creating a new AppTemplate.
 
@@ -378,6 +378,17 @@ class CreateView(generic.TemplateView):
 
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
     page_title = _("Create AppTemplate")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.url_mode = request.resolver_match.url_name
+        if self.url_mode == "edit":
+            self.mode = "edit"
+            self.page_title = _("Edit AppTemplate")
+        elif self.url_mode == "create_with_template":
+            self.mode = "clone"
+        else:
+            self.mode = "create"
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
             """
@@ -474,17 +485,29 @@ class CreateView(generic.TemplateView):
         }
 
         try:
-            response = requests.post(
-                API_ENDPOINTS['app_templates'],
-                json=data,
-                headers=headers,
-                timeout=10,
-            )
-            if response.status_code == 201:
-                messages.success(request, f"App Template created successfully.")
+            if self.mode == "edit":
+                template_id = self.kwargs.get("template_id")
+                response = requests.put(
+                    API_ENDPOINTS['app_template_detail'].format(template_id=template_id),
+                    json=data,
+                    headers=headers,
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    messages.success(request, "App Template updated successfully.")
+                else:
+                    messages.error(request, f"Failed to update App-Template. {response.text}")
             else:
-                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                messages.error(request, f"Failed to create App-Template. {response.text}")
+                response = requests.post(
+                    API_ENDPOINTS['app_templates'],
+                    json=data,
+                    headers=headers,
+                    timeout=10
+                )
+                if response.status_code == 201:
+                    messages.success(request, "App Template created successfully.")
+                else:
+                    messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
             messages.error(request, f"Failed to create App-Template. Please try again.")
@@ -517,6 +540,8 @@ class CreateView(generic.TemplateView):
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
             'security_groups': self.get_security_groups(),
+            'is_edit': self.mode == "edit",
+            'is_clone': self.mode == "clone"
         })
 
         glance_images = self.get_images_data()
