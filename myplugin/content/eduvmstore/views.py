@@ -456,7 +456,7 @@ class AppTemplateView(generic.TemplateView):
 
 
         volume_size = request.POST.get('volume_size', '').strip()
-        volume_size_gb = int(volume_size) if volume_size else 0
+        volume_size_gb = float(volume_size) if volume_size else 0.0
 
         security_group_names = request.POST.getlist('security_groups')
         security_groups = [{"name": name} for name in security_group_names]
