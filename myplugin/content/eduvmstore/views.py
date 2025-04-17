@@ -540,8 +540,7 @@ class AppTemplateView(generic.TemplateView):
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
             'security_groups': self.get_security_groups(),
-            'is_edit': self.mode == "edit",
-            'is_clone': self.mode == "clone"
+            'is_edit': self.mode == "edit"
         })
 
         glance_images = self.get_images_data()
