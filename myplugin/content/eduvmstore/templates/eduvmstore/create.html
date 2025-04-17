@@ -419,14 +419,11 @@
 
 <h3>Script</h3>
    <div class="script-details">
-<div class="form-group">
-    <div class="form-check" style="margin-bottom: 12px;">
-        <input class="form-check-input" type="checkbox" id="generate_ssh_script" onchange="toggleSshScript(this)" style="vertical-align: middle; margin-right: 8px;">
-        <label class="form-check-label" for="generate_ssh_script" style="vertical-align: middle; display: inline-block; line-height: 25px;">
-            Generate SSH setup for users
-        </label>
-    </div>
-</div>
+       <div style="display: flex; align-items: center; margin-bottom: 12px;">
+           <input type="checkbox" id="ssh_user_requested" name="ssh_user_requested" onchange="toggleSshScript(this)" style="margin-right: 8px;">
+           <label for="ssh_user_requested" style="margin: 0;">Generate SSH setup for users</label>
+       </div>
+
 
         <div class="form-group row">
             <div class="col-md-4">
@@ -462,7 +459,8 @@ You can also write your script in the modal below. Link to YAML Documentation: h
                 </label>
 
                 <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
-                <button type="button" class="btn btn-primary custom-topmargin" id="writeScriptButton" onclick="openModal()">Write Script</button>
+                <button type="button" class="btn btn-primary custom-topmargin" id="writeScriptButton" onclick="openModal()">
+                    {{ _("Write Script") }}</button>
             </div>
 
         </div>
@@ -493,6 +491,7 @@ write_files:
                     <div class="cloudinit-info" style="flex: 0 0 250px; font-size: 13px; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
                     <strong>Cloud Init Support</strong>
                         <p>This script will run immediately after the start of the virtual machine. It can be used for configuration of instances. For more information look at the tutorial of cloud init documentation.</p>
+                        <p>You will find a sample (runcmd) script for user creation in the "Account Attributes" section of the tutorial page "Script".</p>
                         <p style="margin-top: 10px;">Look at <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.</p>
                         <p style="margin-top: 10px;">Look at <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}" target="_blank">Tutorial</a>. </p>
 
@@ -500,7 +499,8 @@ write_files:
                 </div>
 
                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
-                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">Save Script</button>
+                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">
+                    {{ _("Save Script") }}</button>
                 <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
 
             </div>
@@ -509,7 +509,7 @@ write_files:
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
         <div class="custom-bottommargin">
-        <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
+        <button type="submit" class="btn btn-primary" id="submit-button" disabled>{{ _("Create") }}</button>
          <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
         </div>
     </form>

@@ -219,7 +219,17 @@
 </div>
 
 
-   <script>
+    <div id="loadingModal" class="loading-modal">
+        <div class="loading-modal-content">
+            <p>{{ _("Instance Creation in Progress...") }}</p>
+            <div class="loader"></div>
+        </div>
+    </div>
+
+
+
+
+    <script>
        //For the all instances tab index 0 is used for easier calculation
        const ALL_INSTANCES_INDEX = 0;
        const TAB_PREFIX = 'instanceTab_';
@@ -1293,6 +1303,21 @@ function resetCSVUpload(instanceIndex) {
             });
         }
 
-</script>
+       document.querySelector("form").addEventListener("submit", function(event) {
+
+           document.getElementById('loadingModal').style.display = 'flex';
+       });
+
+       function updateLoadingModal(message) {
+           document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
+       }
+
+
+
+
+
+
+    </script>
+
 
 {% endblock %}

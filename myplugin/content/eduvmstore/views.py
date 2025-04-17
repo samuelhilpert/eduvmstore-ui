@@ -195,6 +195,7 @@ def validate_name(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+
 class IndexView(generic.TemplateView):
     """
         Display the main index page with available AppTemplates and associated image data.
@@ -1071,6 +1072,7 @@ class InstancesView(generic.TemplateView):
                 request.session[f"instantiations_{i}"] = instantiations
 
                 description = self.format_description(app_template_description)
+
 
                 if not script and not accounts:
                     user_data = None

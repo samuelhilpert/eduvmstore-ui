@@ -179,7 +179,7 @@
             useradd -m -s /bin/bash "$username"
             echo "$username:$password" | chpasswd
         fi
-    done &lt; /path/to/attributes/file</code></pre>
+    done &lt; /etc/users.txt</code></pre>
         <p>Make sure to adjust the file path to match the location where the attributes are saved in the
             <code>write_files</code> section.</p>
     </div>
