@@ -784,27 +784,60 @@ write_files:
     document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 
     document.addEventListener("DOMContentLoaded", function () {
+        const textarea = document.getElementById("scriptText");
+        const hiddenField = document.getElementById("hiddenScriptField");
+
+        function updateScriptBasedOnSelection() {
+            const selected = Array.from(document.querySelectorAll(".script-option"))
+                .filter(cb => cb.checked)
+                .map(cb => cb.dataset.key)
+                .sort(); // wichtig für eindeutige Kombinationsschlüssel
+
+            const keyCombo = selected.join("+");
+            let selectedKey = "";
+
+            // Mapping der Kombinationen auf finale Schlüssel
+            switch (keyCombo) {
+                case "base_configuration":
+                    selectedKey = "base_configuration";
+                    break;
+                case "ssh_script":
+                    selectedKey = "ssh_script";
+                    break;
+                case "user_add":
+                    selectedKey = "user_add";
+                    break;
+                case "base_configuration+ssh_script":
+                    selectedKey = "sshscript_base_configuration";
+                    break;
+                case "ssh_script+user_add":
+                    selectedKey = "ssh_script"; // nur ssh_script enthält schon alles
+                    break;
+                case "base_configuration+user_add":
+                    selectedKey = "base_user";
+                    break;
+                case "base_configuration+ssh_script+user_add":
+                    selectedKey = "sshscript_base_configuration"; // ssh_script enthält user_add
+                    break;
+                default:
+                    selectedKey = ""; // keine passende Kombination
+            }
+
+            if (selectedKey && scriptSnippets[selectedKey]) {
+                const decoded = scriptSnippets[selectedKey]
+                    .replace(/\\r\\n/g, '\n')
+                    .replace(/\\"/g, '"');
+                textarea.value = decoded;
+                hiddenField.value = decoded;
+            } else {
+                textarea.value = "#cloud-config\n# Keine gültige Kombination gewählt";
+                hiddenField.value = "";
+            }
+        }
+
+        // Checkboxen verbinden
         document.querySelectorAll(".script-option").forEach((checkbox) => {
-            checkbox.addEventListener("change", function () {
-                // Alle anderen Checkboxen abwählen
-                document.querySelectorAll(".script-option").forEach(cb => {
-                    if (cb !== this) cb.checked = false;
-                });
-
-                const key = this.dataset.key;
-
-                // Nur wenn aktiv
-                if (this.checked && scriptSnippets[key]) {
-                    const decoded = scriptSnippets[key]
-                        .replace(/\\r\\n/g, '\n')
-                        .replace(/\\"/g, '"');
-                    document.getElementById("scriptText").value = decoded;
-                    document.getElementById("hiddenScriptField").value = decoded;
-                } else {
-                    document.getElementById("scriptText").value = '';
-                    document.getElementById("hiddenScriptField").value = '';
-                }
-            });
+            checkbox.addEventListener("change", updateScriptBasedOnSelection);
         });
     });
 
