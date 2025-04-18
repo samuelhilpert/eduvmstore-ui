@@ -40,10 +40,10 @@ systemctl restart ssh`
     user_creation: {
         runcmd: [
             `while IFS=':' read -r username password; do
-if ! id "$username" &>/dev/null; then
-useradd -m -s "/bin/bash" "$username"
-echo "$username:$password" | chpasswd
-fi
+ if ! id "$username" &>/dev/null; then
+  useradd -m -s "/bin/bash" "$username"
+  echo "$username:$password" | chpasswd
+ fi
 done < /etc/users.txt`
         ]
     }
