@@ -67,21 +67,34 @@
         }
     </style>
 
-    <div class="section">
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#step-by-step-guide">Step-by-Step Guide to Writing Cloud-Init Scripts</a></li>
+            <li><a href="#instantiation-and-account-attributes">Instantiation and Account Attributes</a></li>
+            <li><a href="#easy-to-use-script-examples">Easy-to-Use Script Examples</a></li>
+            <li><a href="#best-practices">Best Practices</a></li>
+            <li><a href="#tips-and-tricks">Tips and Tricks</a></li>
+            <li><a href="#common-pitfalls">Common Pitfalls</a></li>
+        </ul>
+    </div>
+
+    <div class="section" id="introduction">
         <h2>Introduction</h2>
         <p>Cloud-init scripts are used to automate the configuration of virtual machines during their
             initialization. In EduVMStore, these scripts are essential for setting up AppTemplates, as they
             allow you to define user accounts, install software, configure services, and more. This tutorial
             will guide you through writing effective cloud-init scripts for your AppTemplates.</p>
         <p>Learn more about cloud-init scripts in the <a
-                        href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html#cloud-config"
-                        target="_blank">official cloud-init documentation</a>.</p>
+                href="https://cloudinit.readthedocs.io/en/latest/topics/examples.html#cloud-config"
+                target="_blank">official cloud-init documentation</a>.</p>
         <p>Cloud-init scripts are written in YAML, a human-readable data serialization format. To understand
             how to structure and write YAML files, refer to the
             <a href="https://yaml.org/" target="_blank">official YAML documentation</a>.</p>
     </div>
 
-    <div class="section">
+    <div class="section" id="step-by-step-guide">
         <h2>Step-by-Step Guide to Writing Cloud-Init Scripts</h2>
         <ol>
             <li>
@@ -166,25 +179,78 @@
         </ol>
     </div>
 
-    <div class="section">
+    <div class="section" id="instantiation-and-account-attributes">
         <h2>Instantiation and Account Attributes</h2>
-        <p>The instantiation and account attributes fields are in the format
-            <code>account_attribute_1:account_attribute_2:[...]</code> (for example:
-            <code>username:password</code>). These attributes are saved in a file within the pre-filled
-            <code>write_files</code> section. You can use them in the rest of your script, for example, in the
-            <code>runcmd</code> section:</p>
-        <pre><code>while IFS=: read -r username password; do
+        <p><strong>Instantiation Attributes:</strong> These attributes allow you to specify details such as
+            software versions or configurations that will be installed by the cloud-init script during the
+            initialization process. For example, you can define the version of Python or a specific
+            application to be installed on the virtual machine.</p>
+        <p><strong>Account Attributes:</strong> These attributes define the user-specific information that
+            needs to be collected during the launch process. This can include details like username, password,
+            email, or other user-related data required for setting up accounts on the virtual machine.</p>
+        <p>The attributes are provided in the format <code>attribute_1:attribute_2:[...]</code>
+            (e.g., <code>username:password:email</code>) and are saved in a file within the pre-filled
+            <code>write_files</code> section. You can use these attributes in the rest of your script,
+            for example, in the <code>runcmd</code> section:</p>
+        <pre><code>while IFS=: read -r username password email; do
         # Create users
         if ! id "$username" &>/dev/null; then
             useradd -m -s /bin/bash "$username"
             echo "$username:$password" | chpasswd
+            echo "Email: $email" >> /home/$username/user_info.txt
         fi
-    done &lt; /etc/users.txt</code></pre>
+    done < /etc/users.txt</code></pre>
         <p>Make sure to adjust the file path to match the location where the attributes are saved in the
             <code>write_files</code> section.</p>
     </div>
 
-    <div class="section">
+    <div class="section" id="easy-to-use-script-examples">
+        <h2>Easy-to-Use Script Examples</h2>
+        <p>Below are some ready-to-use script examples. You can copy them directly and use them in your
+            AppTemplates to get started.</p>
+
+        <div class="example">
+            <h3>1. User Creation Script</h3>
+            <p><strong>Notice:</strong> For this script to work, the <code>account_attributes</code> need to
+                be set in the format <code>username:password</code>.</p>
+            <p>This script creates users from the user file generated based on the fields defined in the
+                <code>account_attributes</code>.</p>
+            <pre>
+                <code id="user-creation-script">
+    runcmd:
+      - |
+        while IFS=':' read -r username password; do
+          if ! id "$username" &>/dev/null; then
+            useradd -m -s "/bin/bash" "$username"
+            echo "$username:$password" | chpasswd
+          fi
+        done < /etc/users.txt
+                </code>
+            </pre>
+            <button onclick="copyToClipboard('user-creation-script')">Copy Script</button>
+        </div>
+
+        <div class="example">
+            <h3>2. Software Installation Script</h3>
+            <p><strong>Notice:</strong> For this script to work, the <code>instantiation_attributes</code>
+                need to be set in the format <code>version</code>. These attributes are automatically written
+                to the file located at <code>/etc/attributes.txt</code>.</p>
+            <p>This script installs a specific version of a software (e.g., Python) based on the
+                <code>instantiation_attributes</code>.</p>
+            <pre>
+                <code id="software-installation-script">
+    runcmd:
+      - |
+        SOFTWARE_VERSION=$(cat /etc/attributes.txt)
+        apt-get update
+        apt-get install -y python$SOFTWARE_VERSION
+                </code>
+            </pre>
+            <button onclick="copyToClipboard('software-installation-script')">Copy Script</button>
+        </div>
+    </div>
+
+    <div class="section" id="best-practices">
         <h2>Best Practices</h2>
         <ul>
             <li>Always test your cloud-init scripts in a development environment before using them in
@@ -203,7 +269,7 @@
         </ul>
     </div>
 
-    <div class="section">
+    <div class="section" id="tips-and-tricks">
         <h2>Tips and Tricks</h2>
         <ul>
             <li>Work with the LLM of your choice to create aspired scripts.</li>
@@ -219,7 +285,7 @@
         </ul>
     </div>
 
-    <div class="section">
+    <div class="section" id="common-pitfalls">
         <h2>Common Pitfalls</h2>
         <ul>
             <li>Using incorrect indentation, as YAML is sensitive to whitespace.</li>
@@ -237,5 +303,34 @@
             </li>
         </ul>
     </div>
+
+    <script>
+
+        function copyToClipboard(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const tempInput = document.createElement("textarea");
+            tempInput.value = codeElement.textContent;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand("copy");
+            } catch (err) {
+                console.error("Copy failed:", err);
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const tocLinks = document.querySelectorAll(".toc a");
+            tocLinks.forEach(link => {
+                link.addEventListener("click", (event) => {
+                    const targetId = link.getAttribute("href").replace("#!", "");
+                    window.location.hash = targetId;
+                    event.preventDefault();
+                });
+            });
+        });
+
+    </script>
 
 {% endblock %}
