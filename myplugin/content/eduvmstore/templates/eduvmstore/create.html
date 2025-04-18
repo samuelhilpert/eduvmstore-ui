@@ -492,18 +492,12 @@ You can also write your script in the modal below. Link to YAML Documentation: h
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">×</span>
                 <h5>Write Script</h5>
-                <div style="display: flex; align-items: center; margin-bottom: 12px;">
-                    <input type="checkbox" id="ssh_user_requested" name="ssh_user_requested" onchange="toggleSshScript(this)" style="margin-right: 8px;">
-                    <label for="ssh_user_requested" style="margin: 0;">Generate SSH setup for users
-                        <span data-toggle="tooltip" title="Generates an pre-configured script.
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label><input type="checkbox" class="script-option" data-key="ssh_script" id="ssh_user_requested" name="ssh_user_requested"> Generate SSH setup for users <span data-toggle="tooltip" title="Generates an pre-configured script.
                         The pre-configured scripts creates SSH keys for the users on the instance
                          and stores them in /home/ubuntu/user_keys.
 For this setup, the Account Attributes username and password are required.">
-                            <i class="fa fa-question-circle"></i> </span>
-                    </label>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <label><input type="checkbox" class="script-option" data-key="ssh_script"> SSH Script</label>
+                            <i class="fa fa-question-circle"></i> </span></label>
                     <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration</label>
                     <label><input type="checkbox" class="script-option" data-key="user_add"> User Add</label>
                 </div>
@@ -790,12 +784,11 @@ write_files:
             const selected = Array.from(document.querySelectorAll(".script-option"))
                 .filter(cb => cb.checked)
                 .map(cb => cb.dataset.key)
-                .sort(); // wichtig für eindeutige Kombinationsschlüssel
+                .sort();
 
             const keyCombo = selected.join("+");
             let selectedKey = "";
 
-            // Mapping der Kombinationen auf finale Schlüssel
             switch (keyCombo) {
                 case "base_configuration":
                     selectedKey = "base_configuration";
@@ -810,16 +803,16 @@ write_files:
                     selectedKey = "sshscript_base_configuration";
                     break;
                 case "ssh_script+user_add":
-                    selectedKey = "ssh_script"; // nur ssh_script enthält schon alles
+                    selectedKey = "ssh_script";
                     break;
                 case "base_configuration+user_add":
                     selectedKey = "base_user";
                     break;
                 case "base_configuration+ssh_script+user_add":
-                    selectedKey = "sshscript_base_configuration"; // ssh_script enthält user_add
+                    selectedKey = "sshscript_base_configuration";
                     break;
                 default:
-                    selectedKey = ""; // keine passende Kombination
+                    selectedKey = "";
             }
 
             if (selectedKey && scriptSnippets[selectedKey]) {
@@ -829,12 +822,11 @@ write_files:
                 textarea.value = decoded;
                 hiddenField.value = decoded;
             } else {
-                textarea.value = "#cloud-config\n# Keine gültige Kombination gewählt";
+                textarea.value = "";
                 hiddenField.value = "";
             }
         }
 
-        // Checkboxen verbinden
         document.querySelectorAll(".script-option").forEach((checkbox) => {
             checkbox.addEventListener("change", updateScriptBasedOnSelection);
         });
