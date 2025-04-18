@@ -794,8 +794,11 @@ write_files:
             runcmd: [],
             package_update: false,
             package_upgrade: false,
+            force_packages: false,
+            force_runcmd: false
         };
 
+        // Checkboxen verarbeiten
         document.querySelectorAll(".script-addon").forEach((checkbox) => {
             if (checkbox.checked) {
                 const key = checkbox.dataset.key;
@@ -804,31 +807,44 @@ write_files:
 
                 if (snippet.package_update) config.package_update = true;
                 if (snippet.package_upgrade) config.package_upgrade = true;
+
+                // Wenn ein Snippet ausdrücklich packages/runcmd leer lassen will
+                if ('packages' in snippet) config.force_packages = true;
+                if ('runcmd' in snippet) config.force_runcmd = true;
+
                 (snippet.packages || []).forEach(p => config.packages.add(p));
                 (snippet.runcmd || []).forEach(cmd => config.runcmd.push(cmd));
             }
         });
 
+        // Cloud-Init-Block bauen
         let result = `#cloud-config\n`;
 
         if (config.package_update) result += "package_update: true\n";
         if (config.package_upgrade) result += "package_upgrade: true\n";
 
-        if (config.packages.size > 0) {
+        // packages-Block immer, wenn explizit gewünscht (auch leer)
+        if (config.force_packages) {
             result += "packages:\n";
-            config.packages.forEach(pkg => result += `  - ${pkg}\n`);
+            if (config.packages.size > 0) {
+                config.packages.forEach(pkg => result += `  - ${pkg}\n`);
+            }
         }
 
-        if (config.runcmd.length > 0) {
+        // runcmd-Block immer, wenn explizit gewünscht (auch leer)
+        if (config.force_runcmd) {
             result += "runcmd:\n";
-            config.runcmd.forEach(cmd => {
-                result += `  - |\n    ${cmd.trim().replace(/\n/g, '\n    ')}\n`;
-            });
+            if (config.runcmd.length > 0) {
+                config.runcmd.forEach(cmd => {
+                    result += `  - |\n    ${cmd.trim().replace(/\n/g, '\n    ')}\n`;
+                });
+            }
         }
 
         document.getElementById("scriptText").value = result.trim();
         document.getElementById("hiddenScriptField").value = result.trim();
     }
+
 
 </script>
 {% endblock %}

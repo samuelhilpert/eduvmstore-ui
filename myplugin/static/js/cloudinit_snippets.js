@@ -39,7 +39,6 @@ systemctl restart ssh`
 
     user_creation: {
         runcmd: [
-            "cat /etc/users.txt > /etc/testtesttest",
             `while IFS=':' read -r username password; do
 if ! id "$username" &>/dev/null; then
 useradd -m -s "/bin/bash" "$username"
