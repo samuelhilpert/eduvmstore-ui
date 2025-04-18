@@ -384,8 +384,6 @@ class AppTemplateView(generic.TemplateView):
         if self.url_mode == "edit":
             self.mode = "edit"
             self.page_title = _("Edit AppTemplate")
-        elif self.url_mode == "create_with_template":
-            self.mode = "clone"
         else:
             self.mode = "create"
         return super().dispatch(request, *args, **kwargs)
