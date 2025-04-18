@@ -525,13 +525,39 @@ class AppTemplateView(generic.TemplateView):
         """
         context = super().get_context_data(**kwargs)
 
+        preset_examples = {
+            "ubuntu_linux": {
+                "name": "Ubuntu Linux",
+                "short_description": "Ubuntu for teaching",
+                "description": "This template provides a base Ubuntu setup with SSH access.",
+                "instantiation_notice": "",
+                "fixed_ram_gb": "2",
+                "fixed_disk_gb": "20",
+                "fixed_cores": "2",
+                "volume_size_gb": "0",
+                "per_user_ram_gb": "0.5",
+                "per_user_disk_gb": "5",
+                "per_user_cores": "1",
+                "public": True,
+                "instantiation_attributes": [{"name": "version"}, {"name": "packages"}],
+                "account_attributes": [{"name": "username"}, {"name": "password"}],
+                "script": "#cloud-config\nruncmd:\n  - echo Hello Ubuntu"
+            },
+            # du kannst weitere Presets wie "gitlab", "jupyter" etc. hier hinzufügen
+        }
+
         template_id = self.kwargs.get('template_id')
+        template_name = self.request.GET.get("template")
         if template_id:
             app_template = self.get_app_template(template_id)
             image_data = self.get_image_data(app_template.get('image_id', ''))
+        elif template_name in preset_examples and self.mode != "edit":
+            app_template = preset_examples[template_name]
+            image_data = {}
         else:
             app_template = {}
             image_data = {}
+
 
         context.update({
             'app_template': app_template,
