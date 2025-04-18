@@ -22,6 +22,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from myplugin.content.eduvmstore.presets import preset_examples
+
 import io
 import zipfile
 from io import BytesIO
@@ -524,52 +526,6 @@ class AppTemplateView(generic.TemplateView):
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
-
-        preset_examples = {
-            "ubuntu_linux": {
-                "name": "Ubuntu Linux",
-                "short_description": "Ubuntu for teaching",
-                "description": "This template provides a base Ubuntu setup with SSH access.",
-                "instantiation_notice": "",
-                "fixed_ram_gb": "2",
-                "fixed_disk_gb": "20",
-                "fixed_cores": "2",
-                "volume_size_gb": "0",
-                "per_user_ram_gb": "0.5",
-                "per_user_disk_gb": "5",
-                "per_user_cores": "1",
-                "public": False,
-                "instantiation_attributes": [{"name": "version"}, {"name": "packages"}],
-                "account_attributes": [{"name": "username"}, {"name": "password"}],
-                "script": "runcmd:\r\n  - |\r\n    # Create directory for private keys\r\n    "
-                          "mkdir -p /home/ubuntu/user_keys\r\n    chmod 700 /home/ubuntu/user_keys\r\n  "
-                          "  chown ubuntu:ubuntu /home/ubuntu/user_keys\r\n\r\n  "
-                          "  while IFS=: read -r username password; do\r\n   "
-                          "   # Create users\r\n      if ! id \"$username\" &>/dev/null; then\r\n   "
-                          "     useradd -m -s /bin/bash \"$username\"\r\n    "
-                          "    echo \"$username:$password\" | chpasswd\r\n      fi\r\n\r\n  "
-                          "    # Create SSH directory and key\r\n    "
-                          "  sudo -u \"$username\" mkdir -p /home/\"$username\"/.ssh\r\n    "
-                          "  chmod 700 /home/\"$username\"/.ssh\r\n\r\n      # Generate SSH key\r\n    "
-                          "  sudo -u \"$username\" ssh-keygen -t rsa -b 2048 -f "
-                          "/home/\"$username\"/.ssh/id_rsa -N \"\"\r\n\r\n   "
-                          "   # Set Public Key as authorized_key\r\n    "
-                          "  cat /home/\"$username\"/.ssh/id_rsa.pub >> "
-                          "/home/\"$username\"/.ssh/authorized_keys\r\n  "
-                          "    chmod 600 /home/\"$username\"/.ssh/authorized_keys\r\n    "
-                          "  chown -R \"$username:$username\" /home/\"$username\"/.ssh\r\n\r\n    "
-                          "  # Secure private keys for the admin & Ubuntu user\r\n   "
-                          "   cp /home/\"$username\"/.ssh/id_rsa /home/ubuntu/user_keys/\"$username\"_id_rsa\r\n   "
-                          "   chmod 600 /home/ubuntu/user_keys/\"$username\"_id_rsa\r\n  "
-                          "    chown ubuntu:ubuntu /home/ubuntu/user_keys/\"$username\"_id_rsa\r\n  "
-                          "  done < /etc/users.txt\r\n\r\n    # SSH configuration: Disable password login\r\n "
-                          "   sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/'"
-                          " /etc/ssh/sshd_config\r\n   "
-                          " sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/'"
-                          " /etc/ssh/sshd_config\r\n    systemctl restart ssh"
-            },
-
-        }
 
         template_id = self.kwargs.get('template_id')
         template_name = self.request.GET.get("template")
