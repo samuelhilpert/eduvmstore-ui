@@ -493,8 +493,9 @@ You can also write your script in the modal below. Link to YAML Documentation: h
                 <div style="display: flex; align-items: center; margin-bottom: 12px;">
                     <input type="checkbox" id="ssh_user_requested" name="ssh_user_requested" onchange="toggleSshScript(this)" style="margin-right: 8px;">
                     <label for="ssh_user_requested" style="margin: 0;">Generate SSH setup for users
-                        <span data-toggle="tooltip" title="Generates an SSH setup for
-the users. This setup creates SSH keys for the users on the instance and stores them in /home/ubuntu/user_keys.
+                        <span data-toggle="tooltip" title="Generates an pre-configured script.
+                        The pre-configured scripts creates SSH keys for the users on the instance
+                         and stores them in /home/ubuntu/user_keys.
 For this setup, the Account Attributes username and password are required.">
                             <i class="fa fa-question-circle"></i> </span>
                     </label>
