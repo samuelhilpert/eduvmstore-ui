@@ -36,7 +36,8 @@ const scriptSnippets = {
         '  echo \\"$username:$password\\" | chpasswd\\r\\n      fi\\r\\n    done < /etc/users.txt',
 
     "sshscript_base_configuration":"package_update: true\\\\r\\\\npackage_upgrade:\n" +
-        "    true\\\\r\\\\n\\\\r\\\\npackages:\\\\r\\\\n  - \\\\r\\\\n\\\\r\\\\nruncmd:\r\n  - |\r\n    # Create directory for private keys\r\n    " +
+        "    true\\\\r\\\\n\\\\r\\\\npackages:\\\\r\\\\n  - \\\\r\\\\n\\\\r\\\\nruncmd:\r\n  - |\r\n  " +
+        "  # Create directory for private keys\r\n    " +
         "mkdir -p /home/ubuntu/user_keys\r\n    chmod 700 /home/ubuntu/user_keys\r\n    " +
         "chown ubuntu:ubuntu /home/ubuntu/user_keys\r\n\r\n    # Set first user account as admin\r\n    " +
         "FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)\r\n\r\n    # Create users\r\n    " +
