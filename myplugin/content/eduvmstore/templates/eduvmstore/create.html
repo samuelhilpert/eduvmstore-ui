@@ -503,9 +503,10 @@ For this setup, the Account Attributes username and password are required.">
                     </label>
                 </div>
                 <div>
-                    <label><input type="checkbox" class="script-addon" data-key="ssh_script"> SSH-Konfiguration</label><br>
-                    <label><input type="checkbox" class="script-addon" data-key="basic_upgrade"> Basic System Upgrade</label><br>
-                    <label><input type="checkbox" class="script-addon" data-key="user_creation"> Benutzer erstellen</label><br>
+                    <label><input type="checkbox" class="script-option" data-key="ssh_script"> SSH Script</label><br>
+                    <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration</label><br>
+                    <label><input type="checkbox" class="script-option" data-key="user_add"> User Add</label><br>
+
                 </div>
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
     <pre class="p-2 border rounded bg-light" style="flex: 1;">
@@ -782,69 +783,30 @@ write_files:
     // Initialize the display with 'default' group selected if nothing is selected
     document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".script-addon").forEach((checkbox) => {
-            checkbox.addEventListener("change", buildCloudInitFromCheckboxes);
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".script-option").forEach((checkbox) => {
+            checkbox.addEventListener("change", function () {
+                // Alle anderen Checkboxen abwählen
+                document.querySelectorAll(".script-option").forEach(cb => {
+                    if (cb !== this) cb.checked = false;
+                });
+
+                const key = this.dataset.key;
+
+                // Nur wenn aktiv
+                if (this.checked && scriptSnippets[key]) {
+                    const decoded = scriptSnippets[key]
+                        .replace(/\\r\\n/g, '\n')
+                        .replace(/\\"/g, '"');
+                    document.getElementById("scriptText").value = decoded;
+                    document.getElementById("hiddenScriptField").value = decoded;
+                } else {
+                    document.getElementById("scriptText").value = '';
+                    document.getElementById("hiddenScriptField").value = '';
+                }
+            });
         });
     });
-
-    function buildCloudInitFromCheckboxes() {
-        let config = {
-            packages: new Set(),
-            runcmd: [],
-            package_update: false,
-            package_upgrade: false,
-            force_packages: false,
-            force_runcmd: false
-        };
-
-        // Checkboxen verarbeiten
-        document.querySelectorAll(".script-addon").forEach((checkbox) => {
-            if (checkbox.checked) {
-                const key = checkbox.dataset.key;
-                const snippet = scriptSnippets[key];
-                if (!snippet) return;
-
-                if (snippet.package_update) config.package_update = true;
-                if (snippet.package_upgrade) config.package_upgrade = true;
-
-                // Wenn ein Snippet ausdrücklich packages/runcmd leer lassen will
-                if ('packages' in snippet) config.force_packages = true;
-                if ('runcmd' in snippet) config.force_runcmd = true;
-
-                (snippet.packages || []).forEach(p => config.packages.add(p));
-                (snippet.runcmd || []).forEach(cmd => config.runcmd.push(cmd));
-            }
-        });
-
-        // Cloud-Init-Block bauen
-        let result = `#cloud-config\n`;
-
-        if (config.package_update) result += "package_update: true\n";
-        if (config.package_upgrade) result += "package_upgrade: true\n";
-
-        // packages-Block immer, wenn explizit gewünscht (auch leer)
-        if (config.force_packages) {
-            result += "packages:\n";
-            if (config.packages.size > 0) {
-                config.packages.forEach(pkg => result += `  - ${pkg}\n`);
-            }
-        }
-
-        // runcmd-Block immer, wenn explizit gewünscht (auch leer)
-        if (config.force_runcmd) {
-            result += "runcmd:\n";
-            if (config.runcmd.length > 0) {
-                config.runcmd.forEach(cmd => {
-                    result += `  - |\n    ${cmd.trim().replace(/\n/g, '\n    ')}\n`;
-                });
-            }
-        }
-
-        document.getElementById("scriptText").value = result.trim();
-        document.getElementById("hiddenScriptField").value = result.trim();
-    }
-
 
 </script>
 {% endblock %}
