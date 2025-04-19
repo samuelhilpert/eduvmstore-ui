@@ -316,6 +316,11 @@
             const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Choose Volume Size (GB) for all Instances') }}" : "{{ _('Choose Volume Size GB') }}";
             let volumeOptions = `<option value="new" selected>Create new volume</option>`;
             let requiredVolumeSize = {{ volume_size }};
+
+            // Option of attaching no volume
+            if (requiredVolumeSize === 0){
+                volumeOptions += `<option value="none">No additional volumes</option>`
+            }
             //add existing volumes to selection options
             attachableVolumes.forEach(volume => {
                 const isTooSmall = volume.size < requiredVolumeSize;
@@ -326,10 +331,8 @@
                     ${(instanceIndex === ALL_INSTANCES_INDEX) ? '(Select Volume for each instance)' : ''}
                 </option>`;
             });
-            // Option of attaching no volume
-            if (requiredVolumeSize === 0){
-                 volumeOptions += `<option value="none">No additional volumes</option>`
-            }
+
+
             return `
                 <!-- Volumes -->
                 <div class="form-group">
