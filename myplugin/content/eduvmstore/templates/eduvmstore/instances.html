@@ -926,10 +926,7 @@ function getFieldTypeDisplayName(fieldType) {
         accountAttributes.forEach(attr => {
             fieldsHtml += `
                 <div class="form-group md-5">
-                    <label for="${attr}_${instanceIndex}_${i}">${attr} <span data-toggle="tooltip"
-                    title="Enter the value for this account attribute. These will be stored in /etc/users.txt inside the instance.">
-                            <i class="fa fa-question-circle"></i>
-                      </span></label>
+                    <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
                     <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
                 </div>
             `;
@@ -971,11 +968,7 @@ function renumberAccounts(instanceIndex) {
             instantiationAttribute.forEach(attr => {
                 fieldsHtmlInstance += `
                     <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr} <span data-toggle="tooltip"
-                    title="Provide custom values needed during startup. These values are stored in
-/etc/attributes.txt on the instance.">
-                            <i class="fa fa-question-circle"></i>
-                      </span></label>
+                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr} </label>
                         <input type="text"
                                class="form-control"
                                id="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}"
