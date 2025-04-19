@@ -25,7 +25,11 @@
     <!-- AppTemplate Name Display -->
     <div class="section-container">
         <div class="form-group">
-            <label>{{ _("AppTemplate Name") }}</label>
+            <label>{{ _("AppTemplate Name") }} <span data-toggle="tooltip" title="This is the name of
+            the AppTemplate you want to launch. Click on the name to get more information about
+            the AppTemplate.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
             <div class="card">
                 <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
                     {{ app_template.name }}
