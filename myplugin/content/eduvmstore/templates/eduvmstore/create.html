@@ -295,11 +295,11 @@
 
             <label for="public">Available in EduVMStore for <span style="color: rgb(85,137,197);">*</span>
                 <span data-toggle="tooltip" title="Select whether the AppTemplate is available
-                for everyone or only the creator.">
+                for all lecturers or only the creator.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
             <select name="public" id="public" class="form-control select-box" required>
-                <option value="True" {% if app_template.public %}selected{% endif %}>Everyone</option>
+                <option value="True" {% if app_template.public %}selected{% endif %}>All Lecturers</option>
                 <option value="False" {% if not app_template.public %}selected{% endif %}>Creator only</option>
             </select>
 
@@ -650,15 +650,6 @@ write_files:
         closeModal();
     }
 
-
-
-    // Close the modal if the user clicks anywhere outside of it
-    window.onclick = function(event) {
-        var modal = document.getElementById('scriptModal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
      // Automatically show the modal if modal_message is set
     {% if modal_message %}
     $(document).ready(function() {
