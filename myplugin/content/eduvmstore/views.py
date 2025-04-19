@@ -22,6 +22,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from myplugin.content.eduvmstore.presets import preset_examples
+
 import io
 import zipfile
 from io import BytesIO
@@ -526,12 +528,17 @@ class AppTemplateView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
 
         template_id = self.kwargs.get('template_id')
+        template_name = self.request.GET.get("template")
         if template_id:
             app_template = self.get_app_template(template_id)
             image_data = self.get_image_data(app_template.get('image_id', ''))
+        elif template_name in preset_examples and self.mode != "edit":
+            app_template = preset_examples[template_name]
+            image_data = {}
         else:
             app_template = {}
             image_data = {}
+
 
         context.update({
             'app_template': app_template,

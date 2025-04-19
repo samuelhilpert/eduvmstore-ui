@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 
+
 class IndexView(generic.TemplateView):
     """
         View for displaying the tutorial index page and handling data retrieval from a backend API.
@@ -21,3 +22,6 @@ class IndexView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = self.page_title
         return context
+
+
+
