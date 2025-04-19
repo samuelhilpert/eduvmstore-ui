@@ -428,8 +428,10 @@ Steps:
                 elements.append(Spacer(1, 6))
 
         if "code" in section:
-            elements.append(Preformatted(section["code"].strip(), styles['CodeBlock']))
-            elements.append(Spacer(1, 12))
+            for code_block in section["code"]:
+                elements.append(Preformatted(code_block.strip(), styles['CodeBlock']))
+                elements.append(Spacer(1, 12))
+
 
         elements.append(PageBreak())
 
