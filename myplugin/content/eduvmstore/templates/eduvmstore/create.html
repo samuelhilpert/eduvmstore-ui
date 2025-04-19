@@ -220,6 +220,13 @@
     margin-bottom: 20px;
 }
 
+.or-divider {
+    font-weight: bold;
+    font-size: 16px;
+    padding-top: 30px;
+    color: #888;
+}
+
 </style>
 
 <div class="form-container">
@@ -493,23 +500,30 @@ The values will be written to the file /etc/users.txt.">
         </div>
     </div>
 
-    <!-- Second Row: Upload and Write Script -->
-    <div class="form-group row mt-3">
-        <div class="col-md-8">
-            <label for="script_file">Upload Script
-                <span data-toggle="tooltip" data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
+<!-- Second Row: Upload and Write Script -->
+<div class="form-group row mt-3 align-items-start">
+    <!-- Upload Script -->
+    <div class="col-md-4">
+        <label for="script_file">Upload Script
+            <span data-toggle="tooltip" data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
 You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
-                    <i class="fa fa-question-circle"></i>
-                </span>
-            </label>
-            <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file">
-        </div>
+                <i class="fa fa-question-circle"></i>
+            </span>
+        </label>
+        <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file">
+    </div>
 
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="button" class="btn btn-primary mt-4" id="writeScriptButton" onclick="openModal()">
-                {{ _("Write Script") }}
-            </button>
-        </div>
+    <!-- OR separator -->
+    <div class="col-md-1 d-flex justify-content-center align-items-center">
+        <div class="or-divider">or</div>
+    </div>
+
+    <!-- Write Script -->
+    <div class="col-md-4">
+        <label for="script_file">Write Configuration Script</label><br>
+        <button type="button" class="btn btn-primary mt-1" id="writeScriptButton" onclick="openModal()">
+            {{ _("Write Script") }}
+        </button>
     </div>
 </div>
 
