@@ -211,52 +211,21 @@
     }
 
 .script-details {
-    margin-bottom: 30px;
+     margin-bottom: 30px;
     font-size: 14px;
     line-height: 1.6;
 }
 
-/* This div ensures that paragraphs align with the form fields */
-.align-paragraph {
-    width: 60%; /* Aligns the paragraph with the form fields */
-    margin-left: 0; /* No margin to the left */
-    margin-bottom: 20px; /* Space below the paragraph */
-}
-
-/* Paragraph style for consistent spacing and alignment */
 .script-details p {
     margin-bottom: 20px;
-    font-size: 14px;
+
 }
 
-/* Styling for the 'or' divider text */
 .or-divider {
     font-weight: bold;
     font-size: 16px;
     padding-top: 30px;
     color: #888;
-    text-align: center;
-}
-
-/* Spacing between rows */
-.script-details .form-group.row {
-    margin-bottom: 25px;
-}
-
-/* Optional: Adjust the label size and margin */
-.script-details label {
-    font-size: 15px;
-    margin-bottom: 5px;
-}
-
-/* Space the buttons correctly */
-.script-details .form-group button {
-    margin-top: 20px;
-}
-
-/* Adjust margin for the second row */
-.script-details .form-group.row.mt-5 {
-    margin-top: 40px;
 }
 
 </style>
@@ -497,13 +466,7 @@
 
 <h3>Script</h3>
 <div class="script-details">
-    <!-- Paragraph with the same width as form fields -->
-    <div class="align-paragraph">
-        <p>
-            Enter instantiation and account attributes to be used in the configuration script.
-            You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.
-        </p>
-    </div>
+    <p>Enter instantiation and account attributes to be used in the configuration script. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
 
     <!-- First Row: Instantiation & Account Attributes -->
     <div class="form-group row mb-4">
@@ -530,11 +493,7 @@
 
     <!-- Second Row: Upload and Write Script -->
     <div class="form-group row align-items-start mt-5">
-        <!-- Paragraph aligned with form fields -->
-        <div class="align-paragraph">
-            <p>Upload a configuration script or write it directly after clicking the "Write Script" button.</p>
-        </div>
-
+         <p>    Upload a configuration script or write it directly after clicking the "Write Script" button.</p>
         <!-- Upload Script Column -->
         <div class="col-md-5">
             <label for="script_file">Upload Script
@@ -560,7 +519,6 @@ You can also write your script in the modal below. Link to YAML Documentation: h
         </div>
     </div>
 </div>
-
 
 
     <!-- Modal for script input -->
