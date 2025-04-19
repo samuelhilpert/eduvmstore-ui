@@ -473,11 +473,14 @@
 <div class="script-details">
     <p>Enter instantiation and account attributes to be used in the configuration script. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
 
-    <!-- First Row: Instantiation & Account Attributes -->
-    <div class="form-group row mb-4">
-        <div class="col-md-5">
+     <!-- First Row: Instantiation & Account Attributes -->
+    <div class="form-group row">
+        <div class="col-md-6">
             <label for="instantiation_attributes">Instantiation Attributes
-                <span data-toggle="tooltip" title="Enter any attributes required for instantiation. For example, you can specify a version or something else that is needed for the script. For more than one instantiation attribute separate by using ':' in between. E.g. 'version:script'. The values will be written to the file /etc/attributes.txt.">
+                <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
+For example, you can specify a version or something else that is needed for the script.
+For more than one instantiation attribute separate by using ':' in between. E.g. 'version:script'.
+The values will be written to the file /etc/attributes.txt.">
                     <i class="fa fa-question-circle"></i>
                 </span>
             </label>
@@ -485,9 +488,12 @@
                    class="form-control" placeholder="e.g.: version:packages">
         </div>
 
-        <div class="col-md-5 offset-md-1">
+        <div class="col-md-6">
             <label for="account_attributes">Account Attributes
-                <span data-toggle="tooltip" title="Enter any account-related attributes. For example, you can specify the account name, email, password, etc. used in the script. For more than one account attribute separate by using ':' in between. E.g. 'name:password'. The values will be written to the file /etc/users.txt.">
+                <span data-toggle="tooltip" title="Enter any account-related attributes.
+For example, you can specify the account name, email, password, etc. used in the script.
+For more than one account attribute separate by using ':' in between. E.g. 'name:password'.
+The values will be written to the file /etc/users.txt.">
                     <i class="fa fa-question-circle"></i>
                 </span>
             </label>
