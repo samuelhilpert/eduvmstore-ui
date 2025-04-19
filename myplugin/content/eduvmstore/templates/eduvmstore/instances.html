@@ -322,7 +322,7 @@
                 volumeOptions += `<option value="none">No additional volumes</option>`
             }
 
-            volumeOptions += `<option value="new" selected>Create new volume</option>`;
+            volumeOptions += `<option value="new">Create new volume</option>`;
             //add existing volumes to selection options
             attachableVolumes.forEach(volume => {
                 const isTooSmall = volume.size < requiredVolumeSize;
