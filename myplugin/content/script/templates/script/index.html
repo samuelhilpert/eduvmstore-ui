@@ -125,7 +125,7 @@
         content: |
           Welcome to your new instance!
           Managed by EduVMStore.</code></pre>
-                <p>Learn more in the <a
+                <p>Learn more about <strong>write_files</strong> in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#writing-out-arbitrary-files"
                         target="_blank">official cloud-init documentation</a>.</p>
             </li>
@@ -137,7 +137,7 @@
       - curl
       - git
       - python3</code></pre>
-                <p>Learn more in the <a
+                <p>Learn more about <strong>packages</strong> in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#install-arbitrary-packages"
                         target="_blank">official cloud-init documentation</a>.</p>
             </li>
@@ -153,7 +153,7 @@
                 <p>If the "Generate SSH setup for users" checkbox is selected, an SSH setup script will
                     automatically be added in the <code>runcmd</code> section inside the "Write Script" input
                     field. You can write the rest of your script around this pre-filled content.</p>
-                <p>Learn more in the <a
+                <p>Learn more about <strong>runcmd</strong> in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#run-commands-on-first-boot"
                         target="_blank">official cloud-init documentation</a>.</p>
             </li>
@@ -167,7 +167,7 @@
         sudo: ['ALL=(ALL) NOPASSWD:ALL']
         lock_passwd: false
         passwd: $6$rounds=4096$randomsalt$hashedpassword</code></pre>
-                <p>Learn more in the <a
+                <p>Learn more about <strong>users</strong> in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#including-users-and-groups"
                         target="_blank">official cloud-init documentation</a>.</p>
             </li>
