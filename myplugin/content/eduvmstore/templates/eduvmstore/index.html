@@ -210,19 +210,18 @@
 
 </style>
 
-<div class="button-container">
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-primary" id="create-button">
+<div class="button-container d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <a href="{% url 'horizon:eduvmstore_dashboard:tutorial:index' %}" class="btn btn-primary me-2" id="tutorial-button">
+            Tutorial EduVMStore
+        </a>
+        <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}" class="btn btn-primary" id="example-button">
+            Tutorial Example
+        </a>
+    </div>
+    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-success" id="create-button">
         Create AppTemplate
     </a>
-
-    <a href="{% url 'horizon:eduvmstore_dashboard:tutorial:index' %}" class="btn btn-primary" id="create-button">
-        Tutorial EduVMStore
-    </a>
-
-    <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" class="btn btn-primary" id="create-button">
-       Tutorial Example
-    </a>
-
 </div>
 {% if favorite_app_templates %}
     <h2>Favorite AppTemplates</h2>
