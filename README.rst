@@ -4,6 +4,18 @@ EduVMStore
 This repo contains the UI for the EduVMStore, which can be found under the following link:
 https://github.com/samuelhilpert/eduvmstore.git
 
+Environment Setup
+-----------------
+
+To configure sensitive information and environment-specific settings, create a `.env` file in the `myplugin` directory. Find the required variables below (replace `<...>` with your values):
+
+.. code-block:: dotenv
+
+   # env
+   BASE_URL=<your-base-url>
+
+In a production environment, set this variable in the system environment instead of using a `.env` file.
+
 Installation Guide
 ------------------
 
