@@ -38,19 +38,31 @@
         </div>
 
         <div class="form-group">
-            <label for="instances_name">{{ _("Instance Name") }}</label>
+            <label for="instances_name">{{ _("Instance Name") }} <span data-toggle="tooltip" title="Enter
+             a base name for your instances. If launching multiple instances, numbers will be appended
+             automatically.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
             <input type="text" class="form-control" id="instances_name" name="instances_name"
                    placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
         </div>
 
         <div class="form-group">
-            <label for="instance_count">{{ _("Number of Instances") }}</label>
+            <label for="instance_count">{{ _("Number of Instances") }} <span data-toggle="tooltip" title="
+            Enter how many instances to create (between 1 and 100). Each instance will be provisioned
+             based on this template.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
             <input type="number" class="form-control" id="instance_count" name="instance_count"
                    min="1" max="100" placeholder="1-100" required>
         </div>
 
         <div class="form-group">
-            <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}</label>
+            <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}
+                <span data-toggle="tooltip" title="
+            Choose whether each instance should use its own SSH key pair or all use the same one">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
             <select class="form-control" id="separate_keys" name="separate_keys">
                 <option value="false" selected>{{ _("No, use one key for all") }}</option>
                 <option value="true">{{ _("Yes, generate separate keys") }}</option>
@@ -281,7 +293,11 @@
             return `
                  <!-- Flavor Selection -->
                 <div class="form-group">
-                    <label for="${FLAVOR_ID}${instanceIndex}">${labelPrefix}</label>
+                    <label for="${FLAVOR_ID}${instanceIndex}">${labelPrefix} <span data-toggle="tooltip"
+                    title="Choose a flavor that provides enough RAM, disk space, and CPU cores based
+                    on the resource requirements.">
+                            <i class="fa fa-question-circle"></i>
+                      </span> </label>
                      <select class="form-control flavor-dropdown"
                             id="${FLAVOR_ID}${instanceIndex}"
                             name="${FLAVOR_ID}${instanceIndex}" required>
@@ -305,7 +321,11 @@
             const labelPrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Select Network for all Instances') }}" : "{{ _('Select Network') }}";
             return `
                 <div class="form-group">
-                    <label for="${NETWORK_ID}${instanceIndex}">${labelPrefix}</label>
+                    <label for="${NETWORK_ID}${instanceIndex}">${labelPrefix} <span data-toggle="tooltip"
+                    title="Select a network that the instance should be connected to. This determines
+                    its connectivity.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
                     <select class="form-control"
                             id="${NETWORK_ID}${instanceIndex}"
                             name="${NETWORK_ID}${instanceIndex}" required>
@@ -347,7 +367,12 @@
             return `
                 <!-- Volumes -->
                 <div class="form-group">
-                    <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _('Select Volume') }}</label>
+                    <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _('Select Volume') }}
+                     <span data-toggle="tooltip"
+                    title="Choose to attach an existing volume or create a new one. Must meet the
+                     minimum volume size requirement.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
                     <select class="form-control ${VOLUME_SELECTION_CLASS}"
                             id="${VOLUME_SELECTION}${instanceIndex}"
                             name="${VOLUME_SELECTION}${instanceIndex}"
@@ -357,7 +382,11 @@
                 </div>
                 
                 <div class="form-group create-volume-size-group" id="volume_size_input_${instanceIndex}" style="display: none;">
-                    <label for="${VOLUME_SIZE}${instanceIndex}">${labelVolumeSizePrefix}</label>
+                    <label for="${VOLUME_SIZE}${instanceIndex}">${labelVolumeSizePrefix} <span data-toggle="tooltip"
+                    title="Specify the size in GB if a new volume is to be created. Must be equal
+                    to or greater than the minimum volume size.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
                     <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="{{ volume_size }}" min="{{ volume_size }}">
                 </div>
             `;
@@ -400,11 +429,17 @@
                     <h5>{{ _("User Configuration") }}</h5>
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
-                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }}</label>
+                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
+                    title="Check if you don’t want to create any additional users in the instance.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
                     </div>
 
                     <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
-                        <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }}</label>
+                        <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
+                    title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
                         <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="1" value="1">
                     </div>
 
@@ -412,7 +447,7 @@
                         <!-- CSV Upload -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <div style="flex-grow: 1;">
-                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }}</label>
+                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }} </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
@@ -891,7 +926,10 @@ function getFieldTypeDisplayName(fieldType) {
         accountAttributes.forEach(attr => {
             fieldsHtml += `
                 <div class="form-group md-5">
-                    <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
+                    <label for="${attr}_${instanceIndex}_${i}">${attr} <span data-toggle="tooltip"
+                    title="Enter the value for this account attribute. These will be stored in /etc/users.txt inside the instance.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
                     <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
                 </div>
             `;
@@ -933,7 +971,11 @@ function renumberAccounts(instanceIndex) {
             instantiationAttribute.forEach(attr => {
                 fieldsHtmlInstance += `
                     <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr}</label>
+                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr} <span data-toggle="tooltip"
+                    title="Provide custom values needed during startup. These values are stored in
+/etc/attributes.txt on the instance.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></label>
                         <input type="text"
                                class="form-control"
                                id="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}"
