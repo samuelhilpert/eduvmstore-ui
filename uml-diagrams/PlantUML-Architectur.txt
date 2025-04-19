@@ -1,0 +1,43 @@
+@startuml
+' Define the components for each layer
+top to bottom direction
+skinparam linetype ortho
+
+' Frontend Layer
+package "Frontend Layer" {
+    [Horizon UI Plugin]
+}
+
+' Define User inside Frontend Layer
+actor User
+User <---> [Horizon UI Plugin] : interact
+
+' Middleware Layer
+package "Middleware Layer" {
+    [Horizon UI Plugin] <--> [EduVMStore Backend] : REST APIs
+    [EduVMStore Backend] <--> [AppStore Datenbank] : ORM
+}
+
+' Integration Layer with OpenStack Components
+package "Integration Layer" {
+  component "Keystone" <<OpenStack>> as keystone #yellow
+  component "Glance" <<OpenStack>> as glance #yellow
+  component "Nova" <<OpenStack>> as nova #yellow
+  component "Cinder" <<OpenStack>> as cinder #yellow
+  component "Neutron" <<OpenStack>> as neutron #yellow
+  
+  ' REST API connections
+  [EduVMStore Backend] <--> keystone : REST APIs
+  [Horizon UI Plugin] <--> keystone : REST APIs
+  [Horizon UI Plugin] <--> glance : REST APIs
+  [Horizon UI Plugin] <--> nova : REST APIs
+  [Horizon UI Plugin] <--> cinder : REST APIs
+  [Horizon UI Plugin] <--> neutron : REST APIs
+}
+
+' CI/CD Pipelines on connections
+node "Frontend Repo" as frontend_repo
+node "Backend Repo" as backend_repo
+frontend_repo -[#gray,dashed]-> [Horizon UI Plugin] : Frontend CI/CD-Pipeline
+backend_repo -[#gray,dashed]-> [EduVMStore Backend] : Backend CI/CD-Pipeline
+@enduml
