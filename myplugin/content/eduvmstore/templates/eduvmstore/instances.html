@@ -234,6 +234,11 @@
 
 
     <script>
+
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
+
+        });
        //For the all instances tab index 0 is used for easier calculation
        const ALL_INSTANCES_INDEX = 0;
        const TAB_PREFIX = 'instanceTab_';
