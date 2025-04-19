@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from an explicit path (parent directory of the current file's directory)
-env_path = Path(__file__).resolve().parent.parent / '.env'
+env_path = Path(__file__).resolve().parent / '.env'
 load_dotenv(env_path)
 
 # Get the BASE_URL from the environment
