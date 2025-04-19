@@ -314,13 +314,15 @@
 
         function generateVolumeSection(instanceIndex) {
             const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Choose Volume Size (GB) for all Instances') }}" : "{{ _('Choose Volume Size GB') }}";
-            let volumeOptions = `<option value="new" selected>Create new volume</option>`;
+            let volumeOptions = '';
             let requiredVolumeSize = {{ volume_size }};
 
             // Option of attaching no volume
             if (requiredVolumeSize === 0){
                 volumeOptions += `<option value="none">No additional volumes</option>`
             }
+
+            volumeOptions += `<option value="new" selected>Create new volume</option>`;
             //add existing volumes to selection options
             attachableVolumes.forEach(volume => {
                 const isTooSmall = volume.size < requiredVolumeSize;
