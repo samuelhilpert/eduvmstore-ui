@@ -1,0 +1,41 @@
+@startuml
+title EduVMStore
+
+package "Horizon System" {
+    [Horizon Loader]
+    [Dashboard : project]
+}
+
+package "myplugin.enabled" {
+    [enabled/_31000_my_plugin.py]
+}
+
+package "myplugin.content.eduvmstore" {
+    [panel.py]
+    [urls.py]
+    [views.py]
+    [index.html]
+    [create.html]
+    [details.html]
+    [instances.html]
+    [success.html]
+    [table.html]
+}
+
+[Browser]
+
+[Horizon Loader] --> [enabled/_31000_my_plugin.py] : loads
+[enabled/_31000_my_plugin.py] --> [panel.py] : imports
+[panel.py] --> [Dashboard : project] : registers
+[Dashboard : project] --> [urls.py] : dispatch
+[urls.py] --> [views.py] : maps
+[views.py] --> [index.html] : render
+[views.py] --> [create.html] : render
+[views.py] --> [details.html] : render
+[views.py] --> [instances.html] : render
+[views.py] --> [success.html] : render
+[index.html] --> [table.html] : includes
+[Browser] --> [urls.py] : request
+[index.html] --> [Browser] : response
+
+@enduml
