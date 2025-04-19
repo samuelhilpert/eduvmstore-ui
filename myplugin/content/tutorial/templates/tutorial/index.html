@@ -79,17 +79,6 @@
 
     </style>
 
-    <hr>
-    <h2 style="text-align: center; color: #333;">Manual</h2>
-    <p style="text-align: center; color: #666; font-size: 16px;">Download the Manual for the EduVMStore here.</p>
-    <hr>
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:tutorial:index' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 16px;">
-            Download Manual
-        </button>
-    </form>
-
 
     <hr>
     <h2 style="text-align: center; color: #333;">FAQ</h2>
