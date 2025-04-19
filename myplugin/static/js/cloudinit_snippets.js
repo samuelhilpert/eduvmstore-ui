@@ -61,7 +61,7 @@ const scriptSnippets = {
         "  # SSH configuration: Disable password login\r\n    " +
         "sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config\r\n    " +
         "sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config\r\n   " +
-        " systemctl restart ssh\n\r\n\\r\\n\\r\\nfinal_message: \\",
+        " systemctl restart ssh\n\r\n\\r\\n\\r\\nfinal_message: ",
 
     "base_user":'package_update: true\\r\\npackage_upgrade: ' +
         'true\\r\\n\\r\\npackages:\\r\\n  - \\r\\n\\r\\nruncmd:\\r\\n  - |\\r\\n    ' +
