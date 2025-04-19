@@ -125,22 +125,24 @@
     </script>
     <style>
 
-            .button-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 20px 10px;
-            flex-wrap: wrap;
-        }
+        .button-container {
+    display: flex;
+    align-items: center;
+    margin: 20px 10px;
+}
 
-        .left-buttons a {
-            margin-right: 10px;
-        }
+.left-buttons a {
+    margin-right: 10px;
+}
 
-        .right-button {
-            display: flex;
-            justify-content: flex-end;
-        }
+.spacer {
+    flex-grow: 1;
+}
+
+.right-button {
+    display: flex;
+    justify-content: flex-end;
+}
 
         .table {
             width: 100%;
@@ -228,7 +230,7 @@
 
 </style>
 
-<div class="button-container">
+<<div class="button-container">
     <div class="left-buttons">
         <a href="{% url 'horizon:eduvmstore_dashboard:tutorial:index' %}" class="btn btn-primary">
             Tutorial EduVMStore
@@ -237,6 +239,7 @@
             Tutorial Example
         </a>
     </div>
+    <div class="spacer"></div>
     <div class="right-button">
         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-success" id="create-button">
             Create AppTemplate
