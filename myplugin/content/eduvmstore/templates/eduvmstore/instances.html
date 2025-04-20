@@ -578,9 +578,6 @@
             }
             attachInstanceEventListeners();
            attachUserCountListeners();
-
-           generateMultipleAccountFields();
-
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
@@ -1077,9 +1074,16 @@ window.onload = function () {
         attachFlavorCalculationListeners();
 
           // Initialize user count listeners if there are account attributes
-    if (accountAttributes.length > 0) {
-        attachUserCountListeners();
-    }
+   if (accountAttributes.length > 0) {
+    attachUserCountListeners();
+
+    // Trigger the account fields manually for each instance with default user count = 1
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        let instanceIndex = input.id.split("_").pop();
+        let userCount = parseInt(input.value) || 1;
+        generateMultipleAccountFields(instanceIndex, userCount);
+    });
+}
     };
 
 
