@@ -1111,14 +1111,11 @@ document.addEventListener("change", function(event) {
     const instanceIndex = parseInt(event.target.getAttribute("data-instance"), 10);
     if (isNaN(instanceIndex) || instanceIndex < 0) return;
 
-    console.log("instanceIndex: ", instanceIndex);
-
     const reader = new FileReader();
     reader.onload = function(e) {
         const text = e.target.result;
         //const lines = text.trim().split("\n");
         const lines = text.split(/\r\n|\r|\n/).filter(line => line.trim() !== "");
-        console.log(`lines length ${lines.length}`)
 
         if (lines.length === 0) {
             alert("CSV file is empty");
@@ -1156,15 +1153,11 @@ document.addEventListener("change", function(event) {
             return result;
         }
 
-        console.log(`lines[0] ${lines[0]}`)
         const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
         // Only All Instance CSV Upload expects the field instance index (different spelling)
-        console.log(`headers: ${headers}`)
-        console.log(`headers length ${headers.length}`)
         const instanceIndexCol = headers.findIndex(h =>
             h === 'instance index' || h === 'instance_index' || h === 'instanceindex' || h === 'index' || h === 'instance');
-        console.log(`instanceIndexCol: ${instanceIndexCol}`);
         if (instanceIndexCol === -1 && instanceIndex === ALL_INSTANCES_INDEX) {
             alert("CSV must include 'instance index' column");
             return;
