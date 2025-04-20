@@ -423,32 +423,39 @@
             `;
         }
 
-        function generateAccountAttributesSection(instanceIndex){
-            return`
+        function generateAccountAttributesSection(instanceIndex) -> String {
+            const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
+            const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
+            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
+            const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
+            return `
                 <div class="section-container">
-                    <h5>{{ _("User Configuration") }}</h5>
+                    <h5>${sectionTitle}</h5>
+
+                    {% if instanceIndex != 0 %}
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
                         <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
-                    title="Check if you don’t want to create any additional users in the instance.">
+                            title="Check if you don't want to create any additional users in the instance.">
                             <i class="fa fa-question-circle"></i>
-                      </span></label>
+                        </span></label>
                     </div>
 
                     <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
                         <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
-                    title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
+                            title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
                             <i class="fa fa-question-circle"></i>
-                      </span></label>
+                        </span> </label>
                         <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="1" value="1">
                     </div>
+                    {% endif %}
 
                     <div id="accounts_section_${instanceIndex}" style="display: none;">
                         <!-- CSV Upload -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <div style="flex-grow: 1;">
-                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }}
-                                    <span data-toggle="tooltip" title="Upload Account Attributes for this instance in the following structure: ${accountAttributes.join(", ")}">
+                                <label for="csvUpload_${instanceIndex}">${uploadCSVText}
+                                    <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </label>
@@ -457,41 +464,19 @@
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
                                     <!-- Undo button will be inserted here by JavaScript -->
                                 </div>
+                                <small class="form-text text-muted">
+                                    Upload a CSV file with headers: '${accountAttributes.join(", ")}${instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : ""}'
+                                </small>
                             </div>
                         </div>
+                        {% if instanceIndex != 0 %}
                         <h6>{{ _("Accounts") }}</h6>
                         <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
                         <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                        {% endif %}
                     </div>
                 </div>
             `;
-        }
-
-        function generateCSVAllInstanceSection(){
-            return`
-                <div class="section-container">
-                    <h5>{{ _("User Configuration for All Instances") }}</h5>
-
-                    <!-- CSV Upload-->
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                        <div style="flex-grow: 1;">
-                            <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV for Accounts in all instances") }}
-                                <span data-toggle="tooltip" title="Upload Account Attributes for all instances in the following CSV structure: ${accountAttributes.join(", ")}, instance index">
-                                    <i class="fa fa-question-circle"></i>
-                                </span>
-                            </label>
-                            <div style="display: flex; align-items: center;">
-                                <input type="file" class="form-control-file"
-                                    data-instance="${ALL_INSTANCES_INDEX}"
-                                       id="csvUpload_${ALL_INSTANCES_INDEX}" accept=".csv" style="width: auto;">
-                            </div>
-                            <small class="form-text text-muted">
-                                Upload a CSV file with headers: '${accountAttributes.join(", ")}, instance index'
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            `
         }
 
         function singleInstanceTab(instanceName, instanceIndex){
@@ -504,7 +489,7 @@
             `;
         }
 
-        function singleInstanceContainer(instanceName, instanceIndex, countInstances){
+        function singleInstanceContainer(instanceName, instanceIndex){
             return`
                 <div class="tab-pane" id="${CONTENT_PREFIX}${instanceIndex}" role="tabpanel">
                     <h4 id="instanceTitle_${instanceIndex}">${instanceName}</h4>
@@ -519,7 +504,7 @@
 
                     ${generateInstantiationAttributesSection(instanceIndex)}
                      <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
-                     ${instanceIndex === ALL_INSTANCES_INDEX ? generateCSVAllInstanceSection() : generateAccountAttributesSection(instanceIndex)}
+                     ${generateAccountAttributesSection(instanceIndex)}
                 </div>
             `
         }
@@ -544,7 +529,7 @@
             if (countInstances > 1) {
                 allInstancesName = "All Instances"
                 instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX)
-                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
+                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX)
             }
             // Generate individual instance tabs
             for (let i = 1; i <= countInstances; i++) {
@@ -553,7 +538,7 @@
                     instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
                 }
                 instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
-                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
+                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i);
             }
 
               document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
