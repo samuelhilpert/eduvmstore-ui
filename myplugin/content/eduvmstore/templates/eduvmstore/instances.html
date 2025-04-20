@@ -923,6 +923,15 @@ function getFieldTypeDisplayName(fieldType) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
     if (!accountsContainer) return;
 
+    const exportBtn = document.querySelector(`.export-csv-btn[data-instance="${instanceIndex}"]`);
+    if (exportBtn) {
+        if (userCount > 0) {
+            exportBtn.style.display = "inline-block";
+        } else {
+            exportBtn.style.display = "none";
+        }
+    }
+
     // Step 1: Collect existing values
     const existingValues = {};
     accountsContainer.querySelectorAll('.card').forEach(card => {
@@ -1426,6 +1435,7 @@ function selectAutomaticFlavor(instanceIndex) {
         }
 
         function downloadAccountsAsCSV(instanceIndex) {
+            let instance_name = document.getElementById("instances_name");
             const accountContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
             if (!accountContainer) return;
 
@@ -1435,11 +1445,9 @@ function selectAutomaticFlavor(instanceIndex) {
                 return;
             }
 
-            // CSV Header
             const headers = accountAttributes;
             const rows = [headers.join(",")];
 
-            // CSV Rows
             cards.forEach(card => {
                 const values = headers.map(attr => {
                     const input = card.querySelector(`#${attr}_${instanceIndex}_${card.dataset.accountNumber}`);
@@ -1454,7 +1462,7 @@ function selectAutomaticFlavor(instanceIndex) {
 
             const link = document.createElement("a");
             link.setAttribute("href", url);
-            link.setAttribute("download", `accounts_instance_${instanceIndex}.csv`);
+            link.setAttribute("download", `accounts_${instance_name}_${instanceIndex}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
