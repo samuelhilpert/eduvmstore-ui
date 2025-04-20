@@ -428,11 +428,11 @@
             const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
             const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
             const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
-            return `
-                <div class="section-container">
-                    <h5>${sectionTitle}</h5>
 
-                    {% if instanceIndex != 0 %}
+            let noAdditionalUsersHtml = '';
+            let accountsHTML = '';
+            if (instanceIndex !== ALL_INSTANCES_INDEX){
+                noAdditionalUsersHtml += `
                     <div class="form-group form-check">
                         <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
                         <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
@@ -448,7 +448,19 @@
                         </span> </label>
                         <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="1" value="1">
                     </div>
-                    {% endif %}
+                `;
+                accountsHTML += `
+                    <h6>{{ _("Accounts") }}</h6>
+                    <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
+                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                `
+            }
+
+            return `
+                <div class="section-container">
+                    <h5>${sectionTitle}</h5>
+
+                    ${noAdditionalUsersHtml}
 
                     <div id="accounts_section_${instanceIndex}" style="display: none;">
                         <!-- CSV Upload -->
@@ -469,11 +481,7 @@
                                 </small>
                             </div>
                         </div>
-                        {% if instanceIndex != 0 %}
-                        <h6>{{ _("Accounts") }}</h6>
-                        <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
-                        <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
-                        {% endif %}
+                        ${accountsHTML}
                     </div>
                 </div>
             `;
