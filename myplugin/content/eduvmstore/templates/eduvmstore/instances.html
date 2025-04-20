@@ -828,7 +828,11 @@ function getFieldTypeDisplayName(fieldType) {
     document.querySelectorAll(".user-count-input").forEach(input => {
         input.addEventListener("input", function () {
             let instanceIndex = this.id.split("_").pop();
-            let userCount = parseInt(this.value) || 1;
+            let rawValue = input.value;
+            let userCount = parseInt(rawValue);
+            if (isNaN(userCount)) {
+                userCount = 1;
+            }
             generateMultipleAccountFields(instanceIndex, userCount);
         });
     })}
@@ -1115,7 +1119,11 @@ function selectAutomaticFlavor(instanceIndex) {
                 // Trigger the account fields manually for each instance with default user count = 1
                 document.querySelectorAll(".user-count-input").forEach(input => {
                     let instanceIndex = input.id.split("_").pop();
-                    let userCount = parseInt(input.value) || 1;
+                    let rawValue = input.value;
+                    let userCount = parseInt(rawValue);
+                    if (isNaN(userCount)) {
+                        userCount = 1;
+                    }
                     generateMultipleAccountFields(instanceIndex, userCount);
                 });
             }
