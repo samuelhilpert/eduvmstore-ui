@@ -445,7 +445,7 @@
             </label>
             <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
                 <!-- Button to trigger dropdown -->
-                <button class="dropdown-toggle form-control text-left" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
                     <span id="selectedGroupsDisplay">
                         {% if is_edit and selected_groups %}
                             {% for group in selected_groups %}
@@ -455,7 +455,7 @@
                             <span>default</span>
                         {% endif %}
                     </span>
-                </button>
+
 
                 <!-- Dropdown menu with checkboxes -->
                 <div class="dropdown-menu" aria-labelledby="securityGroupsDropdown" style="padding: 10px; width: 100%;">
