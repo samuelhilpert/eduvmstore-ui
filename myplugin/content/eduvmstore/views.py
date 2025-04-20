@@ -749,53 +749,6 @@ def generate_pdf(accounts, name, app_template, created, instantiations, ip_addre
 
 def generate_cloud_config(accounts, backend_script, instantiations):
     """
-        Generate a cloud-config file for user account creation and backend script execution.
-
-        This function creates a cloud-config file that includes user account information
-        and a backend script.
-
-        :param accounts: A list of dictionaries, where each dictionary contains user account details.
-        :type accounts: list
-        :param backend_script: string containing backend script to be included in the cloud-config file.
-        :type backend_script: str
-        :return: A string representing the complete cloud-config file.
-        :rtype: str
-        """
-
-    sorted_keys = list(accounts[0].keys())
-    sorted_keys_instantiation = list(instantiations[0].keys())
-
-    users_content = "\n".join(
-        [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
-    )
-
-    instantiations_content = "\n".join(
-        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation])
-         for instantiation in instantiations]
-    )
-
-    cloud_config = f"""#cloud-config
-write_files:
-  - path: /etc/users.txt
-    content: |
-{generate_indented_content(users_content, indent_level=6)}
-    permissions: '0644'
-    owner: root:root
-
-  - path: /etc/attributes.txt
-    content: |
-{generate_indented_content(instantiations_content, indent_level=6)}
-    permissions: '0644'
-    owner: root:root
-
-
-
-{backend_script}
-"""
-    return cloud_config
-
-def generate_cloud_config_new(accounts, backend_script, instantiations):
-    """
     Generate a cloud-config file for user account creation and backend script execution.
 
     :param accounts: A list of dictionaries with user account details.
@@ -956,7 +909,7 @@ class InstancesView(generic.TemplateView):
                 network_name = self.get_network_name_by_id(request, network_id)
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 create_volume_size = request.POST.get(f"volume_size_{i}")
-                user_count = request.POST.get(f"user_count_{i}")
+                user_count = request.POST.get(f"user_count_{i}", 0)
                 accounts = []
                 instantiations = []
                 try:
@@ -989,11 +942,11 @@ class InstancesView(generic.TemplateView):
                 if not script and not accounts:
                     user_data = None
                 elif not script and accounts:
-                    user_data = generate_cloud_config_new(accounts, None, instantiations)
+                    user_data = generate_cloud_config(accounts, None, instantiations)
                 elif script and int(user_count) == 0:
                     user_data = f"#cloud-config\n{script}"
                 else:
-                    user_data = generate_cloud_config_new(accounts, script, instantiations)
+                    user_data = generate_cloud_config(accounts, script, instantiations)
 
                 nics = [{"net-id": network_id}]
                 if separate_keys:
