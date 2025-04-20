@@ -449,10 +449,10 @@
                     <span id="selectedGroupsDisplay">
                         {% if is_edit and selected_groups %}
                             {% for group in selected_groups %}
-                                <span class="badge badge-secondary">{{ group }}</span>
+                                <span>{{ group }}</span>
                             {% endfor %}
                         {% else %}
-                            <span class="badge badge-secondary">default</span>
+                            <span>default</span>
                         {% endif %}
                     </span>
                 </button>
