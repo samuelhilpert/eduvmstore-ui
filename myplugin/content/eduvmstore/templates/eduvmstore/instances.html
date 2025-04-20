@@ -1158,7 +1158,7 @@ document.addEventListener("change", function(event) {
 
         // Only All Instance CSV Upload expects the field instance index (different spelling)
         const instanceIndexCol = headers.findIndex(h =>
-            h === 'instance index' || h === 'instance_index' || h === 'instanceindex');
+            h === 'instance index' || h === 'instance_index' || h === 'instanceindex' || h === 'index' || h === 'instance');
         console.log(`instanceIndexCol: ${instanceIndexCol}`);
         if (instanceIndexCol === -1 && instanceIndex === ALL_INSTANCES_INDEX) {
             alert("CSV must include 'instance index' column");
