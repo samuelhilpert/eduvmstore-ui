@@ -1201,7 +1201,6 @@ document.addEventListener("change", function(event) {
                 // For individual instance tabs, use the tab's instance index
                 csvInstanceIndex = instanceIndex;
             }
-            console.log(`csvInstanceIndex: ${csvInstanceIndex}`);
 
             const accountData = {};
             accountAttributes.forEach((attr, idx) => {
@@ -1231,8 +1230,6 @@ document.addEventListener("change", function(event) {
                 alert(`Warning: CSV contains data for index ${ALL_INSTANCES_INDEX}. This index represents all instances and can't currently be used.`);
                 return;
             }
-
-            console.log(`Updating UI for instance ${csvInstanceIndex} with ${accounts.length} accounts`);
 
             const accountsContainer = document.getElementById(`dynamic_accounts_container_${csvInstanceIndex}`);
             if (!accountsContainer) {
