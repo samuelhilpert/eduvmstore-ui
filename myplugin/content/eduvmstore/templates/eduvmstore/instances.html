@@ -1111,12 +1111,14 @@ function selectAutomaticFlavor(instanceIndex) {
 
 document.addEventListener("change", function(event) {
     if (!event.target.classList.contains("csv-upload")) return;
-
+    console.log("CSV Upload")
     const file = event.target.files[0];
     if (!file) return;
 
     const instanceIndex = parseInt(event.target.getAttribute("data-instance"), 10);
     if (isNaN(instanceIndex) || instanceIndex < 0) return;
+
+    console.log("instanceIndex: ", instanceIndex);
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -1163,6 +1165,7 @@ document.addEventListener("change", function(event) {
         // Only All Instance CSV Upload expects the field instance index (different spelling)
         const instanceIndexCol = headers.findIndex(h =>
             h === 'instance index' || h === 'instance_index' || h === 'instanceindex');
+        console.log(`instanceIndexCol: ${instanceIndexCol}`);
         if (instanceIndexCol === -1 && instanceIndex === ALL_INSTANCES_INDEX) {
             alert("CSV must include 'instance index' column");
             return;
