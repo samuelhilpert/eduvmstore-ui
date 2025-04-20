@@ -1115,8 +1115,8 @@ document.addEventListener("change", function(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const instanceIndex = event.target.getAttribute("data-instance");
-    if (!instanceIndex && instanceIndex !== "0") return;
+    const instanceIndex = parseInt(event.target.getAttribute("data-instance"), 10);
+    if (isNaN(instanceIndex) || instanceIndex < 0) return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -1160,11 +1160,11 @@ document.addEventListener("change", function(event) {
 
         const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
-        //TODO adapt that instance index is detected with different spelling
-        // Only All Instance CSV Upload expects the field instance index
-        const instanceIndexCol = headers.indexOf('instance index');
+        // Only All Instance CSV Upload expects the field instance index (different spelling)
+        const instanceIndexCol = headers.findIndex(h =>
+            h === 'instance index' || h === 'instance_index' || h === 'instanceindex');
         if (instanceIndexCol === -1 && instanceIndex === ALL_INSTANCES_INDEX) {
-            alert("CSV must include 'instance_index' column");
+            alert("CSV must include 'instance index' column");
             return;
         }
 
@@ -1197,8 +1197,8 @@ document.addEventListener("change", function(event) {
             let csvInstanceIndex;
             if (instanceIndex === ALL_INSTANCES_INDEX) {
                 // For the All Instances tab, use the instance index from the CSV
-                csvInstanceIndex = values[instanceIndexCol].trim();
-                if (!/^\d+$/.test(csvInstanceIndex) || csvInstanceIndex === '0') {
+                csvInstanceIndex = parseInt(values[instanceIndexCol].trim(), 10);
+                if (!/^\d+$/.test(csvInstanceIndex.toString()) || csvInstanceIndex === 0) {
                     console.warn(`Skipping row ${i + 1}: invalid instance index "${csvInstanceIndex}"`);
                     continue;
                 }
@@ -1219,13 +1219,13 @@ document.addEventListener("change", function(event) {
             accountsByInstance[csvInstanceIndex].push(accountData);
         }
 
-        if (accountsByInstance.length === 0) {
+        if (Object.keys(accountsByInstance).length === 0) {
             alert("No valid account data found in CSV");
             return;
         }
 
         Object.entries(accountsByInstance).forEach(([instanceIdx, accounts]) => {
-            const csvInstanceIndex = parseInt(instanceIdx);
+            const csvInstanceIndex = parseInt(instanceIdx, 10);
             const instanceCount = parseInt(document.getElementById("instance_count").value, 10) || 1;
 
             if (csvInstanceIndex > instanceCount) {
@@ -1233,11 +1233,17 @@ document.addEventListener("change", function(event) {
                 return;
             }
             if (csvInstanceIndex === ALL_INSTANCES_INDEX) {
-                alert("Warning: CSV contains data for all instances. Please only use indexes for the instances.");
+                alert(`Warning: CSV contains data for index ${ALL_INSTANCES_INDEX}. This index represents all instances and can't currently be used.`);
                 return;
             }
 
+            console.log(`Updating UI for instance ${csvInstanceIndex} with ${accounts.length} accounts`);
+
             const accountsContainer = document.getElementById(`dynamic_accounts_container_${csvInstanceIndex}`);
+            if (!accountsContainer) {
+                console.error(`Container for instance ${csvInstanceIndex} not found`);
+                return;
+            }
 
             //Show the account section and user count section for the instanceIndex in the csv
             document.getElementById(`accounts_section_${csvInstanceIndex}`).style.display = "block";
@@ -1272,10 +1278,10 @@ document.addEventListener("change", function(event) {
                 accountAttributes.forEach(attr => {
                     fieldsHtml += `
                         <div class="form-group md-5">
-                            <label for="${attr}_${instanceIndex}_${index + 1}">${attr}</label>
+                            <label for="${attr}_${csvInstanceIndex}_${index + 1}">${attr}</label>
                             <input type="text" class="form-control"
-                                   id="${attr}_${instanceIndex}_${index + 1}"
-                                   name="${attr}_${instanceIndex}"
+                                   id="${attr}_${csvInstanceIndex}_${index + 1}"
+                                   name="${attr}_${csvInstanceIndex}"
                                    value="${account[attr] || ''}"
                                    required>
                         </div>
@@ -1291,17 +1297,15 @@ document.addEventListener("change", function(event) {
             selectAutomaticFlavor(instanceIndex);
         });
     }
-
+    /*
     const fileInput = event.target;
-    if (!file) return;
-
     const formGroup = fileInput.closest('.form-group');
 
     const existingUndoBtn = formGroup.querySelector('.undo-csv');
     if (existingUndoBtn) {
         existingUndoBtn.remove();
     }
-    /*
+
     const undoBtn = document.createElement("button");
     undoBtn.type = "button";
     undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
