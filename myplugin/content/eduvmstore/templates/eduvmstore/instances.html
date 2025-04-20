@@ -585,29 +585,14 @@ function generateInstanceFields() {
     attachVolumeChangeHandlers();
 
     // Reattach user count listeners and generate default account fields
-        // Generate default account fields based on the default user count
-    if (accountAttributes.length > 0) {
-        document.querySelectorAll(".user-count-input").forEach(input => {
-            let instanceIndex = input.id.split("_").pop();
-            let userCount = parseInt(input.value) || 1;
-            generateMultipleAccountFields(instanceIndex, userCount);
-        });
+    attachUserCountListeners();
 
-
-
-    }
-           setTimeout(() => {
-               // Nachträglich die DOM-basierten Account-Felder generieren
-               for (let i = 1; i <= countInstances; i++) {
-                   const userCountInput = document.getElementById(`user_count_${i}`);
-                   if (userCountInput) {
-                       const userCount = parseInt(userCountInput.value) || 1;
-                       generateMultipleAccountFields(i, userCount);
-                   }
-               }
-           }, 0);
-
-
+    // Force initial generation of account fields for all instances
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        const instanceIndex = input.id.split("_").pop();
+        const userCount = parseInt(input.value) || 1;
+        generateMultipleAccountFields(instanceIndex, userCount);
+    });
 }
 
         function attachAllInstancesEventListeners() {
