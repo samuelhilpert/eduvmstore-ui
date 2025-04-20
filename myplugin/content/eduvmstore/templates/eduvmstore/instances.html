@@ -1110,6 +1110,7 @@ function selectAutomaticFlavor(instanceIndex) {
 
 
 document.addEventListener("change", function(event) {
+    console.log("Change somewhere")
     if (!event.target.classList.contains("csv-upload")) return;
     console.log("CSV Upload")
     const file = event.target.files[0];
