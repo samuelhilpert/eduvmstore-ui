@@ -1103,9 +1103,8 @@ function selectAutomaticFlavor(instanceIndex) {
 
 
 document.addEventListener("change", function(event) {
-    console.log("Change somewhere")
     if (!event.target.classList.contains("csv-upload")) return;
-    console.log("CSV Upload")
+
     const file = event.target.files[0];
     if (!file) return;
 
@@ -1157,6 +1156,7 @@ document.addEventListener("change", function(event) {
         const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
         // Only All Instance CSV Upload expects the field instance index (different spelling)
+        console.log(`headers: ${headers}`)
         const instanceIndexCol = headers.findIndex(h =>
             h === 'instance index' || h === 'instance_index' || h === 'instanceindex' || h === 'index' || h === 'instance');
         console.log(`instanceIndexCol: ${instanceIndexCol}`);
