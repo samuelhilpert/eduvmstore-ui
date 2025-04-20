@@ -580,11 +580,19 @@
                 attachAllInstancesEventListeners();
             }
             attachInstanceEventListeners();
-           attachUserCountListeners();
-           generateMultipleAccountFields();
+            attachUserCountListeners();
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
+
+            function initializeUserCountFields() {
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        let instanceIndex = input.id.split("_").pop();
+        let userCount = parseInt(input.value) || 1;
+        generateMultipleAccountFields(instanceIndex, userCount);
+    });
+}
+
         }
 
         function attachUserCountListeners() {
