@@ -911,9 +911,13 @@ function getFieldTypeDisplayName(fieldType) {
 
     // Step 2: Clear container
     accountsContainer.innerHTML = "";
-    userCount = Math.max(userCount, 1);
+      if (userCount < 1) {
+          accountsContainer.innerHTML = "";
+          return;
+      }
 
-    // Step 3: Rebuild fields using existing values if available
+
+      // Step 3: Rebuild fields using existing values if available
     for (let i = 1; i <= userCount; i++) {
         const accountSection = document.createElement("div");
         accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
