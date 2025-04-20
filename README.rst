@@ -7,14 +7,20 @@ https://github.com/samuelhilpert/eduvmstore.git
 Environment Setup
 -----------------
 
-To configure sensitive information and environment-specific settings, create a `.env` file in the `myplugin` directory. Find the required variables below (replace `<...>` with your values):
+To configure sensitive information and environment-specific settings (for development and testing),
+create a `.env` file in the `myplugin` directory. Find the required variables below
+(replace `<...>` with your values):
 
 .. code-block:: dotenv
 
    # env
    BASE_URL=<your-base-url>
 
-In a production environment, set this variable in the system environment instead of using a `.env` file.
+In **Production Environment** set these variables in the system environment instead of using a `.env` file.
+You can use the `export` command (e.g. `export OPENSTACK_AUTH_URL=<your-openstack-auth-url>`) in your terminal
+to set these variables on OS level.
+
+Alternatively, use a process manager like systemd or Docker to manage these variables.
 
 Installation Guide
 ------------------
