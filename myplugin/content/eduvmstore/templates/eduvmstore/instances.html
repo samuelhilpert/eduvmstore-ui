@@ -581,6 +581,7 @@
             }
             attachInstanceEventListeners();
            attachUserCountListeners();
+           generateMultipleAccountFields();
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
@@ -1100,19 +1101,10 @@ window.onload = function () {
     attachUserCountListeners();
 
     // Trigger the account fields manually for each instance with default user count = 1
-            document.querySelectorAll(".user-count-input").forEach(input => {
-            let instanceIndex = input.id.split("_").pop();
-            let userCount = parseInt(input.value) || 1;
-
-            // For regular instances, show/hide accounts section
-            if (instanceIndex !== ALL_INSTANCES_INDEX) {
-                const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-                if (accountsSection) {
-                    accountsSection.style.display = userCount > 1 ? "block" : "none";
-                }
-            }
-
-            generateMultipleAccountFields(instanceIndex, userCount);
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        let instanceIndex = input.id.split("_").pop();
+        let userCount = parseInt(input.value) || 1;
+        generateMultipleAccountFields(instanceIndex, userCount);
     });
 }
     };
