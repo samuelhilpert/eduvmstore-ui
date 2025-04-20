@@ -29,13 +29,15 @@ package "myplugin.content.eduvmstore" {
 [panel.py] --> [Dashboard : project] : registers
 [Dashboard : project] --> [urls.py] : dispatch
 [urls.py] --> [views.py] : maps
-[views.py] --> [index.html] : render
-[views.py] --> [create.html] : render
-[views.py] --> [details.html] : render
-[views.py] --> [instances.html] : render
-[views.py] --> [success.html] : render
-[index.html] --> [table.html] : includes
+[views.py] <--> [index.html] : interact
+[views.py] <--> [create.html] : interact
+[views.py] <--> [details.html] : interact
+[views.py] <--> [instances.html] : interact
+[views.py] <--> [success.html] : interact
+[index.html] <--> [table.html] : includes
 [Browser] --> [urls.py] : request
 [index.html] --> [Browser] : response
+[views.py] <--> [EduVMStore] : fetch
+
 
 @enduml
