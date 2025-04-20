@@ -525,58 +525,60 @@
             `
         }
 
-       function generateInstanceFields() {
-            let instanceTabs = document.getElementById("instanceTabs");
-            let instancesContainer = document.getElementById("instancesContainer");
+     function generateInstanceFields() {
+    let instanceTabs = document.getElementById("instanceTabs");
+    let instancesContainer = document.getElementById("instancesContainer");
 
-            let countInstancesInput = document.getElementById("instance_count");
-            //ensure countInstances is a natural number base 10, if not 1
-            let countInstances = parseInt(countInstancesInput.value, 10) || 1;
-            countInstancesInput.value = countInstances;
+    let countInstancesInput = document.getElementById("instance_count");
+    // Ensure countInstances is a natural number base 10, if not 1
+    let countInstances = parseInt(countInstancesInput.value, 10) || 1;
+    countInstancesInput.value = countInstances;
 
-            const baseNameInput = document.getElementById("instances_name");
-            let baseName = baseNameInput ? baseNameInput.value.trim() : "";
+    const baseNameInput = document.getElementById("instances_name");
+    let baseName = baseNameInput ? baseNameInput.value.trim() : "";
 
-            instanceTabs.innerHTML = "";
-            instancesContainer.innerHTML = "";
+    instanceTabs.innerHTML = "";
+    instancesContainer.innerHTML = "";
 
+    // Add All Instances Tab
+    if (countInstances > 1) {
+        allInstancesName = "All Instances";
+        instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX);
+        instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances);
+    }
 
-            // Add all Instance Tab
-            if (countInstances > 1) {
-                allInstancesName = "All Instances"
-                instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX)
-                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
+    // Generate individual instance tabs
+    for (let i = 1; i <= countInstances; i++) {
+        let instanceName = "";
+        if (baseName) {
+            instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
+        }
+        instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
+        instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
+    }
+
+    document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
+        select.addEventListener("change", function () {
+            const instance = this.dataset.instance;
+            const group = document.getElementById(`existing_volume_group_${instance}`);
+            if (this.value === "existing") {
+                group.style.display = "block";
+            } else {
+                if (group) group.style.display = "none";
             }
-            // Generate individual instance tabs
-            for (let i = 1; i <= countInstances; i++) {
-                let instanceName = "";
-                if (baseName) {
-                    instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
-                }
-                instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
-                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
-            }
+        });
+        select.dispatchEvent(new Event("change"));
+    });
 
-              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
-                    select.addEventListener("change", function () {
-                        const instance = this.dataset.instance;
-                        const group = document.getElementById(`existing_volume_group_${instance}`);
-                        if (this.value === "existing") {
-                            group.style.display = "block";
-                        } else {
-                            if (group) group.style.display = "none";
-                        }
-                    });
-                    select.dispatchEvent(new Event("change"));
-                });
+    // Select Automatic Flavor for all instances including AllInstanceTab
+    for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
+        selectAutomaticFlavor(i);
+    }
 
-            // Select Automatic Flavor for all instances including AllInstanceTab
-            for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
-                selectAutomaticFlavor(i);
-            }
-            startInstanceIndex = (countInstances > 1) ? ALL_INSTANCES_INDEX : 1;
-            switchToInstance(startInstanceIndex)
-          if (countInstances > 1) {
+    startInstanceIndex = (countInstances > 1) ? ALL_INSTANCES_INDEX : 1;
+    switchToInstance(startInstanceIndex);
+
+    if (countInstances > 1) {
         attachAllInstancesEventListeners();
     }
 
@@ -749,7 +751,7 @@ function getFieldTypeDisplayName(fieldType) {
 
             allInstanceChangedFieldInfo = { element: null, fieldType: '', attrName: null };
         }
-
+        
         function attachVolumeOptionListeners() {
              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
                  select.addEventListener("change", function () {
@@ -823,17 +825,7 @@ function getFieldTypeDisplayName(fieldType) {
                 });
             }
         }
-
-              function attachUserCountListeners() {
-    document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function () {
-            let instanceIndex = this.id.split("_").pop();
-            let userCount = parseInt(this.value) || 1;
-            generateMultipleAccountFields(instanceIndex, userCount);
-        });
-    })};
-
-
+     
         function attachVolumeCreateListeners(instance) {
             const volumeSizeInputField = document.getElementById(`volume_size_input_${instance}`);
             const volumeSelection = document.getElementById(`${VOLUME_SELECTION}${instance}`);
@@ -1085,46 +1077,46 @@ function selectAutomaticFlavor(instanceIndex) {
         });
     }
 
-        window.onload = function () {
-            let countInstancesInput = document.getElementById("instance_count");
-            let instancesNameInput = document.getElementById("instances_name");
-            let instanceTabs = document.getElementById("instanceTabs");
-            let instancesContainer = document.getElementById("instancesContainer");
+window.onload = function () {
+    let countInstancesInput = document.getElementById("instance_count");
+    let instancesNameInput = document.getElementById("instances_name");
+    let instanceTabs = document.getElementById("instanceTabs");
+    let instancesContainer = document.getElementById("instancesContainer");
 
-            if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
-                console.error("Missing HTML elements. Check IDs.");
-                return;
-            }
+    if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+        console.error("Missing HTML elements. Check IDs.");
+        return;
+    }
 
-            countInstancesInput.value = "1";
-            generateInstanceFields();
+    countInstancesInput.value = "1";
+    generateInstanceFields();
 
-            countInstancesInput.addEventListener("input", generateInstanceFields);
-            instancesNameInput.addEventListener("input", generateInstanceFields);
+        countInstancesInput.addEventListener("input", generateInstanceFields);
+        instancesNameInput.addEventListener("input", generateInstanceFields);
 
-            attachFlavorCalculationListeners();
+        attachFlavorCalculationListeners();
 
-            // Initialize user count listeners if there are account attributes
-            if (accountAttributes.length > 0) {
-                attachUserCountListeners();
+          // Initialize user count listeners if there are account attributes
+   if (accountAttributes.length > 0) {
+    attachUserCountListeners();
 
-                // Trigger the account fields manually for each instance with default user count = 1
-                document.querySelectorAll(".user-count-input").forEach(input => {
-                    let instanceIndex = input.id.split("_").pop();
-                    let userCount = parseInt(input.value) || 1;
-                    generateMultipleAccountFields(instanceIndex, userCount);
-                });
-            }
-        };
+    // Trigger the account fields manually for each instance with default user count = 1
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        let instanceIndex = input.id.split("_").pop();
+        let userCount = parseInt(input.value) || 1;
+        generateMultipleAccountFields(instanceIndex, userCount);
+    });
+}
+    };
 
 
-        let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-        let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
-        document.getElementById("structured-instantiation").textContent = formattedInstantiation;
+    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("structured-instantiation").textContent = formattedInstantiation;
 
-        let accountAttribute = {{ app_template.account_attributes|safe }}
-        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-        document.getElementById("structured-accounts").textContent = formattedAccounts;
+    let accountAttribute = {{ app_template.account_attributes|safe }}
+    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+    document.getElementById("structured-accounts").textContent = formattedAccounts;
 
         {% if modal_message %}
             $(document).ready(function () {
@@ -1134,229 +1126,229 @@ function selectAutomaticFlavor(instanceIndex) {
 
 
 
-        document.addEventListener("change", function (event) {
-            if (!event.target.classList.contains("csv-upload")) return;
+document.addEventListener("change", function(event) {
+    if (!event.target.classList.contains("csv-upload")) return;
 
-            const file = event.target.files[0];
-            if (!file) return;
+    const file = event.target.files[0];
+    if (!file) return;
 
-            const instanceIndex = event.target.getAttribute("data-instance");
-            if (!instanceIndex) return;
+    const instanceIndex = event.target.getAttribute("data-instance");
+    if (!instanceIndex) return;
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const text = e.target.result;
-                const lines = text.trim().split("\n");
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split("\n");
 
-                if (lines.length === 0) {
-                    alert("CSV file is empty");
-                    return;
-                }
+        if (lines.length === 0) {
+            alert("CSV file is empty");
+            return;
+        }
 
 
-                function parseCSVLine(line) {
-                    const result = [];
-                    let inQuotes = false;
-                    let currentField = "";
+        function parseCSVLine(line) {
+            const result = [];
+            let inQuotes = false;
+            let currentField = "";
 
-                    for (let i = 0; i < line.length; i++) {
-                        const char = line[i];
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
 
-                        if (char === '"') {
-                            if (inQuotes && line[i + 1] === '"') {
+                if (char === '"') {
+                    if (inQuotes && line[i+1] === '"') {
 
-                                currentField += '"';
-                                i++;
-                            } else {
-                                inQuotes = !inQuotes;
-                            }
-                        } else if (char === ',' && !inQuotes) {
-                            result.push(currentField.trim());
-                            currentField = "";
-                        } else {
-                            currentField += char;
-                        }
+                        currentField += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
                     }
-
+                } else if (char === ',' && !inQuotes) {
                     result.push(currentField.trim());
-                    return result;
+                    currentField = "";
+                } else {
+                    currentField += char;
                 }
+            }
+
+            result.push(currentField.trim());
+            return result;
+        }
 
 
-                const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+        const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
-                const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
-                const isValidCSV = lowerAccountAttrs.every(attr =>
-                    headers.includes(attr)
-                );
+        const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
+        const isValidCSV = lowerAccountAttrs.every(attr =>
+            headers.includes(attr)
+        );
 
-                if (!isValidCSV) {
-                    alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}`);
-                    return;
-                }
+        if (!isValidCSV) {
+            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}`);
+            return;
+        }
 
-                const fieldMapping = accountAttributes.map(attr =>
-                    headers.indexOf(attr.toLowerCase())
-                );
+        const fieldMapping = accountAttributes.map(attr =>
+            headers.indexOf(attr.toLowerCase())
+        );
 
-                const accountsData = [];
-                for (let i = 1; i < lines.length; i++) {
-                    if (lines[i].trim() === "") continue;
+        const accountsData = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim() === "") continue;
 
-                    const values = parseCSVLine(lines[i]);
-                    if (values.length !== headers.length) {
-                        console.warn(`Skipping row ${i + 1}: column count mismatch`);
-                        continue;
-                    }
+            const values = parseCSVLine(lines[i]);
+            if (values.length !== headers.length) {
+                console.warn(`Skipping row ${i+1}: column count mismatch`);
+                continue;
+            }
 
-                    const accountData = {};
-                    accountAttributes.forEach((attr, idx) => {
-                        accountData[attr] = values[fieldMapping[idx]] || "";
-                    });
-                    accountsData.push(accountData);
-                }
+            const accountData = {};
+            accountAttributes.forEach((attr, idx) => {
+                accountData[attr] = values[fieldMapping[idx]] || "";
+            });
+            accountsData.push(accountData);
+        }
 
-                if (accountsData.length === 0) {
-                    alert("No valid account data found in CSV");
-                    return;
-                }
+        if (accountsData.length === 0) {
+            alert("No valid account data found in CSV");
+            return;
+        }
 
-                const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-                const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-                const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
+        const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+        const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
 
-                if (noAdditionalUsersCheckbox.checked) {
-                    noAdditionalUsersCheckbox.checked = false;
-                    document.getElementById(`accounts_section_${instanceIndex}`).style.display = "block";
-                    document.getElementById(`user_count_section_${instanceIndex}`).style.display = "block";
-                }
+        if (noAdditionalUsersCheckbox.checked) {
+            noAdditionalUsersCheckbox.checked = false;
+            document.getElementById(`accounts_section_${instanceIndex}`).style.display = "block";
+            document.getElementById(`user_count_section_${instanceIndex}`).style.display = "block";
+        }
 
-                accountsContainer.innerHTML = "";
+        accountsContainer.innerHTML = "";
 
-                accountsData.forEach((account, index) => {
-                    const accountSection = document.createElement("div");
-                    accountSection.className = "card p-3 mb-3 position-relative";
-                    accountSection.id = `account_${instanceIndex}_${index + 1}`;
-                    accountSection.dataset.accountNumber = index + 1;
-                    accountSection.style.border = "1px solid #ccc";
-                    accountSection.style.borderRadius = "5px";
-                    accountSection.style.padding = "15px";
+          accountsData.forEach((account, index) => {
+            const accountSection = document.createElement("div");
+            accountSection.className = "card p-3 mb-3 position-relative";
+            accountSection.id = `account_${instanceIndex}_${index+1}`;
+            accountSection.dataset.accountNumber = index+1;
+            accountSection.style.border = "1px solid #ccc";
+            accountSection.style.borderRadius = "5px";
+            accountSection.style.padding = "15px";
 
-                    const removeBtn = document.createElement("button");
-                    removeBtn.className = "btn btn-danger btn-sm position-absolute";
-                    removeBtn.style.top = "5px";
-                    removeBtn.style.right = "5px";
-                    removeBtn.innerHTML = "Remove";
-                    removeBtn.onclick = function () {
-                        accountSection.remove();
-                        renumberAccounts(instanceIndex);
-                        updateUserCount(instanceIndex);
-                        selectAutomaticFlavor(instanceIndex);
-                    };
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "btn btn-danger btn-sm position-absolute";
+            removeBtn.style.top = "5px";
+            removeBtn.style.right = "5px";
+            removeBtn.innerHTML = "Remove";
+            removeBtn.onclick = function() {
+                accountSection.remove();
+                renumberAccounts(instanceIndex);
+                updateUserCount(instanceIndex);
+                selectAutomaticFlavor(instanceIndex);
+            };
 
 
-                    let fieldsHtml = `<h5 class="account-title">Account ${index + 1}</h5>`;
-                    accountAttributes.forEach(attr => {
-                        fieldsHtml += `
+            let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
+            accountAttributes.forEach(attr => {
+                fieldsHtml += `
                     <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}_${index + 1}">${attr}</label>
+                        <label for="${attr}_${instanceIndex}_${index+1}">${attr}</label>
                         <input type="text" class="form-control"
-                               id="${attr}_${instanceIndex}_${index + 1}"
+                               id="${attr}_${instanceIndex}_${index+1}"
                                name="${attr}_${instanceIndex}"
                                value="${account[attr] || ''}"
                                required>
                     </div>
                 `;
-                    });
-
-                    accountSection.innerHTML = fieldsHtml;
-                    accountSection.appendChild(removeBtn);
-                    accountsContainer.appendChild(accountSection);
-                });
-
-                updateUserCount(instanceIndex);
-                selectAutomaticFlavor(instanceIndex);
-            };
-
-            reader.readAsText(file);
-        });
-
-        function updateUserCount(instanceIndex) {
-            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-            const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-
-            if (accountsContainer && userCountInput) {
-                userCountInput.value = accountsContainer.querySelectorAll('.card').length;
-            }
-        }
-
-
-        document.addEventListener("change", function (event) {
-            if (!event.target.classList.contains("csv-upload")) return;
-
-            const fileInput = event.target;
-            const file = fileInput.files[0];
-            if (!file) return;
-
-            const instanceIndex = fileInput.getAttribute("data-instance");
-            if (!instanceIndex) return;
-
-            const formGroup = fileInput.closest('.form-group');
-
-            const existingUndoBtn = formGroup.querySelector('.undo-csv');
-            if (existingUndoBtn) {
-                existingUndoBtn.remove();
-            }
-
-            const undoBtn = document.createElement("button");
-            undoBtn.type = "button";
-            undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
-            undoBtn.dataset.instance = instanceIndex;
-            undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
-
-            undoBtn.style.display = "inline-block";
-            undoBtn.style.verticalAlign = "middle";
-
-            fileInput.insertAdjacentElement('afterend', undoBtn);
-
-            undoBtn.addEventListener("click", function () {
-                resetCSVUpload(instanceIndex);
             });
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const text = e.target.result;
-                const lines = text.trim().split("\n");
-
-                if (lines.length === 0) {
-                    alert("CSV file is empty");
-                    return;
-                }
-
-            };
-
-            reader.readAsText(file);
+            accountSection.innerHTML = fieldsHtml;
+            accountSection.appendChild(removeBtn);
+            accountsContainer.appendChild(accountSection);
         });
 
-        function resetCSVUpload(instanceIndex) {
-            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-            const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-            const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
-            const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
+        updateUserCount(instanceIndex);
+        selectAutomaticFlavor(instanceIndex);
+    };
 
-            csvInput.value = "";
+    reader.readAsText(file);
+});
 
-            if (undoBtn) {
-                undoBtn.remove();
-            }
+function updateUserCount(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
-            userCountInput.value = 1;
+    if (accountsContainer && userCountInput) {
+        userCountInput.value = accountsContainer.querySelectorAll('.card').length;
+    }
+}
 
-            accountsContainer.innerHTML = "";
-            generateMultipleAccountFields(instanceIndex, 1);
 
-            selectAutomaticFlavor(instanceIndex);
+document.addEventListener("change", function(event) {
+    if (!event.target.classList.contains("csv-upload")) return;
+
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const instanceIndex = fileInput.getAttribute("data-instance");
+    if (!instanceIndex) return;
+
+    const formGroup = fileInput.closest('.form-group');
+
+    const existingUndoBtn = formGroup.querySelector('.undo-csv');
+    if (existingUndoBtn) {
+        existingUndoBtn.remove();
+    }
+
+    const undoBtn = document.createElement("button");
+    undoBtn.type = "button";
+    undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
+    undoBtn.dataset.instance = instanceIndex;
+    undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
+
+    undoBtn.style.display = "inline-block";
+    undoBtn.style.verticalAlign = "middle";
+
+    fileInput.insertAdjacentElement('afterend', undoBtn);
+
+    undoBtn.addEventListener("click", function() {
+        resetCSVUpload(instanceIndex);
+    });
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split("\n");
+
+        if (lines.length === 0) {
+            alert("CSV file is empty");
+            return;
         }
+
+    };
+
+    reader.readAsText(file);
+});
+
+function resetCSVUpload(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+    const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
+    const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
+
+    csvInput.value = "";
+
+    if (undoBtn) {
+        undoBtn.remove();
+    }
+
+    userCountInput.value = 1;
+
+    accountsContainer.innerHTML = "";
+    generateMultipleAccountFields(instanceIndex, 1);
+
+    selectAutomaticFlavor(instanceIndex);
+}
 
         function attachVolumeChangeHandlers() {
             document.querySelectorAll(".existing-volume-select").forEach(select => {
@@ -1381,15 +1373,14 @@ function selectAutomaticFlavor(instanceIndex) {
             });
         }
 
-        document.querySelector("form").addEventListener("submit", function (event) {
+       document.querySelector("form").addEventListener("submit", function(event) {
 
-            document.getElementById('loadingModal').style.display = 'flex';
-        });
+           document.getElementById('loadingModal').style.display = 'flex';
+       });
 
-        function updateLoadingModal(message) {
-            document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
-        }
-
+       function updateLoadingModal(message) {
+           document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
+       }
 
 
     </script>
