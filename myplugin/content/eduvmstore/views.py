@@ -900,6 +900,7 @@ class InstancesView(generic.TemplateView):
                 network_name = self.get_network_name_by_id(request, network_id)
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 create_volume_size = request.POST.get(f"volume_size_{i}")
+                user_count = request.POST.get(f"user_count_{i}")
                 accounts = []
                 instantiations = []
                 try:
@@ -907,9 +908,9 @@ class InstancesView(generic.TemplateView):
                 except ValueError:
                     volume_size = 1
 
-                no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
 
-                if no_additional_users is None:
+
+                if int(user_count) > 0:
                     try:
                         accounts = self.extract_accounts_from_form_new(request, i)
                     except Exception:
@@ -928,9 +929,7 @@ class InstancesView(generic.TemplateView):
                     user_data = None
                 elif not script and accounts:
                     user_data = generate_cloud_config(accounts, None, instantiations)
-                elif script and no_additional_users == "on":
-                    user_data = f"#cloud-config\n{script}"
-                elif script and no_additional_users is None and not accounts:
+                elif script and int(user_count) == 0:
                     user_data = f"#cloud-config\n{script}"
                 else:
                     user_data = generate_cloud_config(accounts, script, instantiations)
