@@ -587,11 +587,27 @@
 
         }
 
-        function attachUserCountListeners() {
+function attachUserCountListeners() {
     document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function () {
+        input.addEventListener("input", function() {
             let instanceIndex = this.id.split("_").pop();
             let userCount = parseInt(this.value) || 1;
+
+            // Handle All Instances tab differently
+            if (instanceIndex === ALL_INSTANCES_INDEX.toString()) {
+                // Always show accounts section for All Instances
+                const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
+                if (accountsSection) {
+                    accountsSection.style.display = "block";
+                }
+            } else {
+                // For regular instances, only show if user count > 1
+                const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
+                if (accountsSection) {
+                    accountsSection.style.display = userCount > 1 ? "block" : "none";
+                }
+            }
+
             generateMultipleAccountFields(instanceIndex, userCount);
         });
     });
@@ -1077,7 +1093,7 @@ function selectAutomaticFlavor(instanceIndex) {
         });
     }
 
-window.onload = function () {
+wwindow.onload = function () {
     let countInstancesInput = document.getElementById("instance_count");
     let instancesNameInput = document.getElementById("instances_name");
     let instanceTabs = document.getElementById("instanceTabs");
