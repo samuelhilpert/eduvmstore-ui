@@ -475,14 +475,18 @@
                     <!-- CSV Upload with Instance Mapping -->
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                         <div style="flex-grow: 1;">
-                            <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV with Instance Mapping") }}</label>
+                            <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV with Instance Mapping") }}
+                                <span data-toggle="tooltip" title="Upload Account Attributes for all instances in the following structure: '${accountAttributes.join(", ")}, instance index'">
+                                    <i class="fa fa-question-circle"></i>
+                                </span>
+                            </label>
                             <div style="display: flex; align-items: center;">
                                 <input type="file" class="form-control-file"
                                        id="csvUpload_${ALL_INSTANCES_INDEX}" accept=".csv" style="width: auto;">
                                 <!-- Undo button will be inserted here by JavaScript -->
                             </div>
                             <small class="form-text text-muted">
-                                Upload a CSV file with headers: ${accountAttributes.join(", ")}, instance
+                                Upload a CSV file with headers: '${accountAttributes.join(", ")}, instance index'
                             </small>
                         </div>
                     </div>
