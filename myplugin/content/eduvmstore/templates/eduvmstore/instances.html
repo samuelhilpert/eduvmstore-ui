@@ -1193,13 +1193,20 @@ document.addEventListener("change", function(event) {
                 continue;
             }
 
-            // extracts the value of the instance index column for the all instance csv upload
-            const csvInstanceIndex = values[instanceIndexCol].trim() || instanceIndex;
-            console.log(`csvInstanceIndex: ${csvInstanceIndex}`);
-            if (instanceIndex === ALL_INSTANCES_INDEX && (!/^\d+$/.test(csvInstanceIndex) || csvInstanceIndex === '0')) {
-                console.warn(`Skipping row ${i + 1}: invalid instance index "${instanceIndex}"`);
-                continue;
+            // extracts the value of the instance index column for the all instance csv upload, if single instance upload it is just the instanceIndex
+            let csvInstanceIndex;
+            if (instanceIndex === ALL_INSTANCES_INDEX) {
+                // For the All Instances tab, use the instance index from the CSV
+                csvInstanceIndex = values[instanceIndexCol].trim();
+                if (!/^\d+$/.test(csvInstanceIndex) || csvInstanceIndex === '0') {
+                    console.warn(`Skipping row ${i + 1}: invalid instance index "${csvInstanceIndex}"`);
+                    continue;
+                }
+            } else {
+                // For individual instance tabs, use the tab's instance index
+                csvInstanceIndex = instanceIndex;
             }
+            console.log(`csvInstanceIndex: ${csvInstanceIndex}`);
 
             const accountData = {};
             accountAttributes.forEach((attr, idx) => {
