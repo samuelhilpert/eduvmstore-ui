@@ -446,10 +446,10 @@
 
             <div id="accounts_section_${instanceIndex}">
                 <!-- CSV Upload -->
-                <div class="form-group" style="display: flex; align-items: center; gap: 20x; margin-bottom: 20px;">
+                <div class="form-group" style="display: flex; align-items: center; gap: 20x;">
                     <div style="flex-grow: 1;">
                         <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }} </label>
-                        <div style="display: flex; align-items: center;">
+                        <div style="display: flex; align-items: center; margin-bottom: 20px;">
                             <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                    data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
                             <!-- Undo button will be inserted here by JavaScript -->
