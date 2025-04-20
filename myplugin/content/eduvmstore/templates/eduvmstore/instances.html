@@ -462,7 +462,7 @@
 
                     ${noAdditionalUsersHtml}
 
-                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex !== ALL_INSTANCES_INDEX ? 'block' : 'none'};">
+                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
                         <!-- CSV Upload -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <div style="flex-grow: 1;">
