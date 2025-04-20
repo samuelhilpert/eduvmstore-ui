@@ -525,76 +525,75 @@
             `
         }
 
-     function generateInstanceFields() {
-    let instanceTabs = document.getElementById("instanceTabs");
-    let instancesContainer = document.getElementById("instancesContainer");
+       function generateInstanceFields() {
+            let instanceTabs = document.getElementById("instanceTabs");
+            let instancesContainer = document.getElementById("instancesContainer");
 
-    let countInstancesInput = document.getElementById("instance_count");
-    // Ensure countInstances is a natural number base 10, if not 1
-    let countInstances = parseInt(countInstancesInput.value, 10) || 1;
-    countInstancesInput.value = countInstances;
+            let countInstancesInput = document.getElementById("instance_count");
+            //ensure countInstances is a natural number base 10, if not 1
+            let countInstances = parseInt(countInstancesInput.value, 10) || 1;
+            countInstancesInput.value = countInstances;
 
-    const baseNameInput = document.getElementById("instances_name");
-    let baseName = baseNameInput ? baseNameInput.value.trim() : "";
+            const baseNameInput = document.getElementById("instances_name");
+            let baseName = baseNameInput ? baseNameInput.value.trim() : "";
 
-    instanceTabs.innerHTML = "";
-    instancesContainer.innerHTML = "";
+            instanceTabs.innerHTML = "";
+            instancesContainer.innerHTML = "";
 
-    // Add All Instances Tab
-    if (countInstances > 1) {
-        allInstancesName = "All Instances";
-        instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX);
-        instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances);
-    }
 
-    // Generate individual instance tabs
-    for (let i = 1; i <= countInstances; i++) {
-        let instanceName = "";
-        if (baseName) {
-            instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
-        }
-        instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
-        instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
-    }
-
-    document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
-        select.addEventListener("change", function () {
-            const instance = this.dataset.instance;
-            const group = document.getElementById(`existing_volume_group_${instance}`);
-            if (this.value === "existing") {
-                group.style.display = "block";
-            } else {
-                if (group) group.style.display = "none";
+            // Add all Instance Tab
+            if (countInstances > 1) {
+                allInstancesName = "All Instances"
+                instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX)
+                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
             }
-        });
-        select.dispatchEvent(new Event("change"));
-    });
+            // Generate individual instance tabs
+            for (let i = 1; i <= countInstances; i++) {
+                let instanceName = "";
+                if (baseName) {
+                    instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
+                }
+                instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
+                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
+            }
 
-    // Select Automatic Flavor for all instances including AllInstanceTab
-    for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
-        selectAutomaticFlavor(i);
-    }
+              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
+                    select.addEventListener("change", function () {
+                        const instance = this.dataset.instance;
+                        const group = document.getElementById(`existing_volume_group_${instance}`);
+                        if (this.value === "existing") {
+                            group.style.display = "block";
+                        } else {
+                            if (group) group.style.display = "none";
+                        }
+                    });
+                    select.dispatchEvent(new Event("change"));
+                });
 
-    startInstanceIndex = (countInstances > 1) ? ALL_INSTANCES_INDEX : 1;
-    switchToInstance(startInstanceIndex);
+            // Select Automatic Flavor for all instances including AllInstanceTab
+            for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
+                selectAutomaticFlavor(i);
+            }
+            startInstanceIndex = (countInstances > 1) ? ALL_INSTANCES_INDEX : 1;
+            switchToInstance(startInstanceIndex)
+            if (countInstances > 1) {
+                attachAllInstancesEventListeners();
+            }
+            attachInstanceEventListeners();
+           attachUserCountListeners();
+            attachFlavorCalculationListeners();
+            attachVolumeOptionListeners();
+            attachVolumeChangeHandlers();
+        }
 
-    if (countInstances > 1) {
-        attachAllInstancesEventListeners();
-    }
-
-    attachInstanceEventListeners();
-    attachFlavorCalculationListeners();
-    attachVolumeOptionListeners();
-    attachVolumeChangeHandlers();
-
-    // Generate default account fields based on the default user count
-    if (accountAttributes.length > 0) {
-        document.querySelectorAll(".user-count-input").forEach(input => {
-            let instanceIndex = input.id.split("_").pop();
-            let userCount = parseInt(input.value) || 1;
+        function attachUserCountListeners() {
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let instanceIndex = this.id.split("_").pop();
+            let userCount = parseInt(this.value) || 1;
             generateMultipleAccountFields(instanceIndex, userCount);
         });
-    }
+    });
 }
 
         function attachAllInstancesEventListeners() {
@@ -751,7 +750,7 @@ function getFieldTypeDisplayName(fieldType) {
 
             allInstanceChangedFieldInfo = { element: null, fieldType: '', attrName: null };
         }
-        
+
         function attachVolumeOptionListeners() {
              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
                  select.addEventListener("change", function () {
@@ -825,7 +824,7 @@ function getFieldTypeDisplayName(fieldType) {
                 });
             }
         }
-     
+
         function attachVolumeCreateListeners(instance) {
             const volumeSizeInputField = document.getElementById(`volume_size_input_${instance}`);
             const volumeSelection = document.getElementById(`${VOLUME_SELECTION}${instance}`);
@@ -1123,26 +1122,6 @@ window.onload = function () {
                 $('#responseModal').modal('show');
             });
         {% endif %}
-
-        function attachUserCountListeners() {
-    document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function () {
-            let instanceIndex = this.id.split("_").pop();
-            let userCount = parseInt(this.value) || 1;
-
-            const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-
-            // Only show the section when userCount is 1, hide otherwise
-            if (userCount === 1) {
-                accountsSection.style.display = "block";
-            } else {
-                accountsSection.style.display = "none";
-            }
-
-            generateMultipleAccountFields(instanceIndex, userCount);
-        });
-    });
-}
 
 
 
