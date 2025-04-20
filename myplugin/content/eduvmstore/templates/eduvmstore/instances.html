@@ -424,16 +424,10 @@
         }
 
         function generateAccountAttributesSection(instanceIndex){
+              if (!accountAttributes || accountAttributes.length === 0) return "";
             return`
                 <div class="section-container">
                     <h5>{{ _("User Configuration") }}</h5>
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
-                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
-                    title="Check if you don’t want to create any additional users in the instance.">
-                            <i class="fa fa-question-circle"></i>
-                      </span></label>
-                    </div>
 
                     <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
                         <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
@@ -861,7 +855,7 @@ function getFieldTypeDisplayName(fieldType) {
 
 
     function attachAccountButtonListeners() {
-        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+
             checkbox.addEventListener("change", function () {
                 let instanceIndex = this.id.split("_").pop();
                 let accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
@@ -881,7 +875,7 @@ function getFieldTypeDisplayName(fieldType) {
                     let userCount = parseInt(userCountInput.value) || 1;
                     generateMultipleAccountFields(instanceIndex, userCount);
                 }
-            });
+
         });
 
         document.querySelectorAll(".user-count-input").forEach(input => {
@@ -997,7 +991,7 @@ function selectAutomaticFlavor(instanceIndex) {
     let totalCores = requiredCores;
 
     // AllInstanceTab only shows fixed resources
-    if (instanceIndex != ALL_INSTANCES_INDEX && !noAdditionalUsersCheckbox.checked) {
+    if (instanceIndex != ALL_INSTANCES_INDEX &&  accountAttributes.length > 0) {
         const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
         const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
         const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
@@ -1053,11 +1047,11 @@ function selectAutomaticFlavor(instanceIndex) {
 
 
     function attachFlavorCalculationListeners() {
-        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+
             checkbox.addEventListener("change", function () {
                 let instanceIndex = this.id.split("_").pop();
                 selectAutomaticFlavor(instanceIndex);
-            });
+
         });
 
         document.querySelectorAll(".user-count-input").forEach(input => {
