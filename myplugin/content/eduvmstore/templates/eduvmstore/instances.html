@@ -1126,6 +1126,8 @@ document.addEventListener("change", function(event) {
         function parseCSVLine(line) {
             if (!line || line.trim() === "") return [];
 
+            const delimiter = (line.split(';').length > line.split(',').length) ? ';' : ',';
+
             const result = [];
             let inQuotes = false;
             let currentField = "";
@@ -1135,13 +1137,12 @@ document.addEventListener("change", function(event) {
 
                 if (char === '"') {
                     if (inQuotes && line[i + 1] === '"') {
-
                         currentField += '"';
                         i++;
                     } else {
                         inQuotes = !inQuotes;
                     }
-                } else if (char === ',' && !inQuotes) {
+                } else if (char === delimiter && !inQuotes) {
                     result.push(currentField.trim());
                     currentField = "";
                 } else {
