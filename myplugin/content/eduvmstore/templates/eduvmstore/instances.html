@@ -1117,7 +1117,7 @@ document.addEventListener("change", function(event) {
     reader.onload = function(e) {
         const text = e.target.result;
         //const lines = text.trim().split("\n");
-        const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+        const lines = text.split(/\r\n|\r|\n/).filter(line => line.trim() !== "");
         console.log(`lines length ${lines.length}`)
 
         if (lines.length === 0) {
