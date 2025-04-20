@@ -586,25 +586,16 @@
             attachVolumeChangeHandlers();
         }
 
-function attachUserCountListeners() {
+        function attachUserCountListeners() {
     document.querySelectorAll(".user-count-input").forEach(input => {
         input.addEventListener("input", function () {
             let instanceIndex = this.id.split("_").pop();
             let userCount = parseInt(this.value) || 1;
-
-            const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-
-            // Only show the section when userCount is 1, hide otherwise
-            if (userCount === 1) {
-                accountsSection.style.display = "block";
-            } else {
-                accountsSection.style.display = "none";
-            }
-
             generateMultipleAccountFields(instanceIndex, userCount);
         });
     });
 }
+
         function attachAllInstancesEventListeners() {
             // Handle "Apply to All Instances" button from the modal
             document.querySelector('.confirm-apply-modal').addEventListener('click', function() {
@@ -883,6 +874,14 @@ function getFieldTypeDisplayName(fieldType) {
             }
         }
 
+        document.querySelectorAll(".user-count-input").forEach(input => {
+            input.addEventListener("input", function () {
+                let instanceIndex = this.id.split("_").pop();
+                let userCount = parseInt(this.value) || 1;
+                generateMultipleAccountFields(instanceIndex, userCount);
+            });
+        });
+
 
   function generateMultipleAccountFields(instanceIndex, userCount) {
     let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
@@ -1081,14 +1080,6 @@ window.onload = function () {
     if (accountAttributes.length > 0) {
         attachUserCountListeners();
     }
-
-    document.querySelectorAll(".user-count-input").forEach(input => {
-    let instanceIndex = input.id.split("_").pop();
-    let userCount = parseInt(input.value) || 1;
-
-    const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-    accountsSection.style.display = userCount === 1 ? "block" : "none";
-});
     };
 
 
