@@ -529,31 +529,47 @@ class AppTemplateView(generic.TemplateView):
 
         template_id = self.kwargs.get('template_id')
         template_name = self.request.GET.get("template")
+
         if template_id:
             app_template = self.get_app_template(template_id)
             image_data = self.get_image_data(app_template.get('image_id', ''))
+            # Get selected security groups from database
+            db_security_groups = [sg['name'] for sg in app_template.get('security_groups', [])]
         elif template_name in preset_examples and self.mode != "edit":
             app_template = preset_examples[template_name]
             image_data = {}
+            db_security_groups = []
         else:
             app_template = {}
             image_data = {}
+            db_security_groups = []
 
+        # Get all available security groups from OpenStack
+        try:
+            available_groups = neutron.security_group_list(self.request)
+            # Create list of tuples with (name, id, is_selected)
+            security_groups = []
+            for group in available_groups:
+                security_groups.append({
+                    'name': group.name,
+                    'id': group.id,
+                    'selected': group.name in db_security_groups
+                })
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            security_groups = []
 
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
-            'security_groups': self.get_security_groups(),
+            'security_groups': security_groups,  # Now includes selection info
             'is_edit': self.mode == "edit"
         })
 
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
         context['page_title'] = self.page_title
-
-
-        context['security_groups'] = self.get_security_groups()
 
         return context
 

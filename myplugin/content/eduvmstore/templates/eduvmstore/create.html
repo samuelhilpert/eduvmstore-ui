@@ -469,6 +469,7 @@
 </div>
     </div>
 
+
 <h3>Script</h3>
 <div class="script-details">
     <p>Enter instantiation and account attributes to be used in the configuration script. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
@@ -873,6 +874,45 @@ write_files:
             checkbox.addEventListener("change", updateScriptBasedOnSelection);
         });
     });
+
+    $(document).ready(function() {
+    // Toggle dropdown
+    $('.dropdown').click(function(e) {
+        e.stopPropagation();
+        $(this).find('.dropdown-content').toggle();
+    });
+
+    // Close dropdown when clicking elsewhere
+    $(document).click(function() {
+        $('.dropdown-content').hide();
+    });
+
+    // Update selected groups display when checkboxes change
+    $('input[name="security_groups"]').change(function() {
+        updateSelectedGroupsDisplay();
+    });
+
+    function updateSelectedGroupsDisplay() {
+        const selected = [];
+        $('input[name="security_groups"]:checked').each(function() {
+            selected.push($(this).val());
+        });
+
+        const display = $('#selectedGroupsDisplay');
+        display.empty();
+
+        if (selected.length === 0) {
+            display.append('<span class="selected-group">default</span>');
+        } else {
+            selected.forEach(function(group) {
+                display.append(`<span class="selected-group">${group}</span>`);
+            });
+        }
+    }
+
+    // Initialize display
+    updateSelectedGroupsDisplay();
+});
 
 </script>
 {% endblock %}
