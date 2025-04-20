@@ -1174,8 +1174,8 @@ document.addEventListener("change", function(event) {
         );
 
         if (!isValidCSV) {
-            const instanceIndexHeader = instanceIndex === ALL_INSTANCES_INDEX ? "instance index" : "";
-            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}, ${instanceIndexHeader}`);
+            const instanceIndexHeader = instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : "";
+            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}${instanceIndexHeader}`);
             return;
         }
 
@@ -1194,7 +1194,8 @@ document.addEventListener("change", function(event) {
             }
 
             // extracts the value of the instance index column for the all instance csv upload
-            const csvInstanceIndex = values[instanceIndexCol].trim();
+            const csvInstanceIndex = values[instanceIndexCol].trim() || instanceIndex;
+            console.log(`csvInstanceIndex: ${csvInstanceIndex}`);
             if (instanceIndex === ALL_INSTANCES_INDEX && (!/^\d+$/.test(csvInstanceIndex) || csvInstanceIndex === '0')) {
                 console.warn(`Skipping row ${i + 1}: invalid instance index "${instanceIndex}"`);
                 continue;
