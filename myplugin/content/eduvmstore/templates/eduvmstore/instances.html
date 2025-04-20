@@ -884,8 +884,17 @@ function getFieldTypeDisplayName(fieldType) {
 
 
   function generateMultipleAccountFields(instanceIndex, userCount) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-    if (!accountsContainer) return;
+    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+
+
+    if (!accountsContainer) {
+        const parentContainer = document.getElementById(`${CONTENT_PREFIX}${instanceIndex}`);
+        if (!parentContainer) return; // Fail-safe
+
+        accountsContainer = document.createElement("div");
+        accountsContainer.id = `dynamic_accounts_container_${instanceIndex}`;
+        parentContainer.appendChild(accountsContainer);
+    }
 
     // Step 1: Collect existing values
     const existingValues = {};
