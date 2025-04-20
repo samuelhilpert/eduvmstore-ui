@@ -432,42 +432,49 @@
         </div>
     </div>
 
-     <h3>Security Groups</h3>
-    <div class="security_groups">
-        <div class="form-group row ">
-    <div class="col-md-4">
-        <label for="security_groups" style="margin-top: 10px">Select Security Groups <span style="color: rgb(85,137,197);">*</span>
-          <span data-toggle="tooltip" title="Security groups are sets of IP filter rules that are applied to all project instances, which define networking access to the instance.">
-                <i class="fa fa-question-circle"></i>
-            </span>
-        </label>
-        <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
-            <!-- Display the selected groups (including 'default') -->
-            <div class="selected-groups">
-                <span class="selected-group">
-                    {% if selected_groups %}
-                        {{ selected_group }}
-                    {% else %}
-                        default
-                    {% endif %}
+    <h3>Security Groups</h3>
+<div class="security_groups">
+    <div class="form-group row">
+        <div class="col-md-4">
+            <label for="security_groups" style="margin-top: 10px">
+                Select Security Groups <span style="color: rgb(85,137,197);">*</span>
+                <span data-toggle="tooltip" title="Security groups are sets of IP filter rules that are applied to all project instances, which define networking access to the instance.">
+                    <i class="fa fa-question-circle"></i>
                 </span>
-            </div>
+            </label>
+            <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
+                <!-- Button to trigger dropdown -->
+                <button class="dropdown-toggle form-control text-left" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span id="selectedGroupsDisplay">
+                        {% if is_edit and selected_groups %}
+                            {% for group in selected_groups %}
+                                <span class="badge badge-secondary">{{ group }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="badge badge-secondary">default</span>
+                        {% endif %}
+                    </span>
+                </button>
 
-            <!-- Dropdown content with checkboxes for all groups -->
-            <div class="dropdown-content">
-                {% for sg in security_groups %}
-                    <label>
-                        <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                               {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
-                               {{ sg.name }}
-                    </label>
-                {% endfor %}
-
+                <!-- Dropdown menu with checkboxes -->
+                <div class="dropdown-menu" aria-labelledby="securityGroupsDropdown" style="padding: 10px; width: 100%;">
+                    {% for sg in security_groups %}
+                        <div class="dropdown-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="security_groups"
+                                       id="sg_{{ sg.id }}" value="{{ sg.name }}"
+                                       {% if sg.name in selected_groups or (not is_edit and sg.name == 'default') %}checked{% endif %}>
+                                <label class="form-check-label" for="sg_{{ sg.id }}">
+                                    {{ sg.name }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-    </div>
 
 
 <h3>Script</h3>
@@ -875,43 +882,38 @@ write_files:
         });
     });
 
-    $(document).ready(function() {
-    // Toggle dropdown
-    $('.dropdown').click(function(e) {
-        e.stopPropagation();
-        $(this).find('.dropdown-content').toggle();
-    });
-
-    // Close dropdown when clicking elsewhere
-    $(document).click(function() {
-        $('.dropdown-content').hide();
-    });
-
-    // Update selected groups display when checkboxes change
-    $('input[name="security_groups"]').change(function() {
-        updateSelectedGroupsDisplay();
-    });
-
+  $(document).ready(function() {
+    // Update the display of selected groups
     function updateSelectedGroupsDisplay() {
-        const selected = [];
+        var selected = [];
         $('input[name="security_groups"]:checked').each(function() {
             selected.push($(this).val());
         });
 
-        const display = $('#selectedGroupsDisplay');
+        var display = $('#selectedGroupsDisplay');
         display.empty();
 
         if (selected.length === 0) {
-            display.append('<span class="selected-group">default</span>');
+            display.append('<span class="badge badge-secondary">default</span>');
         } else {
             selected.forEach(function(group) {
-                display.append(`<span class="selected-group">${group}</span>`);
+                display.append('<span class="badge badge-secondary mr-1">' + group + '</span>');
             });
         }
     }
 
     // Initialize display
     updateSelectedGroupsDisplay();
+
+    // Update display when checkboxes change
+    $('input[name="security_groups"]').change(function() {
+        updateSelectedGroupsDisplay();
+    });
+
+    // Prevent dropdown from closing when clicking inside
+    $('.dropdown-menu').click(function(e) {
+        e.stopPropagation();
+    });
 });
 
 </script>
