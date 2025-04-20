@@ -1125,6 +1125,8 @@ document.addEventListener("change", function(event) {
 
 
         function parseCSVLine(line) {
+            if (!line || line.trim() === "") return [];
+
             const result = [];
             let inQuotes = false;
             let currentField = "";
@@ -1157,6 +1159,7 @@ document.addEventListener("change", function(event) {
 
         // Only All Instance CSV Upload expects the field instance index (different spelling)
         console.log(`headers: ${headers}`)
+        console.log(`headers length ${headers.length}`)
         const instanceIndexCol = headers.findIndex(h =>
             h === 'instance index' || h === 'instance_index' || h === 'instanceindex' || h === 'index' || h === 'instance');
         console.log(`instanceIndexCol: ${instanceIndexCol}`);
