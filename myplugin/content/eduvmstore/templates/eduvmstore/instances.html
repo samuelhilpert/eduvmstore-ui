@@ -587,27 +587,11 @@
 
         }
 
-function attachUserCountListeners() {
+        function attachUserCountListeners() {
     document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function() {
+        input.addEventListener("input", function () {
             let instanceIndex = this.id.split("_").pop();
             let userCount = parseInt(this.value) || 1;
-
-            // Handle All Instances tab differently
-            if (instanceIndex === ALL_INSTANCES_INDEX.toString()) {
-                // Always show accounts section for All Instances
-                const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-                if (accountsSection) {
-                    accountsSection.style.display = "block";
-                }
-            } else {
-                // For regular instances, only show if user count > 1
-                const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-                if (accountsSection) {
-                    accountsSection.style.display = userCount > 1 ? "block" : "none";
-                }
-            }
-
             generateMultipleAccountFields(instanceIndex, userCount);
         });
     });
@@ -1093,7 +1077,7 @@ function selectAutomaticFlavor(instanceIndex) {
         });
     }
 
-wwindow.onload = function () {
+window.onload = function () {
     let countInstancesInput = document.getElementById("instance_count");
     let instancesNameInput = document.getElementById("instances_name");
     let instanceTabs = document.getElementById("instanceTabs");
@@ -1107,39 +1091,23 @@ wwindow.onload = function () {
     countInstancesInput.value = "1";
     generateInstanceFields();
 
-    countInstancesInput.addEventListener("input", generateInstanceFields);
-    instancesNameInput.addEventListener("input", generateInstanceFields);
+        countInstancesInput.addEventListener("input", generateInstanceFields);
+        instancesNameInput.addEventListener("input", generateInstanceFields);
 
-    attachFlavorCalculationListeners();
+        attachFlavorCalculationListeners();
 
-    // Initialize user configuration only if there are account attributes
-    if (accountAttributes.length > 0) {
-        attachUserCountListeners();
+          // Initialize user count listeners if there are account attributes
+   if (accountAttributes.length > 0) {
+    attachUserCountListeners();
 
-        // Initialize account sections for all instances
-        document.querySelectorAll(".user-count-input").forEach(input => {
-            let instanceIndex = input.id.split("_").pop();
-            let userCount = parseInt(input.value) || 1;
-
-            // Special handling for All Instances tab
-            if (instanceIndex === ALL_INSTANCES_INDEX.toString()) {
-                // Always show accounts section for All Instances tab
-                const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-                if (accountsSection) {
-                    accountsSection.style.display = "block";
-                }
-            } else {
-                // For regular instances, only show if user count > 1
-                const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-                if (accountsSection) {
-                    accountsSection.style.display = userCount > 1 ? "block" : "none";
-                }
-            }
-
-            generateMultipleAccountFields(instanceIndex, userCount);
-        });
-    }
-};
+    // Trigger the account fields manually for each instance with default user count = 1
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        let instanceIndex = input.id.split("_").pop();
+        let userCount = parseInt(input.value) || 1;
+        generateMultipleAccountFields(instanceIndex, userCount);
+    });
+}
+    };
 
 
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
