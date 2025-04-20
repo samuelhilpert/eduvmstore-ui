@@ -914,7 +914,7 @@ function getFieldTypeDisplayName(fieldType) {
     userCount = Math.max(userCount, 0);
 
     // Step 3: Rebuild fields using existing values if available
-    for (let i = 1; i <= userCount; i++) {
+    for (let i = 0; i <= userCount; i++) {
         const accountSection = document.createElement("div");
         accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
         accountSection.id = `account_${instanceIndex}_${i}`;
