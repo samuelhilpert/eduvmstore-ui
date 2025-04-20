@@ -580,18 +580,19 @@
                 attachAllInstancesEventListeners();
             }
             attachInstanceEventListeners();
+           attachUserCountListeners();
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
         }
 
-       // Generate default account fields based on the default user count
-    if (accountAttributes.length > 0) {
-        document.querySelectorAll(".user-count-input").forEach(input => {
-            let instanceIndex = input.id.split("_").pop();
-            let userCount = parseInt(input.value) || 1;
+        function attachUserCountListeners() {
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let instanceIndex = this.id.split("_").pop();
+            let userCount = parseInt(this.value) || 1;
             generateMultipleAccountFields(instanceIndex, userCount);
-
+        });
     });
 }
 
