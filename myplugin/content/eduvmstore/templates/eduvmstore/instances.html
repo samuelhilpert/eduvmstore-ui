@@ -583,12 +583,11 @@
     }
 
     attachInstanceEventListeners();
-
     attachFlavorCalculationListeners();
     attachVolumeOptionListeners();
     attachVolumeChangeHandlers();
 
-    // ✅ NEW: Generate default account fields based on the default user count
+    // Generate default account fields based on the default user count
     if (accountAttributes.length > 0) {
         document.querySelectorAll(".user-count-input").forEach(input => {
             let instanceIndex = input.id.split("_").pop();
@@ -1124,6 +1123,26 @@ window.onload = function () {
                 $('#responseModal').modal('show');
             });
         {% endif %}
+
+        function attachUserCountListeners() {
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let instanceIndex = this.id.split("_").pop();
+            let userCount = parseInt(this.value) || 1;
+
+            const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
+
+            // Only show the section when userCount is 1, hide otherwise
+            if (userCount === 1) {
+                accountsSection.style.display = "block";
+            } else {
+                accountsSection.style.display = "none";
+            }
+
+            generateMultipleAccountFields(instanceIndex, userCount);
+        });
+    });
+}
 
 
 
