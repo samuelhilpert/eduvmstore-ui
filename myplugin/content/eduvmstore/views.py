@@ -919,7 +919,12 @@ class InstancesView(generic.TemplateView):
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
 
-                instantiations = self.extract_accounts_from_form_instantiation(request, i)
+
+                try:
+                    instantiations = self.extract_accounts_from_form_instantiation(request, i)
+                except Exception:
+                    instantiations = []
+
                 request.session[f"instantiations_{i}"] = instantiations
 
                 description = self.format_description(app_template_description)
