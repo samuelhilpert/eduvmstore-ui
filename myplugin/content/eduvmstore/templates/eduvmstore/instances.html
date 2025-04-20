@@ -447,7 +447,11 @@
                         <!-- CSV Upload -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <div style="flex-grow: 1;">
-                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }} </label>
+                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }}
+                                    <span data-toggle="tooltip" title="Upload Account Attributes for this instance in the following structure: attribute1,attribute2,attribute3">
+                                        <i class="fa fa-question-circle"></i>
+                                    </span>
+                                </label>
                                 <div style="display: flex; align-items: center;">
                                     <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
