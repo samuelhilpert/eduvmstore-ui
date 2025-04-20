@@ -459,6 +459,12 @@
                 <h6>{{ _("Accounts") }}</h6>
                 <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
                 <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+</div>
+    <button type="button" class="btn btn-dark export-csv-btn" data-instance="${instanceIndex}" style="margin-top: 10px;">
+        {{ _("Download Accounts as CSV") }}
+    </button>
+</div>
+
             </div>
         </div>
     `;
@@ -597,6 +603,15 @@ function generateInstanceFields() {
         }
         generateMultipleAccountFields(instanceIndex, userCount);
     });
+
+    // Add CSV export button handlers
+    document.querySelectorAll(".export-csv-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const instanceIndex = this.getAttribute("data-instance");
+            downloadAccountsAsCSV(instanceIndex);
+        });
+    });
+
 }
 
         function attachAllInstancesEventListeners() {
@@ -907,6 +922,15 @@ function getFieldTypeDisplayName(fieldType) {
   function generateMultipleAccountFields(instanceIndex, userCount) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
     if (!accountsContainer) return;
+
+    const exportBtn = document.querySelector(`.export-csv-btn[data-instance="${instanceIndex}"]`);
+    if (exportBtn) {
+        if (userCount > 0) {
+            exportBtn.style.display = "inline-block";
+        } else {
+            exportBtn.style.display = "none";
+        }
+    }
 
     // Step 1: Collect existing values
     const existingValues = {};
@@ -1409,6 +1433,41 @@ function selectAutomaticFlavor(instanceIndex) {
         function updateLoadingModal(message) {
             document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
         }
+
+        function downloadAccountsAsCSV(instanceIndex) {
+            let instance_name = document.getElementById("instances_name");
+            const accountContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+            if (!accountContainer) return;
+
+            const cards = accountContainer.querySelectorAll('.card');
+            if (cards.length === 0) {
+                alert("No accounts to export.");
+                return;
+            }
+
+            const headers = accountAttributes;
+            const rows = [headers.join(",")];
+
+            cards.forEach(card => {
+                const values = headers.map(attr => {
+                    const input = card.querySelector(`#${attr}_${instanceIndex}_${card.dataset.accountNumber}`);
+                    return input ? `"${input.value.replace(/"/g, '""')}"` : "";
+                });
+                rows.push(values.join(","));
+            });
+
+            const csvContent = rows.join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `accounts_${instance_name}_${instanceIndex}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
 
 
 
