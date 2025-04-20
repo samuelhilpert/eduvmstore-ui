@@ -1154,7 +1154,7 @@ document.addEventListener("change", function(event) {
             return result;
         }
 
-
+        console.log(`lines[0] ${lines[0]}`)
         const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
         // Only All Instance CSV Upload expects the field instance index (different spelling)
