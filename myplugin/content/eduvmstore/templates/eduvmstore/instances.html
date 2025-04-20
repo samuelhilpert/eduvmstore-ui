@@ -587,16 +587,24 @@
 
     // Generate default account fields based on the default user count
     if (accountAttributes.length > 0) {
-        setTimeout(() => {
-            document.querySelectorAll(".user-count-input").forEach(input => {
-                let instanceIndex = input.id.split("_").pop();
-                let userCount = parseInt(input.value) || 1;
-                generateMultipleAccountFields(instanceIndex, userCount);
-            });
-        }, 0);
-
+        document.querySelectorAll(".user-count-input").forEach(input => {
+            let instanceIndex = input.id.split("_").pop();
+            let userCount = parseInt(input.value) || 1;
+            generateMultipleAccountFields(instanceIndex, userCount);
+        });
     }
-}
+           setTimeout(() => {
+               // Nachträglich die DOM-basierten Account-Felder generieren
+               for (let i = 1; i <= countInstances; i++) {
+                   const userCountInput = document.getElementById(`user_count_${i}`);
+                   if (userCountInput) {
+                       const userCount = parseInt(userCountInput.value) || 1;
+                       generateMultipleAccountFields(i, userCount);
+                   }
+               }
+           }, 0);
+
+       }
 
         function attachAllInstancesEventListeners() {
             // Handle "Apply to All Instances" button from the modal
