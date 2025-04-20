@@ -890,7 +890,11 @@ function getFieldTypeDisplayName(fieldType) {
         document.querySelectorAll(".user-count-input").forEach(input => {
             input.addEventListener("input", function () {
                 let instanceIndex = this.id.split("_").pop();
-                let userCount = parseInt(this.value) || 1;
+                let rawValue = input.value;
+                let userCount = parseInt(rawValue);
+                if (isNaN(userCount)) {
+                    userCount = 1;
+                }
                 generateMultipleAccountFields(instanceIndex, userCount);
             });
         });
