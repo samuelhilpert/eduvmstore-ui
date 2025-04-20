@@ -423,41 +423,49 @@
             `;
         }
 
-        function generateAccountAttributesSection(instanceIndex){
-              if (!accountAttributes || accountAttributes.length === 0) return "";
-            return`
-                <div class="section-container">
-                    <h5>{{ _("User Configuration") }}</h5>
+      function generateAccountAttributesSection(instanceIndex) {
+    // Only show user configuration if there are account attributes
+    if (accountAttributes.length === 0) {
+        return '';
+    }
 
-                    <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
-                        <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
-                    title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
-                            <i class="fa fa-question-circle"></i>
-                      </span></label>
-                        <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="1" value="1">
-                    </div>
+    return `
+        <div class="section-container">
+            <h5>{{ _("User Configuration") }}</h5>
+            <div class="form-group mt-3" id="user_count_section_${instanceIndex}">
+                <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
+                title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
+                    <i class="fa fa-question-circle"></i>
+                </span></label>
+                <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}"
+                       name="user_count_${instanceIndex}" min="1" value="1">
+            </div>
 
-                    <div id="accounts_section_${instanceIndex}" style="display: none;">
-                        <!-- CSV Upload -->
-                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                            <div style="flex-grow: 1;">
-                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }} </label>
-                                <div style="display: flex; align-items: center;">
-                                    <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
-                                           data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
-                                    <!-- Undo button will be inserted here by JavaScript -->
-                                </div>
-                            </div>
+            <div id="accounts_section_${instanceIndex}">
+                <!-- CSV Upload -->
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <div style="flex-grow: 1;">
+                        <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }} </label>
+                        <div style="display: flex; align-items: center;">
+                            <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
+                                   data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
+                            <!-- Undo button will be inserted here by JavaScript -->
                         </div>
-                        <h6>{{ _("Accounts") }}</h6>
-                        <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
-                        <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
                     </div>
                 </div>
-            `;
-        }
+                <h6>{{ _("Accounts") }}</h6>
+                <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
+                <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+            </div>
+        </div>
+    `;
+}
 
         function generateCSVAllInstanceSection(){
+             if (accountAttributes.length === 0) {
+        return '';
+    }
+
             return`
                 <div class="section-container">
                     <h5>{{ _("User Configuration for All Instances") }}</h5>
@@ -569,11 +577,24 @@
                 attachAllInstancesEventListeners();
             }
             attachInstanceEventListeners();
-            attachAccountButtonListeners();
+           attachUserCountListeners();
+
+
+
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
         }
+
+        function attachUserCountListeners() {
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        input.addEventListener("input", function () {
+            let instanceIndex = this.id.split("_").pop();
+            let userCount = parseInt(this.value) || 1;
+            generateMultipleAccountFields(instanceIndex, userCount);
+        });
+    });
+}
 
         function attachAllInstancesEventListeners() {
             // Handle "Apply to All Instances" button from the modal
@@ -855,7 +876,7 @@ function getFieldTypeDisplayName(fieldType) {
 
 
     function attachAccountButtonListeners() {
-
+        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
             checkbox.addEventListener("change", function () {
                 let instanceIndex = this.id.split("_").pop();
                 let accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
@@ -875,7 +896,7 @@ function getFieldTypeDisplayName(fieldType) {
                     let userCount = parseInt(userCountInput.value) || 1;
                     generateMultipleAccountFields(instanceIndex, userCount);
                 }
-
+            });
         });
 
         document.querySelectorAll(".user-count-input").forEach(input => {
@@ -979,7 +1000,6 @@ function selectAutomaticFlavor(instanceIndex) {
     const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
     if (!flavorDropdown) return;
 
-    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
     const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
     const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
@@ -990,8 +1010,8 @@ function selectAutomaticFlavor(instanceIndex) {
     let totalDisk = requiredDisk;
     let totalCores = requiredCores;
 
-    // AllInstanceTab only shows fixed resources
-    if (instanceIndex != ALL_INSTANCES_INDEX &&  accountAttributes.length > 0) {
+    // Only calculate per-user resources if there are account attributes
+    if (accountAttributes.length > 0 && instanceIndex != ALL_INSTANCES_INDEX) {
         const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
         const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
         const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
@@ -1047,11 +1067,11 @@ function selectAutomaticFlavor(instanceIndex) {
 
 
     function attachFlavorCalculationListeners() {
-
+        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
             checkbox.addEventListener("change", function () {
                 let instanceIndex = this.id.split("_").pop();
                 selectAutomaticFlavor(instanceIndex);
-
+            });
         });
 
         document.querySelectorAll(".user-count-input").forEach(input => {
@@ -1062,24 +1082,29 @@ function selectAutomaticFlavor(instanceIndex) {
         });
     }
 
-    window.onload = function () {
-        let countInstancesInput = document.getElementById("instance_count");
-        let instancesNameInput = document.getElementById("instances_name");
-        let instanceTabs = document.getElementById("instanceTabs");
-        let instancesContainer = document.getElementById("instancesContainer");
+window.onload = function () {
+    let countInstancesInput = document.getElementById("instance_count");
+    let instancesNameInput = document.getElementById("instances_name");
+    let instanceTabs = document.getElementById("instanceTabs");
+    let instancesContainer = document.getElementById("instancesContainer");
 
-        if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
-            console.error("Missing HTML elements. Check IDs.");
-            return;
-        }
+    if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+        console.error("Missing HTML elements. Check IDs.");
+        return;
+    }
 
-        countInstancesInput.value = "1";
-        generateInstanceFields();
+    countInstancesInput.value = "1";
+    generateInstanceFields();
 
         countInstancesInput.addEventListener("input", generateInstanceFields);
         instancesNameInput.addEventListener("input", generateInstanceFields);
 
         attachFlavorCalculationListeners();
+
+          // Initialize user count listeners if there are account attributes
+    if (accountAttributes.length > 0) {
+        attachUserCountListeners();
+    }
     };
 
 
