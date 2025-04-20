@@ -525,58 +525,57 @@
             `
         }
 
-       function generateInstanceFields() {
-            let instanceTabs = document.getElementById("instanceTabs");
-            let instancesContainer = document.getElementById("instancesContainer");
+function generateInstanceFields() {
+    let instanceTabs = document.getElementById("instanceTabs");
+    let instancesContainer = document.getElementById("instancesContainer");
 
-            let countInstancesInput = document.getElementById("instance_count");
-            //ensure countInstances is a natural number base 10, if not 1
-            let countInstances = parseInt(countInstancesInput.value, 10) || 1;
-            countInstancesInput.value = countInstances;
+    let countInstancesInput = document.getElementById("instance_count");
+    let countInstances = parseInt(countInstancesInput.value, 10) || 1;
+    countInstancesInput.value = countInstances;
 
-            const baseNameInput = document.getElementById("instances_name");
-            let baseName = baseNameInput ? baseNameInput.value.trim() : "";
+    const baseNameInput = document.getElementById("instances_name");
+    let baseName = baseNameInput ? baseNameInput.value.trim() : "";
 
-            instanceTabs.innerHTML = "";
-            instancesContainer.innerHTML = "";
+    instanceTabs.innerHTML = "";
+    instancesContainer.innerHTML = "";
 
+    // Add "All Instances" tab if more than one
+    if (countInstances > 1) {
+        let allInstancesName = "All Instances";
+        instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX);
+        instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances);
+    }
 
-            // Add all Instance Tab
-            if (countInstances > 1) {
-                allInstancesName = "All Instances"
-                instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX)
-                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
+    // Add individual instance tabs/containers
+    for (let i = 1; i <= countInstances; i++) {
+        let instanceName = (baseName && countInstances > 1) ? `${baseName}-${i}` : baseName;
+        instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
+        instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
+    }
+
+    // Attach volume option logic
+    document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
+        select.addEventListener("change", function () {
+            const instance = this.dataset.instance;
+            const group = document.getElementById(`existing_volume_group_${instance}`);
+            if (this.value === "existing") {
+                group.style.display = "block";
+            } else {
+                if (group) group.style.display = "none";
             }
-            // Generate individual instance tabs
-            for (let i = 1; i <= countInstances; i++) {
-                let instanceName = "";
-                if (baseName) {
-                    instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
-                }
-                instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
-                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
-            }
+        });
+        select.dispatchEvent(new Event("change"));
+    });
 
-              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
-                    select.addEventListener("change", function () {
-                        const instance = this.dataset.instance;
-                        const group = document.getElementById(`existing_volume_group_${instance}`);
-                        if (this.value === "existing") {
-                            group.style.display = "block";
-                        } else {
-                            if (group) group.style.display = "none";
-                        }
-                    });
-                    select.dispatchEvent(new Event("change"));
-                });
+    // Set default automatic flavor
+    for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
+        selectAutomaticFlavor(i);
+    }
 
-            // Select Automatic Flavor for all instances including AllInstanceTab
-            for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
-                selectAutomaticFlavor(i);
-            }
-            startInstanceIndex = (countInstances > 1) ? ALL_INSTANCES_INDEX : 1;
-            switchToInstance(startInstanceIndex)
-          if (countInstances > 1) {
+    let startInstanceIndex = (countInstances > 1) ? ALL_INSTANCES_INDEX : 1;
+    switchToInstance(startInstanceIndex);
+
+    if (countInstances > 1) {
         attachAllInstancesEventListeners();
     }
 
@@ -585,18 +584,15 @@
     attachVolumeOptionListeners();
     attachVolumeChangeHandlers();
 
-    //maybe delete
-        attachUserCountListeners();
+    // Reattach user count listeners and generate default account fields
+    attachUserCountListeners();
 
-
-    }
-        // Generate default account fields based on the default user count
-    if (accountAttributes.length > 0) {
-        document.querySelectorAll(".user-count-input").forEach(input => {
-            let instanceIndex = input.id.split("_").pop();
-            let userCount = parseInt(input.value) || 1;
-            generateMultipleAccountFields(instanceIndex, userCount);
-        });
+    // Force initial generation of account fields for all instances
+    document.querySelectorAll(".user-count-input").forEach(input => {
+        const instanceIndex = input.id.split("_").pop();
+        const userCount = parseInt(input.value) || 1;
+        generateMultipleAccountFields(instanceIndex, userCount);
+    });
 }
 
         function attachAllInstancesEventListeners() {
