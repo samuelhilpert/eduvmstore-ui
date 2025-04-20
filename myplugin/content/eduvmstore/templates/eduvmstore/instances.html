@@ -886,7 +886,20 @@ function getFieldTypeDisplayName(fieldType) {
 
   function generateMultipleAccountFields(instanceIndex, userCount) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-    if (!accountsContainer) return;
+    const accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
+
+    if (!accountsContainer || !accountsSection) return;
+
+    // For regular instances (not All Instances tab), manage visibility
+    if (instanceIndex !== ALL_INSTANCES_INDEX.toString()) {
+        accountsSection.style.display = userCount > 1 ? "block" : "none";
+
+        // If hiding the section, clear it and return early
+        if (accountsSection.style.display === "none") {
+            accountsContainer.innerHTML = "";
+            return;
+        }
+    }
 
     // Step 1: Collect existing values
     const existingValues = {};
