@@ -472,27 +472,23 @@
                 <div class="section-container">
                     <h5>{{ _("User Configuration for All Instances") }}</h5>
 
-                    <!-- CSV Upload with Instance Mapping -->
+                    <!-- CSV Upload-->
                     <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                         <div style="flex-grow: 1;">
-                            <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV with Instance Mapping") }}
-                                <span data-toggle="tooltip" title="Upload Account Attributes for all instances in the following structure: '${accountAttributes.join(", ")}, instance index'">
+                            <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV for Accounts in all instances") }}
+                                <span data-toggle="tooltip" title="Upload Account Attributes for all instances in the following CSV structure: ${accountAttributes.join(", ")}, instance index">
                                     <i class="fa fa-question-circle"></i>
                                 </span>
                             </label>
                             <div style="display: flex; align-items: center;">
                                 <input type="file" class="form-control-file"
+                                    data-instance="${ALL_INSTANCES_INDEX}"
                                        id="csvUpload_${ALL_INSTANCES_INDEX}" accept=".csv" style="width: auto;">
-                                <!-- Undo button will be inserted here by JavaScript -->
                             </div>
                             <small class="form-text text-muted">
                                 Upload a CSV file with headers: '${accountAttributes.join(", ")}, instance index'
                             </small>
                         </div>
-                    </div>
-
-                    <div id="all_instances_csv_preview" class="mt-3">
-                        <!-- CSV preview will be shown here -->
                     </div>
                 </div>
             `
@@ -1120,7 +1116,7 @@ document.addEventListener("change", function(event) {
     if (!file) return;
 
     const instanceIndex = event.target.getAttribute("data-instance");
-    if (!instanceIndex) return;
+    if (!instanceIndex && instanceIndex !== "0") return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -1142,7 +1138,7 @@ document.addEventListener("change", function(event) {
                 const char = line[i];
 
                 if (char === '"') {
-                    if (inQuotes && line[i+1] === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
 
                         currentField += '"';
                         i++;
@@ -1164,27 +1160,43 @@ document.addEventListener("change", function(event) {
 
         const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
 
+        //TODO adapt that instance index is detected with different spelling
+        // Only All Instance CSV Upload expects the field instance index
+        const instanceIndexCol = headers.indexOf('instance index');
+        if (instanceIndexCol === -1 && instanceIndex === ALL_INSTANCES_INDEX) {
+            alert("CSV must include 'instance_index' column");
+            return;
+        }
+
         const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
         const isValidCSV = lowerAccountAttrs.every(attr =>
             headers.includes(attr)
         );
 
         if (!isValidCSV) {
-            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}`);
+            const instanceIndexHeader = instanceIndex === ALL_INSTANCES_INDEX ? "instance index" : "";
+            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}, ${instanceIndexHeader}`);
             return;
         }
 
+        //accounts by instance is used to extract the accounts for each instance
+        const accountsByInstance = {};
         const fieldMapping = accountAttributes.map(attr =>
             headers.indexOf(attr.toLowerCase())
         );
-
-        const accountsData = [];
         for (let i = 1; i < lines.length; i++) {
             if (lines[i].trim() === "") continue;
 
             const values = parseCSVLine(lines[i]);
             if (values.length !== headers.length) {
-                console.warn(`Skipping row ${i+1}: column count mismatch`);
+                console.warn(`Skipping row ${i + 1}: column count mismatch`);
+                continue;
+            }
+
+            // extracts the value of the instance index column for the all instance csv upload
+            const csvInstanceIndex = values[instanceIndexCol].trim();
+            if (instanceIndex === ALL_INSTANCES_INDEX && (!/^\d+$/.test(csvInstanceIndex) || csvInstanceIndex === '0')) {
+                console.warn(`Skipping row ${i + 1}: invalid instance index "${instanceIndex}"`);
                 continue;
             }
 
@@ -1192,93 +1204,88 @@ document.addEventListener("change", function(event) {
             accountAttributes.forEach((attr, idx) => {
                 accountData[attr] = values[fieldMapping[idx]] || "";
             });
-            accountsData.push(accountData);
+
+            if (!accountsByInstance[csvInstanceIndex]) {
+                accountsByInstance[csvInstanceIndex] = [];
+            }
+            accountsByInstance[csvInstanceIndex].push(accountData);
         }
 
-        if (accountsData.length === 0) {
+        if (accountsByInstance.length === 0) {
             alert("No valid account data found in CSV");
             return;
         }
 
-        const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-        const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
+        Object.entries(accountsByInstance).forEach(([instanceIdx, accounts]) => {
+            const csvInstanceIndex = parseInt(instanceIdx);
+            const instanceCount = parseInt(document.getElementById("instance_count").value, 10) || 1;
 
-        if (noAdditionalUsersCheckbox.checked) {
-            noAdditionalUsersCheckbox.checked = false;
-            document.getElementById(`accounts_section_${instanceIndex}`).style.display = "block";
-            document.getElementById(`user_count_section_${instanceIndex}`).style.display = "block";
-        }
+            if (csvInstanceIndex > instanceCount) {
+                alert(`Warning: CSV contains data for instance ${csvInstanceIndex}, but only ${instanceCount} instances are configured. Increase instance count to use all data.`);
+                return;
+            }
+            if (csvInstanceIndex === ALL_INSTANCES_INDEX) {
+                alert("Warning: CSV contains data for all instances. Please only use indexes for the instances.");
+                return;
+            }
 
-        accountsContainer.innerHTML = "";
+            const accountsContainer = document.getElementById(`dynamic_accounts_container_${csvInstanceIndex}`);
 
-          accountsData.forEach((account, index) => {
-            const accountSection = document.createElement("div");
-            accountSection.className = "card p-3 mb-3 position-relative";
-            accountSection.id = `account_${instanceIndex}_${index+1}`;
-            accountSection.dataset.accountNumber = index+1;
-            accountSection.style.border = "1px solid #ccc";
-            accountSection.style.borderRadius = "5px";
-            accountSection.style.padding = "15px";
+            //Show the account section and user count section for the instanceIndex in the csv
+            document.getElementById(`accounts_section_${csvInstanceIndex}`).style.display = "block";
+            document.getElementById(`user_count_section_${csvInstanceIndex}`).style.display = "block";
 
-            const removeBtn = document.createElement("button");
-            removeBtn.className = "btn btn-danger btn-sm position-absolute";
-            removeBtn.style.top = "5px";
-            removeBtn.style.right = "5px";
-            removeBtn.innerHTML = "Remove";
-            removeBtn.onclick = function() {
-                accountSection.remove();
-                renumberAccounts(instanceIndex);
-                updateUserCount(instanceIndex);
-                selectAutomaticFlavor(instanceIndex);
-            };
+            // Clear existing accounts for the instance index in the csv
+            accountsContainer.innerHTML = "";
+
+            accounts.forEach((account, index) => {
+                const accountSection = document.createElement("div");
+                accountSection.className = "card p-3 mb-3 position-relative";
+                accountSection.id = `account_${csvInstanceIndex}_${index + 1}`;
+                accountSection.dataset.accountNumber = index + 1;
+                accountSection.style.border = "1px solid #ccc";
+                accountSection.style.borderRadius = "5px";
+                accountSection.style.padding = "15px";
+
+                const removeBtn = document.createElement("button");
+                removeBtn.className = "btn btn-danger btn-sm position-absolute";
+                removeBtn.style.top = "5px";
+                removeBtn.style.right = "5px";
+                removeBtn.innerHTML = "Remove";
+                removeBtn.onclick = function () {
+                    accountSection.remove();
+                    renumberAccounts(csvInstanceIndex);
+                    updateUserCount(csvInstanceIndex);
+                    selectAutomaticFlavor(csvInstanceIndex);
+                };
 
 
-            let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
-            accountAttributes.forEach(attr => {
-                fieldsHtml += `
-                    <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}_${index+1}">${attr}</label>
-                        <input type="text" class="form-control"
-                               id="${attr}_${instanceIndex}_${index+1}"
-                               name="${attr}_${instanceIndex}"
-                               value="${account[attr] || ''}"
-                               required>
-                    </div>
-                `;
+                let fieldsHtml = `<h5 class="account-title">Account ${index + 1}</h5>`;
+                accountAttributes.forEach(attr => {
+                    fieldsHtml += `
+                        <div class="form-group md-5">
+                            <label for="${attr}_${instanceIndex}_${index + 1}">${attr}</label>
+                            <input type="text" class="form-control"
+                                   id="${attr}_${instanceIndex}_${index + 1}"
+                                   name="${attr}_${instanceIndex}"
+                                   value="${account[attr] || ''}"
+                                   required>
+                        </div>
+                    `;
+                });
+
+                accountSection.innerHTML = fieldsHtml;
+                accountSection.appendChild(removeBtn);
+                accountsContainer.appendChild(accountSection);
             });
 
-            accountSection.innerHTML = fieldsHtml;
-            accountSection.appendChild(removeBtn);
-            accountsContainer.appendChild(accountSection);
+            updateUserCount(instanceIndex);
+            selectAutomaticFlavor(instanceIndex);
         });
-
-        updateUserCount(instanceIndex);
-        selectAutomaticFlavor(instanceIndex);
-    };
-
-    reader.readAsText(file);
-});
-
-function updateUserCount(instanceIndex) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-
-    if (accountsContainer && userCountInput) {
-        userCountInput.value = accountsContainer.querySelectorAll('.card').length;
     }
-}
-
-
-document.addEventListener("change", function(event) {
-    if (!event.target.classList.contains("csv-upload")) return;
 
     const fileInput = event.target;
-    const file = fileInput.files[0];
     if (!file) return;
-
-    const instanceIndex = fileInput.getAttribute("data-instance");
-    if (!instanceIndex) return;
 
     const formGroup = fileInput.closest('.form-group');
 
@@ -1286,7 +1293,7 @@ document.addEventListener("change", function(event) {
     if (existingUndoBtn) {
         existingUndoBtn.remove();
     }
-
+    /*
     const undoBtn = document.createElement("button");
     undoBtn.type = "button";
     undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
@@ -1300,22 +1307,19 @@ document.addEventListener("change", function(event) {
 
     undoBtn.addEventListener("click", function() {
         resetCSVUpload(instanceIndex);
-    });
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.trim().split("\n");
-
-        if (lines.length === 0) {
-            alert("CSV file is empty");
-            return;
-        }
-
-    };
+    });*/
 
     reader.readAsText(file);
 });
+
+function updateUserCount(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+
+    if (accountsContainer && userCountInput) {
+        userCountInput.value = accountsContainer.querySelectorAll('.card').length;
+    }
+}
 
 function resetCSVUpload(instanceIndex) {
     const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
@@ -1323,11 +1327,9 @@ function resetCSVUpload(instanceIndex) {
     const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
     const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
 
-    csvInput.value = "";
+    if (csvInput) csvInput.value = "";
 
-    if (undoBtn) {
-        undoBtn.remove();
-    }
+    if (undoBtn) undoBtn.remove();
 
     userCountInput.value = 1;
 
