@@ -1290,29 +1290,6 @@ document.addEventListener("change", function(event) {
             selectAutomaticFlavor(instanceIndex);
         });
     }
-    /*
-    const fileInput = event.target;
-    const formGroup = fileInput.closest('.form-group');
-
-    const existingUndoBtn = formGroup.querySelector('.undo-csv');
-    if (existingUndoBtn) {
-        existingUndoBtn.remove();
-    }
-
-    const undoBtn = document.createElement("button");
-    undoBtn.type = "button";
-    undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
-    undoBtn.dataset.instance = instanceIndex;
-    undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
-
-    undoBtn.style.display = "inline-block";
-    undoBtn.style.verticalAlign = "middle";
-
-    fileInput.insertAdjacentElement('afterend', undoBtn);
-
-    undoBtn.addEventListener("click", function() {
-        resetCSVUpload(instanceIndex);
-    });*/
 
     reader.readAsText(file);
 });
