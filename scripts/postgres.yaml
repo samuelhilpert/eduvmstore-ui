@@ -1,0 +1,42 @@
+#cloud-config
+packages:
+  - postgresql
+  - postgresql-contrib
+
+write_files:
+  - path: /etc/postgresql/14/main/pg_hba.conf
+    permissions: '0644'
+    content: |
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+      local   all             all                                     peer
+      host    all             all             0.0.0.0/0               md5
+      host    all             all             ::/0                    md5
+
+  - path: /etc/postgresql/14/main/postgresql.conf
+    permissions: '0644'
+    content: |
+      listen_addresses = '*'
+      max_connections = 100
+      shared_buffers = 128MB
+      dynamic_shared_memory_type = posix
+      log_timezone = 'UTC'
+      datestyle = 'iso, mdy'
+      timezone = 'UTC'
+      lc_messages = 'C'
+      lc_monetary = 'C'
+      lc_numeric = 'C'
+      lc_time = 'C'
+      default_text_search_config = 'pg_catalog.english'
+
+runcmd:
+  # Set password for postgres user
+  - sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'adminpass';"
+
+  # Create a sample student user and DB
+  - sudo -u postgres psql -c "CREATE ROLE student01 WITH LOGIN PASSWORD 'studentpass';"
+  - sudo -u postgres psql -c "CREATE DATABASE student01_db OWNER student01;"
+
+  # Restart PostgreSQL to apply config changes
+  - systemctl restart postgresql
+
+final_message: "PostgreSQL teaching server is ready."
