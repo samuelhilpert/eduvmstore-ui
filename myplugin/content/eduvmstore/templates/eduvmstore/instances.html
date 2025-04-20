@@ -590,7 +590,11 @@ function generateInstanceFields() {
     // Force initial generation of account fields for all instances
     document.querySelectorAll(".user-count-input").forEach(input => {
         const instanceIndex = input.id.split("_").pop();
-        const userCount = parseInt(input.value) || 1;
+        let rawValue = input.value;
+        let userCount = parseInt(rawValue);
+        if (isNaN(userCount)) {
+            userCount = 1;
+        }
         generateMultipleAccountFields(instanceIndex, userCount);
     });
 }
