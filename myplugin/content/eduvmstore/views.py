@@ -794,6 +794,62 @@ write_files:
 """
     return cloud_config
 
+def generate_cloud_config_new(accounts, backend_script, instantiations):
+    """
+    Generate a cloud-config file for user account creation and backend script execution.
+
+    :param accounts: A list of dictionaries with user account details.
+    :param backend_script: Backend script to be included in the cloud-config.
+    :param instantiations: A list of dictionaries with instantiation data.
+    :return: A string representing the complete cloud-config file.
+    """
+
+    users_content = ""
+    instantiations_content = ""
+
+    if accounts:
+        sorted_keys = list(accounts[0].keys())
+        users_content = "\n".join(
+            [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
+        )
+
+    if instantiations:
+        sorted_keys_instantiation = list(instantiations[0].keys())
+        instantiations_content = "\n".join(
+            [":".join([inst.get(key, "N/A") for key in sorted_keys_instantiation])
+             for inst in instantiations]
+        )
+
+    write_files_block = ""
+
+    if users_content:
+        write_files_block += f"""
+  - path: /etc/users.txt
+    content: |
+{generate_indented_content(users_content, indent_level=6)}
+    permissions: '0644'
+    owner: root:root
+"""
+
+    if instantiations_content:
+        write_files_block += f"""
+  - path: /etc/attributes.txt
+    content: |
+{generate_indented_content(instantiations_content, indent_level=6)}
+    permissions: '0644'
+    owner: root:root
+"""
+
+    cloud_config = "#cloud-config\n"
+    if write_files_block:
+        cloud_config += f"write_files:{write_files_block}"
+
+    if backend_script:
+        cloud_config += f"\n\n{backend_script}"
+
+    return cloud_config
+
+
 
 def generate_indented_content(content, indent_level=6):
     """
@@ -933,11 +989,11 @@ class InstancesView(generic.TemplateView):
                 if not script and not accounts:
                     user_data = None
                 elif not script and accounts:
-                    user_data = generate_cloud_config(accounts, None, instantiations)
+                    user_data = generate_cloud_config_new(accounts, None, instantiations)
                 elif script and int(user_count) == 0:
                     user_data = f"#cloud-config\n{script}"
                 else:
-                    user_data = generate_cloud_config(accounts, script, instantiations)
+                    user_data = generate_cloud_config_new(accounts, script, instantiations)
 
                 nics = [{"net-id": network_id}]
                 if separate_keys:
