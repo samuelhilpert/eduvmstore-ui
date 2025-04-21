@@ -472,7 +472,7 @@
                                 <div style="display: flex; align-items: center; margin-bottom: 15px; margin-top: 8px;">
                                     <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
-                                    <!-- Undo button will be inserted here by JavaScript -->
+                                     <div class="undo-placeholder" style="margin-left: 10px;"></div>
                                 </div>
                                 <small class="form-text text-muted" style="margin-bottom: 20px">
                                     Upload a CSV file with headers: ${accountAttributes.join(", ")}${instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : ""}
