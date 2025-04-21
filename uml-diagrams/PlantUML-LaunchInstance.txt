@@ -1,0 +1,33 @@
+@startuml
+actor User
+participant "Frontend (InstanceView)" as Frontend
+participant "Glance" as Glance
+participant "Nova" as Nova
+participant "Cinder" as Cinder
+participant "Neutron" as Neutron
+participant "EduVMStore Backend" as Backend
+database "EduVMStore DB" as DB
+
+User -> Frontend: Launch instance request
+Frontend -> Backend: Fetch AppTemplate details
+Backend -> DB: Query AppTemplate by ID
+DB --> Backend: Return AppTemplate details
+Backend --> Frontend: Return AppTemplate details
+
+Frontend -> Neutron: Fetch network details
+Neutron --> Frontend: Return network details
+
+Frontend -> Nova: Create keypair (if needed)
+Nova --> Frontend: Return keypair details
+
+Frontend -> Cinder: Create volume (if specified)
+Cinder --> Frontend: Return volume details
+
+Frontend -> Nova: Launch instance
+Nova -> Glance: Attach image
+Nova -> Neutron: Attach network
+Nova -> Cinder: Attach volume (if specified)
+Nova --> Frontend: Return instance details
+
+Frontend -> User: Display instance details
+@enduml
