@@ -433,19 +433,22 @@
             let accountsHTML = '';
             if (instanceIndex !== ALL_INSTANCES_INDEX){
                 noAdditionalUsersHtml += `
-        <div class="form-group mt-3" id="user_count_section_${instanceIndex}">
-            <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
-                title="Specify how many additional users should be created. 0 disables account creation.">
-                <i class="fa fa-question-circle"></i>
-            </span> </label>
-            <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="0" value="0">
-        </div>
+                <p style="margin-bottom: 20px;">Enter the number of users to be added to the instance. Upload a CSV file with the user data or enter the user data directly by filling the form fields. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
+         <div class="form-group mt-3" id="user_count_section_${instanceIndex}">
+                <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
+                title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
+                    <i class="fa fa-question-circle"></i>
+                </span></label>
+                <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}"
+                       name="user_count_${instanceIndex}" min="1" value="1">
+            </div>
     `;
 
                 accountsHTML += `
-                    <h6>{{ _("Accounts") }}</h6>
-                    <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
-                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                     <h6>{{ _("Accounts") }}</h6>
+                <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
+                <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+
                 `
             }
 
