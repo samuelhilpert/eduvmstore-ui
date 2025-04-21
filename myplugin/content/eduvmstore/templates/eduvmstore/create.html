@@ -873,9 +873,6 @@ write_files:
 
      // Handle checkbox changes
     $('input[name="security_groups"]').change(function() {
-        if ($('input[name="security_groups"]:checked').length === 0) {
-            $('input[value="default"]').prop('checked', true);
-        }
         updateSelectedGroupsDisplay();
     });
 
