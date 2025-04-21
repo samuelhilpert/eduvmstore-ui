@@ -109,104 +109,131 @@
         border: 2px solid red !important;
     }
 
-    .select-box, .form-control {
-        height: auto;
-        line-height: 1.5;
-        padding: 8px 12px;
-        font-size: 14px;
-        box-sizing: border-box;
-        appearance: none;
-    }
 
-    .select-box:focus, .form-control:focus {
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        border-color: #007bff;
-    }
-
-    .custom-topmargin{
-        margin-top: 10px;
-    }
-
-    .custom-bottommargin{
-        margin-bottom: 30px;
-    }
-
-.select-box {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    text-align: left;
+.select-box, .form-control {
+    height: auto;
+    line-height: 1.5;
+    padding: 10px 14px;
     font-size: 14px;
-    cursor: pointer;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fff;
+    box-sizing: border-box;
 }
 
-.select-box:hover {
-    background-color: #f1f1f1;
+.select-box:focus, .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    outline: none;
 }
+
 
 .dropdown {
     position: relative;
-    display: inline-block;
     width: 100%;
 }
 
-.selected-groups {
+
+.dropdown-toggle {
     background-color: #fff;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
+    border-radius: 6px;
+    padding: 10px 12px;
+    width: 100%;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease-in-out;
+}
+
+.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    border-color: #007bff;
+}
+
+
+#selectedGroupsDisplay span{
+    margin-right: 6px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 5px;
+    padding: 10px 12px;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+
+.dropdown.show .dropdown-menu {
+    display: block;
+}
+
+
+.dropdown-menu .form-check {
+    margin-bottom: 8px;
+}
+
+.dropdown-menu .form-check-input {
+    margin-top: 2px;
+}
+
+.dropdown-menu label {
+    margin-left: 8px;
+    font-weight: 400;
     font-size: 14px;
     cursor: pointer;
 }
 
-.selected-group {
-
-    border-radius: 4px;
-    padding: 5px 10px;
-    font-size: 14px;
-    color: #333;
-}
-
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 200px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-    width: 100%;
-}
-
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-
-.dropdown-content label {
-    display: block;
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-.dropdown-content input {
+.form-check-input {
     margin-right: 10px;
 }
+
    .system-requirements, .script-details, .security_groups, .app_template_details {
         background-color: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
         margin-bottom: 30px;
     }
+       .row {
+        margin-bottom: 20px;
+    }
 
+.script-details {
+     margin-bottom: 30px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.script-details p {
+    margin-bottom: 20px;
+
+}
+
+.or-divider {
+    font-weight: bold;
+    font-size: 16px;
+    padding-top: 30px;
+    color: #888;
+}
+
+.script-paragraph {
+    margin-left: 15px;
+    margin-top: 20px;
+    font-size: 14px;
+}
 </style>
 
 <div class="form-container">
@@ -262,7 +289,7 @@
             </div>
             <div class="col-md-6">
                 <label for="short_description">Short Description <span style="color: rgb(85,137,197);">*</span>
-                    <span data-toggle="tooltip" title="Enter a brief description of the AppTemplate.">
+                    <span data-toggle="tooltip" title="Enter a brief description of the AppTemplate. This will be used to quickly identify what this AppTemplate is about.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
@@ -272,7 +299,7 @@
         </div>
         <div class="form-group">
             <label for="description">Description <span style="color: rgb(85,137,197);">*</span>
-                <span data-toggle="tooltip" title="Provide a detailed description of the AppTemplate.">
+                <span data-toggle="tooltip" title="Provide a detailed description of the AppTemplate. This will be used to assist users in understanding the purpose and functionality of the AppTemplate.">
             <i class="fa fa-question-circle"></i>
         </span>
             </label>
@@ -305,11 +332,10 @@
 
             </div>
         </div>
-
+    </div>
 
         <h3>Minimum System Requirements</h3>
     <div class="system-requirements">
-
         <div class="row">
             <div class="col-md-6">
                 <h4>Fixed Minimum Resources <span data-toggle="tooltip" title="Enter the minimum resources which will fix needed to start the AppTemplate.">
@@ -405,89 +431,112 @@
             </div>
 
         </div>
+    </div>
 
-     <h3>Security Groups</h3>
-    <div class="security_groups">
-        <div class="form-group row ">
-    <div class="col-md-4">
-        <label for="security_groups" style="margin-top: 10px">Select Security Groups <span style="color: rgb(85,137,197);">*</span>
-          <span data-toggle="tooltip" title="Choose one or multiple security groups..">
-                <i class="fa fa-question-circle"></i>
-            </span>
-        </label>
-        <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
-            <!-- Display the selected groups (including 'default') -->
-            <div class="selected-groups">
-                <span class="selected-group">
-                    {% if selected_groups %}
-                        {{ selected_group }}
-                    {% else %}
-                        default
-                    {% endif %}
+<h3>Security Groups</h3>
+<div class="security_groups">
+    <div class="form-group row">
+        <div class="col-md-4">
+            <label for="security_groups" style="margin-top: 10px">
+                Select Security Groups <span style="color: rgb(85,137,197);">*</span>
+                <span data-toggle="tooltip" title="Security groups are sets of IP filter rules that are applied to all project instances, which define networking access to the instance.">
+                    <i class="fa fa-question-circle"></i>
                 </span>
-            </div>
+            </label>
+            <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
 
-            <!-- Dropdown content with checkboxes for all groups -->
-            <div class="dropdown-content">
-                {% for sg in security_groups %}
-                    <label>
-                        <input type="checkbox" name="security_groups" value="{{ sg.name }}"
-                               {% if sg.name in selected_groups or sg.name == "default" %}checked{% endif %}>
-                               {{ sg.name }}
-                    </label>
-                {% endfor %}
+                <button class="dropdown-toggle form-control text-left" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span id="selectedGroupsDisplay" >
+                        {% if is_edit and selected_groups %}
+                            {% for group in selected_groups %}
+                                <span>{{ group }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span>default</span>
+                        {% endif %}
+                    </span>
+                </button>
 
+                <div class="dropdown-menu" aria-labelledby="securityGroupsDropdown" style="padding: 10px; width: 100%;">
+                    {% for sg in security_groups %}
+                        <div class="dropdown-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="security_groups" style="margin-right: 10px;"
+                                       id="sg_{{ sg.id }}" value="{{ sg.name }}"
+                                     {% if sg.selected %}checked{% elif not is_edit and sg.name == 'default' %}checked{% endif %}
+                                <label class="form-check-label" for="sg_{{ sg.id }}" >
+                                    {{ sg.name }}
+                                </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
-    </div>
 
-<h3>Script</h3>
-   <div class="script-details">
 
-        <div class="form-group row">
-            <div class="col-md-4">
-                <label for="instantiation_attributes">Instantiation Attributes
-                    <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
+<h3>Configuration Script</h3>
+<div class="script-details">
+    <p>Enter instantiation and account attributes to be used in the configuration script. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}">here</a>.</p>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="instantiation_attributes">Instantiation Attributes
+                <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
 For example, you can specify a version or something else that is needed for the script.
 For more than one instantiation attribute separate by using ':' in between. E.g. 'version:script'.
 The values will be written to the file /etc/attributes.txt.">
-                <i class="fa fa-question-circle"></i>
-            </span>
-                </label>
-                <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control" placeholder="e.g.: version:packages">
-            </div>
-            <div class="col-md-4">
-                <label for="account_attributes">Account Attributes
-                    <span data-toggle="tooltip" title="Enter any account-related attributes.
-                    For example, you can specify the account name, email, password, etc. used in the script.
-                    For more than one account attribute separate by using ':' in between. E.g. 'name:password'.
-The values will be written to the file /etc/users.txt.">
-                <i class="fa fa-question-circle"></i>
-            </span>
-                </label>
-                <input type="text" id="account_attributes" name="account_attributes" class="form-control" placeholder="e.g.: name:password">
-            </div>
-
-
-            <div class="col-md-4">
-                <label for="script_file">Upload Script
-                    <span data-toggle="tooltip"  data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
-You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
-                <i class="fa fa-question-circle"></i>
-            </span>
-                </label>
-
-                <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
-                <button type="button" class="btn btn-primary custom-topmargin" id="writeScriptButton" onclick="openModal()">
-                    {{ _("Write Script") }}</button>
-            </div>
-
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <input type="text" id="instantiation_attributes" name="instantiation_attributes"
+                   class="form-control" placeholder="e.g.: version:packages">
         </div>
-   </div>
 
-        <!-- Modal for script input -->
+        <div class="col-md-6">
+            <label for="account_attributes">Account Attributes
+                <span data-toggle="tooltip" title="Enter any account-related attributes.
+For example, you can specify the account name, email, password, etc. used in the script.
+For more than one account attribute separate by using ':' in between. E.g. 'name:password'.
+The values will be written to the file /etc/users.txt.">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <input type="text" id="account_attributes" name="account_attributes"
+                   class="form-control" placeholder="e.g.: name:password">
+        </div>
+    </div>
+
+    <div class="form-group row align-items-start mt-5">
+         <p class="script-paragraph"> Upload a configuration script or write it directly after clicking the "Write Script" button.</p>
+
+           <div class="col-md-5">
+            <label for="writeScriptButton" class="form-label">Write Configuration Script</label>
+            <button type="button" class="btn btn-primary w-100" id="writeScriptButton" onclick="openModal()">
+                {{ _("Write Script") }}
+            </button>
+        </div>
+
+        <div class="col-md-1 d-flex justify-content-center align-items-center">
+            <div class="or-divider">or</div>
+        </div>
+
+        <div class="col-md-5">
+            <label for="script_file">Upload Script
+                <span data-toggle="tooltip" data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
+You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file">
+        </div>
+    </div>
+</div>
+
+
+    <!-- Modal for script input -->
         <div id="scriptModal" class="modal mt-5">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">×</span>
@@ -572,7 +621,6 @@ write_files:
     </div>
 </div>
 
-<!-- JavaScript to handle modal -->
 <script>
 
 
@@ -642,15 +690,11 @@ write_files:
     }
 
     function saveScript() {
-        // Get the script text from the textarea
         var scriptText = document.getElementById('scriptText').value;
-        // Store it in the hidden input field
         document.getElementById('hiddenScriptField').value = scriptText;
-        // Close the modal
         closeModal();
     }
 
-     // Automatically show the modal if modal_message is set
     {% if modal_message %}
     $(document).ready(function() {
         $('#responseModal').modal('show');
@@ -730,41 +774,25 @@ write_files:
     }
 
 
-
-     $(document).ready(function() {
-        $('#security_groups').multiselect({
-            nonSelectedText: 'Select Groups',
-            enableFiltering: true,
-            enableCaseInsensitiveFiltering: true,
-            buttonWidth: '100%',
-            includeSelectAllOption: true
-        });
-    });
-
-  // Function to update the display of selected groups
     function updateSelectedGroups() {
         const selectedGroups = [];
-        const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+       const checkboxes = document.querySelectorAll('.dropdown-menu input[type="checkbox"]:checked');
         checkboxes.forEach(function(checkbox) {
             selectedGroups.push(checkbox.value);
         });
 
-        // Ensure 'default' is always selected if no groups are selected
         if (selectedGroups.length === 0) {
             selectedGroups.push('default');
         }
 
-        // Update the displayed selected groups
         const selectedGroupsDisplay = document.querySelector('.selected-group');
         selectedGroupsDisplay.textContent = selectedGroups.join(", ");
     }
 
-    // Event listener to detect changes in the checkboxes
-    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(function(checkbox) {
+   document.querySelectorAll('.dropdown-menu input[type="checkbox"]').forEach(function(checkbox) {
         checkbox.addEventListener('change', updateSelectedGroups);
     });
 
-    // Initialize the display with 'default' group selected if nothing is selected
     document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -822,6 +850,38 @@ write_files:
             checkbox.addEventListener("change", updateScriptBasedOnSelection);
         });
     });
+
+    function updateSelectedGroupsDisplay() {
+        const selected = [];
+        $('input[name="security_groups"]:checked').each(function() {
+            selected.push($(this).val());
+        });
+
+        const display = $('#selectedGroupsDisplay');
+        display.empty();
+
+        if (selected.length === 0) {
+            display.append('<span>default</span>');
+        } else {
+            selected.forEach(function(group) {
+                display.append('<span>' + group + '</span>');
+            });
+        }
+    }
+
+    updateSelectedGroupsDisplay();
+
+     // Handle checkbox changes
+    $('input[name="security_groups"]').change(function() {
+        if ($('input[name="security_groups"]:checked').length === 0) {
+            $('input[value="default"]').prop('checked', true);
+        }
+        updateSelectedGroupsDisplay();
+    });
+
+    $(document).ready(function() {
+    $('.dropdown-toggle').dropdown();
+});
 
 </script>
 {% endblock %}
