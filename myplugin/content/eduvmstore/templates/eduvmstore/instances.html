@@ -461,13 +461,13 @@
                     <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
                         <!-- CSV Upload -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                            <div style="flex-grow: 1;">
+                            <div style="flex-grow: 1;margin-top: 15px;">
                                 <label for="csvUpload_${instanceIndex}">${uploadCSVText}
                                     <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </label>
-                                <div style="display: flex; align-items: center;">
+                               <div style="display: flex; align-items: center; margin-bottom: 20px; margin-top: 8px;">
                                     <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
                                     <!-- Undo button will be inserted here by JavaScript -->
