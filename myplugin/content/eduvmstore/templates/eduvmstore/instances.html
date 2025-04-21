@@ -875,55 +875,67 @@
             });
 
 
-        function generateMultipleAccountFields(instanceIndex, userCount) {
-            let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-            if (!accountsContainer) return;
-            document.getElementById(`accounts_section_${instanceIndex}`).style.display = userCount > 0 ? "block" : "none";
+       function generateMultipleAccountFields(instanceIndex, userCount) {
+    let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    if (!accountsContainer) return;
 
-            accountsContainer.innerHTML = "";
-            userCount = Math.max(userCount, 0);
-            if (userCount === 0) return;
+    document.getElementById(`accounts_section_${instanceIndex}`).style.display = userCount > 0 ? "block" : "none";
 
+    // --- Preserve existing values ---
+    const existingValues = {};
+    const inputs = accountsContainer.querySelectorAll("input");
+    inputs.forEach(input => {
+        existingValues[input.id] = input.value;
+    });
 
+    // --- Clear and rebuild ---
+    accountsContainer.innerHTML = "";
+    userCount = Math.max(userCount, 0);
+    if (userCount === 0) return;
 
-            for (let i = 1; i <= userCount; i++) {
-                let accountSection = document.createElement("div");
-                accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
-                accountSection.id = `account_${instanceIndex}_${i}`;
-                accountSection.dataset.accountNumber = i;
-                accountSection.style.border = "1px solid #ccc";
-                accountSection.style.borderRadius = "5px";
-                accountSection.style.padding = "15px";
+    for (let i = 1; i <= userCount; i++) {
+        let accountSection = document.createElement("div");
+        accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
+        accountSection.id = `account_${instanceIndex}_${i}`;
+        accountSection.dataset.accountNumber = i;
+        accountSection.style.border = "1px solid #ccc";
+        accountSection.style.borderRadius = "5px";
+        accountSection.style.padding = "15px";
 
-                // Add remove button
-                const removeBtn = document.createElement("button");
-                removeBtn.className = "btn btn-danger btn-sm position-absolute";
-                removeBtn.style.top = "5px";
-                removeBtn.style.right = "5px";
-                removeBtn.innerHTML = "Remove";
-                removeBtn.onclick = function() {
-                    accountSection.remove();
-                    renumberAccounts(instanceIndex);
-                    updateUserCount(instanceIndex);
-                    selectAutomaticFlavor(instanceIndex);
-                };
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "btn btn-danger btn-sm position-absolute";
+        removeBtn.style.top = "5px";
+        removeBtn.style.right = "5px";
+        removeBtn.innerHTML = "Remove";
+        removeBtn.onclick = function () {
+            accountSection.remove();
+            renumberAccounts(instanceIndex);
+            updateUserCount(instanceIndex);
+            selectAutomaticFlavor(instanceIndex);
+        };
 
-                let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
-                accountAttributes.forEach(attr => {
-                    fieldsHtml += `
+        let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
+        accountAttributes.forEach(attr => {
+            const fieldId = `${attr}_${instanceIndex}_${i}`;
+            const savedValue = existingValues[fieldId] || "";
+
+            fieldsHtml += `
                 <div class="form-group md-5">
-                    <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
+                    <label for="${fieldId}">${attr}</label>
+                    <input type="text" class="form-control"
+                        id="${fieldId}"
+                        name="${attr}_${instanceIndex}"
+                        value="${savedValue}"
+                        required>
                 </div>
             `;
-                });
+        });
 
-                accountSection.innerHTML = fieldsHtml;
-                accountSection.appendChild(removeBtn);
-                accountsContainer.appendChild(accountSection);
-
-            }
-        }
+        accountSection.innerHTML = fieldsHtml;
+        accountSection.appendChild(removeBtn);
+        accountsContainer.appendChild(accountSection);
+    }
+}
 
         function renumberAccounts(instanceIndex) {
             const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
@@ -1097,7 +1109,7 @@
 
             const file = event.target.files[0];
 
-                        // Add Undo button if not already present
+                        // Add Undo button
             const placeholder = event.target.parentElement.querySelector('.undo-placeholder');
             if (placeholder && !placeholder.querySelector('.undo-csv')) {
                 const instanceIndex = event.target.getAttribute("data-instance");
