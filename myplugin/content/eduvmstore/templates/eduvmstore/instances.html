@@ -425,12 +425,7 @@
 
         function generateAccountAttributesSection(instanceIndex) {
 
-                if (accountAttributes.length === 0) {
-                                return '';
-                            }
-
-
-    const isAllInstances = instanceIndex === ALL_INSTANCES_INDEX;
+            const isAllInstances = instanceIndex === ALL_INSTANCES_INDEX;
 
     const sectionTitle = isAllInstances
         ? "{{ _('User Configuration for all Instances') }}"
