@@ -234,6 +234,11 @@
     margin-top: 20px;
     font-size: 14px;
 }
+
+#selectedGroupsDisplay .text-muted {
+    color: #6c757d;
+    font-style: italic;
+}
 </style>
 
 <div class="form-container">
@@ -446,15 +451,13 @@
             <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
 
                 <button class="dropdown-toggle form-control text-left" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span id="selectedGroupsDisplay" >
-                        {% if is_edit and selected_groups %}
-                            {% for group in selected_groups %}
-                                <span>{{ group }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <span>default</span>
-                        {% endif %}
-                    </span>
+                    <span id="selectedGroupsDisplay">
+                    {% if is_edit and selected_groups %}
+                        {% for group in selected_groups %}
+                            <span>{{ group }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </span>
                 </button>
 
                 <div class="dropdown-menu" aria-labelledby="securityGroupsDropdown" style="padding: 10px; width: 100%;">
@@ -463,7 +466,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="security_groups" style="margin-right: 10px;"
                                        id="sg_{{ sg.id }}" value="{{ sg.name }}"
-                                     {% if sg.selected %}checked{% elif not is_edit and sg.name == 'default' %}checked{% endif %}
+                                       {% if sg.selected %}checked{% endif %}
                                 <label class="form-check-label" for="sg_{{ sg.id }}" >
                                     {{ sg.name }}
                                 </label>
@@ -861,14 +864,13 @@ write_files:
         display.empty();
 
         if (selected.length === 0) {
-            display.append('<span>default</span>');
+            display.append('<span class="text-muted">No group selected</span>');
         } else {
             selected.forEach(function(group) {
                 display.append('<span>' + group + '</span>');
             });
         }
     }
-
     updateSelectedGroupsDisplay();
 
      // Handle checkbox changes
