@@ -1,4 +1,5 @@
 @startuml
+skinparam linetype ortho
 title EduVMStore
 
 package "Horizon System" {
@@ -22,10 +23,9 @@ package "myplugin.content.eduvmstore" {
     [table.html]
 }
 
-[Browser]
 
 [Horizon Loader] --> [enabled/_31000_my_plugin.py] : loads
-[enabled/_31000_my_plugin.py] --> [panel.py] : imports
+[enabled/_31000_my_plugin.py] -> [panel.py] : imports
 [panel.py] --> [Dashboard : project] : registers
 [Dashboard : project] --> [urls.py] : dispatch
 [urls.py] --> [views.py] : maps
@@ -35,8 +35,6 @@ package "myplugin.content.eduvmstore" {
 [views.py] <--> [instances.html] : interact
 [views.py] <--> [success.html] : interact
 [index.html] <--> [table.html] : includes
-[Browser] --> [urls.py] : request
-[index.html] --> [Browser] : response
 [views.py] <--> [EduVMStore] : fetch
 
 
