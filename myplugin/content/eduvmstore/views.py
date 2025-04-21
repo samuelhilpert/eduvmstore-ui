@@ -532,7 +532,6 @@ class AppTemplateView(generic.TemplateView):
         if template_id:
             app_template = self.get_app_template(template_id)
             image_data = self.get_image_data(app_template.get('image_id', ''))
-            # Get selected security groups from database
             db_security_groups = [sg['name'] for sg in app_template.get('security_groups', [])]
         elif template_name in preset_examples and self.mode != "edit":
             app_template = preset_examples[template_name]
@@ -543,10 +542,8 @@ class AppTemplateView(generic.TemplateView):
             image_data = {}
             db_security_groups = []
 
-        # Get all available security groups from OpenStack
         try:
             available_groups = neutron.security_group_list(self.request)
-            # Create list of tuples with (name, id, is_selected)
             security_groups = []
             for group in available_groups:
                 security_groups.append({
@@ -562,7 +559,7 @@ class AppTemplateView(generic.TemplateView):
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
-            'security_groups': security_groups,  # Now includes selection info
+            'security_groups': security_groups,
             'is_edit': self.mode == "edit"
         })
 

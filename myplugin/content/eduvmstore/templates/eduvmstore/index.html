@@ -25,13 +25,10 @@
             let currentItems = 0;
 
             function showNextItems() {
-                console.log("Load More clicked!"); // Debugging log
                 for (let i = currentItems; i < currentItems + itemsPerPage && i < items.length; i++) {
                     items[i].style.display = "table-row";
                 }
                 currentItems += itemsPerPage;
-
-                console.log(`Showing up to index: ${currentItems}, Total items: ${items.length}`);
             }
 
             showNextItems();
