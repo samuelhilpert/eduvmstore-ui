@@ -424,67 +424,61 @@
         }
 
         function generateAccountAttributesSection(instanceIndex) {
-    if (!accountAttributes || accountAttributes.length === 0) {
-        return ''; // Do not render if there are no account attributes
-    }
+            const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
+            const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
+            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
+            const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
 
-    const isAllInstances = instanceIndex === ALL_INSTANCES_INDEX;
+            let noAdditionalUsersHtml = '';
+            let accountsHTML = '';
+            if (instanceIndex !== ALL_INSTANCES_INDEX){
+                noAdditionalUsersHtml += `
 
-    const sectionTitle = isAllInstances
-        ? "{{ _('User Configuration for all Instances') }}"
-        : "{{ _('User Configuration') }}";
+                    <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
+                        <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
+                            title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
+                            <i class="fa fa-question-circle"></i>
+                        </span> </label>
+                        <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="1" value="1">
+                    </div>
+                `;
+                accountsHTML += `
+                    <h6>{{ _("Accounts") }}</h6>
+                    <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
+                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                `
+            }
 
-    const uploadCSVText = isAllInstances
-        ? "{{ _('Upload CSV for Accounts in all instances') }}"
-        : "{{ _('Upload CSV') }}";
+            return `
+                <div class="section-container">
+                    <h5>${sectionTitle}</h5>
 
-    const uploadCSVHeaders = isAllInstances
-        ? `${accountAttributes.join(", ")}, instance index`
-        : `${accountAttributes.join(", ")}`;
+                    ${noAdditionalUsersHtml}
 
-    const uploadCSVTextTooltip = isAllInstances
-        ? `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`
-        : "";
-
-    let accountsHTML = '';
-    if (!isAllInstances) {
-        accountsHTML += `
-            <h6>{{ _("Accounts") }}</h6>
-            <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
-            <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">
-                {{ _("Add Account") }}
-            </button>
-        `;
-    }
-
-    return `
-        <div class="section-container">
-            <h5>${sectionTitle}</h5>
-
-            <div id="accounts_section_${instanceIndex}" style="display: block;">
-                <!-- CSV Upload -->
-                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                    <div style="flex-grow: 1;">
-                        <label for="csvUpload_${instanceIndex}">${uploadCSVText}
-                            ${isAllInstances ? `
-                                <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
-                                    <i class="fa fa-question-circle"></i>
-                                </span>` : ''}
-                        </label>
-                        <div style="display: flex; align-items: center;">
-                            <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
-                                   data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
+                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
+                        <!-- CSV Upload -->
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex-grow: 1;">
+                                <label for="csvUpload_${instanceIndex}">${uploadCSVText}
+                                    <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
+                                        <i class="fa fa-question-circle"></i>
+                                    </span>
+                                </label>
+                                <div style="display: flex; align-items: center;">
+                                    <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
+                                           data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
+                                    <!-- Undo button will be inserted here by JavaScript -->
+                                </div>
+                                <small class="form-text text-muted">
+                                    Upload a CSV file with headers: ${accountAttributes.join(", ")}${instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : ""}
+                                </small>
+                            </div>
                         </div>
-                        <small class="form-text text-muted">
-                            Upload a CSV file with headers: ${accountAttributes.join(", ")}${isAllInstances ? ", instance index" : ""}
-                        </small>
+                        ${accountsHTML}
                     </div>
                 </div>
-                ${accountsHTML}
-            </div>
-        </div>
-    `;
-}
+            `;
+        }
 
         function singleInstanceTab(instanceName, instanceIndex){
             return `
