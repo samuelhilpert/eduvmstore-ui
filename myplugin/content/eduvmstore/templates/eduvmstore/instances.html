@@ -871,68 +871,54 @@
 
 
         function generateMultipleAccountFields(instanceIndex, userCount) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-    if (!accountsContainer) return;
+            let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+            if (!accountsContainer) return;
+            document.getElementById(`accounts_section_${instanceIndex}`).style.display = userCount > 0 ? "block" : "none";
 
-    // Step 1: Collect existing values
-    const existingValues = {};
-    accountsContainer.querySelectorAll('.card').forEach(card => {
-        const accountNumber = card.dataset.accountNumber;
-        existingValues[accountNumber] = {};
-        accountAttributes.forEach(attr => {
-            const input = card.querySelector(`#${attr}_${instanceIndex}_${accountNumber}`);
-            if (input) {
-                existingValues[accountNumber][attr] = input.value;
-            }
-        });
-    });
+            accountsContainer.innerHTML = "";
+            userCount = Math.max(userCount, 0);
+            if (userCount === 0) return;
 
-    // Step 2: Clear container
-    accountsContainer.innerHTML = "";
-    userCount = Math.max(userCount, 1);
 
-    // Step 3: Rebuild fields using existing values if available
-    for (let i = 1; i <= userCount; i++) {
-        const accountSection = document.createElement("div");
-        accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
-        accountSection.id = `account_${instanceIndex}_${i}`;
-        accountSection.dataset.accountNumber = i;
-        accountSection.style.border = "1px solid #ccc";
-        accountSection.style.borderRadius = "5px";
-        accountSection.style.padding = "15px";
 
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "btn btn-danger btn-sm position-absolute";
-        removeBtn.style.top = "5px";
-        removeBtn.style.right = "5px";
-        removeBtn.innerHTML = "Remove";
-        removeBtn.onclick = function () {
-            accountSection.remove();
-            renumberAccounts(instanceIndex);
-            updateUserCount(instanceIndex);
-            selectAutomaticFlavor(instanceIndex);
-        };
+            for (let i = 1; i <= userCount; i++) {
+                let accountSection = document.createElement("div");
+                accountSection.classList.add("card", "p-3", "mb-3", "position-relative");
+                accountSection.id = `account_${instanceIndex}_${i}`;
+                accountSection.dataset.accountNumber = i;
+                accountSection.style.border = "1px solid #ccc";
+                accountSection.style.borderRadius = "5px";
+                accountSection.style.padding = "15px";
 
-        let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
-        accountAttributes.forEach(attr => {
-            const val = (existingValues[i] && existingValues[i][attr]) || '';
-            fieldsHtml += `
+                // Add remove button
+                const removeBtn = document.createElement("button");
+                removeBtn.className = "btn btn-danger btn-sm position-absolute";
+                removeBtn.style.top = "5px";
+                removeBtn.style.right = "5px";
+                removeBtn.innerHTML = "Remove";
+                removeBtn.onclick = function() {
+                    accountSection.remove();
+                    renumberAccounts(instanceIndex);
+                    updateUserCount(instanceIndex);
+                    selectAutomaticFlavor(instanceIndex);
+                };
+
+                let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
+                accountAttributes.forEach(attr => {
+                    fieldsHtml += `
                 <div class="form-group md-5">
                     <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
-                    <input type="text" class="form-control"
-                           id="${attr}_${instanceIndex}_${i}"
-                           name="${attr}_${instanceIndex}"
-                           value="${val}"
-                           required>
+                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
                 </div>
             `;
-        });
+                });
 
-        accountSection.innerHTML = fieldsHtml;
-        accountSection.appendChild(removeBtn);
-        accountsContainer.appendChild(accountSection);
-    }
-}
+                accountSection.innerHTML = fieldsHtml;
+                accountSection.appendChild(removeBtn);
+                accountsContainer.appendChild(accountSection);
+
+            }
+        }
 
         function renumberAccounts(instanceIndex) {
             const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
@@ -981,7 +967,6 @@
             const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
             if (!flavorDropdown) return;
 
-            const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
             const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
             const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
@@ -1049,7 +1034,7 @@
 
 
         function attachFlavorCalculationListeners() {
-            document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+            document.querySelectorAll().forEach(checkbox => {
                 checkbox.addEventListener("change", function () {
                     let instanceIndex = this.id.split("_").pop();
                     selectAutomaticFlavor(instanceIndex);
