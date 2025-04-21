@@ -75,45 +75,38 @@
 
 
 </style>
-
-<div style="display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px; align-items: center;">
- 
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch top-btn">
+<div style="display: flex; gap: 10px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
+    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
         Launch
     </a>
 
+    <div class="btn-group">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}" class="btn btn-launch">
+            Edit
+        </a>
 
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}" class="btn btn-launch top-btn">
-        Edit
-    </a>
-
- 
-    <div class="dropdown">
-        <button class="btn btn-outline-secondary dropdown-toggle top-btn" type="button" id="moreOptionsDropdown"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            ...
+        <button type="button" class="btn btn-launch dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only">Toggle Dropdown</span>
         </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="moreOptionsDropdown">
-           
-            <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">Clone</a>
-            
-            
-            <a class="dropdown-item text-danger" href="#"
-               onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
-                Delete
+
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
+                Clone AppTemplate
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
+                Delete AppTemplate
             </a>
         </div>
     </div>
+
+    <form id="delete-form-{{ app_template.id }}" method="post"
+          action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
+          style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="template_name" value="{{ app_template.name }}">
+    </form>
 </div>
-
-
-<form id="delete-form-{{ app_template.id }}" method="post"
-      action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
-      style="display: none;">
-    {% csrf_token %}
-    <input type="hidden" name="template_name" value="{{ app_template.name }}">
-</form>
-
 
 
 
