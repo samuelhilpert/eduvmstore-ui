@@ -124,6 +124,26 @@
 
     </script>
     <style>
+
+        .button-container {
+    display: flex;
+    align-items: center;
+    margin: 20px 10px;
+}
+
+.left-buttons a {
+    margin-right: 10px;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+.right-button {
+    display: flex;
+    justify-content: flex-end;
+}
+
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -211,9 +231,20 @@
 </style>
 
 <div class="button-container">
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-primary" id="create-button">
-        Create AppTemplate
-    </a>
+    <div class="left-buttons">
+        <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" class="btn btn-primary">
+            Tutorial EduVMStore
+        </a>
+        <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}" class="btn btn-primary">
+            Creation Example
+        </a>
+    </div>
+    <div class="spacer"></div>
+    <div class="right-button">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-primary" id="create-button">
+            Create AppTemplate
+        </a>
+    </div>
 </div>
 {% if favorite_app_templates %}
     <h2>Favorite AppTemplates</h2>

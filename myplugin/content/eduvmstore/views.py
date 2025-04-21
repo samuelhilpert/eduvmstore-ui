@@ -528,31 +528,47 @@ class AppTemplateView(generic.TemplateView):
 
         template_id = self.kwargs.get('template_id')
         template_name = self.request.GET.get("template")
+
         if template_id:
             app_template = self.get_app_template(template_id)
             image_data = self.get_image_data(app_template.get('image_id', ''))
+            # Get selected security groups from database
+            db_security_groups = [sg['name'] for sg in app_template.get('security_groups', [])]
         elif template_name in preset_examples and self.mode != "edit":
             app_template = preset_examples[template_name]
             image_data = {}
+            db_security_groups = []
         else:
             app_template = {}
             image_data = {}
+            db_security_groups = []
 
+        # Get all available security groups from OpenStack
+        try:
+            available_groups = neutron.security_group_list(self.request)
+            # Create list of tuples with (name, id, is_selected)
+            security_groups = []
+            for group in available_groups:
+                security_groups.append({
+                    'name': group.name,
+                    'id': group.id,
+                    'selected': group.name in db_security_groups
+                })
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            security_groups = []
 
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
-            'security_groups': self.get_security_groups(),
+            'security_groups': security_groups,  # Now includes selection info
             'is_edit': self.mode == "edit"
         })
 
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
         context['page_title'] = self.page_title
-
-
-        context['security_groups'] = self.get_security_groups()
 
         return context
 
@@ -732,50 +748,59 @@ def generate_pdf(accounts, name, app_template, created, instantiations, ip_addre
 
 def generate_cloud_config(accounts, backend_script, instantiations):
     """
-        Generate a cloud-config file for user account creation and backend script execution.
+    Generate a cloud-config file for user account creation and backend script execution.
 
-        This function creates a cloud-config file that includes user account information
-        and a backend script.
+    :param accounts: A list of dictionaries with user account details.
+    :param backend_script: Backend script to be included in the cloud-config.
+    :param instantiations: A list of dictionaries with instantiation data.
+    :return: A string representing the complete cloud-config file.
+    """
 
-        :param accounts: A list of dictionaries, where each dictionary contains user account details.
-        :type accounts: list
-        :param backend_script: string containing backend script to be included in the cloud-config file.
-        :type backend_script: str
-        :return: A string representing the complete cloud-config file.
-        :rtype: str
-        """
+    users_content = ""
+    instantiations_content = ""
 
-    sorted_keys = list(accounts[0].keys())
-    sorted_keys_instantiation = list(instantiations[0].keys())
+    if accounts:
+        sorted_keys = list(accounts[0].keys())
+        users_content = "\n".join(
+            [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
+        )
 
-    users_content = "\n".join(
-        [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
-    )
+    if instantiations:
+        sorted_keys_instantiation = list(instantiations[0].keys())
+        instantiations_content = "\n".join(
+            [":".join([inst.get(key, "N/A") for key in sorted_keys_instantiation])
+             for inst in instantiations]
+        )
 
-    instantiations_content = "\n".join(
-        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation])
-         for instantiation in instantiations]
-    )
+    write_files_block = ""
 
-    cloud_config = f"""#cloud-config
-write_files:
+    if users_content:
+        write_files_block += f"""
   - path: /etc/users.txt
     content: |
 {generate_indented_content(users_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
+"""
 
+    if instantiations_content:
+        write_files_block += f"""
   - path: /etc/attributes.txt
     content: |
 {generate_indented_content(instantiations_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
-
-
-
-{backend_script}
 """
+
+    cloud_config = "#cloud-config\n"
+    if write_files_block:
+        cloud_config += f"write_files:{write_files_block}"
+
+    if backend_script:
+        cloud_config += f"\n\n{backend_script}"
+
     return cloud_config
+
 
 
 def generate_indented_content(content, indent_level=6):
@@ -883,6 +908,7 @@ class InstancesView(generic.TemplateView):
                 network_name = self.get_network_name_by_id(request, network_id)
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
                 create_volume_size = request.POST.get(f"volume_size_{i}")
+                user_count = request.POST.get(f"user_count_{i}", 0)
                 accounts = []
                 instantiations = []
                 try:
@@ -890,9 +916,9 @@ class InstancesView(generic.TemplateView):
                 except ValueError:
                     volume_size = 1
 
-                no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
 
-                if no_additional_users is None:
+
+                if int(user_count) > 0:
                     try:
                         accounts = self.extract_accounts_from_form_new(request, i)
                     except Exception:
@@ -901,7 +927,12 @@ class InstancesView(generic.TemplateView):
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
 
-                instantiations = self.extract_accounts_from_form_instantiation(request, i)
+
+                try:
+                    instantiations = self.extract_accounts_from_form_instantiation(request, i)
+                except Exception:
+                    instantiations = []
+
                 request.session[f"instantiations_{i}"] = instantiations
 
                 description = self.format_description(app_template_description)
@@ -911,9 +942,7 @@ class InstancesView(generic.TemplateView):
                     user_data = None
                 elif not script and accounts:
                     user_data = generate_cloud_config(accounts, None, instantiations)
-                elif script and no_additional_users == "on":
-                    user_data = f"#cloud-config\n{script}"
-                elif script and no_additional_users is None and not accounts:
+                elif script and int(user_count) == 0:
                     user_data = f"#cloud-config\n{script}"
                 else:
                     user_data = generate_cloud_config(accounts, script, instantiations)
