@@ -68,22 +68,28 @@
          background-color: #E8E8E8;
    }
 
+   .top-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+
 </style>
 
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <h4>AppTemplate Details</h4>
 
     <div style="display: flex; gap: 10px; margin-top: 20px; margin-bottom: 20px;">
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch top-btn">
             Launch
         </a>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}" class="btn btn-launch">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}" class="btn btn-launch top-btn">
             Edit
         </a>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}" class="btn btn-launch">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}" class="btn btn-launch top-btn">
             Clone
         </a>
-        <a href="#" class="btn btn-launch text-danger" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
+        <a href="#" class="btn btn-launch text-danger top-btn" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
             Delete
         </a>
     </div>
