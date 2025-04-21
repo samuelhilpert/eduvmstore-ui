@@ -843,7 +843,7 @@ function getFieldTypeDisplayName(fieldType) {
 
 
     function attachAccountButtonListeners() {
-        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+        document.querySelectorAll.forEach(checkbox => {
             checkbox.addEventListener("change", function () {
                 let instanceIndex = this.id.split("_").pop();
                 let accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
@@ -967,7 +967,7 @@ function selectAutomaticFlavor(instanceIndex) {
     const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
     if (!flavorDropdown) return;
 
-    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
+
     const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
     const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
@@ -979,7 +979,7 @@ function selectAutomaticFlavor(instanceIndex) {
     let totalCores = requiredCores;
 
     // AllInstanceTab only shows fixed resources
-    if (instanceIndex != ALL_INSTANCES_INDEX && !noAdditionalUsersCheckbox.checked) {
+    if (instanceIndex != ALL_INSTANCES_INDEX) {
         const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
         const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
         const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
@@ -1035,7 +1035,7 @@ function selectAutomaticFlavor(instanceIndex) {
 
 
     function attachFlavorCalculationListeners() {
-        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+        document.querySelectorAll.forEach(checkbox => {
             checkbox.addEventListener("change", function () {
                 let instanceIndex = this.id.split("_").pop();
                 selectAutomaticFlavor(instanceIndex);
