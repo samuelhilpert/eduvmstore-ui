@@ -425,10 +425,6 @@
 
         function generateAccountAttributesSection(instanceIndex) {
 
-                if (accountAttributes.length === 0) {
-                                return '';
-                            }
-
             const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
             const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
             const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
