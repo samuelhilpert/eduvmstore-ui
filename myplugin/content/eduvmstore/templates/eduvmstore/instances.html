@@ -423,20 +423,25 @@
             `;
         }
 
-        function generateAccountAttributesSection(instanceIndex) {
+          function generateAccountAttributesSection(instanceIndex) {
             const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
             const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
             const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
             const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
 
-
+            let noAdditionalUsersHtml = '';
             let accountsHTML = '';
-            if (instanceIndex !== ALL_INSTANCES_INDEX && accountAttributes.length === 0){
-                `
-                <p style="margin-bottom: 20px;">
-                Enter the number of users to be added to the instance. Upload a CSV file with the user data or enter the user data directly by filling the form fields. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
+            if (instanceIndex !== ALL_INSTANCES_INDEX){
+                noAdditionalUsersHtml += `
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
+                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
+                            title="Check if you don't want to create any additional users in the instance.">
+                            <i class="fa fa-question-circle"></i>
+                        </span></label>
+                    </div>
 
-                                   <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
+                    <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
                         <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
                             title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
                             <i class="fa fa-question-circle"></i>
@@ -455,6 +460,7 @@
                 <div class="section-container">
                     <h5>${sectionTitle}</h5>
 
+                    ${noAdditionalUsersHtml}
 
                     <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
                         <!-- CSV Upload -->
