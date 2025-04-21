@@ -433,6 +433,7 @@
             let accountsHTML = '';
             if (instanceIndex !== ALL_INSTANCES_INDEX){
                 noAdditionalUsersHtml += `
+                <p style="margin-bottom: 20px;">Enter the number of users to be added to the instance. Upload a CSV file with the user data or enter the user data directly by filling the form fields. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
         <div class="form-group mt-3" id="user_count_section_${instanceIndex}">
             <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
                 title="Specify how many additional users should be created. 0 disables account creation.">
@@ -458,13 +459,13 @@
                     <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
                         <!-- CSV Upload -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                            <div style="flex-grow: 1;">
+                            <div style="flex-grow: 1; margin-top: 15px;">
                                 <label for="csvUpload_${instanceIndex}">${uploadCSVText}
                                     <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </label>
-                                <div style="display: flex; align-items: center;">
+                                <div style="display: flex; align-items: center; margin-bottom: 20px; margin-top: 8px;">
                                     <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
                                     <!-- Undo button will be inserted here by JavaScript -->
