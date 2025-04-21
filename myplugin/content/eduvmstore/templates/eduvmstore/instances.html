@@ -429,17 +429,10 @@
             const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
             const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
 
-            let noAdditionalUsersHtml = '';
+            let allInstancesTab = '';
             let accountsHTML = '';
             if (instanceIndex !== ALL_INSTANCES_INDEX){
-                noAdditionalUsersHtml += `
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
-                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
-                            title="Check if you don't want to create any additional users in the instance.">
-                            <i class="fa fa-question-circle"></i>
-                        </span></label>
-                    </div>
+                allInstancesTab += `
 
                     <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
                         <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
@@ -460,7 +453,7 @@
                 <div class="section-container">
                     <h5>${sectionTitle}</h5>
 
-                    ${noAdditionalUsersHtml}
+                    ${allInstancesTab}
 
                     <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
                         <!-- CSV Upload -->
