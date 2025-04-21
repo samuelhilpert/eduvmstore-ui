@@ -448,11 +448,14 @@
     `;
 
                 accountsHTML += `
+                <div class="d-flex justify-content-end mb-2">
+                <button type="button" class="btn btn-outline-success btn-sm export_csv_btn" data-instance="${instanceIndex}">
+                    <i class="fa fa-download"></i> Export CSV
+                </button>
+            </div>
                     <h6>{{ _("Accounts") }}</h6>
                     <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
                     <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
-                    <button type="button class="btn btn-dark export-csv-btn" data-instance="${instanceIndex}"  style="margin-top: 10px; display: none;">
-    {{ _("Download Accounts as CSV") }} </button>
                 `
             }
 
@@ -575,14 +578,6 @@
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
-
-                        // Add CSV export button handlers
-            document.querySelectorAll(".export-csv-btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    const instanceIndex = this.getAttribute("data-instance");
-                    downloadAccountsAsCSV(instanceIndex);
-                });
-            });
         }
 
         function attachAllInstancesEventListeners() {
@@ -883,8 +878,7 @@
             });
 
 
-
-        function generateMultipleAccountFields(instanceIndex, userCount) {
+       function generateMultipleAccountFields(instanceIndex, userCount) {
     let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
     if (!accountsContainer) return;
 
@@ -943,17 +937,6 @@
         accountSection.innerHTML = fieldsHtml;
         accountSection.appendChild(removeBtn);
         accountsContainer.appendChild(accountSection);
-
-            // Neuen Block ergänzen:
-    const exportBtn = document.querySelector(`.export-csv-btn[data-instance="${instanceIndex}"]`);
-    if (exportBtn) {
-        if (userCount > 0) {
-            exportBtn.style.display = "inline-block";
-        } else {
-            exportBtn.style.display = "none";
-        }
-    }
-
     }
 }
 
@@ -980,13 +963,6 @@
                     }
                 });
             });
-
-            const exportBtn = document.querySelector(`.export-csv-btn[data-instance="${instanceIndex}"]`);
-    const accountCount = accountsContainer.querySelectorAll('.card').length;
-    if (exportBtn) {
-        exportBtn.style.display = accountCount > 0 ? "inline-block" : "none";
-    }
-
         }
 
         function generateInstantiationFields(instanceIndex) {
@@ -1365,42 +1341,6 @@
             selectAutomaticFlavor(instanceIndex);
         }
 
-        function downloadAccountsAsCSV(instanceIndex) {
-            const accountContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-            if (!accountContainer) return;
-
-            const cards = accountContainer.querySelectorAll('.card');
-            if (cards.length === 0) {
-                alert("No accounts to export.");
-                return;
-            }
-
-            // CSV Header
-            const headers = accountAttributes;
-            const rows = [headers.join(",")];
-
-            // CSV Rows
-            cards.forEach(card => {
-                const values = headers.map(attr => {
-                    const input = card.querySelector(`#${attr}_${instanceIndex}_${card.dataset.accountNumber}`);
-                    return input ? `"${input.value.replace(/"/g, '""')}"` : "";
-                });
-                rows.push(values.join(","));
-            });
-
-            const csvContent = rows.join("\n");
-            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
-
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `accounts_instance_${instanceIndex}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-
         function attachVolumeChangeHandlers() {
             document.querySelectorAll(".existing-volume-select").forEach(select => {
                 select.addEventListener("change", () => {
@@ -1433,6 +1373,42 @@
             document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
         }
 
+document.addEventListener("click", function (e) {
+    if (e.target.closest(".export_csv_btn")) {
+        const btn = e.target.closest(".export_csv_btn");
+        const instanceIndex = btn.dataset.instance;
+        exportAccountsToCSV(instanceIndex);
+    }
+});
+
+function exportAccountsToCSV(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    if (!accountsContainer) return;
+
+    const rows = [];
+    rows.push(accountAttributes.join(","));
+
+    const accountCards = accountsContainer.querySelectorAll(".card");
+    accountCards.forEach(card => {
+        const values = accountAttributes.map(attr => {
+            const input = card.querySelector(`input[name="${attr}_${instanceIndex}"]`);
+            return input ? `"${(input.value || "").replace(/"/g, '""')}"` : "";
+        });
+        rows.push(values.join(","));
+    });
+
+    const csvContent = rows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `accounts_instance_${instanceIndex}.csv`;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 
 
 
