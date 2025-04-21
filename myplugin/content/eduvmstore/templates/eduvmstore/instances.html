@@ -448,14 +448,16 @@
     `;
 
                 accountsHTML += `
-                <div class="d-flex justify-content-end mb-2">
+
+                    <h6>{{ _("Accounts") }}</h6>
+                    <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
+                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+
+                         <div class="d-flex justify-content-end mb-2">
                 <button type="button" class="btn btn-outline-success btn-sm export_csv_btn" data-instance="${instanceIndex}">
                     <i class="fa fa-download"></i> Export CSV
                 </button>
             </div>
-                    <h6>{{ _("Accounts") }}</h6>
-                    <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
-                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
                 `
             }
 
