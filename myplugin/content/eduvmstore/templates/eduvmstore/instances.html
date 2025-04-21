@@ -424,6 +424,10 @@
         }
 
         function generateAccountAttributesSection(instanceIndex) {
+
+              if (!Array.isArray(accountAttributes) || accountAttributes.length === 0) {
+        return ''; // Don't render anything if no attributes exist
+    }
             const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
             const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
             const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
@@ -465,12 +469,12 @@
                                         <i class="fa fa-question-circle"></i>
                                     </span>
                                 </label>
-                                <div style="display: flex; align-items: center; margin-bottom: 20px; margin-top: 8px;">
+                                <div style="display: flex; align-items: center; margin-bottom: 15px; margin-top: 8px;">
                                     <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
                                     <!-- Undo button will be inserted here by JavaScript -->
                                 </div>
-                                <small class="form-text text-muted">
+                                <small class="form-text text-muted" style="margin-bottom: 20px">
                                     Upload a CSV file with headers: ${accountAttributes.join(", ")}${instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : ""}
                                 </small>
                             </div>
