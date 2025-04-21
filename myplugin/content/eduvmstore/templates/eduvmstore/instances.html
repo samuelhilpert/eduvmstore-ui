@@ -380,7 +380,7 @@
                         ${volumeOptions}
                     </select>
                 </div>
-                
+
                 <div class="form-group create-volume-size-group" id="volume_size_input_${instanceIndex}" style="display: none;">
                     <label for="${VOLUME_SIZE}${instanceIndex}">${labelVolumeSizePrefix} <span data-toggle="tooltip"
                     title="Specify the size in GB if a new volume is to be created. Must be equal
@@ -423,32 +423,23 @@
             `;
         }
 
-          function generateAccountAttributesSection(instanceIndex) {
-                     if (!accountAttributes || accountAttributes.length === 0) {
-                    return ''; // Don't render the section if no account attributes
-                }
+        function generateAccountAttributesSection(instanceIndex) {
+            const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
+            const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
+            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
+            const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
 
-                const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX)
-                    ? "{{ _('User Configuration for all Instances') }}"
-                    : "{{ _('User Configuration') }}";
-
-                const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX)
-                    ? "{{ _('Upload CSV for Accounts in all instances') }}"
-                    : "{{ _('Upload CSV') }}";
-
-                const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX)
-                    ? `${accountAttributes.join(", ")}, instance index`
-                    : `${accountAttributes.join(", ")}`;
-
-                const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
-
-
-
+            let noAdditionalUsersHtml = '';
             let accountsHTML = '';
-              if (instanceIndex !== ALL_INSTANCES_INDEX) {
-                        accountsHTML += `
-
-<p style="margin-bottom: 20px;">Enter the number of users to be added to the instance. Upload a CSV file with the user data or enter the user data directly by filling the form fields. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
+            if (instanceIndex !== ALL_INSTANCES_INDEX){
+                noAdditionalUsersHtml += `
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
+                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
+                            title="Check if you don't want to create any additional users in the instance.">
+                            <i class="fa fa-question-circle"></i>
+                        </span></label>
+                    </div>
 
                     <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
                         <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
@@ -469,6 +460,7 @@
                 <div class="section-container">
                     <h5>${sectionTitle}</h5>
 
+                    ${noAdditionalUsersHtml}
 
                     <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
                         <!-- CSV Upload -->
@@ -580,20 +572,10 @@
                 attachAllInstancesEventListeners();
             }
             attachInstanceEventListeners();
-
+            attachAccountButtonListeners();
             attachFlavorCalculationListeners();
             attachVolumeOptionListeners();
             attachVolumeChangeHandlers();
-
-            // Reattach user count listeners and generate default account fields
-    attachUserCountListeners();
-
-    // Force initial generation of account fields for all instances
-    document.querySelectorAll(".user-count-input").forEach(input => {
-        const instanceIndex = input.id.split("_").pop();
-        const userCount = parseInt(input.value) || 1;
-        generateMultipleAccountFields(instanceIndex, userCount);
-    });
         }
 
         function attachAllInstancesEventListeners() {
@@ -750,7 +732,7 @@ function getFieldTypeDisplayName(fieldType) {
 
             allInstanceChangedFieldInfo = { element: null, fieldType: '', attrName: null };
         }
-        
+
         function attachVolumeOptionListeners() {
              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
                  select.addEventListener("change", function () {
@@ -825,15 +807,6 @@ function getFieldTypeDisplayName(fieldType) {
             }
         }
 
-                      function attachUserCountListeners() {
-    document.querySelectorAll(".user-count-input").forEach(input => {
-        input.addEventListener("input", function () {
-            let instanceIndex = this.id.split("_").pop();
-            let userCount = parseInt(this.value) || 1;
-            generateMultipleAccountFields(instanceIndex, userCount);
-        });
-    })}
-     
         function attachVolumeCreateListeners(instance) {
             const volumeSizeInputField = document.getElementById(`volume_size_input_${instance}`);
             const volumeSelection = document.getElementById(`${VOLUME_SELECTION}${instance}`);
@@ -883,14 +856,6 @@ function getFieldTypeDisplayName(fieldType) {
             }
         }
 
-                document.querySelectorAll(".user-count-input").forEach(input => {
-            input.addEventListener("input", function () {
-                let instanceIndex = this.id.split("_").pop();
-                let userCount = parseInt(this.value) || 1;
-                generateMultipleAccountFields(instanceIndex, userCount);
-            });
-        });
-
 
     function attachAccountButtonListeners() {
         document.querySelectorAll(".no_additional_users").forEach(checkbox => {
@@ -929,22 +894,8 @@ function getFieldTypeDisplayName(fieldType) {
     let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
     if (!accountsContainer) return;
 
-
-        // Step 1: Collect existing values
-    const existingValues = {};
-    accountsContainer.querySelectorAll('.card').forEach(card => {
-        const accountNumber = card.dataset.accountNumber;
-        existingValues[accountNumber] = {};
-        accountAttributes.forEach(attr => {
-            const input = card.querySelector(`#${attr}_${instanceIndex}_${accountNumber}`);
-            if (input) {
-                existingValues[accountNumber][attr] = input.value;
-            }
-        });
-    });
-      accountsContainer.innerHTML = "";
-      userCount = Math.max(userCount, 1);
-
+    accountsContainer.innerHTML = "";
+    userCount = Math.max(userCount, 1);
 
     for (let i = 1; i <= userCount; i++) {
         let accountSection = document.createElement("div");
@@ -968,17 +919,12 @@ function getFieldTypeDisplayName(fieldType) {
             selectAutomaticFlavor(instanceIndex);
         };
 
-     let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
+        let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
         accountAttributes.forEach(attr => {
-            const val = (existingValues[i] && existingValues[i][attr]) || '';
             fieldsHtml += `
                 <div class="form-group md-5">
                     <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
-                    <input type="text" class="form-control"
-                           id="${attr}_${instanceIndex}_${i}"
-                           name="${attr}_${instanceIndex}"
-                           value="${val}"
-                           required>
+                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
                 </div>
             `;
         });
@@ -1119,38 +1065,25 @@ function selectAutomaticFlavor(instanceIndex) {
         });
     }
 
- window.onload = function () {
-            let countInstancesInput = document.getElementById("instance_count");
-            let instancesNameInput = document.getElementById("instances_name");
-            let instanceTabs = document.getElementById("instanceTabs");
-            let instancesContainer = document.getElementById("instancesContainer");
+    window.onload = function () {
+        let countInstancesInput = document.getElementById("instance_count");
+        let instancesNameInput = document.getElementById("instances_name");
+        let instanceTabs = document.getElementById("instanceTabs");
+        let instancesContainer = document.getElementById("instancesContainer");
 
-            if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
-                console.error("Missing HTML elements. Check IDs.");
-                return;
-            }
+        if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+            console.error("Missing HTML elements. Check IDs.");
+            return;
+        }
 
-            countInstancesInput.value = "1";
-            generateInstanceFields();
+        countInstancesInput.value = "1";
+        generateInstanceFields();
 
-            countInstancesInput.addEventListener("input", generateInstanceFields);
-            instancesNameInput.addEventListener("input", generateInstanceFields);
+        countInstancesInput.addEventListener("input", generateInstanceFields);
+        instancesNameInput.addEventListener("input", generateInstanceFields);
 
-            attachFlavorCalculationListeners();
-
-            // Initialize user count listeners if there are account attributes
-            if (accountAttributes.length > 0) {
-                attachUserCountListeners();
-
-                // Trigger the account fields manually for each instance with default user count = 1
-                document.querySelectorAll(".user-count-input").forEach(input => {
-                    let instanceIndex = input.id.split("_").pop();
-                    let userCount = parseInt(input.value) || 1;
-                    generateMultipleAccountFields(instanceIndex, userCount);
-                });
-            }
-        };
-
+        attachFlavorCalculationListeners();
+    };
 
 
     let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
@@ -1420,12 +1353,6 @@ function resetCSVUpload(instanceIndex) {
            document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
        }
 
-
-
-
-
-
     </script>
-
 
 {% endblock %}
