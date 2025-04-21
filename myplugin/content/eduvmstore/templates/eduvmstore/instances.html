@@ -19,128 +19,128 @@
 {% block main %}
     <link rel="stylesheet" href="{% static 'css/instances.css' %}">
 
-<form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
-    {% csrf_token %}
+    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
+        {% csrf_token %}
 
-    <!-- AppTemplate Name Display -->
-    <div class="section-container">
-        <div class="form-group">
-            <label>{{ _("AppTemplate Name") }} <span data-toggle="tooltip" title="This is the name of
+        <!-- AppTemplate Name Display -->
+        <div class="section-container">
+            <div class="form-group">
+                <label>{{ _("AppTemplate Name") }} <span data-toggle="tooltip" title="This is the name of
             the AppTemplate you want to launch. Click on the name to get more information about
             the AppTemplate.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
-            <div class="card">
-                <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
-                    {{ app_template.name }}
-                </p>
+                <div class="card">
+                    <p class="mb-0 clickable" data-toggle="modal" data-target="#appTemplateDetailsModal">
+                        {{ app_template.name }}
+                    </p>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="instances_name">{{ _("Instance Name") }} <span data-toggle="tooltip" title="Enter
+            <div class="form-group">
+                <label for="instances_name">{{ _("Instance Name") }} <span data-toggle="tooltip" title="Enter
              a base name for your instances. If launching multiple instances, numbers will be appended
              automatically.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
-            <input type="text" class="form-control" id="instances_name" name="instances_name"
-                   placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
-        </div>
+                <input type="text" class="form-control" id="instances_name" name="instances_name"
+                       placeholder="{{ _('Enter instance name') }}" value="{{ app_template.name }}" required>
+            </div>
 
-        <div class="form-group">
-            <label for="instance_count">{{ _("Number of Instances") }} <span data-toggle="tooltip" title="
+            <div class="form-group">
+                <label for="instance_count">{{ _("Number of Instances") }} <span data-toggle="tooltip" title="
             Enter how many instances to create (between 1 and 100). Each instance will be provisioned
              based on this template.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
-            <input type="number" class="form-control" id="instance_count" name="instance_count"
-                   min="1" max="100" placeholder="1-100" required>
-        </div>
+                <input type="number" class="form-control" id="instance_count" name="instance_count"
+                       min="1" max="100" placeholder="1-100" required>
+            </div>
 
-        <div class="form-group">
-            <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}
-                <span data-toggle="tooltip" title="
+            <div class="form-group">
+                <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}
+                    <span data-toggle="tooltip" title="
             Choose whether each instance should use its own SSH key pair or all use the same one">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
-            <select class="form-control" id="separate_keys" name="separate_keys">
-                <option value="false" selected>{{ _("No, use one key for all") }}</option>
-                <option value="true">{{ _("Yes, generate separate keys") }}</option>
-            </select>
+                <select class="form-control" id="separate_keys" name="separate_keys">
+                    <option value="false" selected>{{ _("No, use one key for all") }}</option>
+                    <option value="true">{{ _("Yes, generate separate keys") }}</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Instance Tabs -->
+        <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
+
+        <!-- Instance Content -->
+        <div class="tab-content mt-3" id="instancesContainer"></div>
+
+        <!-- Launch and Cancel Buttons -->
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary">{{ _("Launch") }}</button>
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+        </div>
+    </form>
+
+    <!-- Modal for Success or Failure -->
+    <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="responseModalLabel">{{ _("Instance Creation Status") }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ modal_message }}</p>
+                </div>
+                <div class="modal-footer">
+                    {% if modal_message == "Instance created successfully." %}
+                        <a href="/dashboard/project/instances/" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                    {% endif %}
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Instance Tabs -->
-    <ul class="nav nav-tabs mt-3" id="instanceTabs" role="tablist"></ul>
-
-    <!-- Instance Content -->
-    <div class="tab-content mt-3" id="instancesContainer"></div>
-
-    <!-- Launch and Cancel Buttons -->
-    <div class="button-container">
-        <button type="submit" class="btn btn-primary">{{ _("Launch") }}</button>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
-    </div>
-</form>
-
-<!-- Modal for Success or Failure -->
-<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="responseModalLabel">{{ _("Instance Creation Status") }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>{{ modal_message }}</p>
-            </div>
-            <div class="modal-footer">
-                {% if modal_message == "Instance created successfully." %}
-                    <a href="/dashboard/project/instances/" class="btn btn-primary">{{ _("Show Instance") }}</a>
-                {% endif %}
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+    <!-- Modal for All Instances Changes Warning -->
+    <div class="modal fade" id="allInstancesWarningModal" tabindex="-1" role="dialog" aria-labelledby="allInstancesWarningModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="allInstancesWarningModalLabel">{{ _("Warning") }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>{{ _("Warning:") }}</strong> {{ _("Changes made here will override settings for all individual instances.") }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning confirm-apply-modal">{{ _("Apply to All Instances") }}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal for All Instances Changes Warning -->
-<div class="modal fade" id="allInstancesWarningModal" tabindex="-1" role="dialog" aria-labelledby="allInstancesWarningModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="allInstancesWarningModalLabel">{{ _("Warning") }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p><strong>{{ _("Warning:") }}</strong> {{ _("Changes made here will override settings for all individual instances.") }}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning confirm-apply-modal">{{ _("Apply to All Instances") }}</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-  <!-- AppTemplate Details Modal -->
-<div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("AppTemplate Details") }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <tbody>
+    <!-- AppTemplate Details Modal -->
+    <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("AppTemplate Details") }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <tbody>
                             <tr>
                                 <th class="w-25">AppTemplate Name</th>
                                 <td class="w-75">{{ app_template.name }}</td>
@@ -223,16 +223,16 @@
                                     <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;" id="structured-accounts"></pre>
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     <div id="loadingModal" class="loading-modal">
@@ -251,25 +251,25 @@
             $('[data-toggle="tooltip"]').tooltip();
 
         });
-       //For the all instances tab index 0 is used for easier calculation
-       const ALL_INSTANCES_INDEX = 0;
-       const TAB_PREFIX = 'instanceTab_';
-       const CONTENT_PREFIX = 'instanceContent_';
-       const VOLUME_SELECTION = 'use_existing_volume_';
-       const VOLUME_SELECTION_CLASS = VOLUME_SELECTION.replace(/_/g, '-').slice(0, -1);
-       const FLAVOR_ID = 'flavor_id_';
-       const NETWORK_ID = 'network_id_';
-       const VOLUME_SIZE = 'volume_size_';
-       const INSTANTIATION_POSTFIX = '_instantiation'
+        //For the all instances tab index 0 is used for easier calculation
+        const ALL_INSTANCES_INDEX = 0;
+        const TAB_PREFIX = 'instanceTab_';
+        const CONTENT_PREFIX = 'instanceContent_';
+        const VOLUME_SELECTION = 'use_existing_volume_';
+        const VOLUME_SELECTION_CLASS = VOLUME_SELECTION.replace(/_/g, '-').slice(0, -1);
+        const FLAVOR_ID = 'flavor_id_';
+        const NETWORK_ID = 'network_id_';
+        const VOLUME_SIZE = 'volume_size_';
+        const INSTANTIATION_POSTFIX = '_instantiation'
 
-       let volumeSelections = {};
+        let volumeSelections = {};
 
-       let allInstanceChangedFieldInfo = {
+        let allInstanceChangedFieldInfo = {
             element: null,
             fieldType: ''
         };
 
-       //Volumes
+        //Volumes
         const attachableVolumes = [
             {% for volume in attachable_volumes %}
                 { id: "{{ volume.id }}", name: "{{ volume.name }}", size: {{ volume.size }} },
@@ -380,7 +380,7 @@
                         ${volumeOptions}
                     </select>
                 </div>
-                
+
                 <div class="form-group create-volume-size-group" id="volume_size_input_${instanceIndex}" style="display: none;">
                     <label for="${VOLUME_SIZE}${instanceIndex}">${labelVolumeSizePrefix} <span data-toggle="tooltip"
                     title="Specify the size in GB if a new volume is to be created. Must be equal
@@ -423,80 +423,66 @@
             `;
         }
 
-        function generateAccountAttributesSection(instanceIndex){
+        function generateAccountAttributesSection(instanceIndex) {
 
-            if (accountAttributes.length === 0) {
-                return `
-                    <div class="section-container">
-                        <h5>{{ _("User Configuration") }}</h5>
-                        <p class="text-muted">{{ _("No user attributes are required for this template.") }}</p>
-                    </div>
-                `;
+              if (!Array.isArray(accountAttributes) || accountAttributes.length === 0) {
+        return '';
+    }
+            const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
+            const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
+            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
+            const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
+
+            let noAdditionalUsersHtml = '';
+            let accountsHTML = '';
+            if (instanceIndex !== ALL_INSTANCES_INDEX){
+                noAdditionalUsersHtml += `
+                <p style="margin-bottom: 20px;">Enter the number of users to be added to the instance. Upload a CSV file with the user data or enter the user data directly by filling the form fields. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}">here</a>.</p>
+        <div class="form-group mt-3" id="user_count_section_${instanceIndex}">
+            <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
+                title="Specify how many additional users should be created. 0 disables account creation.">
+                <i class="fa fa-question-circle"></i>
+            </span> </label>
+            <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="0" value="0">
+        </div>
+    `;
+
+                accountsHTML += `
+                    <h6>{{ _("Accounts") }}</h6>
+                    <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
+                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                `
             }
-            return`
+
+            return `
                 <div class="section-container">
-                    <h5>{{ _("User Configuration") }}</h5>
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input no_additional_users" id="no_additional_users_${instanceIndex}" name="no_additional_users_${instanceIndex}" checked>
-                        <label class="form-check-label" for="no_additional_users_${instanceIndex}">{{ _("No additional users") }} <span data-toggle="tooltip"
-                    title="Check if you don’t want to create any additional users in the instance.">
-                            <i class="fa fa-question-circle"></i>
-                      </span></label>
-                    </div>
+                    <h5>${sectionTitle}</h5>
 
-                    <div class="form-group mt-3" id="user_count_section_${instanceIndex}" style="display: none;">
-                        <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
-                    title="Specify how many additional users should be created. Each user gets a configured account on the instance.">
-                            <i class="fa fa-question-circle"></i>
-                      </span></label>
-                        <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="1" value="1">
-                    </div>
+                    ${noAdditionalUsersHtml}
 
-                    <div id="accounts_section_${instanceIndex}" style="display: none;">
+                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
                         <!-- CSV Upload -->
                         <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                            <div style="flex-grow: 1;">
-                                <label for="csvUpload_${instanceIndex}">{{ _("Upload CSV") }} </label>
-                                <div style="display: flex; align-items: center;">
+                            <div style="flex-grow: 1; margin-top: 15px;">
+                                <label for="csvUpload_${instanceIndex}">${uploadCSVText}
+                                    <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
+                                        <i class="fa fa-question-circle"></i>
+                                    </span>
+                                </label>
+                                <div style="display: flex; align-items: center; margin-bottom: 15px; margin-top: 8px;">
                                     <input type="file" class="form-control-file csv-upload" id="csvUpload_${instanceIndex}"
                                            data-instance="${instanceIndex}" accept=".csv" style="width: auto;">
-                                    <!-- Undo button will be inserted here by JavaScript -->
+                                     <div class="undo-placeholder" style="margin-left: 10px;"></div>
                                 </div>
+                                <small class="form-text text-muted" style="margin-bottom: 20px">
+                                    Upload a CSV file with headers: ${accountAttributes.join(", ")}${instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : ""}
+                                </small>
                             </div>
                         </div>
-                        <h6>{{ _("Accounts") }}</h6>
-                        <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
-                        <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                        ${accountsHTML}
                     </div>
                 </div>
             `;
-        }
-
-        function generateCSVAllInstanceSection(){
-            return`
-                <div class="section-container">
-                    <h5>{{ _("User Configuration for All Instances") }}</h5>
-
-                    <!-- CSV Upload with Instance Mapping -->
-                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-                        <div style="flex-grow: 1;">
-                            <label for="csvUpload_${ALL_INSTANCES_INDEX}">{{ _("Upload CSV with Instance Mapping") }}</label>
-                            <div style="display: flex; align-items: center;">
-                                <input type="file" class="form-control-file"
-                                       id="csvUpload_${ALL_INSTANCES_INDEX}" accept=".csv" style="width: auto;">
-                                <!-- Undo button will be inserted here by JavaScript -->
-                            </div>
-                            <small class="form-text text-muted">
-                                Upload a CSV file with headers: ${accountAttributes.join(", ")}, instance
-                            </small>
-                        </div>
-                    </div>
-
-                    <div id="all_instances_csv_preview" class="mt-3">
-                        <!-- CSV preview will be shown here -->
-                    </div>
-                </div>
-            `
         }
 
         function singleInstanceTab(instanceName, instanceIndex){
@@ -509,7 +495,7 @@
             `;
         }
 
-        function singleInstanceContainer(instanceName, instanceIndex, countInstances){
+        function singleInstanceContainer(instanceName, instanceIndex){
             return`
                 <div class="tab-pane" id="${CONTENT_PREFIX}${instanceIndex}" role="tabpanel">
                     <h4 id="instanceTitle_${instanceIndex}">${instanceName}</h4>
@@ -523,18 +509,17 @@
                     </div>
 
                     ${generateInstantiationAttributesSection(instanceIndex)}
-                     <!-- All Instances Tab has different Account Section: CSV Upload for all Instances -->
-                     ${instanceIndex === ALL_INSTANCES_INDEX ? generateCSVAllInstanceSection() : generateAccountAttributesSection(instanceIndex)}
+
+                     ${generateAccountAttributesSection(instanceIndex)}
                 </div>
             `
         }
 
-       function generateInstanceFields() {
+        function generateInstanceFields() {
             let instanceTabs = document.getElementById("instanceTabs");
             let instancesContainer = document.getElementById("instancesContainer");
 
             let countInstancesInput = document.getElementById("instance_count");
-            //ensure countInstances is a natural number base 10, if not 1
             let countInstances = parseInt(countInstancesInput.value, 10) || 1;
             countInstancesInput.value = countInstances;
 
@@ -549,7 +534,7 @@
             if (countInstances > 1) {
                 allInstancesName = "All Instances"
                 instanceTabs.innerHTML += singleInstanceTab(allInstancesName, ALL_INSTANCES_INDEX)
-                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX, countInstances)
+                instancesContainer.innerHTML += singleInstanceContainer(allInstancesName, ALL_INSTANCES_INDEX)
             }
             // Generate individual instance tabs
             for (let i = 1; i <= countInstances; i++) {
@@ -558,21 +543,21 @@
                     instanceName = (countInstances === 1) ? baseName : `${baseName}-${i}`;
                 }
                 instanceTabs.innerHTML += singleInstanceTab(instanceName, i);
-                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i, countInstances);
+                instancesContainer.innerHTML += singleInstanceContainer(instanceName, i);
             }
 
-              document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
-                    select.addEventListener("change", function () {
-                        const instance = this.dataset.instance;
-                        const group = document.getElementById(`existing_volume_group_${instance}`);
-                        if (this.value === "existing") {
-                            group.style.display = "block";
-                        } else {
-                            if (group) group.style.display = "none";
-                        }
-                    });
-                    select.dispatchEvent(new Event("change"));
+            document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
+                select.addEventListener("change", function () {
+                    const instance = this.dataset.instance;
+                    const group = document.getElementById(`existing_volume_group_${instance}`);
+                    if (this.value === "existing") {
+                        group.style.display = "block";
+                    } else {
+                        if (group) group.style.display = "none";
+                    }
                 });
+                select.dispatchEvent(new Event("change"));
+            });
 
             // Select Automatic Flavor for all instances including AllInstanceTab
             for (let i = ALL_INSTANCES_INDEX; i <= countInstances; i++) {
@@ -610,15 +595,15 @@
                     instantiationAttribute.forEach(attr => {
                         const element = document.getElementById(`${attr}_${ALL_INSTANCES_INDEX}${INSTANTIATION_POSTFIX}`);
                         if (element) {
-                            // Remove existing event listeners to prevent duplicates
+
                             element.removeEventListener('change', showWarningModal);
                             element.addEventListener('change', showWarningModal);
                         }
                     });
                 }
-            }, 100);  // Short delay to prevent immediate triggering
+            }, 100);
             hideWarningModal();
-}
+        }
 
         function showWarningModal() {
             allInstanceChangedFieldInfo.element = event.target;
@@ -656,17 +641,17 @@
             $('#allInstancesWarningModal').modal('show');
         }
 
-// Helper function to get a display name for the field type
-function getFieldTypeDisplayName(fieldType) {
-    switch (fieldType) {
-        case 'flavor': return 'flavor';
-        case 'network': return 'network';
-        case 'volume_selection': return 'volume selection';
-        case 'instantiation':
-            return `instantiation attribute "${allInstanceChangedFieldInfo.attrName}"`;
-        default: return 'setting';
-    }
-}
+        // Helper function to get a display name for the field type
+        function getFieldTypeDisplayName(fieldType) {
+            switch (fieldType) {
+                case 'flavor': return 'flavor';
+                case 'network': return 'network';
+                case 'volume_selection': return 'volume selection';
+                case 'instantiation':
+                    return `instantiation attribute "${allInstanceChangedFieldInfo.attrName}"`;
+                default: return 'setting';
+            }
+        }
 
         function hideWarningModal(){
             $('#allInstancesWarningModal').modal('hide');
@@ -744,73 +729,72 @@ function getFieldTypeDisplayName(fieldType) {
 
             allInstanceChangedFieldInfo = { element: null, fieldType: '', attrName: null };
         }
-        
+
         function attachVolumeOptionListeners() {
-             document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
-                 select.addEventListener("change", function () {
-                     const instance = this.dataset.instance;
-                     const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
-                      // Check if the volumeGroup and selectedVolumeId exist for attaching existing volumes
-                     // If they do, toggle their visibility to block or none
-                     if (volumeGroup && selectedVolume) {
-                         if (this.value === "existing") {
-                             volumeGroup.style.display = "block";
-                         } else {
-                             volumeGroup.style.display = "none";
-                         }
-                     }
-                     attachVolumeCreateListeners(instance);
-                     updateVolumeSelection(instance, this.value)
-                 });
+            document.querySelectorAll(`.${VOLUME_SELECTION_CLASS}`).forEach(select => {
+                select.addEventListener("change", function () {
+                    const instance = this.dataset.instance;
+                    const volumeGroup = document.getElementById(`existing_volume_group_${instance}`);
 
-                 select.dispatchEvent(new Event("change"));
+                    if (volumeGroup && selectedVolume) {
+                        if (this.value === "existing") {
+                            volumeGroup.style.display = "block";
+                        } else {
+                            volumeGroup.style.display = "none";
+                        }
+                    }
+                    attachVolumeCreateListeners(instance);
+                    updateVolumeSelection(instance, this.value)
+                });
 
-             });
-         }
+                select.dispatchEvent(new Event("change"));
 
-         function updateVolumeSelection(instance, value) {
-            // Only actual volumes need to be tracked (Not Create New Volume or no addtional volumes)
+            });
+        }
+
+        function updateVolumeSelection(instance, value) {
+
             if (value !== "new" && value !== "none") {
                 volumeSelections[instance] = value;
             } else {
-                //ensure that old selection is deleted
+
                 delete volumeSelections[instance];
             }
-            // Update all volume dropdowns
+
             updateVolumeSelectionOptions();
         }
 
         function updateVolumeSelectionOptions() {
             const countInstances = parseInt(document.getElementById('instance_count').value, 10) || 1;
 
-            // For each instance, update available volume options
+
             for (let i = 1; i <= countInstances; i++) {
                 const volumeSelect = document.getElementById(`${VOLUME_SELECTION}${i}`);
                 if (!volumeSelect) continue;
 
-                // For each option in the select
+
                 Array.from(volumeSelect.options).forEach(option => {
                     const volumeId = option.value;
 
-                    // Check if this volume is selected in another instance
+
                     let selectedInInstance = null;
                     for (const [instanceIdx, selectedVolumeId] of Object.entries(volumeSelections)) {
                         if (selectedVolumeId === volumeId && instanceIdx != i) {
                             selectedInInstance = instanceIdx;
-                            break; //one other instance is sufficient for blocking
+                            break;
                         }
                     }
 
                     if (selectedInInstance && volumeId) {
-                         //Disable the volume
+
                         option.disabled = true;
                         option.textContent = `${option.textContent.split('(')[0]} (already selected in instance ${selectedInInstance})`;
                     } else if (volumeId !== "new" && volumeId !== "none") {
-                        // Reset text
+
                         const originalVolume = attachableVolumes.find(v => v.id === volumeId);
                         if (originalVolume) {
                             const isTooSmall = originalVolume.size < parseFloat("{{ volume_size }}");
-                            //now disabled status depends only on size
+
                             option.disabled = isTooSmall;
                             option.textContent = `${originalVolume.name} (${originalVolume.size} GB)${isTooSmall ? ' (Too small)' : ''}`;
                         }
@@ -818,7 +802,7 @@ function getFieldTypeDisplayName(fieldType) {
                 });
             }
         }
-     
+
         function attachVolumeCreateListeners(instance) {
             const volumeSizeInputField = document.getElementById(`volume_size_input_${instance}`);
             const volumeSelection = document.getElementById(`${VOLUME_SELECTION}${instance}`);
@@ -869,45 +853,43 @@ function getFieldTypeDisplayName(fieldType) {
         }
 
 
-    function attachAccountButtonListeners() {
-        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
-            checkbox.addEventListener("change", function () {
-                let instanceIndex = this.id.split("_").pop();
-                let accountsSection = document.getElementById(`accounts_section_${instanceIndex}`);
-                let addAccountButton = document.querySelector(`.add_account_btn[data-instance='${instanceIndex}']`);
-                let userCountSection = document.getElementById(`user_count_section_${instanceIndex}`);
-                let userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-
-                if (this.checked) {
-                    accountsSection.style.display = "none";
-                    addAccountButton.style.display = "none";
-                    userCountSection.style.display = "none";
-                    document.getElementById(`dynamic_accounts_container_${instanceIndex}`).innerHTML = "";
-                } else {
-                    accountsSection.style.display = "block";
-                    addAccountButton.style.display = "none";
-                    userCountSection.style.display = "block";
-                    let userCount = parseInt(userCountInput.value) || 1;
+        function attachAccountButtonListeners() {
+            document.querySelectorAll(".user-count-input").forEach(input => {
+                input.addEventListener("input", function () {
+                    let instanceIndex = this.id.split("_").pop();
+                    let userCount = parseInt(this.value) || 0;
                     generateMultipleAccountFields(instanceIndex, userCount);
-                }
+                });
             });
-        });
+        }
+
 
         document.querySelectorAll(".user-count-input").forEach(input => {
-            input.addEventListener("input", function () {
-                let instanceIndex = this.id.split("_").pop();
-                let userCount = parseInt(this.value) || 1;
-                generateMultipleAccountFields(instanceIndex, userCount);
+                input.addEventListener("input", function () {
+                    let instanceIndex = this.id.split("_").pop();
+                    let userCount = parseInt(this.value) || 1;
+                    generateMultipleAccountFields(instanceIndex, userCount);
+                });
             });
-        });
-    }
 
-  function generateMultipleAccountFields(instanceIndex, userCount) {
+
+       function generateMultipleAccountFields(instanceIndex, userCount) {
     let accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
     if (!accountsContainer) return;
 
+    document.getElementById(`accounts_section_${instanceIndex}`).style.display = userCount > 0 ? "block" : "none";
+
+
+    const existingValues = {};
+    const inputs = accountsContainer.querySelectorAll("input");
+    inputs.forEach(input => {
+        existingValues[input.id] = input.value;
+    });
+
+
     accountsContainer.innerHTML = "";
-    userCount = Math.max(userCount, 1);
+    userCount = Math.max(userCount, 0);
+    if (userCount === 0) return;
 
     for (let i = 1; i <= userCount; i++) {
         let accountSection = document.createElement("div");
@@ -918,13 +900,12 @@ function getFieldTypeDisplayName(fieldType) {
         accountSection.style.borderRadius = "5px";
         accountSection.style.padding = "15px";
 
-        // Add remove button
         const removeBtn = document.createElement("button");
         removeBtn.className = "btn btn-danger btn-sm position-absolute";
         removeBtn.style.top = "5px";
         removeBtn.style.right = "5px";
         removeBtn.innerHTML = "Remove";
-        removeBtn.onclick = function() {
+        removeBtn.onclick = function () {
             accountSection.remove();
             renumberAccounts(instanceIndex);
             updateUserCount(instanceIndex);
@@ -933,10 +914,17 @@ function getFieldTypeDisplayName(fieldType) {
 
         let fieldsHtml = `<h5 class="account-title">Account ${i}</h5>`;
         accountAttributes.forEach(attr => {
+            const fieldId = `${attr}_${instanceIndex}_${i}`;
+            const savedValue = existingValues[fieldId] || "";
+
             fieldsHtml += `
                 <div class="form-group md-5">
-                    <label for="${attr}_${instanceIndex}_${i}">${attr}</label>
-                    <input type="text" class="form-control" id="${attr}_${instanceIndex}_${i}" name="${attr}_${instanceIndex}" required>
+                    <label for="${fieldId}">${attr}</label>
+                    <input type="text" class="form-control"
+                        id="${fieldId}"
+                        name="${attr}_${instanceIndex}"
+                        value="${savedValue}"
+                        required>
                 </div>
             `;
         });
@@ -947,30 +935,30 @@ function getFieldTypeDisplayName(fieldType) {
     }
 }
 
-function renumberAccounts(instanceIndex) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-    if (!accountsContainer) return;
+        function renumberAccounts(instanceIndex) {
+            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+            if (!accountsContainer) return;
 
-    const accountSections = Array.from(accountsContainer.querySelectorAll('.card'));
-    accountSections.forEach((section, index) => {
-        const newNumber = index + 1;
+            const accountSections = Array.from(accountsContainer.querySelectorAll('.card'));
+            accountSections.forEach((section, index) => {
+                const newNumber = index + 1;
 
-        section.dataset.accountNumber = newNumber;
+                section.dataset.accountNumber = newNumber;
 
-        section.id = `account_${instanceIndex}_${newNumber}`;
+                section.id = `account_${instanceIndex}_${newNumber}`;
 
-        const title = section.querySelector('.account-title');
-        if (title) title.textContent = `Account ${newNumber}`;
+                const title = section.querySelector('.account-title');
+                if (title) title.textContent = `Account ${newNumber}`;
 
-        accountAttributes.forEach(attr => {
-            const input = section.querySelector(`input[id$="${attr}_${instanceIndex}_${index+1}"]`);
-            if (input) {
-                input.id = `${attr}_${instanceIndex}_${newNumber}`;
-                input.name = `${attr}_${instanceIndex}`;
-            }
-        });
-    });
-}
+                accountAttributes.forEach(attr => {
+                    const input = section.querySelector(`input[id$="${attr}_${instanceIndex}_${index+1}"]`);
+                    if (input) {
+                        input.id = `${attr}_${instanceIndex}_${newNumber}`;
+                        input.name = `${attr}_${instanceIndex}`;
+                    }
+                });
+            });
+        }
 
         function generateInstantiationFields(instanceIndex) {
             let fieldsHtmlInstance = ``;
@@ -990,121 +978,121 @@ function renumberAccounts(instanceIndex) {
             return fieldsHtmlInstance;
         }
 
-function selectAutomaticFlavor(instanceIndex) {
-    const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
-    if (!flavorDropdown) return;
+        function selectAutomaticFlavor(instanceIndex) {
+            const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
+            if (!flavorDropdown) return;
 
-    const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
-    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+            const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
+            const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
-    const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
-    const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
-    const requiredCores = parseInt("{{ app_template.fixed_cores }}");
+            const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
+            const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
+            const requiredCores = parseInt("{{ app_template.fixed_cores }}");
 
-    let totalRAM = requiredRAM;
-    let totalDisk = requiredDisk;
-    let totalCores = requiredCores;
-
-    // AllInstanceTab only shows fixed resources
-    if (instanceIndex != ALL_INSTANCES_INDEX && !noAdditionalUsersCheckbox.checked) {
-        const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
-        const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
-        const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
-        const userCount = parseInt(userCountInput.value) || 0;
-
-        totalRAM += userCount * perUserRAM;
-        totalDisk += userCount * perUserDisk;
-        totalCores += userCount * perUserCores;
-    }
-
-    document.getElementById(`total_ram_${instanceIndex}`).textContent = totalRAM.toFixed(2);
-    document.getElementById(`total_disk_${instanceIndex}`).textContent = totalDisk.toFixed(2);
-    document.getElementById(`total_cores_${instanceIndex}`).textContent = totalCores;
-
-    let selectedFlavor = null;
-
-  Array.from(flavorDropdown.options).forEach(option => {
-    if (option.value) {
-        const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
-        const flavorRAM = flavorDetails.ram / 1024;
-        const flavorDisk = flavorDetails.disk;
-        const flavorCores = flavorDetails.vcpus;
+            let totalRAM = requiredRAM;
+            let totalDisk = requiredDisk;
+            let totalCores = requiredCores;
 
 
-        option.textContent = `${flavorDetails.name} — ${flavorRAM} GB RAM, ${flavorDetails.vcpus} vCPU, ${flavorDetails.disk} GB Disk`;
+            if (instanceIndex != ALL_INSTANCES_INDEX && userCountInput && parseInt(userCountInput.value) > 0) {
+                const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
+                const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
+                const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
+                const userCount = parseInt(userCountInput.value) || 0;
 
-        if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
-            if (!selectedFlavor ||
-                (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
-                 flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
-                 flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus))
-            {
-                selectedFlavor = option;
+                totalRAM += userCount * perUserRAM;
+                totalDisk += userCount * perUserDisk;
+                totalCores += userCount * perUserCores;
             }
-            option.disabled = false;
-            option.style.color = "black";
-        } else {
-            option.disabled = true;
-            option.style.color = "gray";
-            option.textContent += " (Too small for required resources)";
-        }
-    }
-});
+
+            document.getElementById(`total_ram_${instanceIndex}`).textContent = totalRAM.toFixed(2);
+            document.getElementById(`total_disk_${instanceIndex}`).textContent = totalDisk.toFixed(2);
+            document.getElementById(`total_cores_${instanceIndex}`).textContent = totalCores;
+
+            let selectedFlavor = null;
+
+            Array.from(flavorDropdown.options).forEach(option => {
+                if (option.value) {
+                    const flavorDetails = JSON.parse(option.getAttribute('data-flavor-details'));
+                    const flavorRAM = flavorDetails.ram / 1024;
+                    const flavorDisk = flavorDetails.disk;
+                    const flavorCores = flavorDetails.vcpus;
 
 
-    if (selectedFlavor) {
-        flavorDropdown.value = selectedFlavor.value;
-    } else {
-        alert("No suitable flavor found. Please select one manually.");
-    }
-}
+                    option.textContent = `${flavorDetails.name} — ${flavorRAM} GB RAM, ${flavorDetails.vcpus} vCPU, ${flavorDetails.disk} GB Disk`;
 
-
-
-    function attachFlavorCalculationListeners() {
-        document.querySelectorAll(".no_additional_users").forEach(checkbox => {
-            checkbox.addEventListener("change", function () {
-                let instanceIndex = this.id.split("_").pop();
-                selectAutomaticFlavor(instanceIndex);
+                    if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+                        if (!selectedFlavor ||
+                            (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
+                                flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
+                                flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus))
+                        {
+                            selectedFlavor = option;
+                        }
+                        option.disabled = false;
+                        option.style.color = "black";
+                    } else {
+                        option.disabled = true;
+                        option.style.color = "gray";
+                        option.textContent += " (Too small for required resources)";
+                    }
+                }
             });
-        });
 
-        document.querySelectorAll(".user-count-input").forEach(input => {
-            input.addEventListener("input", function () {
-                let instanceIndex = this.id.split("_").pop();
-                selectAutomaticFlavor(instanceIndex);
-            });
-        });
-    }
 
-    window.onload = function () {
-        let countInstancesInput = document.getElementById("instance_count");
-        let instancesNameInput = document.getElementById("instances_name");
-        let instanceTabs = document.getElementById("instanceTabs");
-        let instancesContainer = document.getElementById("instancesContainer");
-
-        if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
-            console.error("Missing HTML elements. Check IDs.");
-            return;
+            if (selectedFlavor) {
+                flavorDropdown.value = selectedFlavor.value;
+            } else {
+                alert("No suitable flavor found. Please select one manually.");
+            }
         }
 
-        countInstancesInput.value = "1";
-        generateInstanceFields();
-
-        countInstancesInput.addEventListener("input", generateInstanceFields);
-        instancesNameInput.addEventListener("input", generateInstanceFields);
-
-        attachFlavorCalculationListeners();
-    };
 
 
-    let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
-    document.getElementById("structured-instantiation").textContent = formattedInstantiation;
+        function attachFlavorCalculationListeners() {
+            document.querySelectorAll(".no_additional_users").forEach(checkbox => {
+                checkbox.addEventListener("change", function () {
+                    let instanceIndex = this.id.split("_").pop();
+                    selectAutomaticFlavor(instanceIndex);
+                });
+            });
 
-    let accountAttribute = {{ app_template.account_attributes|safe }}
-    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-    document.getElementById("structured-accounts").textContent = formattedAccounts;
+            document.querySelectorAll(".user-count-input").forEach(input => {
+                input.addEventListener("input", function () {
+                    let instanceIndex = this.id.split("_").pop();
+                    selectAutomaticFlavor(instanceIndex);
+                });
+            });
+        }
+
+        window.onload = function () {
+            let countInstancesInput = document.getElementById("instance_count");
+            let instancesNameInput = document.getElementById("instances_name");
+            let instanceTabs = document.getElementById("instanceTabs");
+            let instancesContainer = document.getElementById("instancesContainer");
+
+            if (!countInstancesInput || !instancesNameInput || !instanceTabs || !instancesContainer) {
+                console.error("Missing HTML elements. Check IDs.");
+                return;
+            }
+
+            countInstancesInput.value = "1";
+            generateInstanceFields();
+
+            countInstancesInput.addEventListener("input", generateInstanceFields);
+            instancesNameInput.addEventListener("input", generateInstanceFields);
+
+            attachFlavorCalculationListeners();
+        };
+
+
+        let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
+        let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
+        document.getElementById("structured-instantiation").textContent = formattedInstantiation;
+
+        let accountAttribute = {{ app_template.account_attributes|safe }}
+        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
+        document.getElementById("structured-accounts").textContent = formattedAccounts;
 
         {% if modal_message %}
             $(document).ready(function () {
@@ -1114,229 +1102,239 @@ function selectAutomaticFlavor(instanceIndex) {
 
 
 
-document.addEventListener("change", function(event) {
-    if (!event.target.classList.contains("csv-upload")) return;
+        document.addEventListener("change", function(event) {
+            if (!event.target.classList.contains("csv-upload")) return;
 
-    const file = event.target.files[0];
-    if (!file) return;
+            const file = event.target.files[0];
 
-    const instanceIndex = event.target.getAttribute("data-instance");
-    if (!instanceIndex) return;
+                        // Add Undo button
+            const placeholder = event.target.parentElement.querySelector('.undo-placeholder');
+            if (placeholder && !placeholder.querySelector('.undo-csv')) {
+                const instanceIndex = event.target.getAttribute("data-instance");
+                const undoBtn = document.createElement("button");
+                undoBtn.type = "button";
+                undoBtn.className = "btn btn-sm btn-warning undo-csv";
+                undoBtn.dataset.instance = instanceIndex;
+                undoBtn.style.marginLeft = "10px";
+                undoBtn.innerHTML = '<i class="fa fa-undo"></i> Undo';
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.trim().split("\n");
+                undoBtn.addEventListener("click", () => resetCSVUpload(instanceIndex));
+                placeholder.appendChild(undoBtn);
+}
 
-        if (lines.length === 0) {
-            alert("CSV file is empty");
-            return;
-        }
+            if (!file) return;
 
+            const instanceIndex = parseInt(event.target.getAttribute("data-instance"), 10);
+            if (isNaN(instanceIndex) || instanceIndex < 0) return;
 
-        function parseCSVLine(line) {
-            const result = [];
-            let inQuotes = false;
-            let currentField = "";
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                //const lines = text.trim().split("\n");
+                const lines = text.split(/\r\n|\r|\n/).filter(line => line.trim() !== "");
 
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-
-                if (char === '"') {
-                    if (inQuotes && line[i+1] === '"') {
-
-                        currentField += '"';
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (char === ',' && !inQuotes) {
-                    result.push(currentField.trim());
-                    currentField = "";
-                } else {
-                    currentField += char;
+                if (lines.length === 0) {
+                    alert("CSV file is empty");
+                    return;
                 }
+
+
+                function parseCSVLine(line) {
+                    if (!line || line.trim() === "") return [];
+
+                    const delimiter = (line.split(';').length > line.split(',').length) ? ';' : ',';
+
+                    const result = [];
+                    let inQuotes = false;
+                    let currentField = "";
+
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+
+                        if (char === '"') {
+                            if (inQuotes && line[i + 1] === '"') {
+                                currentField += '"';
+                                i++;
+                            } else {
+                                inQuotes = !inQuotes;
+                            }
+                        } else if (char === delimiter && !inQuotes) {
+                            result.push(currentField.trim());
+                            currentField = "";
+                        } else {
+                            currentField += char;
+                        }
+                    }
+
+                    result.push(currentField.trim());
+                    return result;
+                }
+
+                const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+
+                const instanceIndexCol = headers.findIndex(h =>
+                    h === 'instance index' || h === 'instance_index' || h === 'instanceindex' || h === 'index' || h === 'instance');
+                if (instanceIndexCol === -1 && instanceIndex === ALL_INSTANCES_INDEX) {
+                    alert("CSV must include 'instance index' column");
+                    return;
+                }
+
+                const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
+                const isValidCSV = lowerAccountAttrs.every(attr =>
+                    headers.includes(attr)
+                );
+
+                if (!isValidCSV) {
+                    const instanceIndexHeader = instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : "";
+                    alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}${instanceIndexHeader}`);
+                    return;
+                }
+
+                //accounts by instance is used to extract the accounts for each instance
+                const accountsByInstance = {};
+                const fieldMapping = accountAttributes.map(attr =>
+                    headers.indexOf(attr.toLowerCase())
+                );
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === "") continue;
+
+                    const values = parseCSVLine(lines[i]);
+                    if (values.length !== headers.length) {
+                        console.warn(`Skipping row ${i + 1}: column count mismatch`);
+                        continue;
+                    }
+
+                    // extracts the value of the instance index column for the all instance csv upload, if single instance upload it is just the instanceIndex
+                    let csvInstanceIndex;
+                    if (instanceIndex === ALL_INSTANCES_INDEX) {
+                        // For the All Instances tab, use the instance index from the CSV
+                        csvInstanceIndex = parseInt(values[instanceIndexCol].trim(), 10);
+                        if (!/^\d+$/.test(csvInstanceIndex.toString()) || csvInstanceIndex === 0) {
+                            console.warn(`Skipping row ${i + 1}: invalid instance index "${csvInstanceIndex}"`);
+                            continue;
+                        }
+                    } else {
+                        // For individual instance tabs, use the tab's instance index
+                        csvInstanceIndex = instanceIndex;
+                    }
+
+                    const accountData = {};
+                    accountAttributes.forEach((attr, idx) => {
+                        accountData[attr] = values[fieldMapping[idx]] || "";
+                    });
+
+                    if (!accountsByInstance[csvInstanceIndex]) {
+                        accountsByInstance[csvInstanceIndex] = [];
+                    }
+                    accountsByInstance[csvInstanceIndex].push(accountData);
+                }
+
+                if (Object.keys(accountsByInstance).length === 0) {
+                    alert("No valid account data found in CSV");
+                    return;
+                }
+
+                Object.entries(accountsByInstance).forEach(([instanceIdx, accounts]) => {
+                    const csvInstanceIndex = parseInt(instanceIdx, 10);
+                    const instanceCount = parseInt(document.getElementById("instance_count").value, 10) || 1;
+
+                    if (csvInstanceIndex > instanceCount) {
+                        alert(`Warning: CSV contains data for instance ${csvInstanceIndex}, but only ${instanceCount} instances are configured. Increase instance count to use all data.`);
+                        return;
+                    }
+                    if (csvInstanceIndex === ALL_INSTANCES_INDEX) {
+                        alert(`Warning: CSV contains data for index ${ALL_INSTANCES_INDEX}. This index represents all instances and can't currently be used.`);
+                        return;
+                    }
+
+                    const accountsContainer = document.getElementById(`dynamic_accounts_container_${csvInstanceIndex}`);
+                    if (!accountsContainer) {
+                        console.error(`Container for instance ${csvInstanceIndex} not found`);
+                        return;
+                    }
+
+                    //Show the account section and user count section for the instanceIndex in the csv
+                    document.getElementById(`accounts_section_${csvInstanceIndex}`).style.display = "block";
+                    document.getElementById(`user_count_section_${csvInstanceIndex}`).style.display = "block";
+
+                    // Clear existing accounts for the instance index in the csv
+                    accountsContainer.innerHTML = "";
+
+                    accounts.forEach((account, index) => {
+                        const accountSection = document.createElement("div");
+                        accountSection.className = "card p-3 mb-3 position-relative";
+                        accountSection.id = `account_${csvInstanceIndex}_${index + 1}`;
+                        accountSection.dataset.accountNumber = index + 1;
+                        accountSection.style.border = "1px solid #ccc";
+                        accountSection.style.borderRadius = "5px";
+                        accountSection.style.padding = "15px";
+
+                        const removeBtn = document.createElement("button");
+                        removeBtn.className = "btn btn-danger btn-sm position-absolute";
+                        removeBtn.style.top = "5px";
+                        removeBtn.style.right = "5px";
+                        removeBtn.innerHTML = "Remove";
+                        removeBtn.onclick = function () {
+                            accountSection.remove();
+                            renumberAccounts(csvInstanceIndex);
+                            updateUserCount(csvInstanceIndex);
+                            selectAutomaticFlavor(csvInstanceIndex);
+                        };
+
+
+                        let fieldsHtml = `<h5 class="account-title">Account ${index + 1}</h5>`;
+                        accountAttributes.forEach(attr => {
+                            fieldsHtml += `
+                        <div class="form-group md-5">
+                            <label for="${attr}_${csvInstanceIndex}_${index + 1}">${attr}</label>
+                            <input type="text" class="form-control"
+                                   id="${attr}_${csvInstanceIndex}_${index + 1}"
+                                   name="${attr}_${csvInstanceIndex}"
+                                   value="${account[attr] || ''}"
+                                   required>
+                        </div>
+                    `;
+                        });
+
+                        accountSection.innerHTML = fieldsHtml;
+                        accountSection.appendChild(removeBtn);
+                        accountsContainer.appendChild(accountSection);
+                    });
+
+                    updateUserCount(csvInstanceIndex);
+                    selectAutomaticFlavor(instanceIndex);
+                });
             }
 
-            result.push(currentField.trim());
-            return result;
-        }
-
-
-        const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
-
-        const lowerAccountAttrs = accountAttributes.map(a => a.toLowerCase());
-        const isValidCSV = lowerAccountAttrs.every(attr =>
-            headers.includes(attr)
-        );
-
-        if (!isValidCSV) {
-            alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}`);
-            return;
-        }
-
-        const fieldMapping = accountAttributes.map(attr =>
-            headers.indexOf(attr.toLowerCase())
-        );
-
-        const accountsData = [];
-        for (let i = 1; i < lines.length; i++) {
-            if (lines[i].trim() === "") continue;
-
-            const values = parseCSVLine(lines[i]);
-            if (values.length !== headers.length) {
-                console.warn(`Skipping row ${i+1}: column count mismatch`);
-                continue;
-            }
-
-            const accountData = {};
-            accountAttributes.forEach((attr, idx) => {
-                accountData[attr] = values[fieldMapping[idx]] || "";
-            });
-            accountsData.push(accountData);
-        }
-
-        if (accountsData.length === 0) {
-            alert("No valid account data found in CSV");
-            return;
-        }
-
-        const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-        const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-        const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
-
-        if (noAdditionalUsersCheckbox.checked) {
-            noAdditionalUsersCheckbox.checked = false;
-            document.getElementById(`accounts_section_${instanceIndex}`).style.display = "block";
-            document.getElementById(`user_count_section_${instanceIndex}`).style.display = "block";
-        }
-
-        accountsContainer.innerHTML = "";
-
-          accountsData.forEach((account, index) => {
-            const accountSection = document.createElement("div");
-            accountSection.className = "card p-3 mb-3 position-relative";
-            accountSection.id = `account_${instanceIndex}_${index+1}`;
-            accountSection.dataset.accountNumber = index+1;
-            accountSection.style.border = "1px solid #ccc";
-            accountSection.style.borderRadius = "5px";
-            accountSection.style.padding = "15px";
-
-            const removeBtn = document.createElement("button");
-            removeBtn.className = "btn btn-danger btn-sm position-absolute";
-            removeBtn.style.top = "5px";
-            removeBtn.style.right = "5px";
-            removeBtn.innerHTML = "Remove";
-            removeBtn.onclick = function() {
-                accountSection.remove();
-                renumberAccounts(instanceIndex);
-                updateUserCount(instanceIndex);
-                selectAutomaticFlavor(instanceIndex);
-            };
-
-
-            let fieldsHtml = `<h5 class="account-title">Account ${index+1}</h5>`;
-            accountAttributes.forEach(attr => {
-                fieldsHtml += `
-                    <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}_${index+1}">${attr}</label>
-                        <input type="text" class="form-control"
-                               id="${attr}_${instanceIndex}_${index+1}"
-                               name="${attr}_${instanceIndex}"
-                               value="${account[attr] || ''}"
-                               required>
-                    </div>
-                `;
-            });
-
-            accountSection.innerHTML = fieldsHtml;
-            accountSection.appendChild(removeBtn);
-            accountsContainer.appendChild(accountSection);
+            reader.readAsText(file);
         });
 
-        updateUserCount(instanceIndex);
-        selectAutomaticFlavor(instanceIndex);
-    };
+        function updateUserCount(instanceIndex) {
+            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+            const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
 
-    reader.readAsText(file);
-});
-
-function updateUserCount(instanceIndex) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-
-    if (accountsContainer && userCountInput) {
-        userCountInput.value = accountsContainer.querySelectorAll('.card').length;
-    }
-}
-
-
-document.addEventListener("change", function(event) {
-    if (!event.target.classList.contains("csv-upload")) return;
-
-    const fileInput = event.target;
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const instanceIndex = fileInput.getAttribute("data-instance");
-    if (!instanceIndex) return;
-
-    const formGroup = fileInput.closest('.form-group');
-
-    const existingUndoBtn = formGroup.querySelector('.undo-csv');
-    if (existingUndoBtn) {
-        existingUndoBtn.remove();
-    }
-
-    const undoBtn = document.createElement("button");
-    undoBtn.type = "button";
-    undoBtn.className = "btn btn-danger btn-sm undo-csv ml-2";
-    undoBtn.dataset.instance = instanceIndex;
-    undoBtn.innerHTML = `{{ _("Undo CSV Upload") }}`;
-
-    undoBtn.style.display = "inline-block";
-    undoBtn.style.verticalAlign = "middle";
-
-    fileInput.insertAdjacentElement('afterend', undoBtn);
-
-    undoBtn.addEventListener("click", function() {
-        resetCSVUpload(instanceIndex);
-    });
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const lines = text.trim().split("\n");
-
-        if (lines.length === 0) {
-            alert("CSV file is empty");
-            return;
+            if (accountsContainer && userCountInput) {
+                userCountInput.value = accountsContainer.querySelectorAll('.card').length;
+            }
         }
 
-    };
+        function resetCSVUpload(instanceIndex) {
+            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+            const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+            const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
+            const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
 
-    reader.readAsText(file);
-});
+            if (csvInput) csvInput.value = "";
 
-function resetCSVUpload(instanceIndex) {
-    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-    const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
-    const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
+            if (undoBtn) undoBtn.remove();
 
-    csvInput.value = "";
+            userCountInput.value = 1;
 
-    if (undoBtn) {
-        undoBtn.remove();
-    }
+            accountsContainer.innerHTML = "";
+            generateMultipleAccountFields(instanceIndex, 1);
 
-    userCountInput.value = 1;
-
-    accountsContainer.innerHTML = "";
-    generateMultipleAccountFields(instanceIndex, 1);
-
-    selectAutomaticFlavor(instanceIndex);
-}
+            selectAutomaticFlavor(instanceIndex);
+        }
 
         function attachVolumeChangeHandlers() {
             document.querySelectorAll(".existing-volume-select").forEach(select => {
@@ -1361,14 +1359,14 @@ function resetCSVUpload(instanceIndex) {
             });
         }
 
-       document.querySelector("form").addEventListener("submit", function(event) {
+        document.querySelector("form").addEventListener("submit", function(event) {
 
-           document.getElementById('loadingModal').style.display = 'flex';
-       });
+            document.getElementById('loadingModal').style.display = 'flex';
+        });
 
-       function updateLoadingModal(message) {
-           document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
-       }
+        function updateLoadingModal(message) {
+            document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
+        }
 
 
 
