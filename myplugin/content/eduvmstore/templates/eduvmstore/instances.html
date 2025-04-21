@@ -1096,6 +1096,22 @@
             if (!event.target.classList.contains("csv-upload")) return;
 
             const file = event.target.files[0];
+
+                        // Add Undo button if not already present
+            const placeholder = event.target.parentElement.querySelector('.undo-placeholder');
+            if (placeholder && !placeholder.querySelector('.undo-csv')) {
+                const instanceIndex = event.target.getAttribute("data-instance");
+                const undoBtn = document.createElement("button");
+                undoBtn.type = "button";
+                undoBtn.className = "btn btn-sm btn-warning undo-csv";
+                undoBtn.dataset.instance = instanceIndex;
+                undoBtn.style.marginLeft = "10px";
+                undoBtn.innerHTML = '<i class="fa fa-undo"></i> Undo';
+
+                undoBtn.addEventListener("click", () => resetCSVUpload(instanceIndex));
+                placeholder.appendChild(undoBtn);
+}
+
             if (!file) return;
 
             const instanceIndex = parseInt(event.target.getAttribute("data-instance"), 10);
