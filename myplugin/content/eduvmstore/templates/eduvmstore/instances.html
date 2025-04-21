@@ -1325,39 +1325,46 @@
             }
         }
 
-            function resetCSVUpload(instanceIndex) {
-                const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
-                const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
+                    function resetCSVUpload(instanceIndex) {
+            const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
+            const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
 
-                if (csvInput) csvInput.value = "";
-                if (undoBtn) undoBtn.remove();
+            if (csvInput) csvInput.value = "";
+            if (undoBtn) undoBtn.remove();
 
-                if (instanceIndex === 0) {
-                    // All Instances: reset ALL accounts that were created by CSV
-                    const instanceCount = parseInt(document.getElementById("instance_count").value, 10) || 1;
-                    for (let i = 1; i <= instanceCount; i++) {
-                        const accountsContainer = document.getElementById(`dynamic_accounts_container_${i}`);
-                        const userCountInput = document.getElementById(`user_count_${i}`);
-                        if (accountsContainer && userCountInput) {
-                            accountsContainer.innerHTML = "";
-                            userCountInput.value = 1;
-                            generateMultipleAccountFields(i, 1);
-                            selectAutomaticFlavor(i);
-                        }
-                    }
-                } else {
-                    // Individual Instance reset
-                    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-                    const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+            // Wenn wir All Instances (Index 0) zurücksetzen wollen:
+            if (parseInt(instanceIndex) === 0) {
+                const totalInstances = parseInt(document.getElementById("instance_count").value, 10) || 1;
+
+                for (let i = 1; i <= totalInstances; i++) {
+                    const accountsContainer = document.getElementById(`dynamic_accounts_container_${i}`);
+                    const userCountInput = document.getElementById(`user_count_${i}`);
 
                     if (accountsContainer && userCountInput) {
-                        userCountInput.value = 1;
                         accountsContainer.innerHTML = "";
-                        generateMultipleAccountFields(instanceIndex, 1);
-                        selectAutomaticFlavor(instanceIndex);
+                        userCountInput.value = "0";
+
+                        // optional: verstecke die Section komplett
+                        const section = document.getElementById(`accounts_section_${i}`);
+                        if (section) section.style.display = "none";
                     }
                 }
+            } else {
+                // Standardfall: einzelne Instanz zurücksetzen
+                const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+                const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+
+                if (accountsContainer && userCountInput) {
+                    accountsContainer.innerHTML = "";
+                    userCountInput.value = "0";
+
+                    const section = document.getElementById(`accounts_section_${instanceIndex}`);
+                    if (section) section.style.display = "none";
+                }
             }
+        }
+
+
         function attachVolumeChangeHandlers() {
             document.querySelectorAll(".existing-volume-select").forEach(select => {
                 select.addEventListener("change", () => {
