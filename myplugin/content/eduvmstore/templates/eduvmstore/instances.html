@@ -424,6 +424,15 @@
         }
 
         function generateAccountAttributesSection(instanceIndex){
+            if (accountAttributes.length === 0) {
+                return `
+                    <div class="section-container">
+                        <h5>{{ _("User Configuration") }}</h5>
+                        <p class="text-muted">{{ _("No user attributes are required for this template.") }}</p>
+                    </div>
+                `;
+            }
+
             return`
                 <div class="section-container">
                     <h5>{{ _("User Configuration") }}</h5>
