@@ -1,6 +1,6 @@
 @startuml
 skinparam linetype ortho
-title EduVMStore
+title EduVMStore Frontend
 
 package "Horizon System" {
     [Horizon Loader]
@@ -35,7 +35,7 @@ package "myplugin.content.eduvmstore" {
 [views.py] <--> [instances.html] : interact
 [views.py] <--> [success.html] : interact
 [index.html] <--> [table.html] : includes
-[views.py] <--> [EduVMStore] : fetch
+[views.py] <--> [EduVMStore Backend] : fetch
 
 
 @enduml
