@@ -14,7 +14,7 @@ preset_examples = {
         "per_user_disk_gb": "5",
         "per_user_cores": "1",
         "public": False,
-        "instantiation_attributes": [{"name": "version"}, {"name": "packages"}],
+        "instantiation_attributes": [],
         "account_attributes": [{"name": "username"}, {"name": "password"}],
         "script": "runcmd:\r\n  - |\r\n    # Create directory for private keys\r\n    "
                   "mkdir -p /home/ubuntu/user_keys\r\n    chmod 700 /home/ubuntu/user_keys\r\n  "
