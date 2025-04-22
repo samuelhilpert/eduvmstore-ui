@@ -48,7 +48,7 @@
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 6px 12px;
         font-size: 15px;
         border: none;
         cursor: pointer;
@@ -68,48 +68,58 @@
          background-color: #E8E8E8;
    }
 
-</style>
+   .top-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+}
 
-<div style="display: flex; justify-content: space-between; align-items: center;">
+
+</style>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 20px;">
     <h3>AppTemplate Details</h3>
 
-    <div class="btn-group">
-                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch" style="margin-top: 20px; margin-bottom: 20px;">
+
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
             Launch
         </a>
 
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" style="margin-top: 20px; margin-bottom: 20px;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-        </button>
+        <div class="btn-group">
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}" class="btn btn-launch">
+                Edit
+            </a>
 
-        <ul class="dropdown-menu dropdown-menu-right">
-                            <li>
-                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
-                                    Edit AppTemplate
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
-                                    Clone AppTemplate
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
-                                    Delete AppTemplate
-                                </a>
-                                <form id="delete-form-{{ app_template.id }}" method="post"
-                                      action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
-                                      style="display: none;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="template_name" value="{{ app_template.name }}">
-                                </form>
-                            </li>
-                        </ul>
+            <button type="button" class="btn btn-launch dropdown-toggle dropdown-toggle-split"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li>
+                    <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
+                        Clone AppTemplate
+                    </a>
+                </li>
+                <li role="separator" class="divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="#"
+                       onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
+                        Delete AppTemplate
+                    </a>
+                    <form id="delete-form-{{ app_template.id }}" method="post"
+                          action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
+                          style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="template_name" value="{{ app_template.name }}">
+                    </form>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
-    <!-- AppTemplate  Section -->
+
+
 
 
     <div class="app_template_details">
