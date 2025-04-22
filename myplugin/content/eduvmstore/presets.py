@@ -46,7 +46,8 @@ preset_examples = {
     "gitlab_server": {
         "name": "GitLab Server",
         "short_description": "GitLab for software engineering course",
-        "description": "This template provides a GitLab server preconfigured for classroom use. The specified users get access to this gitlab server.",
+        "description": "This template provides a GitLab server preconfigured for classroom use. "
+                       "The specified users get access to this gitlab server.",
         "instantiation_notice": "",
         "fixed_ram_gb": "4",
         "fixed_disk_gb": "50",
@@ -105,7 +106,8 @@ preset_examples = {
     "jupyter_notebook": {
         "name": "Jupyter Notebook",
         "short_description": "Isolated Jupyter environment for each user",
-        "description": "This template provides Jupyter Notebooks on separate ports for multiple users. The specified users get their own Jupyter environment on their own port.",
+        "description": "This template provides Jupyter Notebooks on separate ports for multiple users. "
+                       "The specified users get their own Jupyter environment on their own port.",
         "instantiation_notice": "",
         "fixed_ram_gb": "8",
         "fixed_disk_gb": "80",
