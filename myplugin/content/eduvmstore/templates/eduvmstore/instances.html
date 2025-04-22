@@ -448,9 +448,16 @@
     `;
 
                 accountsHTML += `
+
                     <h6>{{ _("Accounts") }}</h6>
                     <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
                     <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+
+                         <div class="d-flex justify-content-end mb-2 mt" style="margin-top: 15px;">
+                <button type="button" class="btn btn-outline-success btn-sm export_csv_btn" data-instance="${instanceIndex}">
+                    <i class="fa fa-download"></i> Export CSV
+                </button>
+            </div>
                 `
             }
 
@@ -1190,7 +1197,6 @@
                     return;
                 }
 
-                //accounts by instance is used to extract the accounts for each instance
                 const accountsByInstance = {};
                 const fieldMapping = accountAttributes.map(attr =>
                     headers.indexOf(attr.toLowerCase())
@@ -1204,17 +1210,17 @@
                         continue;
                     }
 
-                    // extracts the value of the instance index column for the all instance csv upload, if single instance upload it is just the instanceIndex
+
                     let csvInstanceIndex;
                     if (instanceIndex === ALL_INSTANCES_INDEX) {
-                        // For the All Instances tab, use the instance index from the CSV
+
                         csvInstanceIndex = parseInt(values[instanceIndexCol].trim(), 10);
                         if (!/^\d+$/.test(csvInstanceIndex.toString()) || csvInstanceIndex === 0) {
                             console.warn(`Skipping row ${i + 1}: invalid instance index "${csvInstanceIndex}"`);
                             continue;
                         }
                     } else {
-                        // For individual instance tabs, use the tab's instance index
+
                         csvInstanceIndex = instanceIndex;
                     }
 
@@ -1253,11 +1259,9 @@
                         return;
                     }
 
-                    //Show the account section and user count section for the instanceIndex in the csv
                     document.getElementById(`accounts_section_${csvInstanceIndex}`).style.display = "block";
                     document.getElementById(`user_count_section_${csvInstanceIndex}`).style.display = "block";
 
-                    // Clear existing accounts for the instance index in the csv
                     accountsContainer.innerHTML = "";
 
                     accounts.forEach((account, index) => {
@@ -1318,23 +1322,43 @@
             }
         }
 
-        function resetCSVUpload(instanceIndex) {
-            const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
-            const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+                    function resetCSVUpload(instanceIndex) {
             const csvInput = document.getElementById(`csvUpload_${instanceIndex}`);
             const undoBtn = document.querySelector(`.undo-csv[data-instance="${instanceIndex}"]`);
 
             if (csvInput) csvInput.value = "";
-
             if (undoBtn) undoBtn.remove();
 
-            userCountInput.value = 1;
+            // Wenn wir All Instances (Index 0) zurücksetzen wollen:
+            if (parseInt(instanceIndex) === 0) {
+                const totalInstances = parseInt(document.getElementById("instance_count").value, 10) || 1;
 
-            accountsContainer.innerHTML = "";
-            generateMultipleAccountFields(instanceIndex, 1);
+                for (let i = 1; i <= totalInstances; i++) {
+                    const accountsContainer = document.getElementById(`dynamic_accounts_container_${i}`);
+                    const userCountInput = document.getElementById(`user_count_${i}`);
 
-            selectAutomaticFlavor(instanceIndex);
+                    if (accountsContainer && userCountInput) {
+                        accountsContainer.innerHTML = "";
+                        userCountInput.value = "0";
+                        const section = document.getElementById(`accounts_section_${i}`);
+                        if (section) section.style.display = "none";
+                    }
+                }
+            } else {
+
+                const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+                const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
+
+                if (accountsContainer && userCountInput) {
+                    accountsContainer.innerHTML = "";
+                    userCountInput.value = "0";
+
+                    const section = document.getElementById(`accounts_section_${instanceIndex}`);
+                    if (section) section.style.display = "none";
+                }
+            }
         }
+
 
         function attachVolumeChangeHandlers() {
             document.querySelectorAll(".existing-volume-select").forEach(select => {
@@ -1368,10 +1392,42 @@
             document.getElementById('loadingModal').querySelector('.loading-modal-content p').textContent = message;
         }
 
+document.addEventListener("click", function (e) {
+    if (e.target.closest(".export_csv_btn")) {
+        const btn = e.target.closest(".export_csv_btn");
+        const instanceIndex = btn.dataset.instance;
+        exportAccountsToCSV(instanceIndex);
+    }
+});
 
+function exportAccountsToCSV(instanceIndex) {
+    const accountsContainer = document.getElementById(`dynamic_accounts_container_${instanceIndex}`);
+    if (!accountsContainer) return;
 
+    const rows = [];
+    rows.push(accountAttributes.join(","));
 
+    const accountCards = accountsContainer.querySelectorAll(".card");
+    accountCards.forEach(card => {
+        const values = accountAttributes.map(attr => {
+            const input = card.querySelector(`input[name="${attr}_${instanceIndex}"]`);
+            return input ? `"${(input.value || "").replace(/"/g, '""')}"` : "";
+        });
+        rows.push(values.join(","));
+    });
 
+    const csvContent = rows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `accounts_instance_${instanceIndex}.csv`;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 
     </script>
 

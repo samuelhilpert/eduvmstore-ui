@@ -234,6 +234,11 @@
     margin-top: 20px;
     font-size: 14px;
 }
+
+#selectedGroupsDisplay .text-muted {
+    color: #6c757d;
+    font-style: italic;
+}
 </style>
 
 <div class="form-container">
@@ -438,7 +443,7 @@
     <div class="form-group row">
         <div class="col-md-4">
             <label for="security_groups" style="margin-top: 10px">
-                Select Security Groups <span style="color: rgb(85,137,197);">*</span>
+                Select Security Groups
                 <span data-toggle="tooltip" title="Security groups are sets of IP filter rules that are applied to all project instances, which define networking access to the instance.">
                     <i class="fa fa-question-circle"></i>
                 </span>
@@ -446,27 +451,25 @@
             <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
 
                 <button class="dropdown-toggle form-control text-left" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span id="selectedGroupsDisplay" >
-                        {% if is_edit and selected_groups %}
-                            {% for group in selected_groups %}
-                                <span>{{ group }}</span>
-                            {% endfor %}
-                        {% else %}
-                            <span>default</span>
-                        {% endif %}
-                    </span>
+                    <span id="selectedGroupsDisplay">
+                    {% if is_edit and selected_groups %}
+                        {% for group in selected_groups %}
+                            <span>{{ group }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </span>
                 </button>
 
                 <div class="dropdown-menu" aria-labelledby="securityGroupsDropdown" style="padding: 10px; width: 100%;">
                     {% for sg in security_groups %}
                         <div class="dropdown-item">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="security_groups" style="margin-right: 10px;"
-                                       id="sg_{{ sg.id }}" value="{{ sg.name }}"
-                                     {% if sg.selected %}checked{% elif not is_edit and sg.name == 'default' %}checked{% endif %}
-                                <label class="form-check-label" for="sg_{{ sg.id }}" >
-                                    {{ sg.name }}
-                                </label>
+                               <input class="form-check-input" type="checkbox" name="security_groups"
+                                   style="margin-right: 10px;" id="sg_{{ sg.id }}" value="{{ sg.name }}"
+                                   {% if sg.selected %}checked{% endif %}>
+                            <label  style="margin-top: 10px" class="form-check-label" for="sg_{{ sg.id }}">
+                                {{ sg.name }}
+                            </label>
                             </div>
                         </div>
                     {% endfor %}
@@ -479,7 +482,11 @@
 
 <h3>Configuration Script</h3>
 <div class="script-details">
-    <p>Enter instantiation and account attributes to be used in the configuration script. You can find more information <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}">here</a>.</p>
+    <p>
+    Enter instantiation and account attributes to be used in the configuration script.
+    You can find more information
+    <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}#instantiation-and-account-attributes">here</a>.
+</p>
 
     <div class="form-group row">
         <div class="col-md-6">
@@ -861,21 +868,17 @@ write_files:
         display.empty();
 
         if (selected.length === 0) {
-            display.append('<span>default</span>');
+            display.append('<span class="text-muted">No group selected</span>');
         } else {
             selected.forEach(function(group) {
                 display.append('<span>' + group + '</span>');
             });
         }
     }
-
     updateSelectedGroupsDisplay();
 
      // Handle checkbox changes
     $('input[name="security_groups"]').change(function() {
-        if ($('input[name="security_groups"]:checked').length === 0) {
-            $('input[value="default"]').prop('checked', true);
-        }
         updateSelectedGroupsDisplay();
     });
 
