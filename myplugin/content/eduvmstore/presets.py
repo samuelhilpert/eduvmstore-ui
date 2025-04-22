@@ -55,7 +55,7 @@ preset_examples = {
         "per_user_ram_gb": "1",
         "per_user_disk_gb": "10",
         "per_user_cores": "1",
-        "public": True,
+        "public": False,
         "instantiation_attributes": [],
         "account_attributes": [
             {"name": "username"},
@@ -114,7 +114,7 @@ preset_examples = {
         "per_user_ram_gb": "2",
         "per_user_disk_gb": "10",
         "per_user_cores": "1",
-        "public": True,
+        "public": False,
         "instantiation_attributes": [],
         "account_attributes": [
             {"name": "username"},
