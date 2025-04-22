@@ -29,7 +29,7 @@
         margin-top: 30px;
         margin-bottom: 20px;
         color: #343a40;
-        font-weight: bold;
+
     }
     h5 {
         font-size: medium;
@@ -76,7 +76,8 @@
 
 </style>
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 20px;">
-    <h3 style="margin: 0;">AppTemplate Details</h3>
+    <h3>AppTemplate Details</h3>
+
 
     <div style="display: flex; gap: 10px; align-items: center;">
         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
@@ -126,21 +127,23 @@
 <div class="row">
     <div class="col-md-6">
         <div class="detail-group">
-            <strong>AppTemplate Name:</strong>
+            <strong>AppTemplate Name</strong>
             <p>{{ app_template.name }}</p>
         </div>
         <div class="detail-group">
-            <strong>AppTemplate ID:</strong>
+            <strong>AppTemplate ID</strong>
             <p>{{ app_template.id }}</p>
         </div>
+
         <div class="detail-group">
-            <strong>Created at:</strong>
-            <p>{{ created_at }}</p>
+            <strong>Short Description</strong>
+            <p>{{ app_template.short_description }}</p>
         </div>
+
     </div>
     <div class="col-md-6">
         <div class="detail-group">
-            <strong>Available in EduVMStore for:</strong>
+            <strong>Available in EduVMStore for</strong>
             <p>
                 {% if app_template.public and app_template.approved %}
                     All Lecturers
@@ -154,13 +157,13 @@
         </div>
 
         <div class="detail-group">
-            <strong>AppTemplate Creator:</strong>
+            <strong>AppTemplate Creator</strong>
             <p>{{ app_template_creator }}</p>
         </div>
 
         <div class="detail-group">
-            <strong>Short Description:</strong>
-            <p>{{ app_template.short_description }}</p>
+            <strong>Created at</strong>
+            <p>{{ created_at }}</p>
         </div>
 
 
@@ -169,12 +172,12 @@
 </div>
 
 <div class="detail-group">
-    <strong>Description:</strong>
+    <strong>Description</strong>
     <p>{{ app_template.description }}</p>
 </div>
 
 <div class="detail-group">
-    <strong>Instantiation Notice:</strong>
+    <strong>Instantiation Notice</strong>
     <p>{{ app_template.instantiation_notice }}</p>
 </div>
 
@@ -187,34 +190,34 @@
         <div class="col-md-6">
             <h5>Fixed Minimum Resources</h5>
             <div class="detail-group">
-                <strong>Fixed RAM (GB):</strong>
+                <strong>Fixed RAM (GB)</strong>
                 <p>{{ app_template.fixed_ram_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Fixed Disk (GB):</strong>
+                <strong>Fixed Disk (GB)</strong>
                 <p>{{ app_template.fixed_disk_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Fixed Cores:</strong>
+                <strong>Fixed Cores</strong>
                 <p>{{ app_template.fixed_cores }}</p>
             </div>
             <div class="detail-group">
-                <strong>Volume Size:</strong>
+                <strong>Volume Size</strong>
                 <p>{{ app_template.volume_size_gb }}</p>
             </div>
         </div>
         <div class="col-md-6">
             <h5>Minimum Resources per User</h5>
             <div class="detail-group">
-                <strong>Per User RAM (GB):</strong>
+                <strong>Per User RAM (GB)</strong>
                 <p>{{ app_template.per_user_ram_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Per User Disk (GB):</strong>
+                <strong>Per User Disk (GB)</strong>
                 <p>{{ app_template.per_user_disk_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Per User Cores:</strong>
+                <strong>Per User Cores</strong>
                 <p>{{ app_template.per_user_cores }}</p>
             </div>
         </div>
@@ -227,7 +230,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Image ID:</strong>
+                <strong>Image ID</strong>
                 <p>
                     <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
                         {{ app_template.image_id }}
@@ -237,7 +240,7 @@
         </div>
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Owner:</strong>
+                <strong>Owner</strong>
                 <p>{{ image_owner }}</p>
             </div>
         </div>
@@ -252,7 +255,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Security Groups:</strong>
+                <strong>Security Groups</strong>
                 {% if app_template.security_groups %}
                     <ul class="list-unstyled">
                         {% for group in app_template.security_groups %}
@@ -268,13 +271,13 @@
 </div>
 
 
-    <h3>Script</h3>
+    <h3>Configuration Script</h3>
     <div class="script-details">
         <div class="row">
             <div class="col-md-6">
 
                 <div class="detail-group">
-                    <strong>Script:</strong>
+                    <strong>Script</strong>
                     {% if app_template.script %}
                         <pre>
 #cloud-config
@@ -302,15 +305,15 @@ write_files:
             </div>
             <div class="col-md-6">
                 <div class="detail-group">
-                    <strong>Instantiation Attributes:</strong>
+                    <strong>Instantiation Attributes</strong>
                     <p id="structured-instantiation"></p>
                 </div>
                 <div class="detail-group">
-                    <strong>Account Attributes:</strong>
+                    <strong>Account Attributes</strong>
                     <p id="structured-accounts"></p>
                 </div>
                 <div class="detail-group">
-                    <strong>SSH User Script:</strong>
+                    <strong>SSH User Script</strong>
                     <p>{% if app_template.ssh_user_requested %} Yes {% else %} No {% endif %} </p>
             </div>
         </div>
