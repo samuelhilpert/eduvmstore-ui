@@ -14,7 +14,7 @@ preset_examples = {
         "per_user_disk_gb": "5",
         "per_user_cores": "1",
         "public": False,
-        "instantiation_attributes": [{"name": "version"}, {"name": "packages"}],
+        "instantiation_attributes": [],
         "account_attributes": [{"name": "username"}, {"name": "password"}],
         "script": "runcmd:\r\n  - |\r\n    # Create directory for private keys\r\n    "
                   "mkdir -p /home/ubuntu/user_keys\r\n    chmod 700 /home/ubuntu/user_keys\r\n  "
@@ -46,7 +46,8 @@ preset_examples = {
     "gitlab_server": {
         "name": "GitLab Server",
         "short_description": "GitLab for software engineering course",
-        "description": "This template provides a GitLab server preconfigured for classroom use.",
+        "description": "This template provides a GitLab server preconfigured for classroom use. "
+                       "The specified users get access to this gitlab server.",
         "instantiation_notice": "",
         "fixed_ram_gb": "4",
         "fixed_disk_gb": "50",
@@ -55,7 +56,7 @@ preset_examples = {
         "per_user_ram_gb": "1",
         "per_user_disk_gb": "10",
         "per_user_cores": "1",
-        "public": True,
+        "public": False,
         "instantiation_attributes": [],
         "account_attributes": [
             {"name": "username"},
@@ -105,7 +106,8 @@ preset_examples = {
     "jupyter_notebook": {
         "name": "Jupyter Notebook",
         "short_description": "Isolated Jupyter environment for each user",
-        "description": "This template provides Jupyter Notebooks on separate ports for multiple users.",
+        "description": "This template provides Jupyter Notebooks on separate ports for multiple users. "
+                       "The specified users get their own Jupyter environment on their own port.",
         "instantiation_notice": "",
         "fixed_ram_gb": "8",
         "fixed_disk_gb": "80",
@@ -114,7 +116,7 @@ preset_examples = {
         "per_user_ram_gb": "2",
         "per_user_disk_gb": "10",
         "per_user_cores": "1",
-        "public": True,
+        "public": False,
         "instantiation_attributes": [],
         "account_attributes": [
             {"name": "username"},
