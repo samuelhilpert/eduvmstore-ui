@@ -1416,11 +1416,6 @@ class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
     page_title = _("Success")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['page_title'] = self.page_title
-        return context
-
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to render the success template.
@@ -1442,6 +1437,7 @@ class InstanceSuccessView(generic.TemplateView):
         separate_keys = self.request.session.get("separate_keys", False)
         ssh_user_requested = self.request.session.get('ssh_user_requested', False)
         context['ssh_user_requested'] = ssh_user_requested
+        context['page_title'] = self.page_title
         context['instances'] = []
 
         for i in range(1, num_instances + 1):
