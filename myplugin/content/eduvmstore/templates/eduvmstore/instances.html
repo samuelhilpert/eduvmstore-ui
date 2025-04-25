@@ -166,32 +166,20 @@
                                 <td>{{ app_template.instantiation_notice }}</td>
                             </tr>
                             <tr>
-                                <th>Fixed RAM (GB)</th>
+                                <th>Minimum RAM (GB)</th>
                                 <td>{{ app_template.fixed_ram_gb }}</td>
                             </tr>
                             <tr>
-                                <th>Fixed Disk (GB)</th>
+                                <th>Minimum Disk (GB)</th>
                                 <td>{{ app_template.fixed_disk_gb }}</td>
                             </tr>
                             <tr>
-                                <th>Fixed Cores</th>
+                                <th>Minimum Cores</th>
                                 <td>{{ app_template.fixed_cores }}</td>
                             </tr>
                             <tr>
                                 <th>Volume Size (GB)</th>
                                 <td>{{ app_template.volume_size_gb }}</td>
-                            </tr>
-                            <tr>
-                                <th>Per User RAM (GB)</th>
-                                <td>{{ app_template.per_user_ram_gb }}</td>
-                            </tr>
-                            <tr>
-                                <th>Per User Disk (GB)</th>
-                                <td>{{ app_template.per_user_disk_gb }}</td>
-                            </tr>
-                            <tr>
-                                <th>Per User Cores</th>
-                                <td>{{ app_template.per_user_cores }}</td>
                             </tr>
                             <tr>
                                 <th>Image Owner</th>
@@ -407,11 +395,11 @@
             `;
         }
 
-        function generateFixedRessourceSection(instanceIndex){
+        function generateRessourceSection(instanceIndex){
             return `
                 <h5>{{ _("Resource Configuration") }}</h5>
 
-                <!-- Display Fixed Resource Requirements and Available Resources -->
+                <!-- Display Resource Requirements and Available Resources -->
                 <div class="alert alert-info mt-3">
                     <p><strong>{{ _("Resource Requirements") }}:</strong></p>
                     <ul>
@@ -509,7 +497,7 @@
                     <input type="hidden" name="generated_instance_name_${instanceIndex}" value="${instanceName}">
 
                     <div class="section-container">
-                        ${generateFixedRessourceSection(instanceIndex)}
+                        ${generateRessourceSection(instanceIndex)}
                         ${generateFlavorSection(instanceIndex)}
                         ${generateNetworkSection(instanceIndex)}
                         ${generateVolumeSection(instanceIndex)}
@@ -989,32 +977,13 @@
             const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
             if (!flavorDropdown) return;
 
-            const noAdditionalUsersCheckbox = document.getElementById(`no_additional_users_${instanceIndex}`);
-            const userCountInput = document.getElementById(`user_count_${instanceIndex}`);
-
             const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
             const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
             const requiredCores = parseInt("{{ app_template.fixed_cores }}");
 
-            let totalRAM = requiredRAM;
-            let totalDisk = requiredDisk;
-            let totalCores = requiredCores;
-
-
-            if (instanceIndex != ALL_INSTANCES_INDEX && userCountInput && parseInt(userCountInput.value) > 0) {
-                const perUserRAM = parseFloat("{{ app_template.per_user_ram_gb }}");
-                const perUserDisk = parseFloat("{{ app_template.per_user_disk_gb }}");
-                const perUserCores = parseFloat("{{ app_template.per_user_cores }}");
-                const userCount = parseInt(userCountInput.value) || 0;
-
-                totalRAM += userCount * perUserRAM;
-                totalDisk += userCount * perUserDisk;
-                totalCores += userCount * perUserCores;
-            }
-
-            document.getElementById(`total_ram_${instanceIndex}`).textContent = totalRAM.toFixed(2);
-            document.getElementById(`total_disk_${instanceIndex}`).textContent = totalDisk.toFixed(2);
-            document.getElementById(`total_cores_${instanceIndex}`).textContent = totalCores;
+            document.getElementById(`total_ram_${instanceIndex}`).textContent = requiredRAM.toFixed(2);
+            document.getElementById(`total_disk_${instanceIndex}`).textContent = requiredDisk.toFixed(2);
+            document.getElementById(`total_cores_${instanceIndex}`).textContent = requiredCores;
 
             let selectedFlavor = null;
 
@@ -1028,7 +997,7 @@
 
                     option.textContent = `${flavorDetails.name} — ${flavorRAM} GB RAM, ${flavorDetails.vcpus} vCPU, ${flavorDetails.disk} GB Disk`;
 
-                    if (flavorRAM >= totalRAM && flavorDisk >= totalDisk && flavorCores >= totalCores) {
+                    if (flavorRAM >= requiredRAM && flavorDisk >= requiredDisk && flavorCores >= requiredCores) {
                         if (!selectedFlavor ||
                             (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
                                 flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
@@ -1050,7 +1019,7 @@
             if (selectedFlavor) {
                 flavorDropdown.value = selectedFlavor.value;
             } else {
-                alert("No suitable flavor found. Please select one manually.");
+                alert("No suitable flavor found. Please add one manually or change the settings of the appTemplate.");
             }
         }
 
