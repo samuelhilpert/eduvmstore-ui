@@ -587,7 +587,7 @@ write_files:
                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
                 <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">
                     {{ _("Save Script") }}</button>
-                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
+                <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
 
             </div>
         </div>
@@ -599,7 +599,7 @@ write_files:
                 {% if is_edit %}{{ _("Update") }}{% else %}{{ _("Create") }}{% endif %}
             </button>
 
-            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-default">{{ _("Cancel") }}</a>
         </div>
     </form>
 </div>
