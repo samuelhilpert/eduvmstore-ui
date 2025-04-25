@@ -414,11 +414,11 @@
                 <!-- Display Fixed Resource Requirements and Available Resources -->
                 <div class="alert alert-info mt-3">
                     <p><strong>{{ _("Resource Requirements") }}:</strong></p>
-                    <ul>
-                        <li>{{ _("RAM") }}: <span id="total_ram_${instanceIndex}"></span> GB </li>
-                        <li>{{ _("Disk") }}: <span id="total_disk_${instanceIndex}"></span> GB </li>
-                        <li>{{ _("CPU Cores") }}: <span id="total_cores_${instanceIndex}"></span></li>
-                    </ul>
+                    <div>
+                        <p>{{ _("RAM") }}: <span id="total_ram_${instanceIndex}"></span> GB</p>
+                        <p>{{ _("Disk") }}: <span id="total_disk_${instanceIndex}"></span> GB</p>
+                        <p>{{ _("CPU Cores") }}: <span id="total_cores_${instanceIndex}"></span></p>
+                    </div>
                 </div>
             `;
         }
