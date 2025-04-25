@@ -294,8 +294,7 @@
                  <!-- Flavor Selection -->
                 <div class="form-group">
                     <label for="${FLAVOR_ID}${instanceIndex}">${labelPrefix} <span data-toggle="tooltip"
-                    title="A flavor is a performance package for your virtual machine. It defines how much memory (RAM), computing power (CPU),
-                     and storage (disk space) it gets.">
+                    title="A flavor is a performance package for your virtual machine. It defines how much memory (RAM), computing power (CPU), and storage (disk space) it gets.">
                             <i class="fa fa-question-circle"></i>
                       </span> </label>
                      <select class="form-control flavor-dropdown"
@@ -322,8 +321,7 @@
             return `
                 <div class="form-group">
                     <label for="${NETWORK_ID}${instanceIndex}">${labelPrefix} <span data-toggle="tooltip"
-                    title="Select a network that the instance should be connected to. This determines
-                    its connectivity.">
+                    title="Select a network that the instance should be connected to. This determines its connectivity.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
                     <select class="form-control"
@@ -369,8 +367,7 @@
                 <div class="form-group">
                     <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _('Select Volume') }}
                      <span data-toggle="tooltip"
-                    title="Choose to attach an existing volume or create a new one. Must meet the
-                     minimum volume size requirement.">
+                    title="Choose to attach an existing volume or create a new one. Must meet the minimum volume size requirement.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
                     <select class="form-control ${VOLUME_SELECTION_CLASS}"
@@ -407,7 +404,7 @@
             `;
         }
 
-        function generateFixedRessourceSection(instanceIndex){
+        function generateFixedRessourceSection(instanceIndex) {
             return `
                 <h5>{{ _("Resource Configuration") }}</h5>
 
@@ -430,7 +427,7 @@
     }
             const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
             const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
-            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
+            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(":")}, instance index` : `${accountAttributes.join(":")}`;
             const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
 
             let noAdditionalUsersHtml = '';
@@ -482,7 +479,7 @@
                                      <div class="undo-placeholder" style="margin-left: 10px;"></div>
                                 </div>
                                 <small class="form-text text-muted" style="margin-bottom: 20px">
-                                    Upload a CSV file with headers: ${accountAttributes.join(", ")}${instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : ""}
+                                    Upload a CSV file with headers: ${accountAttributes.join(":")}${instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : ""}
                                 </small>
                             </div>
                         </div>
@@ -1193,7 +1190,7 @@
 
                 if (!isValidCSV) {
                     const instanceIndexHeader = instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : "";
-                    alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}${instanceIndexHeader}`);
+                    alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(":")}${instanceIndexHeader}`);
                     return;
                 }
 
@@ -1405,7 +1402,7 @@ function exportAccountsToCSV(instanceIndex) {
     if (!accountsContainer) return;
 
     const rows = [];
-    rows.push(accountAttributes.join(","));
+    rows.push(accountAttributes.join(":"));
 
     const accountCards = accountsContainer.querySelectorAll(".card");
     accountCards.forEach(card => {
@@ -1413,7 +1410,7 @@ function exportAccountsToCSV(instanceIndex) {
             const input = card.querySelector(`input[name="${attr}_${instanceIndex}"]`);
             return input ? `"${(input.value || "").replace(/"/g, '""')}"` : "";
         });
-        rows.push(values.join(","));
+        rows.push(values.join(":"));
     });
 
     const csvContent = rows.join("\n");
