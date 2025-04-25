@@ -427,7 +427,7 @@
     }
             const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
             const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
-            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(":")}, instance index` : `${accountAttributes.join(":")}`;
+            const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
             const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
 
             let noAdditionalUsersHtml = '';
@@ -1190,7 +1190,7 @@
 
                 if (!isValidCSV) {
                     const instanceIndexHeader = instanceIndex === ALL_INSTANCES_INDEX ? ", instance index" : "";
-                    alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(":")}${instanceIndexHeader}`);
+                    alert(`CSV headers don't match expected fields. Expected: ${accountAttributes.join(", ")}${instanceIndexHeader}`);
                     return;
                 }
 
@@ -1402,7 +1402,7 @@ function exportAccountsToCSV(instanceIndex) {
     if (!accountsContainer) return;
 
     const rows = [];
-    rows.push(accountAttributes.join(":"));
+    rows.push(accountAttributes.join(","));
 
     const accountCards = accountsContainer.querySelectorAll(".card");
     accountCards.forEach(card => {
@@ -1410,7 +1410,7 @@ function exportAccountsToCSV(instanceIndex) {
             const input = card.querySelector(`input[name="${attr}_${instanceIndex}"]`);
             return input ? `"${(input.value || "").replace(/"/g, '""')}"` : "";
         });
-        rows.push(values.join(":"));
+        rows.push(values.join(","));
     });
 
     const csvContent = rows.join("\n");
