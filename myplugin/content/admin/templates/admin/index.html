@@ -126,18 +126,18 @@
         <h3 style="text-align: center; color: #333;">Welcome, {{ username }}!</h3>
         <hr>
 
-        <button class="accordion">App Template Management</button>
+        <button class="accordion">AppTemplate Management</button>
         <div class="panel">
-            <h2>Confirm new App-Templates</h2>
-             <p><i style="color: gray;">Here you can confirm new App-Templates that have been uploaded by users.</i></p>
+            <h2>Confirm new AppTemplates</h2>
+             <p><i style="color: gray;">Here you can confirm new AppTemplates that have been uploaded by users.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Short Description</th>
-                            <th>ID</th>
-                            <th>Creator ID</th>
+                            <th>AppTemplate ID</th>
+                            <th>Creator Name</th>
                             <th>Image ID</th>
                             <th>Created At</th>
                             <th></th>
@@ -152,7 +152,7 @@
                              </a></td>
                             <td>{{ template.short_description }}</td>
                             <td>{{ template.id }}</td>
-                            <td>{{ template.creator_id }}</td>
+                            <td>{{ template.creator_name }}</td>
                             <td>{{ template.image_id }}</td>
                             <td>{{ template.created_at }}</td>
                             <td>
@@ -173,15 +173,15 @@
                     </tbody>
                 </table>
 
-         <h2>Delete App-Templates</h2>
-            <p><i style="color: gray;">Here you can delete App-Templates.</i></p>
+         <h2>Delete AppTemplates</h2>
+            <p><i style="color: gray;">Here you can delete AppTemplates.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
                 <table class="table table-striped">
                     <thead>
                     <tr>
                         <th>Name</th>
                         <th>Short Description</th>
-                        <th>ID</th>
+                        <th>AppTemplate ID</th>
                         <th>Updated At</th>
                         <th>Public</th>
                         <th></th>
@@ -222,7 +222,8 @@
                     <thead>
                         <tr>
                             <th>Current Role</th>
-                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>User Name</th>
                             <th>Created At</th>
                             <th>Updated At</th>
                             <th>New Role</th>
@@ -234,6 +235,7 @@
                             <tr>
                                 <td>{{ user.role.name }}</td>
                                 <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
                                 <td>{{ user.created_at }}</td>
                                 <td>{{ user.updated_at }}</td>
                                 <td>
@@ -263,7 +265,8 @@
                     <thead>
                     <tr>
                         <th>Current Role</th>
-                        <th>ID</th>
+                        <th>User ID</th>
+                        <th>User Name</th>
                         <th>Created At</th>
                         <th>Updated At</th>
                         <th>Delete</th>
@@ -274,6 +277,7 @@
                         <tr>
                             <td>{{ user.role.name }}</td>
                             <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
                             <td>{{ user.created_at }}</td>
                             <td>{{ user.updated_at }}</td>
                             <td>

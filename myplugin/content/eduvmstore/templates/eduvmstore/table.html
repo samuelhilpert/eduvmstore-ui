@@ -1,6 +1,21 @@
 
 {% with app_templates=app_templates is_favorites=is_favorites %}
+<style>
+ .btn-launch {
+        background-color: #E8E8E8;
+        padding: 10px 20px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        margin-left: 10px;
+        border-radius: 4px;
+        color: black;
+    }
 
+   .dropdown-toggle {
+         background-color: #E8E8E8;
+   }
+</style>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -24,7 +39,7 @@
             <td>{{ app_template.size }} </td>
            <td>
                {% if app_template.public and app_template.approved %}
-                   Everyone
+                   All Lecturers
                {% elif app_template.public and not app_template.approved %}
                    Waiting for approval
                {% elif not app_template.public and not app_template.approved %}

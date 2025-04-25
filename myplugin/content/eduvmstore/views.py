@@ -1,3 +1,4 @@
+
 import requests
 import socket
 import logging
@@ -9,9 +10,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
-from openstack_dashboard.api import glance, nova, cinder, keystone
+from openstack_dashboard.api import glance, nova, cinder, keystone, neutron
 from django.views import generic
-from myplugin.content.eduvmstore.forms import AppTemplateForm, InstanceForm
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
 from django.http import HttpResponse
@@ -21,6 +21,8 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from myplugin.content.eduvmstore.presets import preset_examples
+
 import io
 import zipfile
 from io import BytesIO
@@ -70,16 +72,16 @@ def get_token_id(request):
 
 def fetch_app_templates(request):
     """
-    Fetches app templates from the external API using a provided token ID.
+    Fetches AppTemplates from the external API using a provided token ID.
 
     This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the external API to fetch app templates. If the request
+    and makes a GET request to the external API to fetch AppTemplates. If the request
     is successful, it returns the JSON response. In case of an error, it logs the error
     and returns an empty list.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
-    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :return: A list of AppTemplates in JSON format or an empty list if the request fails.
     :rtype: list
     """
 
@@ -97,16 +99,16 @@ def fetch_app_templates(request):
 
 def search_app_templates(request) -> list:
     """
-    Search for app templates via the backend API using a provided token ID.
+    Search for AppTemplates via the backend API using a provided token ID.
 
     This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the EduVMStore Backend API to search for app templates.
+    and makes a GET request to the EduVMStore Backend API to search for AppTemplates.
     If the request is successful, it returns the JSON response of AppTemplates.
     In case of an error, it logs the error and returns an empty list.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
-    :return: A list of app templates in JSON format or an empty list if the request fails.
+    :return: A list of AppTemplates in JSON format or an empty list if the request fails.
     :rtype: list
     """
 
@@ -126,16 +128,16 @@ def search_app_templates(request) -> list:
 
 def fetch_favorite_app_templates(request):
     """
-    Fetches favorite app templates from the external API using a provided token ID.
+    Fetches favorite AppTemplates from the external API using a provided token ID.
 
     This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the external API to fetch favorite app templates.
+    and makes a GET request to the external API to fetch favorite AppTemplates.
     If the request is successful, it returns the JSON response. In case of an error,
     it logs the error and returns an empty list.
 
     :param request: The incoming HTTP request.
     :type request: HttpRequest
-    :return: A list of favorite app templates in JSON format or an empty list if the request fails.
+    :return: A list of favorite AppTemplates in JSON format or an empty list if the request fails.
     :rtype: list
     """
 
@@ -194,11 +196,13 @@ def validate_name(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+
 class IndexView(generic.TemplateView):
     """
-        Display the main index page with available app templates and associated image data.
+        Display the main index page with available AppTemplates and associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
+    page_title = _("EduVMStore Dashboard")
 
     def get_images_data(self):
         """
@@ -223,12 +227,12 @@ class IndexView(generic.TemplateView):
         """
         Add AppTemplates, favorite AppTemplates, and associated image data to the context.
 
-        This method fetches app templates and favorite app templates from the external API,
+        This method fetches AppTemplates and favorite AppTemplates from the external API,
         retrieves image data from the Glance API, and adds this information to the context
         for rendering the template.
 
         :param kwargs: Additional context parameters.
-        :return: Context dictionary with app templates, favorite app templates, and image details.
+        :return: Context dictionary with AppTemplates, favorite AppTemplates, and image details.
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
@@ -263,7 +267,8 @@ class IndexView(generic.TemplateView):
 
         context['app_templates'] = app_templates
         context['favorite_app_templates'] = favorite_app_templates
-        context['favorite_template_ids'] = favorite_template_ids  # Add this line
+        context['favorite_template_ids'] = favorite_template_ids
+        context['page_title'] = self.page_title
 
         return context
 
@@ -278,14 +283,15 @@ class IndexView(generic.TemplateView):
 
 class DetailsPageView(generic.TemplateView):
     """
-    Display detailed information for a specific app template, including associated image data.
+    Display detailed information for a specific AppTemplate, including associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
 
+
     def get_context_data(self, **kwargs):
         """
-        Add app template and image data to the context.
-        :return: Context dictionary with app template and image details.
+        Add AppTemplate and image data to the context.
+        :return: Context dictionary with AppTemplate and image details.
         """
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
@@ -307,6 +313,10 @@ class DetailsPageView(generic.TemplateView):
             'created_at': created_at,
         })
 
+        page_title = app_template.get('name', 'Details')
+        context['page_title'] = page_title
+
+
         return context
 
     def get_username_from_id(self, user_id):
@@ -320,8 +330,8 @@ class DetailsPageView(generic.TemplateView):
 
     def get_app_template(self):
         """
-        Fetch a specific app template from the external database using token authentication.
-        :return: JSON response of app template details if successful, otherwise an empty dict.
+        Fetch a specific AppTemplate from the external database using token authentication.
+        :return: JSON response of AppTemplate details if successful, otherwise an empty dict.
         """
         token_id = get_token_id(self.request)
         headers = {"X-Auth-Token": token_id}
@@ -359,19 +369,29 @@ class DetailsPageView(generic.TemplateView):
             return {}
 
 
-class CreateView(generic.TemplateView):
+class AppTemplateView(generic.TemplateView):
     """
-    View for creating a new app template.
+    View for creating a new AppTemplate.
 
-    This view handles the display and submission of the form for creating a new app template.
+    This view handles the display and submission of the form for creating a new AppTemplate.
     It processes the form data, validates it, and sends it to the backend API for creation.
     """
 
     template_name = 'eduvmstore_dashboard/eduvmstore/create.html'
+    page_title = _("Create AppTemplate")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.url_mode = request.resolver_match.url_name
+        if self.url_mode == "edit":
+            self.mode = "edit"
+            self.page_title = _("Edit AppTemplate")
+        else:
+            self.mode = "create"
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
             """
-            Handle GET requests to render the create app template form.
+            Handle GET requests to render the create AppTemplate form.
 
             This method retrieves the context data required for rendering the form
             and returns an HTTP response with the rendered template.
@@ -388,10 +408,10 @@ class CreateView(generic.TemplateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to create a new app template.
+        Handle POST requests to create a new AppTemplate.
 
         This method processes the form data submitted via POST request, validates it,
-        and sends it to the backend API for creating a new app template. It handles
+        and sends it to the backend API for creating a new AppTemplate. It handles
         the response and displays appropriate success or error messages.
 
         :param request: The incoming HTTP request.
@@ -425,6 +445,22 @@ class CreateView(generic.TemplateView):
         else:
             account_attributes = []
 
+
+        ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
+
+        if ssh_user_requested is None:
+            ssh_user_requested = False
+        else:
+            ssh_user_requested = True
+
+
+        volume_size = request.POST.get('volume_size', '').strip()
+        volume_size_gb = float(volume_size) if volume_size else 0.0
+
+        security_group_names = request.POST.getlist('security_groups')
+        security_groups = [{"name": name} for name in security_group_names]
+
+
         data = {
             'image_id': request.POST.get('image_id'),
             'name': request.POST.get('name'),
@@ -433,30 +469,44 @@ class CreateView(generic.TemplateView):
             'instantiation_notice': request.POST.get('instantiation_notice'),
             'public': request.POST.get('public'),
             'script': request.POST.get('hiddenScriptField'),
+            'ssh_user_requested': ssh_user_requested,
             'instantiation_attributes': instantiation_attributes,
             'account_attributes': account_attributes,
             'version': request.POST.get('version'),
-            'volume_size_gb': request.POST.get('volume_size'),
+            'volume_size_gb': volume_size_gb,
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
             'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
             'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
             'per_user_cores': request.POST.get('per_user_cores'),
+            'security_groups': security_groups
         }
 
         try:
-            response = requests.post(
-                API_ENDPOINTS['app_templates'],
-                json=data,
-                headers=headers,
-                timeout=10,
-            )
-            if response.status_code == 201:
-                messages.success(request, f"App Template created successfully.")
+            if self.mode == "edit":
+                template_id = self.kwargs.get("template_id")
+                response = requests.put(
+                    API_ENDPOINTS['app_template_detail'].format(template_id=template_id),
+                    json=data,
+                    headers=headers,
+                    timeout=10
+                )
+                if response.status_code == 200:
+                    messages.success(request, "App Template updated successfully.")
+                else:
+                    messages.error(request, f"Failed to update App-Template. {response.text}")
             else:
-                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                messages.error(request, f"Failed to create App-Template. {response.text}")
+                response = requests.post(
+                    API_ENDPOINTS['app_templates'],
+                    json=data,
+                    headers=headers,
+                    timeout=10
+                )
+                if response.status_code == 201:
+                    messages.success(request, "App Template created successfully.")
+                else:
+                    messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
             messages.error(request, f"Failed to create App-Template. Please try again.")
@@ -465,48 +515,72 @@ class CreateView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-        Add app template and image data to the context for rendering the template.
+        Add AppTemplate and image data to the context for rendering the template.
 
-        This method fetches the app template and associated image data if a template ID is provided.
+        This method fetches the AppTemplate and associated image data if a template ID is provided.
         It also retrieves a list of available images from Glance and adds this information to the context.
 
         :param kwargs: Additional context parameters.
-        :return: Context dictionary with app template, image visibility, image owner, and available images.
+        :return: Context dictionary with AppTemplate, image visibility, image owner, and available images.
         :rtype: dict
         """
         context = super().get_context_data(**kwargs)
 
         template_id = self.kwargs.get('template_id')
+        template_name = self.request.GET.get("template")
+
         if template_id:
             app_template = self.get_app_template(template_id)
             image_data = self.get_image_data(app_template.get('image_id', ''))
+            db_security_groups = [sg['name'] for sg in app_template.get('security_groups', [])]
+        elif template_name in preset_examples and self.mode != "edit":
+            app_template = preset_examples[template_name]
+            image_data = {}
+            db_security_groups = []
         else:
             app_template = {}
             image_data = {}
+            db_security_groups = []
+
+        try:
+            available_groups = neutron.security_group_list(self.request)
+            security_groups = []
+            for group in available_groups:
+                security_groups.append({
+                    'name': group.name,
+                    'id': group.id,
+                    'selected': group.name in db_security_groups
+                })
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            security_groups = []
 
         context.update({
             'app_template': app_template,
             'image_visibility': image_data.get('visibility', 'N/A'),
             'image_owner': image_data.get('owner', 'N/A'),
+            'security_groups': security_groups,
+            'is_edit': self.mode == "edit"
         })
 
         glance_images = self.get_images_data()
         context['images'] = [(image.id, image.name) for image in glance_images]
+        context['page_title'] = self.page_title
 
         return context
 
     def get_app_template(self, template_id):
         """
-        Fetch a specific app template from the external database using token authentication.
+        Fetch a specific AppTemplate from the external database using token authentication.
 
         This function retrieves the token ID from the request, constructs the headers,
-        and makes a GET request to the external API to fetch the app template details.
+        and makes a GET request to the external API to fetch the AppTemplate details.
         If the request is successful, it returns the JSON response. In case of an error,
         it logs the error and returns an empty dictionary.
 
-        :param template_id: The ID of the app template to retrieve.
+        :param template_id: The ID of the AppTemplate to retrieve.
         :type template_id: str
-        :return: JSON response of app template details if successful, otherwise an empty dict.
+        :return: JSON response of AppTemplate details if successful, otherwise an empty dict.
         :rtype: dict
         """
         token_id = get_token_id(self.request)
@@ -543,6 +617,19 @@ class CreateView(generic.TemplateView):
             exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
             return {}
 
+    def get_security_groups(self):
+        """
+        Retrieve the list of available security groups using Horizon's Neutron API.
+
+        :return: List of security group objects.
+        :rtype: list
+        """
+        try:
+            return neutron.security_group_list(self.request)
+        except Exception as e:
+            logging.error(f"Unable to retrieve security groups: {e}")
+            return []
+
     def get_images_data(self):
         """
         Fetch images from the Glance API using Horizon API.
@@ -567,165 +654,7 @@ class CreateView(generic.TemplateView):
             return []
 
 
-class EditView(generic.TemplateView):
-    """
-    View to handle editing of an app template.
-    """
-    template_name = 'eduvmstore_dashboard/eduvmstore/edit.html'
-
-    def get(self, request, *args, **kwargs):
-        """
-            Render the template on GET request.
-            :param HttpRequest request: The incoming HTTP GET request.
-            :return: Rendered HTML response.
-        """
-        context = self.get_context_data()
-        return render(request, self.template_name, context)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to update an existing app template.
-
-        This method processes the form data submitted via POST request to update an existing app template
-        by sending the updated data to the backend API. It handles the extraction of instantiation and account
-        attributes, constructs the data payload, and makes a PUT request to the API endpoint.
-
-        :param request: The incoming HTTP request containing form data.
-        :type request: HttpRequest
-        :param args: Additional positional arguments.
-        :type args: tuple
-        :param kwargs: Additional keyword arguments.
-        :type kwargs: dict
-        :return: Rendered HTML response with the updated app template details or an error message.
-        :rtype: HttpResponse
-        """
-
-        token_id = get_token_id(request)
-        headers = {"X-Auth-Token": token_id}
-
-        instantiation_attribute_raw = request.POST.get('instantiation_attributes', '').strip()
-        if instantiation_attribute_raw:
-            instantiation_attributes = [
-                {"name": attr.strip()}
-                for attr in instantiation_attribute_raw.split(':')
-                if attr.strip()
-            ]
-        else:
-            instantiation_attributes = []
-
-        account_attribute_raw = request.POST.get('account_attributes', '').strip()
-        if account_attribute_raw:
-            account_attributes = [
-                {"name": attr.strip()}
-                for attr in account_attribute_raw.split(':')
-                if attr.strip()
-            ]
-        else:
-            account_attributes = []
-
-        data = {
-            'image_id': request.POST.get('image_id'),
-            'name': request.POST.get('name'),
-            'description': request.POST.get('description'),
-            'short_description': request.POST.get('short_description'),
-            'instantiation_notice': request.POST.get('instantiation_notice'),
-            'public': request.POST.get('public'),
-            'approved': request.POST.get('approved'),
-            'script': request.POST.get('hiddenScriptField'),
-            'instantiation_attributes': instantiation_attributes,
-            'account_attributes': account_attributes,
-            'version': request.POST.get('version'),
-            'volume_size_gb': request.POST.get('volume_size'),
-            'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
-            'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
-            'fixed_cores': request.POST.get('fixed_cores'),
-            'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
-            'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
-            'per_user_cores': request.POST.get('per_user_cores'),
-        }
-        app_template_id = kwargs.get("template_id")  # ID aus der URL holen
-
-        if not app_template_id:
-            return JsonResponse({"error": "App Template ID is required"}, status=400)
-
-        update_url = API_ENDPOINTS['app_templates_update'].format(template_id=app_template_id)
-
-        try:
-            response = requests.put(
-                update_url,
-                json=data,
-                headers=headers,
-                timeout=10,
-            )
-            if response.status_code == 200:
-                modal_message = _("App-Template updated successfully.")
-                messages.success(request, f"App Template updated successfully.")
-            else:
-                modal_message = _("Failed to update App-Template. Please try again.")
-                logging.error(f"Unexpected response: {response.status_code}, {response.text}")
-                messages.error(request, f"Failed to update App-Template. {response.text}")
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Request error: {e}")
-            modal_message = _("Failed to update App-Template. Please try again.")
-
-        self.get_context_data(modal_message=modal_message)
-        # After updating redirect to Dashboard overview
-        return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
-
-    def get_context_data(self, **kwargs):
-        """
-            Add app template and image data to the context.
-            :param kwargs: Additional context parameters.
-            :return: Context dictionary with app template and image details.
-            :rtype: dict
-        """
-        context = super().get_context_data(**kwargs)
-        app_template = self.get_app_template()
-        image_data = self.get_image_data(app_template.get('image_id', ''))
-        context.update({
-            'app_template': app_template,
-            'image_visibility': image_data.get('visibility', 'N/A'),
-            'image_owner': image_data.get('owner', 'N/A'),
-        })
-        return context
-
-    def get_app_template(self):
-        """
-            Fetch a specific app template from the external database using token authentication.
-            :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
-            :rtype: dict
-        """
-        token_id = get_token_id(self.request)
-        headers = {"X-Auth-Token": token_id}
-
-        try:
-            response = (requests.get(API_ENDPOINTS['app_template_detail'].format(
-                template_id=self.kwargs['template_id']),
-                headers=headers, timeout=10))
-
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            logging.error("Unable to retrieve app template details: %s", e)
-            return {}
-
-    def get_image_data(self, image_id):
-        """
-            Fetch image details from Glance based on the image_id.
-            :param image_id: ID of the image to retrieve.
-            :return: Dictionary with visibility and owner details of the image.
-            :rtype: dict
-        """
-        try:
-            image = glance.image_get(self.request, image_id)
-            return {'visibility': image.visibility, 'owner': image.owner}
-        except Exception as e:
-            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
-            return {}
-
-
-def generate_pdf(accounts, name, app_template, created, instantiations):
+def generate_pdf(accounts, name, app_template, created, instantiations, ip_address):
     """
     Generate a well-formatted PDF document containing user account information in a table format.
 
@@ -752,6 +681,9 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
 
     )
     elements.append(subtitle)
+    if ip_address:
+        ip = Paragraph(f"IP Address: {ip_address}", styles['Normal'])
+        elements.append(ip)
     elements.append(Spacer(1, 0.2 * inch))
 
     if accounts:
@@ -813,50 +745,59 @@ def generate_pdf(accounts, name, app_template, created, instantiations):
 
 def generate_cloud_config(accounts, backend_script, instantiations):
     """
-        Generate a cloud-config file for user account creation and backend script execution.
+    Generate a cloud-config file for user account creation and backend script execution.
 
-        This function creates a cloud-config file that includes user account information
-        and a backend script.
+    :param accounts: A list of dictionaries with user account details.
+    :param backend_script: Backend script to be included in the cloud-config.
+    :param instantiations: A list of dictionaries with instantiation data.
+    :return: A string representing the complete cloud-config file.
+    """
 
-        :param accounts: A list of dictionaries, where each dictionary contains user account details.
-        :type accounts: list
-        :param backend_script: string containing backend script to be included in the cloud-config file.
-        :type backend_script: str
-        :return: A string representing the complete cloud-config file.
-        :rtype: str
-        """
+    users_content = ""
+    instantiations_content = ""
 
-    sorted_keys = list(accounts[0].keys())
-    sorted_keys_instantiation = list(instantiations[0].keys())
+    if accounts:
+        sorted_keys = list(accounts[0].keys())
+        users_content = "\n".join(
+            [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
+        )
 
-    users_content = "\n".join(
-        [":".join([account.get(key, "N/A") for key in sorted_keys]) for account in accounts]
-    )
+    if instantiations:
+        sorted_keys_instantiation = list(instantiations[0].keys())
+        instantiations_content = "\n".join(
+            [":".join([inst.get(key, "N/A") for key in sorted_keys_instantiation])
+             for inst in instantiations]
+        )
 
-    instantiations_content = "\n".join(
-        [":".join([instantiation.get(key, "N/A") for key in sorted_keys_instantiation])
-         for instantiation in instantiations]
-    )
+    write_files_block = ""
 
-    cloud_config = f"""#cloud-config
-write_files:
+    if users_content:
+        write_files_block += f"""
   - path: /etc/users.txt
     content: |
 {generate_indented_content(users_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
+"""
 
+    if instantiations_content:
+        write_files_block += f"""
   - path: /etc/attributes.txt
     content: |
 {generate_indented_content(instantiations_content, indent_level=6)}
     permissions: '0644'
     owner: root:root
-
-
-
-{backend_script}
 """
+
+    cloud_config = "#cloud-config\n"
+    if write_files_block:
+        cloud_config += f"write_files:{write_files_block}"
+
+    if backend_script:
+        cloud_config += f"\n\n{backend_script}"
+
     return cloud_config
+
 
 
 def generate_indented_content(content, indent_level=6):
@@ -883,6 +824,7 @@ class InstancesView(generic.TemplateView):
         View for displaying instances, including form input for instance creation.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/instances.html'
+    page_title = _("Launch")
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
@@ -894,7 +836,7 @@ class InstancesView(generic.TemplateView):
         Handle POST requests to create multiple instances.
 
         This method processes the form data submitted via POST request to create multiple instances
-        based on the provided app template. It handles the creation of key pairs, user data,
+        based on the provided AppTemplate. It handles the creation of key pairs, user data,
         and metadata for each instance, and initiates the instance creation process using the Nova API.
 
         :param request: The incoming HTTP request.
@@ -907,7 +849,7 @@ class InstancesView(generic.TemplateView):
         :rtype: HttpResponse
         """
         try:
-            num_instances = int(request.POST.get('num_instances', 1))
+            num_instances = int(request.POST.get('instance_count', 1))
             base_name = request.POST.get('instances_name')
             app_template = self.get_app_template()
             image_id = app_template.get('image_id')
@@ -916,16 +858,30 @@ class InstancesView(generic.TemplateView):
             app_template_description = app_template.get('description')
             created = app_template.get('created_at', '').split('T')[0]
             volume_size = int(app_template.get('volume_size_gb') or 0)
+            ssh_user_requested = app_template.get('ssh_user_requested', False)
+
+            for key in list(request.session.keys()):
+                if key.startswith("ip_addresses_") or key.startswith("keypair_name_") or \
+                   key.startswith("private_key_"):
+                    request.session.pop(key, None)
+
+            request.session.pop("keypair_name", None)
+            request.session.pop("private_key", None)
+            request.session.pop("image_id", None)
+            request.session.pop("ssh_user_requested", None)
+
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
             request.session["num_instances"] = num_instances
             request.session["base_name"] = base_name
+            request.session["image_id"] = image_id
+            request.session["ssh_user_requested"] = ssh_user_requested
 
             separate_keys = request.POST.get("separate_keys", "false").lower() == "true"
             request.session["separate_keys"] = separate_keys
 
-            security_groups = ["default"]
+            security_groups = [sg["name"] for sg in app_template.get("security_groups", [])]
 
             instances = []
             shared_keypair_name = f"{base_name}_shared_key"
@@ -946,9 +902,10 @@ class InstancesView(generic.TemplateView):
                 instance_name = f"{base_name}-{i}"
                 flavor_id = request.POST.get(f'flavor_id_{i}')
                 network_id = request.POST.get(f'network_id_{i}')
+                network_name = self.get_network_name_by_id(request, network_id)
                 use_existing = request.POST.get(f"use_existing_volume_{i}")
-                existing_volume_id = request.POST.get(f"existing_volume_id_{i}")
-                create_volume_size = request.POST.get(f"volume_size_instance_{i}")
+                create_volume_size = request.POST.get(f"volume_size_{i}")
+                user_count = request.POST.get(f"user_count_{i}", 0)
                 accounts = []
                 instantiations = []
                 try:
@@ -956,9 +913,9 @@ class InstancesView(generic.TemplateView):
                 except ValueError:
                     volume_size = 1
 
-                no_additional_users = request.POST.get(f'no_additional_users_{i}', None)
 
-                if no_additional_users is None:
+
+                if int(user_count) > 0:
                     try:
                         accounts = self.extract_accounts_from_form_new(request, i)
                     except Exception:
@@ -967,18 +924,22 @@ class InstancesView(generic.TemplateView):
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
 
-                instantiations = self.extract_accounts_from_form_instantiation(request, i)
+
+                try:
+                    instantiations = self.extract_accounts_from_form_instantiation(request, i)
+                except Exception:
+                    instantiations = []
+
                 request.session[f"instantiations_{i}"] = instantiations
 
                 description = self.format_description(app_template_description)
+
 
                 if not script and not accounts:
                     user_data = None
                 elif not script and accounts:
                     user_data = generate_cloud_config(accounts, None, instantiations)
-                elif script and no_additional_users == "on":
-                    user_data = f"#cloud-config\n{script}"
-                elif script and no_additional_users is None and not accounts:
+                elif script and int(user_count) == 0:
                     user_data = f"#cloud-config\n{script}"
                 else:
                     user_data = generate_cloud_config(accounts, script, instantiations)
@@ -1021,27 +982,19 @@ class InstancesView(generic.TemplateView):
                         metadata[key] = part_content
 
                 block_device_mapping_v2 = []
-                if use_existing == "existing" and existing_volume_id:
-                    block_device_mapping_v2.append({
-                        "boot_index": -1,
-                        "uuid": existing_volume_id,
-                        "source_type": "volume",
-                        "destination_type": "volume",
-                        "delete_on_termination": True,
-                        "device_name": "/dev/vdb",
-                    })
-                    logging.info(f"Attach existing Volume {existing_volume_id} to {instance_name}")
+
                 # OpenStack only allows Volumes larger than 1 GB
-                elif use_existing == "new" and volume_size >= 1:
+                if use_existing == "new" and volume_size >= 1:
 
                     volume_name = f"{instance_name}-volume"
                     # Create Volume via Cinder
+                    volume_type = self.get_available_volume_types(request)
                     volume = cinder.volume_create(
                         request,
                         size=volume_size,
                         name=volume_name,
                         description=f"Extra volume for {instance_name}",
-                        volume_type="__DEFAULT__"
+                        volume_type=volume_type
                     )
                     volume = self.wait_for_volume_available(request, volume.id)
 
@@ -1054,15 +1007,21 @@ class InstancesView(generic.TemplateView):
                         "delete_on_termination": True,
                         "device_name": "/dev/vdb",
                     })
+                elif use_existing == "none":
+                    logging.info(f"Skipping {instance_name}")
+                elif use_existing == "new" and volume_size < 1:
+                    logging.error(f"Volume size must be at least 1 GB. Skipping {instance_name}.")
                 else:
-                    logging.info(f"{instance_name} is without additional volume")
+                    block_device_mapping_v2.append({
+                        "boot_index": -1,
+                        "uuid": use_existing,
+                        "source_type": "volume",
+                        "destination_type": "volume",
+                        "delete_on_termination": True,
+                        "device_name": "/dev/vdb",
+                    })
 
-
-
-
-
-
-                nova.server_create(
+                created_server = nova.server_create(
                     request,
                     name=instance_name,
                     image=image_id,
@@ -1075,6 +1034,10 @@ class InstancesView(generic.TemplateView):
                     description=description,
                     block_device_mapping_v2=block_device_mapping_v2,
                 )
+
+                server = self.wait_for_server(request, created_server.id)
+                ip_list = self.wait_for_ip_in_network(request, server.id, network_name)
+                request.session[f"ip_addresses_{i}"] = ip_list
                 instances.append(instance_name)
 
             return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:success'))
@@ -1085,6 +1048,19 @@ class InstancesView(generic.TemplateView):
 
         context = self.get_context_data(modal_message=modal_message)
         return render(request, self.template_name, context)
+
+    def get_available_volume_types(self, request):
+        try:
+
+            volume_types = cinder.volume_type_list(request)
+            if not volume_types:
+                logging.error("No volume types available.")
+                return None
+            # choose the first volume type
+            return volume_types[0].name
+        except Exception as e:
+            logging.error(f"Error during get volume types: {e}")
+            return None
 
     def wait_for_volume_available(self, request, volume_id, timeout=60):
         """
@@ -1113,6 +1089,83 @@ class InstancesView(generic.TemplateView):
                 raise Exception(f"Volume {volume_id} failed to build.")
             time.sleep(1)
         raise TimeoutError(f"Timeout while waiting for volume {volume_id} to become available.")
+
+    def get_network_name_by_id(self, request, network_id):
+        try:
+            networks = api.neutron.network_list(request)
+            for network in networks:
+                if network.id == network_id:
+                    return network.name
+        except Exception as e:
+            logging.error(f"Failed to resolve network name: {e}")
+        return None
+
+
+    def wait_for_ip_in_network(self, request, server_id, network_name, timeout=30):
+        """
+        Wait for an IP address from a specific network.
+
+        This method repeatedly checks if an IP address is available for a server in a given network.
+        If an IP address is found, it is returned. Otherwise, after the timeout, a list with an error
+        message is returned.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param server_id: The ID of the server for which the IP address is being searched.
+        :type server_id: str
+        :param network_name: The name of the network in which the IP address is being searched.
+        :type network_name: str
+        :param timeout: The maximum wait time in seconds before the search is aborted.
+        :type timeout: int
+        :return: The found IP address or a list with an error message.
+        :rtype: str or list
+        """
+        for i in range(timeout):
+            try:
+                server = nova.server_get(request, server_id)
+                addresses = server.addresses.get(network_name)
+                if addresses:
+                    ip_list = [addr.get("addr") for addr in addresses if addr.get("addr")]
+                    if ip_list:
+                        return ip_list[0] if ip_list else f"No IP found in network '{network_name}'"
+            except Exception as e:
+                logging.debug(f"IP attempt {i+1}/{timeout} for network '{network_name}': {e}")
+            time.sleep(1)
+
+        return [f"No IP found in the network '{network_name}'"]
+
+
+    def wait_for_server(self, request, instance_id, timeout=30):
+        """
+        Wait until an instance appears in the Nova API.
+
+        This method repeatedly checks if an instance with the given ID is available in the Nova API.
+        If the instance is found, it is returned. If the instance does not appear within the timeout
+        period, an exception is raised.
+
+        :param request: The incoming HTTP request.
+        :type request: HttpRequest
+        :param instance_id: The ID of the instance to wait for.
+        :type instance_id: str
+        :param timeout: The maximum time to wait for the instance, in seconds.
+        :type timeout: int
+        :return: The instance object if found.
+        :rtype: Server
+        :raises Exception: If the instance is not found within the timeout period.
+        """
+        for i in range(timeout):
+            try:
+                server = nova.server_get(request, instance_id)
+                if server:
+                    return server
+            except Exception as e:
+                logging.debug(f"Waiting for instance {instance_id}: Attempt {i + 1}, Error: {e}")
+            time.sleep(1)
+        raise Exception(f"Instance {instance_id} could not be found after {timeout} seconds.")
+
+
+
+
 
 
     def get_context_data(self, **kwargs):
@@ -1152,25 +1205,17 @@ class InstancesView(generic.TemplateView):
         has_attachable_volumes = len(attachable_volumes) > 0
         context['hasAttachableVolumes'] = has_attachable_volumes
 
-
+        context['page_title'] = self.page_title
 
         return context
 
-    # def get_flavors(self, ):
-    #  """Fetch flavors from Nova to correlate instances."""
-    # try:
-    #     flavors = api.nova.flavor_list(self.request)
-    #     return {str(flavor.id): flavor.name for flavor in flavors}
-    # except Exception:
-    #     exceptions.handle(self.request, ignore=True)
-    #     return {}
 
     def get_flavors(self, app_template):
         """
         Fetch all available flavors from Nova and filter them based on the system requirements
-        specified in the app template.
+        specified in the AppTemplate.
 
-        :param app_template: The app template containing system requirements.
+        :param app_template: The AppTemplate containing system requirements.
         :type app_template: dict
         :return: A dictionary containing all flavors, suitable flavors, and the selected flavor.
         :rtype: dict
@@ -1214,9 +1259,9 @@ class InstancesView(generic.TemplateView):
 
     def get_expected_fields(self):
         """
-        Retrieve the expected fields for account creation from the app template.
+        Retrieve the expected fields for account creation from the AppTemplate.
 
-        This function fetches the app template and extracts the account attributes,
+        This function fetches the AppTemplate and extracts the account attributes,
         which are the expected fields for account creation.
 
         :return: A list of expected field names for account creation.
@@ -1248,7 +1293,7 @@ class InstancesView(generic.TemplateView):
         expected_fields = self.get_expected_fields()
 
         extracted_data = {
-            field: request.POST.getlist(f"{field}_{instance_id}[]")
+            field: request.POST.getlist(f"{field}_{instance_id}")
             for field in expected_fields
         }
 
@@ -1262,9 +1307,9 @@ class InstancesView(generic.TemplateView):
 
     def get_expected_fields_instantiation(self):
         """
-        Retrieve the expected fields for account creation from the app template.
+        Retrieve the expected fields for account creation from the AppTemplate.
 
-        This function fetches the app template and extracts the instantiation attributes,
+        This function fetches the AppTemplate and extracts the instantiation attributes,
         which are the expected fields for account creation.
 
         :return: A list of expected field names for account creation.
@@ -1296,7 +1341,7 @@ class InstancesView(generic.TemplateView):
         expected_fields_instantiation = self.get_expected_fields_instantiation()
 
         extracted_data_instantiations = {
-            field: request.POST.getlist(f"{field}_{instance_id}_instantiation[]")
+            field: request.POST.getlist(f"{field}_{instance_id}_instantiation")
             for field in expected_fields_instantiation
         }
 
@@ -1331,9 +1376,9 @@ class InstancesView(generic.TemplateView):
     # Get AppTemplate Details to display while launching an instance
     def get_app_template(self):
         """
-            Fetch a specific app template from the external database using token authentication.
+            Fetch a specific AppTemplate from the external database using token authentication.
             :param token_id: Authentication token for API access.
-            :return: JSON response of app template details if successful, otherwise an empty dict.
+            :return: JSON response of AppTemplate details if successful, otherwise an empty dict.
             :rtype: dict
         """
         token_id = get_token_id(self.request)
@@ -1369,6 +1414,12 @@ class InstancesView(generic.TemplateView):
 
 class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
+    page_title = _("Success")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = self.page_title
+        return context
 
     def get(self, request, *args, **kwargs):
         """
@@ -1381,14 +1432,36 @@ class InstanceSuccessView(generic.TemplateView):
         :return: Rendered HTML response.
         :rtype: HttpResponse
         """
-        return render(request, self.template_name)
+        context = self.get_context_data(**kwargs)
 
-    class DownloadInstanceDataView(generic.View):
-        """
-        View to generate and return a ZIP file containing:
-        - PDFs with instance user account information
-        - Private keys (either one shared key or separate keys per instance)
-        """
+        return render(request, self.template_name, context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        num_instances = int(self.request.session.get("num_instances", 1))
+        separate_keys = self.request.session.get("separate_keys", False)
+        ssh_user_requested = self.request.session.get('ssh_user_requested', False)
+        context['ssh_user_requested'] = ssh_user_requested
+        context['instances'] = []
+
+        for i in range(1, num_instances + 1):
+            instance_name = self.request.session.get(f"names_{i}", "unknown")
+            ip_address = self.request.session.get(f"ip_addresses_{i}", "unknown")
+
+            if separate_keys:
+                key_file = self.request.session.get(f"keypair_name_{i}", "unknown") + ".pem"
+            else:
+                key_file = self.request.session.get("keypair_name", "unknown") + ".pem"
+
+            context['instances'].append({
+                'name': instance_name,
+                'ip': ip_address,
+                'key': key_file,
+            })
+
+        return context
+
+
 
     def post(self, request, *args, **kwargs):
         """
@@ -1419,9 +1492,10 @@ class InstanceSuccessView(generic.TemplateView):
                 app_template = request.session.get("app_template", "Unknown")
                 created = request.session.get("created", "Unknown Date")
                 instantiation = request.session.get(f"instantiations_{i}", [])
+                ip_adr = request.session.get(f"ip_addresses_{i}", [])
 
                 if accounts or instantiation:
-                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation)
+                    pdf_content = generate_pdf(accounts, name, app_template, created, instantiation, ip_adr)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
             if not separate_keys:
@@ -1449,6 +1523,7 @@ class InstanceSuccessView(generic.TemplateView):
             request.session.pop(f"names_{i}", None)
             request.session.pop(f"private_key_{i}", None)
             request.session.pop(f"keypair_name_{i}", None)
+            request.session.pop(f"ip_addresses_{i}", None)
 
         request.session.pop("private_key", None)
         request.session.pop("keypair_name", None)
@@ -1464,9 +1539,9 @@ class GetFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to mark an app template as a favorite via the external API.
+        Handle POST requests to mark an AppTemplate as a favorite via the external API.
 
-        This method retrieves the app template ID and name from the POST request,
+        This method retrieves the AppTemplate ID and name from the POST request,
         constructs the API URL and payload, and sends a POST request to the external API.
         It handles the response and displays appropriate success or error messages.
 
@@ -1513,9 +1588,9 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests to delete a favorite app template via the external API.
+        Handle POST requests to delete a favorite AppTemplate via the external API.
 
-        This method retrieves the app template ID and name from the POST request,
+        This method retrieves the AppTemplate ID and name from the POST request,
         constructs the API URL and payload, and sends a DELETE request to the external API.
         It handles the response and displays appropriate success or error messages.
 
@@ -1560,7 +1635,7 @@ class DeleteFavoriteAppTemplateView(generic.View):
 
 
 class DeleteTemplateView(View):
-    """Handles app template deletion.
+    """Handles AppTemplate deletion.
        Deletion is allowed only if the image owner (from Glance) matches the user ID returned from Keystone.
        After deletion, it also attempts to remove the template from favorites.
     """

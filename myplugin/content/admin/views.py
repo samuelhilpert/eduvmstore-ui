@@ -6,6 +6,16 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
+from openstack_dashboard.api import keystone
+from django.utils.translation import gettext_lazy as _
+
+def get_username_from_id(request, user_id):
+    try:
+        user = keystone.user_get(request, user_id)
+        return user.name
+    except Exception:
+        return user_id
+
 
 
 def get_token_id(request):
@@ -100,6 +110,7 @@ class IndexView(generic.TemplateView):
         View for displaying the admin index page with user details and admin status.
     """
     template_name = 'eduvmstore_dashboard/admin/index.html'
+    page_title = _("EduVMStore Admin")
 
     def get_context_data(self, **kwargs):
         """
@@ -119,7 +130,7 @@ class IndexView(generic.TemplateView):
 
         user_id = self.request.user.id
         user_details = get_user_details(self.request, user_id)
-        role_level = user_details['role']['access_level']
+        role_level = user_details.get('role', {}).get('access_level', 1)
         user_data = get_users(self.request)
         context['users'] = user_data
 
@@ -134,6 +145,12 @@ class IndexView(generic.TemplateView):
 
         approvable_app_templates = get_app_templates_to_approve(self.request)
         context['approvable_app_templates'] = approvable_app_templates
+        for template in approvable_app_templates:
+            creator_id = template.get("creator_id")
+            if creator_id:
+                app_template_creator_id = creator_id.replace('-', '')
+                creator_name = get_username_from_id(self.request, app_template_creator_id)
+                template["creator_name"] = creator_name
 
         app_templates = get_app_templates(self.request)
         context['app_templates'] = app_templates
@@ -143,9 +160,12 @@ class IndexView(generic.TemplateView):
             user_id = user.get('id')
             if user_id:
                 user_details = get_user_details(self.request, user_id)
+                user_details_id = user_id.replace('-', '')
+                user_details['username'] = get_username_from_id(self.request, user_details_id)
                 detailed_users.append(user_details)
 
         context['detailed_users'] = detailed_users
+
 
         # Add user details and admin status to the context
         context['username'] = userdev.username
@@ -159,7 +179,7 @@ class IndexView(generic.TemplateView):
         else:
             context['show_content'] = False
 
-
+        context['page_title'] = self.page_title
 
         return context
 

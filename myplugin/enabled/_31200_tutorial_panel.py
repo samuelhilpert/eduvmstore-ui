@@ -1,4 +1,5 @@
 PANEL = 'tutorial'
+PANEL_GROUP = 'tutorial_group'
 PANEL_DASHBOARD = 'eduvmstore_dashboard'
 ADD_PANEL = 'myplugin.content.tutorial.panel.TutorialPanel'
 

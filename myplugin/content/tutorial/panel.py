@@ -10,5 +10,5 @@ class TutorialPanel(horizon.Panel):
             - name: The display name for the panel, set to "Tutorial".
             - slug: A unique identifier for the panel, set to "tutorial".
     """
-    name = _("Tutorial")
+    name = _("About EduVMStore")
     slug = "tutorial"

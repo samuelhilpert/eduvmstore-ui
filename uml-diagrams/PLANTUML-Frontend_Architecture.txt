@@ -1,0 +1,41 @@
+@startuml
+skinparam linetype ortho
+title EduVMStore Frontend
+
+package "Horizon System" {
+    [Horizon Loader]
+    [Dashboard : project]
+}
+
+package "myplugin.enabled" {
+    [enabled/_31000_my_plugin.py]
+}
+
+package "myplugin.content.eduvmstore" {
+    [panel.py]
+    [urls.py]
+    [views.py]
+    [index.html]
+    [create.html]
+    [details.html]
+    [instances.html]
+    [success.html]
+    [table.html]
+}
+
+
+[Horizon Loader] --> [enabled/_31000_my_plugin.py] : loads
+[enabled/_31000_my_plugin.py] -> [panel.py] : imports
+[panel.py] --> [Dashboard : project] : registers
+[Dashboard : project] --> [urls.py] : dispatch
+[urls.py] --> [views.py] : maps
+[views.py] <--> [index.html] : interact
+[views.py] <--> [create.html] : interact
+[views.py] <--> [details.html] : interact
+[views.py] <--> [instances.html] : interact
+[views.py] <--> [success.html] : interact
+[index.html] <--> [table.html] : includes
+[views.py] <--> [EduVMStore Backend] : fetch
+
+
+@enduml

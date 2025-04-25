@@ -25,11 +25,11 @@
         margin-bottom: 0;
         color: #6c757d;
     }
-    h2, h4 {
+    h2, h3 {
         margin-top: 30px;
         margin-bottom: 20px;
         color: #343a40;
-        font-weight: bold;
+
     }
     h5 {
         font-size: medium;
@@ -37,7 +37,7 @@
         margin-bottom: 20px;
         color: #343a40;
     }
-    .system-requirements, .image-info, .script-details {
+    .system-requirements, .image-info, .script-details, .security_groups, .app_template_details {
         background-color: #f8f9fa;
         padding: 20px;
         border-radius: 8px;
@@ -48,7 +48,7 @@
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 6px 12px;
         font-size: 15px;
         border: none;
         cursor: pointer;
@@ -68,67 +68,85 @@
          background-color: #E8E8E8;
    }
 
-</style>
+   .top-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+}
 
-<div style="display: flex; justify-content: space-between; align-items: center;">
-    <h4>App-Template Details</h4>
-    <div class="btn-group">
-                   <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
+
+</style>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 20px;">
+    <h3>AppTemplate Details</h3>
+
+
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
             Launch
         </a>
 
-        <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="caret"></span>
-        </button>
+        <div class="btn-group">
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}" class="btn btn-launch">
+                Edit
+            </a>
 
-        <ul class="dropdown-menu dropdown-menu-right">
-                            <li>
-                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}">
-                                    Edit App-Template
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
-                                    Clone AppTemplate
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
-                                    Delete App-Template
-                                </a>
-                                <form id="delete-form-{{ app_template.id }}" method="post"
-                                      action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
-                                      style="display: none;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="template_name" value="{{ app_template.name }}">
-                                </form>
-                            </li>
-                        </ul>
+            <button type="button" class="btn btn-launch dropdown-toggle dropdown-toggle-split"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li>
+                    <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
+                        Clone AppTemplate
+                    </a>
+                </li>
+                <li role="separator" class="divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" href="#"
+                       onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
+                        Delete AppTemplate
+                    </a>
+                    <form id="delete-form-{{ app_template.id }}" method="post"
+                          action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
+                          style="display: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="template_name" value="{{ app_template.name }}">
+                    </form>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
-    <!-- App Template  Section -->
+
+
+
+
+
+    <div class="app_template_details">
+
 <div class="row">
     <div class="col-md-6">
         <div class="detail-group">
-            <strong>App-Template Name:</strong>
+            <strong>AppTemplate Name</strong>
             <p>{{ app_template.name }}</p>
         </div>
         <div class="detail-group">
-            <strong>App-Template ID:</strong>
+            <strong>AppTemplate ID</strong>
             <p>{{ app_template.id }}</p>
         </div>
+
         <div class="detail-group">
-            <strong>Created at:</strong>
-            <p>{{ created_at }}</p>
+            <strong>Short Description</strong>
+            <p>{{ app_template.short_description }}</p>
         </div>
+
     </div>
     <div class="col-md-6">
         <div class="detail-group">
-            <strong>Available for:</strong>
+            <strong>Available in EduVMStore for</strong>
             <p>
                 {% if app_template.public and app_template.approved %}
-                    Everyone
+                    All Lecturers
                 {% elif app_template.public and not app_template.approved %}
                     Waiting for approval
                 {% elif not app_template.public and not app_template.approved %}
@@ -139,13 +157,13 @@
         </div>
 
         <div class="detail-group">
-            <strong>App Template Creator:</strong>
+            <strong>AppTemplate Creator</strong>
             <p>{{ app_template_creator }}</p>
         </div>
 
         <div class="detail-group">
-            <strong>Short Description:</strong>
-            <p>{{ app_template.short_description }}</p>
+            <strong>Created at</strong>
+            <p>{{ created_at }}</p>
         </div>
 
 
@@ -154,50 +172,52 @@
 </div>
 
 <div class="detail-group">
-    <strong>Description:</strong>
+    <strong>Description</strong>
     <p>{{ app_template.description }}</p>
 </div>
 
 <div class="detail-group">
-    <strong>Instantiation Notice:</strong>
+    <strong>Instantiation Notice</strong>
     <p>{{ app_template.instantiation_notice }}</p>
 </div>
 
+</div>
+
 <!-- System Requirements Section -->
-<h4>System Requirements</h4>
+<h3>Minimum System Requirements</h3>
 <div class="system-requirements">
     <div class="row">
         <div class="col-md-6">
-            <h5>Fixed Resources</h5>
+            <h5>Fixed Minimum Resources</h5>
             <div class="detail-group">
-                <strong>Fixed RAM (GB):</strong>
+                <strong>Fixed RAM (GB)</strong>
                 <p>{{ app_template.fixed_ram_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Fixed Disk (GB):</strong>
+                <strong>Fixed Disk (GB)</strong>
                 <p>{{ app_template.fixed_disk_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Fixed Cores:</strong>
+                <strong>Fixed Cores</strong>
                 <p>{{ app_template.fixed_cores }}</p>
             </div>
             <div class="detail-group">
-                <strong>Volume Size:</strong>
+                <strong>Volume Size</strong>
                 <p>{{ app_template.volume_size_gb }}</p>
             </div>
         </div>
         <div class="col-md-6">
-            <h5>Resources per User</h5>
+            <h5>Minimum Resources per User</h5>
             <div class="detail-group">
-                <strong>Per User RAM (GB):</strong>
+                <strong>Per User RAM (GB)</strong>
                 <p>{{ app_template.per_user_ram_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Per User Disk (GB):</strong>
+                <strong>Per User Disk (GB)</strong>
                 <p>{{ app_template.per_user_disk_gb }}</p>
             </div>
             <div class="detail-group">
-                <strong>Per User Cores:</strong>
+                <strong>Per User Cores</strong>
                 <p>{{ app_template.per_user_cores }}</p>
             </div>
         </div>
@@ -205,12 +225,12 @@
 </div>
 
 <!-- Image Information Section -->
-<h4>Image Information</h4>
+<h3>Image Information</h3>
 <div class="image-info">
     <div class="row">
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Image ID:</strong>
+                <strong>Image ID</strong>
                 <p>
                     <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
                         {{ app_template.image_id }}
@@ -220,7 +240,7 @@
         </div>
         <div class="col-md-6">
             <div class="detail-group">
-                <strong>Owner:</strong>
+                <strong>Owner</strong>
                 <p>{{ image_owner }}</p>
             </div>
         </div>
@@ -228,13 +248,36 @@
     </div>
 </div>
 
-    <h4>Script</h4>
+
+<!-- Security Information Section -->
+<h3>Security Information</h3>
+<div class="security_groups">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="detail-group">
+                <strong>Security Groups</strong>
+                {% if app_template.security_groups %}
+                    <ul class="list-unstyled">
+                        {% for group in app_template.security_groups %}
+                            <li>{{ group.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No security group selected.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <h3>Configuration Script</h3>
     <div class="script-details">
         <div class="row">
             <div class="col-md-6">
 
                 <div class="detail-group">
-                    <strong>Script:</strong>
+                    <strong>Script</strong>
                     {% if app_template.script %}
                         <pre>
 #cloud-config
@@ -262,13 +305,16 @@ write_files:
             </div>
             <div class="col-md-6">
                 <div class="detail-group">
-                    <strong>Instantiation Attributes:</strong>
+                    <strong>Instantiation Attributes</strong>
                     <p id="structured-instantiation"></p>
                 </div>
                 <div class="detail-group">
-                    <strong>Account Attributes:</strong>
+                    <strong>Account Attributes</strong>
                     <p id="structured-accounts"></p>
                 </div>
+                <div class="detail-group">
+                    <strong>SSH User Script</strong>
+                    <p>{% if app_template.ssh_user_requested %} Yes {% else %} No {% endif %} </p>
             </div>
         </div>
     </div>
@@ -309,7 +355,7 @@ write_files:
                 return;
             }
 
-            let confirmDelete = confirm("Are you sure you want to delete this App-Template?");
+            let confirmDelete = confirm("Are you sure you want to delete this AppTemplate?");
             if (!confirmDelete) return;
 
             fetch(`/delete_template/${templateId}/`, {
@@ -322,7 +368,7 @@ write_files:
             })
             .then(response => {
                 if (response.status === 204) {
-                    alert("App-Template deleted successfully!");
+                    alert("AppTemplate deleted successfully!");
                     location.reload();
                 } else {
                     return response.json().then(data => {

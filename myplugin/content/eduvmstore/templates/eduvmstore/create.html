@@ -1,12 +1,18 @@
 {% extends 'base.html' %}
 
 {% load static %}
-{% block title %}Create App-Template{% endblock %}
+{% block title %}
+    {% if is_edit %}Edit AppTemplate{% else %}Create AppTemplate{% endif %}
+{% endblock %}
+
 
 {% block page_header %}
     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e0e0e0;">
         <div style="margin-right: 15px;">
-            <h1 class="page-title mb-0">Create App-Template</h1>
+            <h1 class="page-title mb-0">
+                {% if is_edit %}Edit AppTemplate{% else %}Create AppTemplate{% endif %}
+            </h1>
+
         </div>
         <div>
             <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
@@ -15,7 +21,9 @@
 {% endblock %}
 
 {% block main %}
-<style>
+    <script src="{% static 'js/cloudinit_builder.js' %}"></script>
+
+    <style>
     .form-container {
         margin: auto;
     }
@@ -101,42 +109,167 @@
         border: 2px solid red !important;
     }
 
-    .select-box, .form-control {
-        height: auto;
-        line-height: 1.5;
-        padding: 8px 12px;
-        font-size: 14px;
-        box-sizing: border-box;
-        appearance: none;
-    }
 
-    .select-box:focus, .form-control:focus {
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        border-color: #007bff;
-    }
+.select-box, .form-control {
+    height: auto;
+    line-height: 1.5;
+    padding: 10px 14px;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fff;
+    box-sizing: border-box;
+}
 
-    .custom-topmargin{
-        margin-top: 10px;
-    }
+.select-box:focus, .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    outline: none;
+}
 
-    .custom-bottommargin{
+
+.dropdown {
+    position: relative;
+    width: 100%;
+}
+
+
+.dropdown-toggle {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 12px;
+    width: 100%;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease-in-out;
+}
+
+.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    border-color: #007bff;
+}
+
+
+#selectedGroupsDisplay span{
+    margin-right: 6px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 5px;
+    padding: 10px 12px;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+
+.dropdown.show .dropdown-menu {
+    display: block;
+}
+
+
+.dropdown-menu .form-check {
+    margin-bottom: 8px;
+}
+
+.dropdown-menu .form-check-input {
+    margin-top: 2px;
+}
+
+.dropdown-menu label {
+    margin-left: 8px;
+    font-weight: 400;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-check-input {
+    margin-right: 10px;
+}
+
+   .system-requirements, .script-details, .security_groups, .app_template_details {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
         margin-bottom: 30px;
     }
+       .row {
+        margin-bottom: 20px;
+    }
 
+.script-details {
+     margin-bottom: 30px;
+    font-size: 14px;
+    line-height: 1.6;
+}
 
+.script-details p {
+    margin-bottom: 20px;
 
+}
+
+.or-divider {
+    font-weight: bold;
+    font-size: 16px;
+    padding-top: 30px;
+    color: #888;
+}
+
+.script-paragraph {
+    margin-left: 15px;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+#selectedGroupsDisplay .text-muted {
+    color: #6c757d;
+    font-style: italic;
+}
 </style>
 
 <div class="form-container">
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}">
+    <form method="post" action="">
+
     {% csrf_token %}
 
+    {% if is_edit  %}
 
-        <h3>App-Template Details</h3>
+        <div class="col-md-6" hidden="hidden">
+            <label for="image_id">Image ID:</label>
+            <input type="text" hidden="hidden"  name="app_template_id" value="{{ app_template.id }}">
+        </div>
+        <div class="col-md-6" hidden="hidden">
+            <label for="image_id">Image ID:</label>
+            <input type="text" id="image_id" name="image_id" class="form-control" value="{{ app_template.image_id }}" required>
+        </div>
+        <div class="col-md-6" hidden="hidden">
+            <label for="approved">Approved:</label>
+            <input type="text" id="approved" name="approved" class="form-control" value="{{ app_template.approved }}" required>
+        </div>
+
+    {% endif %}
+
+
+
+        <h3>AppTemplate Details</h3>
+    <div class="app_template_details">
         <div class="form-group row">
             <div class="col-md-4">
-                <label for="image_id">Select Image:<span style="color: red;">*</span></label>
+                <label for="image_id">Select Image <span style="color: rgb(85,137,197);">*</span></label>
                 <select name="image_id" id="image_id" class="form-control select-box" required>
                     {% for image in images %}
                         <option value="{{ image.0 }}" {% if app_template.image_id == image.0 %}selected{% endif %}>{{ image.1 }}</option>
@@ -148,8 +281,8 @@
 
         <div class="form-group row">
             <div class="col-md-6">
-                <label for="name">App-Template Name:<span style="color: red;">*</span>
-                    <span data-toggle="tooltip" title="Enter the name of the app template.
+                <label for="name">AppTemplate Name <span style="color: rgb(85,137,197);">*</span>
+                    <span data-toggle="tooltip" title="Enter the name of the AppTemplate.
                     Only letters, numbers, '-', '_', and spaces are allowed.">
                 <i class="fa fa-question-circle"></i>
             </span>
@@ -160,8 +293,8 @@
                 <small id="name-feedback" class="form-text"></small>
             </div>
             <div class="col-md-6">
-                <label for="short_description">Short Description:<span style="color: red;">*</span>
-                    <span data-toggle="tooltip" title="Enter a brief description of the app template.">
+                <label for="short_description">Short Description <span style="color: rgb(85,137,197);">*</span>
+                    <span data-toggle="tooltip" title="Enter a brief description of the AppTemplate. This will be used to quickly identify what this AppTemplate is about.">
                 <i class="fa fa-question-circle"></i>
             </span>
                 </label>
@@ -170,15 +303,15 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="description">Description:<span style="color: red;">*</span>
-                <span data-toggle="tooltip" title="Provide a detailed description of the app template.">
+            <label for="description">Description <span style="color: rgb(85,137,197);">*</span>
+                <span data-toggle="tooltip" title="Provide a detailed description of the AppTemplate. This will be used to assist users in understanding the purpose and functionality of the AppTemplate.">
             <i class="fa fa-question-circle"></i>
         </span>
             </label>
             <textarea id="description" name="description" class="form-control" required>{{ app_template.description }}</textarea>
         </div>
         <div class="form-group">
-            <label for="instantiation_notice">Instantiation Notice:
+            <label for="instantiation_notice">Instantiation Notice
                 <span data-toggle="tooltip" title="Enter any special instructions or
                 notices for instantiation.">
             <i class="fa fa-question-circle"></i>
@@ -192,25 +325,29 @@
             <div class="col-md-4">
 
 
-            <label for="public">Available for:<span style="color: red;">*</span>
-                <span data-toggle="tooltip" title="Select whether the app template is available
-                for everyone or only the creator.">
+            <label for="public">Available in EduVMStore for <span style="color: rgb(85,137,197);">*</span>
+                <span data-toggle="tooltip" title="Select whether the AppTemplate is available
+                for all lecturers or only the creator.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
             <select name="public" id="public" class="form-control select-box" required>
-                <option value="True" {% if app_template.public %}selected{% endif %}>Everyone</option>
+                <option value="True" {% if app_template.public %}selected{% endif %}>All Lecturers</option>
                 <option value="False" {% if not app_template.public %}selected{% endif %}>Creator only</option>
             </select>
 
             </div>
         </div>
+    </div>
 
-        <h3>System Requirements</h3>
+        <h3>Minimum System Requirements</h3>
+    <div class="system-requirements">
         <div class="row">
             <div class="col-md-6">
-                <h4>Fixed Resources</h4>
+                <h4>Fixed Minimum Resources <span data-toggle="tooltip" title="Enter the minimum resources which will fix needed to start the AppTemplate.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></h4>
                 <div class="form-group mt-5">
-                    <label for="fixed_ram_gb">Fixed RAM (GB):<span style="color: red;">*</span>
+                    <label for="fixed_ram_gb">Fixed RAM (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed RAM in gigabytes.
                          Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -223,7 +360,7 @@
                            required>
                 </div>
                 <div class="form-group">
-                    <label for="fixed_disk_gb">Fixed Disk (GB):<span style="color: red;">*</span>
+                    <label for="fixed_disk_gb">Fixed Disk (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed Disk in gigabytes.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -234,7 +371,7 @@
                            value="{{ app_template.fixed_disk_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="fixed_cores">Fixed Cores:<span style="color: red;">*</span>
+                    <label for="fixed_cores">Fixed Cores <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of fixed Cores in gigabytes.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
@@ -245,10 +382,10 @@
                            value="{{ app_template.fixed_cores }}">
                 </div>
                 <div class="form-group">
-                    <label for="volume_size">Volume Size (GB):<span style="color: red;">*</span>
+                    <label for="volume_size">Volume Size (GB)
                         <span data-toggle="tooltip" title="Enter the amount of Volume Size in gigabytes.
                         You will get a extra volume additional to your selected flavor if you start
-                        these app template. Only numbers and one decimal point are allowed.
+                        these AppTemplate. Only numbers and one decimal point are allowed.
                         Enter 0 or leave empty if not needed. ">
                             <i class="fa fa-question-circle"></i>
                       </span>
@@ -260,9 +397,11 @@
             </div>
 
             <div class="col-md-6">
-                <h4>Resources per User</h4>
+                <h4>Minimum Resources per User <span data-toggle="tooltip" title="Enter the minimum resources which will needed for each user.">
+                            <i class="fa fa-question-circle"></i>
+                      </span></h4>
                 <div class="form-group mt-5">
-                    <label for="per_user_ram_gb">Per User RAM (GB):<span style="color: red;">*</span>
+                    <label for="per_user_ram_gb">Per User RAM (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of RAM per user in gigabytes.
                          Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -273,7 +412,7 @@
                            value="{{ app_template.per_user_ram_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_disk_gb">Per User Disk (GB):<span style="color: red;">*</span>
+                    <label for="per_user_disk_gb">Per User Disk (GB) <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the amount of disk space per user
                         in gigabytes. Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -284,7 +423,7 @@
                            value="{{ app_template.per_user_disk_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="per_user_cores">Per User Cores:<span style="color: red;">*</span>
+                    <label for="per_user_cores">Per User Cores <span style="color: rgb(85,137,197);">*</span>
                         <span data-toggle="tooltip" title="Enter the number of CPU cores per user.
                         Only numbers and one decimal point are allowed.">
             <i class="fa fa-question-circle"></i>
@@ -297,61 +436,129 @@
             </div>
 
         </div>
-        <h3>Script</h3>
-        <div class="form-group">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="generate_ssh_script" onchange="toggleSshScript(this)">
-                <label class="form-check-label" for="generate_ssh_script">
-                    Generate SSH setup for users
-                </label>
+    </div>
+
+<h3>Security Groups</h3>
+<div class="security_groups">
+    <div class="form-group row">
+        <div class="col-md-4">
+            <label for="security_groups" style="margin-top: 10px">
+                Select Security Groups
+                <span data-toggle="tooltip" title="Security groups are sets of IP filter rules that are applied to all project instances, which define networking access to the instance.">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
+
+                <button class="dropdown-toggle form-control text-left" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span id="selectedGroupsDisplay">
+                    {% if is_edit and selected_groups %}
+                        {% for group in selected_groups %}
+                            <span>{{ group }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </span>
+                </button>
+
+                <div class="dropdown-menu" aria-labelledby="securityGroupsDropdown" style="padding: 10px; width: 100%;">
+                    {% for sg in security_groups %}
+                        <div class="dropdown-item">
+                            <div class="form-check">
+                               <input class="form-check-input" type="checkbox" name="security_groups"
+                                   style="margin-right: 10px;" id="sg_{{ sg.id }}" value="{{ sg.name }}"
+                                   {% if sg.selected %}checked{% endif %}>
+                            <label  style="margin-top: 10px" class="form-check-label" for="sg_{{ sg.id }}">
+                                {{ sg.name }}
+                            </label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <div class="form-group row">
-            <div class="col-md-4">
-                <label for="instantiation_attributes">Instantiation Attributes:
-                    <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
+
+<h3>Configuration Script</h3>
+<div class="script-details">
+    <p>
+    Enter instantiation and account attributes to be used in the configuration script.
+    You can find more information
+    <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}#instantiation-and-account-attributes" target="_blank">here</a>.
+</p>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="instantiation_attributes">Instantiation Attributes
+                <span data-toggle="tooltip" title="Enter any attributes required for instantiation.
 For example, you can specify a version or something else that is needed for the script.
 For more than one instantiation attribute separate by using ':' in between. E.g. 'version:script'.
 The values will be written to the file /etc/attributes.txt.">
-                <i class="fa fa-question-circle"></i>
-            </span>
-                </label>
-                <input type="text" id="instantiation_attributes" name="instantiation_attributes" class="form-control">
-            </div>
-            <div class="col-md-4">
-                <label for="account_attributes">Account Attributes:
-                    <span data-toggle="tooltip" title="Enter any account-related attributes.
-                    For example, you can specify the account name, email, password, etc. used in the script.
-                    For more than one account attribute separate by using ':' in between. E.g. 'name:password'.
-The values will be written to the file /etc/users.txt.">
-                <i class="fa fa-question-circle"></i>
-            </span>
-                </label>
-                <input type="text" id="account_attributes" name="account_attributes" class="form-control">
-            </div>
-
-
-            <div class="col-md-4">
-                <label for="script_file">Upload Script:
-                    <span data-toggle="tooltip"  data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
-You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
-                <i class="fa fa-question-circle"></i>
-            </span>
-                </label>
-
-                <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file" >
-                <button type="button" class="btn btn-primary custom-topmargin" id="writeScriptButton" onclick="openModal()">Write Script</button>
-            </div>
-
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <input type="text" id="instantiation_attributes" name="instantiation_attributes"
+                   class="form-control" placeholder="e.g.: version:packages">
         </div>
 
-        <!-- Modal for script input -->
+        <div class="col-md-6">
+            <label for="account_attributes">Account Attributes
+                <span data-toggle="tooltip" title="Enter any account-related attributes.
+For example, you can specify the account name, email, password, etc. used in the script.
+For more than one account attribute separate by using ':' in between. E.g. 'name:password'.
+The values will be written to the file /etc/users.txt.">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <input type="text" id="account_attributes" name="account_attributes"
+                   class="form-control" placeholder="e.g.: name:password">
+        </div>
+    </div>
+
+    <div class="form-group row align-items-start mt-5">
+         <p class="script-paragraph"> Upload a configuration script or write it directly after clicking the "Write Script" button.</p>
+
+           <div class="col-md-5">
+            <label for="writeScriptButton" class="form-label">Write Configuration Script</label>
+            <button type="button" class="btn btn-primary w-100" id="writeScriptButton" onclick="openModal()">
+                {{ _("Write Script") }}
+            </button>
+        </div>
+
+        <div class="col-md-1 d-flex justify-content-center align-items-center">
+            <div class="or-divider">or</div>
+        </div>
+
+        <div class="col-md-5">
+            <label for="script_file">Upload Script
+                <span data-toggle="tooltip" data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
+You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
+            <input type="file" id="script_file" name="script_file" accept=".yaml, .yml, .txt" class="form-control-file">
+        </div>
+    </div>
+</div>
+
+
+    <!-- Modal for script input -->
         <div id="scriptModal" class="modal mt-5">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">×</span>
                 <h5>Write Script</h5>
-                <pre class="p-2 border rounded bg-light">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label><input type="checkbox" class="script-option" data-key="ssh_script" id="ssh_user_requested" name="ssh_user_requested"> Generate SSH setup for users <span data-toggle="tooltip" title="Generates an pre-configured script.
+                        The pre-configured scripts creates SSH keys for the users on the instance
+                         and stores them in /home/ubuntu/user_keys.
+For this setup, the Account Attributes username and password are required.">
+                            <i class="fa fa-question-circle"></i> </span></label>
+                    <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration</label>
+                    <label><input type="checkbox" class="script-option" data-key="user_add"> User Add</label>
+                </div>
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+    <pre class="p-2 border rounded bg-light" style="flex: 1;">
 #cloud-config
 write_files:
   - path: /etc/users.txt
@@ -365,11 +572,22 @@ write_files:
       <span id="instantiationContent"></span>
     permissions: '0644'
     owner: root:root
+    </pre>
 
-        </pre>
+                    <div class="cloudinit-info" style="flex: 0 0 250px; font-size: 13px; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
+                    <strong>Cloud Init Support</strong>
+                        <p>This script will run immediately after the start of the virtual machine. It can be used for configuration of instances. For more information look at the tutorial of cloud init documentation.</p>
+                        <p>You will find a sample (runcmd) script for user creation in the "Account Attributes" section of the tutorial page "Script".</p>
+                        <p style="margin-top: 10px;">Look at <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.</p>
+                        <p style="margin-top: 10px;">Look at <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}" target="_blank">Tutorial</a>. </p>
+
+                    </div>
+                </div>
 
                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
-                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">Save Script</button>
+                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">
+                    {{ _("Save Script") }}</button>
+                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
 
             </div>
         </div>
@@ -377,18 +595,22 @@ write_files:
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
         <div class="custom-bottommargin">
-        <button type="submit" class="btn btn-primary" id="submit-button" disabled>Create</button>
-         <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+            <button type="submit" class="btn btn-primary" id="submit-button" disabled>
+                {% if is_edit %}{{ _("Update") }}{% else %}{{ _("Create") }}{% endif %}
+            </button>
+
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
         </div>
     </form>
 </div>
+
 
 <!-- Modal for Success or Failure -->
 <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="responseModalLabel">{{ _("App-Template Creation Status") }}</h5>
+                <h5 class="modal-title" id="responseModalLabel">{{ _("AppTemplate Creation Status") }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -397,7 +619,7 @@ write_files:
                 <p>{{ modal_message }}</p>
             </div>
             <div class="modal-footer">
-                {% if modal_message == "App-Template created successfully." %}
+                {% if modal_message == "AppTemplate created successfully." %}
                     <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Show Overview") }}</a>
                 {% endif %}
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
@@ -406,11 +628,17 @@ write_files:
     </div>
 </div>
 
-<!-- JavaScript to handle modal -->
 <script>
 
+
     document.addEventListener("DOMContentLoaded", function () {
+        {% if not is_edit %}
         checkName();
+        {% endif %}
+        {% if is_edit %}
+            document.getElementById("name-feedback").textContent = "";
+            document.getElementById("submit-button").disabled = false;
+        {% endif %}
         var scriptText = document.getElementById('scriptText').value;
         document.getElementById('hiddenScriptField').value = scriptText;
         document.querySelectorAll("input[type='text']").forEach(function(input) {
@@ -454,6 +682,14 @@ write_files:
         document.getElementById("accountContent").innerText = accountStructure;
         document.getElementById("instantiationContent").innerText = instantiationStructure;
         document.getElementById('scriptModal').style.display = 'block';
+
+        setTimeout(function () {
+            const preElement = document.querySelector("#scriptModal pre");
+            const infoBox = document.querySelector("#scriptModal .cloudinit-info");
+            if (preElement && infoBox) {
+                infoBox.style.height = preElement.offsetHeight + "px";
+            }
+        }, 0);
     }
 
     function closeModal() {
@@ -461,24 +697,11 @@ write_files:
     }
 
     function saveScript() {
-        // Get the script text from the textarea
         var scriptText = document.getElementById('scriptText').value;
-        // Store it in the hidden input field
         document.getElementById('hiddenScriptField').value = scriptText;
-        // Close the modal
         closeModal();
     }
 
-
-
-    // Close the modal if the user clicks anywhere outside of it
-    window.onclick = function(event) {
-        var modal = document.getElementById('scriptModal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
-     // Automatically show the modal if modal_message is set
     {% if modal_message %}
     $(document).ready(function() {
         $('#responseModal').modal('show');
@@ -557,57 +780,111 @@ write_files:
         }
     }
 
-    function toggleSshScript(checkbox) {
-        const sshScript = `
-runcmd:
-  - |
-    # Create directory for private keys
-    mkdir -p /home/ubuntu/user_keys
-    chmod 700 /home/ubuntu/user_keys
-    chown ubuntu:ubuntu /home/ubuntu/user_keys
 
-    while IFS=: read -r username password; do
-      # Create users
-      if ! id "$username" &>/dev/null; then
-        useradd -m -s /bin/bash "$username"
-        echo "$username:$password" | chpasswd
-      fi
+    function updateSelectedGroups() {
+        const selectedGroups = [];
+       const checkboxes = document.querySelectorAll('.dropdown-menu input[type="checkbox"]:checked');
+        checkboxes.forEach(function(checkbox) {
+            selectedGroups.push(checkbox.value);
+        });
 
-      # Create SSH directory and key
-      sudo -u "$username" mkdir -p /home/"$username"/.ssh
-      chmod 700 /home/"$username"/.ssh
-
-      # Generate SSH key
-      sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
-
-      # Set Public Key as authorized_key
-      cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
-      chmod 600 /home/"$username"/.ssh/authorized_keys
-      chown -R "$username:$username" /home/"$username"/.ssh
-
-      # Secure private keys for the admin & Ubuntu user
-      cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
-      chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
-      chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
-    done < /etc/users.txt
-
-    # SSH configuration: Disable password login
-    sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
-    sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-    systemctl restart ssh`;
-
-        if (checkbox.checked) {
-            document.getElementById('scriptText').value = sshScript.trim();
-            document.getElementById('hiddenScriptField').value = sshScript.trim();
-        } else {
-            document.getElementById('scriptText').value = '';
-            document.getElementById('hiddenScriptField').value = '';
+        if (selectedGroups.length === 0) {
+            selectedGroups.push('default');
         }
+
+        const selectedGroupsDisplay = document.querySelector('.selected-group');
+        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
     }
 
+   document.querySelectorAll('.dropdown-menu input[type="checkbox"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateSelectedGroups);
+    });
 
+    document.addEventListener('DOMContentLoaded', updateSelectedGroups);
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const textarea = document.getElementById("scriptText");
+        const hiddenField = document.getElementById("hiddenScriptField");
 
+        function updateScriptBasedOnSelection() {
+            const selected = Array.from(document.querySelectorAll(".script-option"))
+                .filter(cb => cb.checked)
+                .map(cb => cb.dataset.key)
+                .sort();
+
+            const keyCombo = selected.join("+");
+            let selectedKey = "";
+
+            switch (keyCombo) {
+                case "base_configuration":
+                    selectedKey = "base_configuration";
+                    break;
+                case "ssh_script":
+                    selectedKey = "ssh_script";
+                    break;
+                case "user_add":
+                    selectedKey = "user_add";
+                    break;
+                case "base_configuration+ssh_script":
+                    selectedKey = "sshscript_base_configuration";
+                    break;
+                case "ssh_script+user_add":
+                    selectedKey = "ssh_script";
+                    break;
+                case "base_configuration+user_add":
+                    selectedKey = "base_user";
+                    break;
+                case "base_configuration+ssh_script+user_add":
+                    selectedKey = "sshscript_base_configuration";
+                    break;
+                default:
+                    selectedKey = "";
+            }
+
+            if (selectedKey && scriptSnippets[selectedKey]) {
+                const decoded = scriptSnippets[selectedKey]
+                    .replace(/\\r\\n/g, '\n')
+                    .replace(/\\"/g, '"');
+                textarea.value = decoded;
+                hiddenField.value = decoded;
+            } else {
+                textarea.value = "";
+                hiddenField.value = "";
+            }
+        }
+
+        document.querySelectorAll(".script-option").forEach((checkbox) => {
+            checkbox.addEventListener("change", updateScriptBasedOnSelection);
+        });
+    });
+
+    function updateSelectedGroupsDisplay() {
+        const selected = [];
+        $('input[name="security_groups"]:checked').each(function() {
+            selected.push($(this).val());
+        });
+
+        const display = $('#selectedGroupsDisplay');
+        display.empty();
+
+        if (selected.length === 0) {
+            display.append('<span class="text-muted">No group selected</span>');
+        } else {
+            selected.forEach(function(group) {
+                display.append('<span>' + group + '</span>');
+            });
+        }
+    }
+    updateSelectedGroupsDisplay();
+
+     // Handle checkbox changes
+    $('input[name="security_groups"]').change(function() {
+        updateSelectedGroupsDisplay();
+    });
+
+    $(document).ready(function() {
+    $('.dropdown-toggle').dropdown();
+});
 
 </script>
 {% endblock %}
