@@ -330,42 +330,8 @@
     <div id="scriptModal" class="modal mt-5">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
-            <h5>Write Script</h5>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <label><input type="checkbox" class="script-option" data-key="ssh_script" id="ssh_user_requested" name="ssh_user_requested"> Generate SSH setup for users <span data-toggle="tooltip" title="Generates an pre-configured script.
-                        The pre-configured scripts creates SSH keys for the users on the instance
-                         and stores them in /home/ubuntu/user_keys.
-For this setup, the Account Attributes username and password are required.">
-                            <i class="fa fa-question-circle"></i> </span></label>
-                <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration</label>
-                <label><input type="checkbox" class="script-option" data-key="user_add"> User Add</label>
-            </div>
-            <div style="display: flex; gap: 20px; align-items: flex-start;">
-    <pre class="p-2 border rounded bg-light" style="flex: 1;">
-#cloud-config
-write_files:
-  - path: /etc/users.txt
-    content: |
-      <span id="accountContent"></span>
-    permissions: '0644'
-    owner: root:root
+            <h5>Account and Instantiation Attributes Example</h5>
 
-  - path: /etc/attributes.txt
-    content: |
-      <span id="instantiationContent"></span>
-    permissions: '0644'
-    owner: root:root
-    </pre>
-
-                <div class="cloudinit-info" style="flex: 0 0 250px; font-size: 13px; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
-                    <strong>Cloud Init Support</strong>
-                    <p>This script will run immediately after the start of the virtual machine. It can be used for configuration of instances. For more information look at the tutorial of cloud init documentation.</p>
-                    <p>You will find a sample (runcmd) script for user creation in the "Account Attributes" section of the tutorial page "Script".</p>
-                    <p style="margin-top: 10px;">Look at <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.</p>
-                    <p style="margin-top: 10px;">Look at <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}" target="_blank">Tutorial</a>. </p>
-
-                </div>
-            </div>
 
             <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
             <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">
