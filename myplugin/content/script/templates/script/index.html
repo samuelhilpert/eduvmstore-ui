@@ -358,19 +358,7 @@ write_files:
     <script>
 
         function openModal() {
-            let accountStructure = document.getElementById("account_attributes").value;
-            let instantiationStructure = document.getElementById("instantiation_attributes").value;
-            document.getElementById("accountContent").innerText = accountStructure;
-            document.getElementById("instantiationContent").innerText = instantiationStructure;
             document.getElementById('scriptModal').style.display = 'block';
-
-            setTimeout(function () {
-                const preElement = document.querySelector("#scriptModal pre");
-                const infoBox = document.querySelector("#scriptModal .cloudinit-info");
-                if (preElement && infoBox) {
-                    infoBox.style.height = preElement.offsetHeight + "px";
-                }
-            }, 0);
         }
 
         function closeModal() {
