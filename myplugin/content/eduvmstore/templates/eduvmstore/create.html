@@ -483,7 +483,12 @@ The values will be written to the file /etc/users.txt.">
          <p class="script-paragraph"> Upload a configuration script or write it directly after clicking the "Write Script" button.</p>
 
            <div class="col-md-5">
-            <label for="writeScriptButton" class="form-label">Write Configuration Script</label>
+            <label for="writeScriptButton" class="form-label">Write Configuration Script
+                <span data-toggle="tooltip" data-html="true" title="Here you can write your own
+                cloud init configuration script. Link to YAML Documentation: https://yaml.org">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
             <button type="button" class="btn btn-primary w-100" id="writeScriptButton" onclick="openModal()">
                 {{ _("Write Script") }}
             </button>
@@ -496,7 +501,7 @@ The values will be written to the file /etc/users.txt.">
         <div class="col-md-5">
             <label for="script_file">Upload Script
                 <span data-toggle="tooltip" data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
-You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
+ Link to YAML Documentation: https://yaml.org">
                     <i class="fa fa-question-circle"></i>
                 </span>
             </label>
