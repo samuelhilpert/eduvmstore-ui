@@ -451,10 +451,8 @@
                     <h5>${sectionTitle}</h5>
 
                     ${noAdditionalUsersHtml}
-
-                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
-                        <!-- CSV Upload -->
-                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <!-- CSV Upload -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <div style="flex-grow: 1; margin-top: 15px;">
                                 <label for="csvUpload_${instanceIndex}">${uploadCSVText}
                                     <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
@@ -471,6 +469,10 @@
                                 </small>
                             </div>
                         </div>
+
+                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
+
+
                         ${accountsHTML}
                     </div>
                 </div>
