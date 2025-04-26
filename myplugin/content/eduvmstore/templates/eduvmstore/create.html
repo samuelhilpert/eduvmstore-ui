@@ -346,12 +346,12 @@
         </p>
         <div class="row">
             <div class="col-md-6">
-                <h4>Fixed Minimum Resources <span data-toggle="tooltip" title="Enter the minimum fix resources required to start the AppTemplate. These are the base resources used to calculate fitting flavors.">
+                <h4>Minimum Resources <span data-toggle="tooltip" title="Enter the minimum resources required to start the AppTemplate. These are the resources used to calculate fitting flavors.">
                             <i class="fa fa-question-circle"></i>
                       </span></h4>
                 <div class="form-group mt-5">
-                    <label for="fixed_ram_gb">Fixed RAM (GB) <span style="color: rgb(85,137,197);">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of fixed RAM in gigabytes.
+                    <label for="fixed_ram_gb">Minimum RAM (GB) <span style="color: rgb(85,137,197);">*</span>
+                        <span data-toggle="tooltip" title="Enter the amount of minimum RAM in gigabytes needed for this VM.
                          Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
                       </span>
@@ -363,8 +363,8 @@
                            required>
                 </div>
                 <div class="form-group">
-                    <label for="fixed_disk_gb">Fixed Disk (GB) <span style="color: rgb(85,137,197);">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of fixed Disk in gigabytes.
+                    <label for="fixed_disk_gb">Minimum Disk (GB) <span style="color: rgb(85,137,197);">*</span>
+                        <span data-toggle="tooltip" title="Enter the minimal amount of Disk in gigabytes needed to run the VM.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
                       </span>
@@ -374,8 +374,8 @@
                            value="{{ app_template.fixed_disk_gb }}">
                 </div>
                 <div class="form-group">
-                    <label for="fixed_cores">Fixed Cores <span style="color: rgb(85,137,197);">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of fixed Cores in gigabytes.
+                    <label for="fixed_cores">Minimum Cores <span style="color: rgb(85,137,197);">*</span>
+                        <span data-toggle="tooltip" title="Enter the minimum amount of Cores needed to start the VM.
                         Only numbers and one decimal point are allowed.">
                             <i class="fa fa-question-circle"></i>
                       </span>
@@ -398,46 +398,6 @@
                            value="{{ app_template.volume_size_gb }}">
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <h4>Minimum Resources per User <span data-toggle="tooltip" title="Enter the minimum resources required for each user. These are the resources per user used to calculate fitting flavors.">
-                            <i class="fa fa-question-circle"></i>
-                      </span></h4>
-                <div class="form-group mt-5">
-                    <label for="per_user_ram_gb">Per User RAM (GB) <span style="color: rgb(85,137,197);">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of RAM per user in gigabytes.
-                         Only numbers and one decimal point are allowed.">
-            <i class="fa fa-question-circle"></i>
-        </span>
-                    </label>
-                    <input type="text" id="per_user_ram_gb" name="per_user_ram_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                           value="{{ app_template.per_user_ram_gb }}">
-                </div>
-                <div class="form-group">
-                    <label for="per_user_disk_gb">Per User Disk (GB) <span style="color: rgb(85,137,197);">*</span>
-                        <span data-toggle="tooltip" title="Enter the amount of disk space per user
-                        in gigabytes. Only numbers and one decimal point are allowed.">
-            <i class="fa fa-question-circle"></i>
-        </span>
-                    </label>
-                    <input type="text" id="per_user_disk_gb" name="per_user_disk_gb" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                           value="{{ app_template.per_user_disk_gb }}">
-                </div>
-                <div class="form-group">
-                    <label for="per_user_cores">Per User Cores <span style="color: rgb(85,137,197);">*</span>
-                        <span data-toggle="tooltip" title="Enter the number of CPU cores per user.
-                        Only numbers and one decimal point are allowed.">
-            <i class="fa fa-question-circle"></i>
-        </span>
-                    </label>
-                    <input type="text" id="per_user_cores" name="per_user_cores" class="form-control" required
-                           oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                           value="{{ app_template.per_user_cores }}">
-                </div>
-            </div>
-
         </div>
     </div>
 

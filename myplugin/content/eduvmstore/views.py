@@ -477,9 +477,6 @@ class AppTemplateView(generic.TemplateView):
             'fixed_ram_gb': request.POST.get('fixed_ram_gb'),
             'fixed_disk_gb': request.POST.get('fixed_disk_gb'),
             'fixed_cores': request.POST.get('fixed_cores'),
-            'per_user_ram_gb': request.POST.get('per_user_ram_gb'),
-            'per_user_disk_gb': request.POST.get('per_user_disk_gb'),
-            'per_user_cores': request.POST.get('per_user_cores'),
             'security_groups': security_groups
         }
 

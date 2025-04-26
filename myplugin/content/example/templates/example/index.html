@@ -122,14 +122,22 @@
                         example, use "Ubuntu Linux" as the name and provide a short and a more detailed
                         description, and optionally an instantiation notice.
                     </li>
-                    <li>Step 3: Select whether the AppTemplate should be available for all lecturers or
-                        only for you (the creator).
+                    <li>Step 3: Select whether the AppTemplate should be available for everyone (e.g., other
+                        lecturers) or only for you (the creator).
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Configure Security Groups</strong>
+                <ul>
+                    <li>Select one or more existing security groups to be used for the AppTemplate. These
+                        security groups define the network access rules for the instances launched from this
+                        AppTemplate.
                     </li>
                 </ul>
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                    <li>Step 1: Enter the appropriate minimum resources for the AppTemplate:
                         <ul>
                             <li>RAM: 2 GB</li>
                             <li>Disk Space: 20 GB</li>
@@ -146,17 +154,12 @@
                     </li>
                 </ul>
             </li>
-            <li><strong>Configure Security Groups</strong>
-                <ul>
-                    <li>Select one or more existing security groups to be used for the AppTemplate. These
-                        security groups define the network access rules for the instances launched from this
-                        AppTemplate.
-                    </li>
-                </ul>
-            </li>
             <li><strong>Write Configuration Script:</strong>
                 <ul>
-                    <li>Step 1: Enter instantiation and account attributes to be used in the configuration
+                    <li>Step 1: Select the checkbox to automatically generate the SSH setup for users. This
+                        will create a script that sets up SSH access for the students.
+                    </li>
+                    <li>Step 2: Enter instantiation and account attributes to be used in the configuration
                         script. For example <code>username:password</code> as account attributes.
                     </li>
                     <li>Step 2: Click the "Write Script" button to open the script editor.</li>
@@ -164,6 +167,7 @@
                         the SSH setup for users. This will create a script that sets up SSH access for
                         the students. The generated script will look like this:
                     </li>
+
                     {% verbatim %}
                         <pre>
     <code>
@@ -335,7 +339,7 @@
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                    <li>Step 1: Enter the appropriate minimum resources for the AppTemplate:
                         <ul>
                             <li>RAM: 4 GB</li>
                             <li>Disk Space: 50 GB</li>
@@ -543,7 +547,7 @@ final_message: "GitLab installation and user creation completed."
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                    <li>Step 1: Enter the appropriate minimum resources for the AppTemplate:
                         <ul>
                             <li>RAM: 8 GB</li>
                             <li>Disk Space: 80 GB</li>
