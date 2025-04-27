@@ -483,7 +483,12 @@ The values will be written to the file /etc/users.txt.">
          <p class="script-paragraph"> Upload a configuration script or write it directly after clicking the "Write Script" button.</p>
 
            <div class="col-md-5">
-            <label for="writeScriptButton" class="form-label">Write Configuration Script</label>
+            <label for="writeScriptButton" class="form-label">Write Configuration Script
+                <span data-toggle="tooltip" data-html="true" title="Here you can write your own
+                cloud init configuration script. Link to YAML Documentation: https://yaml.org">
+                    <i class="fa fa-question-circle"></i>
+                </span>
+            </label>
             <button type="button" class="btn btn-primary w-100" id="writeScriptButton" onclick="openModal()">
                 {{ _("Write Script") }}
             </button>
@@ -496,7 +501,7 @@ The values will be written to the file /etc/users.txt.">
         <div class="col-md-5">
             <label for="script_file">Upload Script
                 <span data-toggle="tooltip" data-html="true" title="Upload a script file in .yaml, .yml, or .txt format.
-You can also write your script in the modal below. Link to YAML Documentation: https://yaml.org">
+ Link to YAML Documentation: https://yaml.org">
                     <i class="fa fa-question-circle"></i>
                 </span>
             </label>
@@ -540,9 +545,10 @@ write_files:
                     <div class="cloudinit-info" style="flex: 0 0 250px; font-size: 13px; background: #f8f9fa; border: 1px solid #ccc; padding: 10px; border-radius: 5px;">
                     <strong>Cloud Init Support</strong>
                         <p>This script will run immediately after the start of the virtual machine. It can be used for configuration of instances. For more information look at the tutorial of cloud init documentation.</p>
-                        <p>You will find a sample (runcmd) script for user creation in the "Account Attributes" section of the tutorial page "Script".</p>
-                        <p style="margin-top: 10px;">Look at <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.</p>
-                        <p style="margin-top: 10px;">Look at <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}" target="_blank">Tutorial</a>. </p>
+                        <p>You will find a sample (runcmd) script for user creation in the "Account Attributes" section of the tutorial page "Script".<br>
+                        Look at <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.<br>
+                        Look at <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}" target="_blank">Tutorial</a>. <br>
+                        Look at <a href="https://yaml.org" target="_blank">YAML Doku</a>.</p>
 
                     </div>
                 </div>
@@ -550,7 +556,7 @@ write_files:
                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
                 <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">
                     {{ _("Save Script") }}</button>
-                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
+                <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
 
             </div>
         </div>
@@ -562,7 +568,7 @@ write_files:
                 {% if is_edit %}{{ _("Update") }}{% else %}{{ _("Create") }}{% endif %}
             </button>
 
-            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-default">{{ _("Cancel") }}</a>
         </div>
     </form>
 </div>

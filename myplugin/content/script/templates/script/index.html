@@ -65,7 +65,33 @@
         a:hover {
             text-decoration: underline;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .modal-content img {
+            max-width: 100%;
+            height: auto;
+        }
     </style>
+    <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
+        version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.</p>
 
     <div class="toc">
         <h2>Table of Contents</h2>
@@ -202,6 +228,9 @@
     done < /etc/users.txt</code></pre>
         <p>Make sure to adjust the file path to match the location where the attributes are saved in the
             <code>write_files</code> section.</p>
+        <p>For an example of the correct usage of Instantiation and Account Attributes, click
+        <a href="javascript:void(0);" id="writeScriptLink" onclick="openModal()" style=" color: #007bff;">
+           here</a>.</p>
     </div>
 
     <div class="section" id="easy-to-use-script-examples">
@@ -304,7 +333,43 @@
         </ul>
     </div>
 
+    <div id="scriptModal" class="modal mt-5">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <h5>Account and Instantiation Attributes Example</h5>
+            <p>For a better understanding of Account and Instantiation Attributes, a concrete example is provided here. This includes the following example input in Create AppTemplate:</p>
+            <img src="{% static 'images/create.png' %}" alt="create" class="logo-img">
+            <p>It shows that the user selected "packages" as the Instantiation Attribute and "name:password" as the Account Attributes. The separation of the individual attributes is always done using a colon :</p>
+            <p>By entering these attributes, the fixed `write_script` part of the script changes as follows:</p>
+            <img src="{% static 'images/writescript.png' %}" alt="writescript" class="logo-img">
+            <p>It can be seen that placeholders for both Instantiation and Account Attributes are included in the file.
+            Furthermore, it can be seen that the Instantiation Attributes are saved in the file `/etc/attributes.txt` and the Account Attributes in the file `/etc/users.txt`.
+            In the script, the user can now access these attributes and, for example, create users or install packages with them.
+           The selectable options "Generate SSH setup for users" and "User Add" use the data from `/etc/users.txt`, for example.
+            During the actual launch process, the placeholders are then replaced with the user inputs</p>
+            <p>The launch page then requires the following information:</p>
+            <img src="{% static 'images/launch.png' %}" alt="launch" class="logo-img">
+            <p>Here, the user can then define specific values for the placeholders.</p>
+            <p>This results in the files being written as follows:</p>
+            <p>/etc/attributes.txt</p>
+            <img src="{% static 'images/attributestxt.png' %}" alt="attributestxt" class="logo-img">
+            <p>/etc/users.txt</p>
+            <img src="{% static 'images/userstxt.png' %}" alt="userstxt" class="logo-img">
+            <p>If the script needs these values, it accesses them and, for example, creates the users "mustermann" and "musterfrau" or installs the package "git".</p>
+            <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Close") }}</button>
+
+        </div>
+    </div>
+
     <script>
+
+        function openModal() {
+            document.getElementById('scriptModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('scriptModal').style.display = 'none';
+        }
 
         function copyToClipboard(elementId) {
             const codeElement = document.getElementById(elementId);

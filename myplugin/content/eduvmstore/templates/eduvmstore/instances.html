@@ -79,7 +79,7 @@
         <!-- Launch and Cancel Buttons -->
         <div class="button-container">
             <button type="submit" class="btn btn-primary">{{ _("Launch") }}</button>
-            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-primary">{{ _("Cancel") }}</a>
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-default">{{ _("Cancel") }}</a>
         </div>
     </form>
 
@@ -398,12 +398,12 @@
 
                 <!-- Display Resource Requirements and Available Resources -->
                 <div class="alert alert-info mt-3">
-                    <p><strong>{{ _("Resource Requirements") }}:</strong></p>
-                    <ul>
-                        <li>{{ _("RAM") }}: <span id="total_ram_${instanceIndex}"></span> GB </li>
-                        <li>{{ _("Disk") }}: <span id="total_disk_${instanceIndex}"></span> GB </li>
-                        <li>{{ _("CPU Cores") }}: <span id="total_cores_${instanceIndex}"></span></li>
-                    </ul>
+                    <p style="margin-bottom: 4px;"><strong>{{ _("Resource Requirements") }}:</strong></p>
+                    <div>
+                        <p style="margin-bottom: 4px;">{{ _("RAM") }}: <span id="total_ram_${instanceIndex}"></span> GB</p>
+                        <p style="margin-bottom: 4px;">{{ _("Disk") }}: <span id="total_disk_${instanceIndex}"></span> GB</p>
+                        <p style="margin-bottom: 4px;">{{ _("CPU Cores") }}: <span id="total_cores_${instanceIndex}"></span></p>
+                    </div>
                 </div>
             `;
         }
@@ -451,10 +451,8 @@
                     <h5>${sectionTitle}</h5>
 
                     ${noAdditionalUsersHtml}
-
-                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
-                        <!-- CSV Upload -->
-                        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <!-- CSV Upload -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
                             <div style="flex-grow: 1; margin-top: 15px;">
                                 <label for="csvUpload_${instanceIndex}">${uploadCSVText}
                                     <span data-toggle="tooltip" title="${uploadCSVTextTooltip}">
@@ -471,6 +469,10 @@
                                 </small>
                             </div>
                         </div>
+
+                    <div id="accounts_section_${instanceIndex}" style="display: ${instanceIndex == ALL_INSTANCES_INDEX ? 'block' : 'none'};">
+
+
                         ${accountsHTML}
                     </div>
                 </div>
@@ -1016,7 +1018,7 @@
             if (selectedFlavor) {
                 flavorDropdown.value = selectedFlavor.value;
             } else {
-                alert("No suitable flavor found. Please add one manually or change the settings of the appTemplate.");
+                alert("No suitable flavor found. Please add a flavor manually or change the settings of the appTemplate.");
             }
         }
 

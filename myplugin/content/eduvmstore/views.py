@@ -739,6 +739,49 @@ def generate_pdf(accounts, name, app_template, created, instantiations, ip_addre
 
     return buffer.getvalue()
 
+def generate_ssh_instructions_pdf(instances):
+    """
+    Generate a PDF containing SSH copy instructions for the user keys.
+
+    :param instances: A list of instance dictionaries with 'name', 'ip', and 'key'.
+    :type instances: list
+    :return: PDF content as bytes.
+    :rtype: bytes
+    """
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    title = Paragraph("<b>SSH Instructions for Downloading User Keys</b>", styles['Title'])
+    elements.append(title)
+    elements.append(Spacer(1, 0.2 * inch))
+    subtitle = Paragraph(
+        f"These instructions will help you to download the private ssh user keys from the instances."
+        f" Please use the following commands to copy the keys from the instances to your local machine.",
+        styles['Normal']
+
+    )
+    elements.append(subtitle)
+    elements.append(Spacer(1, 0.2 * inch))
+
+    for idx, instance in enumerate(instances, start=1):
+        name = instance.get('name', 'Unknown')
+        ip = instance.get('ip', 'Unknown')
+        key = instance.get('key', 'Unknown')
+        command = f"scp -i {key} -r ubuntu@{ip}:/home/ubuntu/user_keys/ ."
+
+        elements.append(Paragraph(f"<b>{name}</b>", styles['Heading2']))
+        elements.append(Spacer(1, 0.1 * inch))
+        elements.append(Paragraph(command, styles['Code']))
+        elements.append(Spacer(1, 0.2 * inch))
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    return buffer.getvalue()
+
+
 
 def generate_cloud_config(accounts, backend_script, instantiations):
     """
@@ -1413,11 +1456,6 @@ class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
     page_title = _("Success")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['page_title'] = self.page_title
-        return context
-
     def get(self, request, *args, **kwargs):
         """
         Handle GET requests to render the success template.
@@ -1439,6 +1477,7 @@ class InstanceSuccessView(generic.TemplateView):
         separate_keys = self.request.session.get("separate_keys", False)
         ssh_user_requested = self.request.session.get('ssh_user_requested', False)
         context['ssh_user_requested'] = ssh_user_requested
+        context['page_title'] = self.page_title
         context['instances'] = []
 
         for i in range(1, num_instances + 1):
@@ -1495,6 +1534,22 @@ class InstanceSuccessView(generic.TemplateView):
                     pdf_content = generate_pdf(accounts, name, app_template, created, instantiation, ip_adr)
                     zip_file.writestr(f"{name}.pdf", pdf_content)
 
+                if request.session.get('ssh_user_requested', False):
+                    instances = []
+                    for i in range(1, num_instances + 1):
+                        name = request.session.get(f"names_{i}", "unknown")
+                        ip = request.session.get(f"ip_addresses_{i}", "unknown")
+
+                        if separate_keys:
+                            key_file = request.session.get(f"keypair_name_{i}", "unknown") + ".pem"
+                        else:
+                            key_file = request.session.get("keypair_name", "unknown") + ".pem"
+
+                        instances.append({'name': name, 'ip': ip, 'key': key_file})
+
+                    ssh_pdf_content = generate_ssh_instructions_pdf(instances)
+                    zip_file.writestr("ssh_instructions.pdf", ssh_pdf_content)
+
             if not separate_keys:
                 private_key = request.session.get("private_key")
                 keypair_name = request.session.get("keypair_name", "shared_instance_key")
@@ -1531,6 +1586,8 @@ class InstanceSuccessView(generic.TemplateView):
         request.session.pop("base_name", None)
 
         return response
+
+
 
 class GetFavoriteAppTemplateView(generic.View):
 
