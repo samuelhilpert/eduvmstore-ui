@@ -756,6 +756,14 @@ def generate_ssh_instructions_pdf(instances):
     title = Paragraph("<b>SSH Instructions for Downloading User Keys</b>", styles['Title'])
     elements.append(title)
     elements.append(Spacer(1, 0.2 * inch))
+    subtitle = Paragraph(
+        f"These instructions will help you to download the private ssh user keys from the instances."
+        f" Please use the following commands to copy the keys from the instances to your local machine.",
+        styles['Normal']
+
+    )
+    elements.append(subtitle)
+    elements.append(Spacer(1, 0.2 * inch))
 
     for idx, instance in enumerate(instances, start=1):
         name = instance.get('name', 'Unknown')
