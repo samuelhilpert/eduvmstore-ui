@@ -18,66 +18,7 @@
 
 {% block main %}
 
-    <style>
-
-        .accordion {
-            background: linear-gradient(135deg, #333, #777);
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            width: 100%;
-            text-align: left;
-            border: none;
-            outline: none;
-            transition: background-color 0.3s ease;
-            font-size: 16px;
-            border-radius: 5px;
-            margin-top: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .accordion:hover {
-            background-color: #555;
-        }
-
-        .accordion .text {
-            flex-shrink: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .accordion .icon {
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-
-        .accordion.active .icon {
-            transform: rotate(90deg);
-        }
-
-        .panel {
-            display: none;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 5px;
-            margin-top: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .contact-container {
-            width: 100%;
-            margin: auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-    </style>
+    <link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
     <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
         version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.</p>
 
