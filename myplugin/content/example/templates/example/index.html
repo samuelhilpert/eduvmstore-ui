@@ -17,7 +17,7 @@
 {% endblock page_header %}
 
 {% block main %}
-
+    <script src="{% static 'js/accordion.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/example.css' %}">
 
     <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
@@ -661,22 +661,5 @@ final_message: "GitLab installation and user creation completed."
         </a>
     </div>
 
-
-    <script>
-
-        var acc = document.getElementsByClassName("accordion");
-        for (var i = 0; i < acc.length; i++) {
-            acc[i].addEventListener("click", function () {
-                this.classList.toggle("active");
-                var panel = this.nextElementSibling;
-                if (panel.style.display === "block") {
-                    panel.style.display = "none";
-                } else {
-                    panel.style.display = "block";
-                }
-            });
-        }
-
-    </script>
 
 {% endblock %}

@@ -15,7 +15,7 @@
 {% endblock page_header %}
 
 {% block main %}
-
+    <script src="{% static 'js/tile.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/instructions.css' %}">
     <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
         version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.</p>
@@ -124,10 +124,5 @@
         </div>
     </div>
 
-    <script>
-        function flipTile(tile) {
-            tile.classList.toggle('flip');
-        }
-    </script>
 
 {% endblock %}

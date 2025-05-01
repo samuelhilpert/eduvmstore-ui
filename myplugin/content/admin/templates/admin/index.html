@@ -16,7 +16,7 @@
 {% endblock page_header %}
 
 {% block main %}
-
+    <script src="{% static 'js/accordion.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/admin.css' %}">
 
     {% if show_content %}
@@ -199,22 +199,5 @@
         </div>
     {% endif %}
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const accordions = document.querySelectorAll(".accordion");
-
-            accordions.forEach((accordion) => {
-                accordion.addEventListener("click", function () {
-                    this.classList.toggle("active");
-                    const panel = this.nextElementSibling;
-                    if (panel.style.display === "block") {
-                        panel.style.display = "none";
-                    } else {
-                        panel.style.display = "block";
-                    }
-                });
-            });
-        });
-    </script>
 
 {% endblock %}

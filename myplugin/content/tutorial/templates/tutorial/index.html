@@ -18,6 +18,7 @@
 
 {% block main %}
 
+    <script src="{% static 'js/accordion.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
     <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
         version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.</p>
@@ -108,23 +109,5 @@
     </div>
 
     <p style="text-align: center; color: #666; font-size: 12px; margin-top: 10px;">EduVMStore Version: 1.8 Release: 05/2025</p>
-
-
-    <script>
-
-        var acc = document.getElementsByClassName("accordion");
-        for (var i = 0; i < acc.length; i++) {
-            acc[i].addEventListener("click", function () {
-                this.classList.toggle("active");
-                var panel = this.nextElementSibling;
-                if (panel.style.display === "block") {
-                    panel.style.display = "none";
-                } else {
-                    panel.style.display = "block";
-                }
-            });
-        }
-
-    </script>
 
 {% endblock %}
