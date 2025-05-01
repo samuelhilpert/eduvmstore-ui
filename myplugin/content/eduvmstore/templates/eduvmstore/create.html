@@ -383,6 +383,10 @@ write_files:
     <script src="{% static 'js/cloudinit_snippets.js' %}"></script>
     <script src="{% static 'js/create.js' %}"></script>
     <script>
+        window.templateContext = {
+            accountAttributes: {{ app_template.account_attributes|default:"[]"|safe }},
+            instantiationAttributes: {{ app_template.instantiation_attributes|default:"[]"|safe }},
+        };
 
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -393,20 +397,9 @@ write_files:
                 document.getElementById("name-feedback").textContent = "";
                 document.getElementById("submit-button").disabled = false;
             {% endif %}
-            var scriptText = document.getElementById('scriptText').value;
-            document.getElementById('hiddenScriptField').value = scriptText;
-            document.querySelectorAll("input[type='text']").forEach(function(input) {
-                input.value = input.value.replace(",", ".");
-            });
+
         });
 
-        let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
-        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-        document.getElementById("account_attributes").value = formattedAccounts;
-
-        let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
-        let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
-        document.getElementById("instantiation_attributes").value = formattedInstantiation;
 
 
 

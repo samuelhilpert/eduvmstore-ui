@@ -121,6 +121,12 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".script-option").forEach((checkbox) => {
         checkbox.addEventListener("change", updateScriptBasedOnSelection);
     });
+
+    var scriptText = textarea.value;
+    hiddenField.value = scriptText;
+    document.querySelectorAll("input[type='text']").forEach(function(input) {
+        input.value = input.value.replace(",", ".");
+    });
 });
 
 function updateSelectedGroupsDisplay() {
@@ -149,3 +155,15 @@ $('input[name="security_groups"]').change(function() {
 $(document).ready(function() {
     $('.dropdown-toggle').dropdown();
 });
+
+const data = window.templateContext || {};
+
+if (data.accountAttributes) {
+    const formattedAccountAttributes = data.accountAttributes.map(acc => acc.name).join(":");
+    document.getElementById("account_attributes").value = formattedAccountAttributes;
+}
+
+if (data.instantiationAttributes) {
+    const formattedInstantiationAttributes = data.instantiationAttributes.map(acc => acc.name).join(":");
+    document.getElementById("instantiation_attributes").value = formattedInstantiationAttributes;
+}
