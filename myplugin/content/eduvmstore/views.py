@@ -33,12 +33,10 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 import base64
 import re
-from utils import get_token_id, search_app_templates, fetch_favorite_app_templates, get_images_data
+from myplugin.content.eduvmstore.utils import get_token_id, search_app_templates, fetch_favorite_app_templates, get_images_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-
-
 
 
 
