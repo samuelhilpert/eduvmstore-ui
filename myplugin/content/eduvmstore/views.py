@@ -33,125 +33,14 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 import base64
 import re
+from utils import get_token_id, search_app_templates, fetch_favorite_app_templates, get_images_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-def get_host_ip():
-    """
-        Retrieve the host's IP address by connecting to an external server.
-        :return: IP address of the host machine.
-        :rtype: str
-    """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-    except Exception as e:
-        raise RuntimeError("Failed to retrieve host IP address") from e
-    finally:
-        s.close()
-    return ip
-
-def get_token_id(request):
-    """
-    Retrieve the token ID from the request object.
-
-    This function extracts the token ID from the user attribute of the request object.
-    If the user or token attribute is not present, it returns None.
-
-    :param request: The incoming HTTP request.
-    :type request: HttpRequest
-    :return: The token ID if available, otherwise None.
-    :rtype: str or None
-    """
-
-    return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
 
 
-def fetch_app_templates(request):
-    """
-    Fetches AppTemplates from the external API using a provided token ID.
 
-    This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the external API to fetch AppTemplates. If the request
-    is successful, it returns the JSON response. In case of an error, it logs the error
-    and returns an empty list.
-
-    :param request: The incoming HTTP request.
-    :type request: HttpRequest
-    :return: A list of AppTemplates in JSON format or an empty list if the request fails.
-    :rtype: list
-    """
-
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-
-    try:
-        response = requests.get(API_ENDPOINTS['app_templates'],
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to fetch app templates: %s", e)
-        return []
-
-def search_app_templates(request) -> list:
-    """
-    Search for AppTemplates via the backend API using a provided token ID.
-
-    This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the EduVMStore Backend API to search for AppTemplates.
-    If the request is successful, it returns the JSON response of AppTemplates.
-    In case of an error, it logs the error and returns an empty list.
-
-    :param request: The incoming HTTP request.
-    :type request: HttpRequest
-    :return: A list of AppTemplates in JSON format or an empty list if the request fails.
-    :rtype: list
-    """
-
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-
-    search = request.GET.get('search', '')
-
-    try:
-        response = requests.get(f"{API_ENDPOINTS['app_templates']}?search={search}",
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to search app templates: %s", e)
-        return []
-
-def fetch_favorite_app_templates(request):
-    """
-    Fetches favorite AppTemplates from the external API using a provided token ID.
-
-    This function retrieves the token ID from the request, constructs the headers,
-    and makes a GET request to the external API to fetch favorite AppTemplates.
-    If the request is successful, it returns the JSON response. In case of an error,
-    it logs the error and returns an empty list.
-
-    :param request: The incoming HTTP request.
-    :type request: HttpRequest
-    :return: A list of favorite AppTemplates in JSON format or an empty list if the request fails.
-    :rtype: list
-    """
-
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-
-    try:
-        response = requests.get(API_ENDPOINTS['favorite'],
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to fetch favorite app templates: %s", e)
-        return []
 
 
 def validate_name(request):
@@ -204,24 +93,6 @@ class IndexView(generic.TemplateView):
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
     page_title = _("EduVMStore Dashboard")
 
-    def get_images_data(self):
-        """
-            Fetch images from the Glance API using Horizon API.
-            :return: Dictionary of images indexed by image IDs.
-            :rtype: dict
-        """
-        try:
-            filters = {}
-            marker = self.request.GET.get('marker', None)
-
-            images, has_more_data, has_prev_data = glance.image_list_detailed(
-                self.request, filters=filters, marker=marker, paginate=True
-            )
-
-            return {image.id: image for image in images}
-        except Exception as e:
-            logging.error(f"Unable to retrieve images: {e}")
-            return {}
 
     def get_context_data(self, **kwargs):
         """
@@ -240,7 +111,7 @@ class IndexView(generic.TemplateView):
         app_templates = search_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
 
-        glance_images = self.get_images_data()
+        glance_images = get_images_data(self.request, glance)
 
         for app_template in app_templates:
             image_id = app_template.get('image_id')
@@ -560,7 +431,7 @@ class AppTemplateView(generic.TemplateView):
             'is_edit': self.mode == "edit"
         })
 
-        glance_images = self.get_images_data()
+        glance_images = get_images_data(self.request, glance)
         context['images'] = [(image.id, image.name) for image in glance_images]
         context['page_title'] = self.page_title
 
