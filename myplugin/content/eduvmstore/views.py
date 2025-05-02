@@ -33,7 +33,7 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 import base64
 import re
-from myplugin.content.eduvmstore.utils import get_token_id, search_app_templates, fetch_favorite_app_templates, get_images_data
+from myplugin.content.eduvmstore.utils import get_token_id, search_app_templates, fetch_favorite_app_templates, get_images_data, get_image_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -109,7 +109,7 @@ class IndexView(generic.TemplateView):
         app_templates = search_app_templates(self.request)
         favorite_app_templates = fetch_favorite_app_templates(self.request)
 
-        glance_images = get_images_data(self.request, glance)
+        glance_images = get_images_data(self.request)
 
         for app_template in app_templates:
             image_id = app_template.get('image_id')
@@ -164,7 +164,7 @@ class DetailsPageView(generic.TemplateView):
         """
         context = super().get_context_data(**kwargs)
         app_template = self.get_app_template()
-        image_data = self.get_image_data(app_template.get('image_id', ''))
+        image_data = get_image_data(self.request, app_template.get('image_id', ''))
         created_at = app_template.get('created_at', '').split('T')[0]
 
         creator_id = app_template.get('creator_id', '')
@@ -214,7 +214,7 @@ class DetailsPageView(generic.TemplateView):
             response.raise_for_status()
             app_template = response.json()
 
-            # Ensure required fields exist
+
             app_template.setdefault('instantiation_attributes', [])
             app_template.setdefault('account_attributes', [])
 
@@ -224,18 +224,6 @@ class DetailsPageView(generic.TemplateView):
             logging.error("Unable to retrieve app template details: %s", e)
             return {"instantiation_attributes": [], "account_attributes": []}
 
-    def get_image_data(self, image_id):
-        """
-        Fetch image details from Glance based on the image_id.
-        :param image_id: ID of the image to retrieve.
-        :return: Dictionary with visibility and owner details of the image.
-        """
-        try:
-            image = glance.image_get(self.request, image_id)
-            return {'visibility': image.visibility, 'owner': image.owner}
-        except Exception as e:
-            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
-            return {}
 
 
 class AppTemplateView(generic.TemplateView):
@@ -397,7 +385,7 @@ class AppTemplateView(generic.TemplateView):
 
         if template_id:
             app_template = self.get_app_template(template_id)
-            image_data = self.get_image_data(app_template.get('image_id', ''))
+            image_data = get_image_data(self.request, app_template.get('image_id', ''))
             db_security_groups = [sg['name'] for sg in app_template.get('security_groups', [])]
         elif template_name in preset_examples and self.mode != "edit":
             app_template = preset_examples[template_name]
@@ -429,7 +417,7 @@ class AppTemplateView(generic.TemplateView):
             'is_edit': self.mode == "edit"
         })
 
-        glance_images = get_images_data(self.request, glance)
+        glance_images = get_images_data(self.request)
         context['images'] = [(image.id, image.name) for image in glance_images.values()]
         context['page_title'] = self.page_title
 
@@ -463,25 +451,6 @@ class AppTemplateView(generic.TemplateView):
             logging.error("Unable to retrieve app template details: %s", e)
             return {}
 
-    def get_image_data(self, image_id):
-        """
-        Fetch image details from Glance based on the image_id.
-
-        This function retrieves the image details from the Glance API using the provided image_id.
-        If the image is found, it returns a dictionary containing the visibility and owner of the image.
-        If an error occurs during the retrieval, it logs the error and returns an empty dictionary.
-
-        :param image_id: ID of the image to retrieve.
-        :type image_id: str
-        :return: Dictionary with visibility and owner details of the image.
-        :rtype: dict
-        """
-        try:
-            image = glance.image_get(self.request, image_id)
-            return {'visibility': image.visibility, 'owner': image.owner}
-        except Exception as e:
-            exceptions.handle(self.request, _('Unable to retrieve image details: %s') % str(e))
-            return {}
 
     def get_security_groups(self):
         """
@@ -494,29 +463,6 @@ class AppTemplateView(generic.TemplateView):
             return neutron.security_group_list(self.request)
         except Exception as e:
             logging.error(f"Unable to retrieve security groups: {e}")
-            return []
-
-    def get_images_data(self):
-        """
-        Fetch images from the Glance API using Horizon API.
-
-        This function retrieves a list of images available to the current tenant
-        by making a call to the Glance API. It returns the list of images if successful,
-        otherwise logs an error and returns an empty list.
-
-        :return: List of images or an empty list if an error occurs.
-        :rtype: list
-        """
-        try:
-            filters = {}
-            images, has_more_data, has_prev_data = glance.image_list_detailed(
-                self.request,
-                filters=filters,
-                paginate=True
-            )
-            return images
-        except Exception as e:
-            logging.error(f"Unable to retrieve images: {e}")
             return []
 
 

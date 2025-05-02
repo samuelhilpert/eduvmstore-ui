@@ -105,19 +105,35 @@ def fetch_favorite_app_templates(request):
         return []
 
 
-def get_images_data(request, glance_api, marker=None):
+def get_images_data(request):
     """
-        Fetch images from the Glance API using Horizon API.
+        Fetch alles images from the Glance API using Horizon API.
         :return: Dictionary of images indexed by image IDs.
         :rtype: dict
     """
     try:
         filters = {}
-        images, has_more_data, has_prev_data = glance_api.image_list_detailed(
-            request, filters=filters, marker=marker, paginate=True
+        images, has_more_data, has_prev_data = glance.image_list_detailed(
+            request, filters=filters,  paginate=True
         )
 
         return {image.id: image for image in images}
     except Exception as e:
         logging.error(f"Unable to retrieve images: {e}")
+        return {}
+
+
+def get_image_data(request, image_id):
+    """
+    Fetch image details from Glance based on the image_id.
+
+    :param request: Django request object.
+    :param image_id: ID of the image to retrieve.
+    :return: Dictionary with visibility and owner details of the image.
+    """
+    try:
+        image = glance.image_get(request, image_id)
+        return {'visibility': image.visibility, 'owner': image.owner}
+    except Exception as e:
+        exceptions.handle(request, _('Unable to retrieve image details: %s') % str(e))
         return {}
