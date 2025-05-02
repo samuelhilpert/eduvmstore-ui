@@ -430,7 +430,7 @@ class AppTemplateView(generic.TemplateView):
         })
 
         glance_images = get_images_data(self.request, glance)
-        context['images'] = [(image.id, image.name) for image in glance_images]
+        context['images'] = [(image.id, image.name) for image in glance_images.values()]
         context['page_title'] = self.page_title
 
         return context
