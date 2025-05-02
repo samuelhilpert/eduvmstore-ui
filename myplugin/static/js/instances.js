@@ -125,7 +125,7 @@ function generateNetworkSection(instanceIndex) {
 
 
 function generateVolumeSection(instanceIndex) {
-    const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Choose Volume Size (GB) for all Instances') }}" : "{{ _('Choose Volume Size GB') }}";
+    const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Choose Volume Size (GB) for all Instances" : "Choose Volume Size GB";
     let volumeOptions = '';
     let requiredVolumeSize = data.volumeSize;
 
@@ -150,7 +150,7 @@ function generateVolumeSection(instanceIndex) {
     return `
                 <!-- Volumes -->
                 <div class="form-group">
-                    <label for="${VOLUME_SELECTION}${instanceIndex}">{{ _('Select Volume') }}
+                    <label for="${VOLUME_SELECTION}${instanceIndex}">Select Volume
                      <span data-toggle="tooltip"
                     title="Choose to attach an existing volume or create a new one. Must meet the minimum volume size requirement.">
                             <i class="fa fa-question-circle"></i>
@@ -169,13 +169,13 @@ function generateVolumeSection(instanceIndex) {
                     to or greater than the minimum volume size.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
-                    <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="{{ volume_size }}" min="{{ volume_size }}">
+                    <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="data.volumeSize" min="data.volumeSize">
                 </div>
             `;
 }
 
 function generateInstantiationAttributesSection(instanceIndex) {
-    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Instantiation Attributes for all Instances') }}" : "{{ _('Instantiation Attributes') }}";
+    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Instantiation Attributes for all Instances" : "Instantiation Attributes";
 
     return `
                 <div class="section-container">
@@ -191,15 +191,15 @@ function generateInstantiationAttributesSection(instanceIndex) {
 
 function generateRessourceSection(instanceIndex){
     return `
-                <h5>{{ _("Resource Configuration") }}</h5>
+                <h5>Resource Configuration</h5>
 
                 <!-- Display Resource Requirements and Available Resources -->
                 <div class="alert alert-info mt-3">
-                    <p style="margin-bottom: 4px;"><strong>{{ _("Resource Requirements") }}:</strong></p>
+                    <p style="margin-bottom: 4px;"><strong>Resource Requirements:</strong></p>
                     <div>
-                        <p style="margin-bottom: 4px;">{{ _("RAM") }}: <span id="total_ram_${instanceIndex}"></span> GB</p>
-                        <p style="margin-bottom: 4px;">{{ _("Disk") }}: <span id="total_disk_${instanceIndex}"></span> GB</p>
-                        <p style="margin-bottom: 4px;">{{ _("CPU Cores") }}: <span id="total_cores_${instanceIndex}"></span></p>
+                        <p style="margin-bottom: 4px;">RAM: <span id="total_ram_${instanceIndex}"></span> GB</p>
+                        <p style="margin-bottom: 4px;">Disk: <span id="total_disk_${instanceIndex}"></span> GB</p>
+                        <p style="margin-bottom: 4px;">CPU Cores: <span id="total_cores_${instanceIndex}"></span></p>
                     </div>
                 </div>
             `;
@@ -210,10 +210,10 @@ function generateAccountAttributesSection(instanceIndex) {
     if (!Array.isArray(accountAttributes) || accountAttributes.length === 0) {
         return '';
     }
-    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('User Configuration for all Instances') }}" : "{{ _('User Configuration') }}";
-    const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "{{ _('Upload CSV for Accounts in all instances') }}" : "{{ _('Upload CSV') }}";
+    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "User Configuration for all Instances" : "User Configuration";
+    const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Upload CSV for Accounts in all instances" : "Upload CSV";
     const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
-    const uploadCSVTextTooltip = `{{ _('Upload Account Attributes for all instances in the following structure:') }} ${uploadCSVHeaders}`;
+    const uploadCSVTextTooltip = `Upload Account Attributes for all instances in the following structure: ${uploadCSVHeaders}`;
 
     let noAdditionalUsersHtml = '';
     let accountsHTML = '';
@@ -221,7 +221,7 @@ function generateAccountAttributesSection(instanceIndex) {
         noAdditionalUsersHtml += `
                 <p style="margin-bottom: 20px;">Enter the number of users to be added to the instance. Upload a CSV file with the user data or enter the user data directly by filling the form fields.</p>
         <div class="form-group mt-3" id="user_count_section_${instanceIndex}">
-            <label for="user_count_${instanceIndex}">{{ _("Number of Additional Users") }} <span data-toggle="tooltip"
+            <label for="user_count_${instanceIndex}">Number of Additional Users<span data-toggle="tooltip"
                 title="Specify how many additional users should be created. 0 disables account creation.">
                 <i class="fa fa-question-circle"></i>
             </span> </label>
@@ -231,9 +231,9 @@ function generateAccountAttributesSection(instanceIndex) {
 
         accountsHTML += `
 
-                    <h6>{{ _("Accounts") }}</h6>
+                    <h6>Accounts</h6>
                     <div id="dynamic_accounts_container_${instanceIndex}" class="account-grid"></div>
-                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">{{ _("Add Account") }}</button>
+                    <button type="button" class="btn btn-secondary add_account_btn" data-instance="${instanceIndex}" style="display: none;">Add Account</button>
 
                          <div class="d-flex justify-content-end mb-2 mt" style="margin-top: 15px;">
                 <button type="button" class="btn btn-outline-success btn-sm export_csv_btn" data-instance="${instanceIndex}">
@@ -424,9 +424,9 @@ function showWarningModal() {
 
     const warningText = document.querySelector('#allInstancesWarningModal .modal-body p');
     if (warningText) {
-        warningText.innerHTML = `{{ _("This will apply the selected ") }}
+        warningText.innerHTML = `This will apply the selected
                     <strong>${getFieldTypeDisplayName(allInstanceChangedFieldInfo.fieldType)}</strong>
-                    {{ _(" to all individual instances.") }}`;
+                    to all individual instances.`;
     }
 
     $('#allInstancesWarningModal').modal('show');
@@ -584,7 +584,7 @@ function updateVolumeSelectionOptions() {
 
                 const originalVolume = attachableVolumes.find(v => v.id === volumeId);
                 if (originalVolume) {
-                    const isTooSmall = originalVolume.size < parseFloat("{{ volume_size }}");
+                    const isTooSmall = originalVolume.size < parseFloat(data.volumeSize);
 
                     option.disabled = isTooSmall;
                     option.textContent = `${originalVolume.name} (${originalVolume.size} GB)${isTooSmall ? ' (Too small)' : ''}`;
@@ -620,7 +620,7 @@ function attachInstanceEventListeners() {
 }
 
 function switchToInstance(instanceIndex) {
-    if (instanceIndex < 0 ){ console.error("Can't have a negative InstanceIndex: {{ instanceIndex }}")}
+    if (instanceIndex < 0 ){ console.error(`Can't have a negative InstanceIndex: ${instanceIndex}`)}
     document.querySelectorAll(".tab-pane").forEach(el => {
         el.classList.remove("show", "active");
         el.style.display = "none";
@@ -773,9 +773,9 @@ function selectAutomaticFlavor(instanceIndex) {
     const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
     if (!flavorDropdown) return;
 
-    const requiredRAM = parseFloat("{{ app_template.fixed_ram_gb }}");
-    const requiredDisk = parseFloat("{{ app_template.fixed_disk_gb }}");
-    const requiredCores = parseInt("{{ app_template.fixed_cores }}");
+    const requiredRAM = data.requiredRAM;
+    const requiredDisk = data.requiredDisk;
+    const requiredCores = data.requiredCores;
 
     document.getElementById(`total_ram_${instanceIndex}`).textContent = requiredRAM.toFixed(2);
     document.getElementById(`total_disk_${instanceIndex}`).textContent = requiredDisk.toFixed(2);

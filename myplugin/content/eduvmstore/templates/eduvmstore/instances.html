@@ -247,6 +247,9 @@
             accountAttribute: {{ app_template.account_attributes|safe }},
             instanceAttribute: {{ app_template.account_attributes|safe }},
             networks: {{ networks|safe }},
+            requiredRAM: parseFloat("{{ app_template.fixed_ram_gb }}"),
+            requiredDisk: parseFloat("{{ app_template.fixed_disk_gb }}"),
+            requiredCores: parseInt("{{ app_template.fixed_cores }}"),
         };
 
         window.templateContext.flavors = {
