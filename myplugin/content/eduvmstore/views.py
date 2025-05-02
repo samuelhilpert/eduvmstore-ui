@@ -1,44 +1,25 @@
 
 import requests
-import socket
-import logging
 import json
 
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
 from horizon import tabs, exceptions
 from openstack_dashboard.api import glance, nova, cinder, keystone, neutron
 from django.views import generic
-from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-from myplugin.content.eduvmstore.presets import preset_examples
 
-import io
-import zipfile
-from io import BytesIO
-import time
-
-from django.urls import reverse
-from django.shortcuts import get_object_or_404
 from django.views import View
-import base64
-import re
-from myplugin.content.eduvmstore.utils import get_token_id, search_app_templates, fetch_favorite_app_templates, get_images_data, get_image_data, get_app_template, generate_pdf, generate_ssh_instructions_pdf, generate_cloud_config
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+from myplugin.content.eduvmstore.utils import get_token_id
 
 
-
+# in this file all views are handled that do not represent content
+# but are only post functions that are called via forms.
+# furthermore, the function to validate the apptemplate name is in this file
+# the other views are in the folder myplugin.content.eduvmstore.view
 
 def validate_name(request):
     """

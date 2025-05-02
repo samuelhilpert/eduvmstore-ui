@@ -1,37 +1,17 @@
 import requests
-import socket
 import logging
-import json
-
-from django.contrib import messages
-from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova, cinder, keystone, neutron
-from django.views import generic
 from django.utils.translation import gettext_lazy as _
 from myplugin.content.api_endpoints import API_ENDPOINTS
-from django.http import HttpResponse
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
-from myplugin.content.eduvmstore.presets import preset_examples
-
 import io
-import zipfile
-from io import BytesIO
-import time
 
-from django.urls import reverse
-from django.shortcuts import get_object_or_404
-from django.views import View
-import base64
-import re
 
 def get_token_id(request):
     """
