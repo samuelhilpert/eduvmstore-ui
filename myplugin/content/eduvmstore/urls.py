@@ -2,10 +2,11 @@ from django.urls import re_path
 from django.urls import path
 
 from myplugin.content.eduvmstore import views
+from myplugin.content.eduvmstore.view import index
 
 urlpatterns = [
 
-    path('', views.IndexView.as_view(), name='index'),
+    path('', index.IndexView.as_view(), name='index'),
     path('details/<str:template_id>/', views.DetailsPageView.as_view(), name='details'),
     path('create/', views.AppTemplateView.as_view(), name='create_empty'),
     path('create/<str:template_id>/', views.AppTemplateView.as_view(), name='create_with_template'),
