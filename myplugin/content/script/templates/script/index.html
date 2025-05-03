@@ -45,7 +45,8 @@
         <p>Cloud-init scripts are written in YAML, a human-readable data serialization format. To understand
             how to structure and write YAML files, refer to the
             <a href="https://yaml.org/" target="_blank">official YAML documentation</a>.</p>
-        <p>Beware that YAML is <strong>sensitive to indentation</strong>. The standard practice is two spaces per
+        <p>Beware that YAML is <strong>sensitive to indentation</strong>. The standard practice is two spaces
+            per
             indentation.</p>
     </div>
 
@@ -193,27 +194,24 @@
                 be set in the format <code>username:password</code>.</p>
             <p>This script creates users from the user file generated based on the fields defined in the
                 <code>account_attributes</code>.</p>
-            <pre>
-                <code id="user-creation-script">
-    runcmd:
-      - |
-        # Read the file /etc/users.txt line by line
-        # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
-        # read -r reads each line and assigns the fields to the variables username, password, and email
-        while IFS=: read -r username password email; do
-          # Check if the user does not already exist
-          if ! id "$username" &>/dev/null; then
-            # Create a new user with the specified username and default shell /bin/bash
-            useradd -m -s /bin/bash "$username"
-            # Set the user's password
-            echo "$username:$password" | chpasswd
-            # Save the user's email to a file in their home directory
-            echo "Email: $email" >> /home/$username/user_info.txt
-          fi
-        done < /etc/users.txt
-                </code>
-            </pre>
             <button onclick="copyToClipboard('user-creation-script')">Copy Script</button>
+            <pre><code id="user-creation-script">runcmd:
+        - |
+          # Read the file /etc/users.txt line by line
+          # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
+          # read -r reads each line and assigns the fields to the variables username, password, and email
+          while IFS=: read -r username password email; do
+            # Check if the user does not already exist
+            if ! id "$username" &>/dev/null; then
+              # Create a new user with the specified username and default shell /bin/bash
+              useradd -m -s /bin/bash "$username"
+              # Set the user's password
+              echo "$username:$password" | chpasswd
+              # Save the user's email to a file in their home directory
+              echo "Email: $email" >> /home/$username/user_info.txt
+            fi
+          done < /etc/users.txt
+        </code></pre>
         </div>
 
         <div class="example">
@@ -224,8 +222,7 @@
             <p>This script installs a specific version of a software (e.g., Python) based on the
                 <code>instantiation_attributes</code>.</p>
             <pre>
-                <code id="software-installation-script">
-    runcmd:
+                <code id="software-installation-script">runcmd:
       - |
         # Read the software version from the attributes file
         SOFTWARE_VERSION=$(cat /etc/attributes.txt)
