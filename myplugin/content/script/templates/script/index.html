@@ -45,6 +45,8 @@
         <p>Cloud-init scripts are written in YAML, a human-readable data serialization format. To understand
             how to structure and write YAML files, refer to the
             <a href="https://yaml.org/" target="_blank">official YAML documentation</a>.</p>
+        <p>Beware that YAML is sensitive to indentation. The standard practice is two spaces per
+            indentation.</p>
     </div>
 
     <div class="section" id="step-by-step-guide">
@@ -63,7 +65,7 @@
                 <strong>Write Files:</strong>
                 <p>Use the <code>write_files</code> section to create or modify files:</p>
                 <pre><code>write_files:
-      - path: /etc/motd
+      - path: /etc/welcome.txt
         content: |
           Welcome to your new instance!
           Managed by EduVMStore.</code></pre>
@@ -73,7 +75,7 @@
                     pre-filled content we provide.</p>
                 <p>With the provided beginning of the script, start additional <code>write_files</code>
                     parts like this:</p>
-                <pre><code>
+                <pre><code>[...]
       - path: /etc/motd
         content: |
           Welcome to your new instance!
@@ -145,19 +147,39 @@
             (e.g., <code>username:password:email</code>) and are saved in a file within the pre-filled
             <code>write_files</code> section. You can use these attributes in the rest of your script,
             for example, in the <code>runcmd</code> section:</p>
-        <pre><code>while IFS=: read -r username password email; do
-        # Create users
-        if ! id "$username" &>/dev/null; then
-            useradd -m -s /bin/bash "$username"
-            echo "$username:$password" | chpasswd
-            echo "Email: $email" >> /home/$username/user_info.txt
-        fi
-    done < /etc/users.txt</code></pre>
+        <p><strong>Note:</strong> The following code is prefilled by us in the <code>write_files</code>
+            section, including the account attributes used in the sample script:</p>
+        <pre><code>write_files:
+          - path: /etc/users.txt
+            content: |
+              username:password:email
+            permissions: '0644'
+            owner: root:root
+        </code></pre>
+        <p>You can use this prefilled file in your script, for example, in the <code>runcmd</code> section:
+        </p>
+        <pre><code>runcmd:
+          - |
+            # Read the file /etc/users.txt line by line
+            # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
+            # read -r reads each line and assigns the fields to the variables username, password, and email
+            while IFS=: read -r username password email; do
+              # Check if the user does not already exist
+              if ! id "$username" &>/dev/null; then
+                # Create a new user with the specified username and default shell /bin/bash
+                useradd -m -s /bin/bash "$username"
+                # Set the user's password
+                echo "$username:$password" | chpasswd
+                # Save the user's email to a file in their home directory
+                echo "Email: $email" >> /home/$username/user_info.txt
+              fi
+            done < /etc/users.txt
+        </code></pre>
         <p>Make sure to adjust the file path to match the location where the attributes are saved in the
             <code>write_files</code> section.</p>
         <p>For an example of the correct usage of Instantiation and Account Attributes, click
-        <a href="javascript:void(0);" id="writeScriptLink" onclick="openModal()" style=" color: #007bff;">
-           here</a>.</p>
+            <a href="javascript:void(0);" id="writeScriptLink" onclick="openModal()" style=" color: #007bff;">
+                here</a>.</p>
     </div>
 
     <div class="section" id="easy-to-use-script-examples">
@@ -175,10 +197,18 @@
                 <code id="user-creation-script">
     runcmd:
       - |
-        while IFS=':' read -r username password; do
+        # Read the file /etc/users.txt line by line
+        # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
+        # read -r reads each line and assigns the fields to the variables username, password, and email
+        while IFS=: read -r username password email; do
+          # Check if the user does not already exist
           if ! id "$username" &>/dev/null; then
-            useradd -m -s "/bin/bash" "$username"
+            # Create a new user with the specified username and default shell /bin/bash
+            useradd -m -s /bin/bash "$username"
+            # Set the user's password
             echo "$username:$password" | chpasswd
+            # Save the user's email to a file in their home directory
+            echo "Email: $email" >> /home/$username/user_info.txt
           fi
         done < /etc/users.txt
                 </code>
@@ -197,8 +227,10 @@
                 <code id="software-installation-script">
     runcmd:
       - |
+        # Read the software version from the attributes file
         SOFTWARE_VERSION=$(cat /etc/attributes.txt)
         apt-get update
+        # Install the specified version of the software
         apt-get install -y python$SOFTWARE_VERSION
                 </code>
             </pre>
@@ -210,7 +242,7 @@
         <h2>Best Practices</h2>
         <ul>
             <li>Always test your cloud-init scripts in a development environment before using them in
-                production.
+                production by starting an instance with the script.
             </li>
             <li>Use meaningful comments in your scripts to explain each section.</li>
             <li>Minimize the number of packages installed to reduce initialization time and potential
@@ -264,16 +296,24 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
             <h5>Account and Instantiation Attributes Example</h5>
-            <p>For a better understanding of Account and Instantiation Attributes, a concrete example is provided here. This includes the following example input in Create AppTemplate:</p>
+            <p>For a better understanding of Account and Instantiation Attributes, a concrete example is
+                provided here. This includes the following example input in Create AppTemplate:</p>
             <img src="{% static 'images/create.png' %}" alt="create" class="logo-img">
-            <p>It shows that the user selected "packages" as the Instantiation Attribute and "name:password" as the Account Attributes. The separation of the individual attributes is always done using a colon :</p>
-            <p>By entering these attributes, the fixed `write_script` part of the script changes as follows:</p>
+            <p>It shows that the user selected "packages" as the Instantiation Attribute and "name:password"
+                as the Account Attributes. The separation of the individual attributes is always done using a
+                colon :</p>
+            <p>By entering these attributes, the fixed `write_script` part of the script changes as
+                follows:</p>
             <img src="{% static 'images/writescript.png' %}" alt="writescript" class="logo-img">
-            <p>It can be seen that placeholders for both Instantiation and Account Attributes are included in the file.
-            Furthermore, it can be seen that the Instantiation Attributes are saved in the file `/etc/attributes.txt` and the Account Attributes in the file `/etc/users.txt`.
-            In the script, the user can now access these attributes and, for example, create users or install packages with them.
-           The selectable options "Generate SSH setup for users" and "User Add" use the data from `/etc/users.txt`, for example.
-            During the actual launch process, the placeholders are then replaced with the user inputs</p>
+            <p>It can be seen that placeholders for both Instantiation and Account Attributes are included in
+                the file.
+                Furthermore, it can be seen that the Instantiation Attributes are saved in the file
+                `/etc/attributes.txt` and the Account Attributes in the file `/etc/users.txt`.
+                In the script, the user can now access these attributes and, for example, create users or
+                install packages with them.
+                The selectable options "Generate SSH setup for users" and "User Add" use the data from
+                `/etc/users.txt`, for example.
+                During the actual launch process, the placeholders are then replaced with the user inputs</p>
             <p>The launch page then requires the following information:</p>
             <img src="{% static 'images/launch.png' %}" alt="launch" class="logo-img">
             <p>Here, the user can then define specific values for the placeholders.</p>
@@ -282,8 +322,10 @@
             <img src="{% static 'images/attributestxt.png' %}" alt="attributestxt" class="logo-img">
             <p>/etc/users.txt</p>
             <img src="{% static 'images/userstxt.png' %}" alt="userstxt" class="logo-img">
-            <p>If the script needs these values, it accesses them and, for example, creates the users "mustermann" and "musterfrau" or installs the package "git".</p>
-            <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Close") }}</button>
+            <p>If the script needs these values, it accesses them and, for example, creates the users
+                "mustermann" and "musterfrau" or installs the package "git".</p>
+            <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;"
+                    onclick="closeModal()">{{ _("Close") }}</button>
 
         </div>
     </div>
