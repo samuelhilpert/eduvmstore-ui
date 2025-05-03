@@ -196,21 +196,21 @@
                 <code>account_attributes</code>.</p>
             <pre><code id="user-creation-script">
 runcmd:
-- |
-  # Read the file /etc/users.txt line by line
-  # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
-  # read -r reads each line and assigns the fields to the variables username, password, and email
-  while IFS=: read -r username password email; do
-    # Check if the user does not already exist
-    if ! id "$username" &>/dev/null; then
-      # Create a new user with the specified username and default shell /bin/bash
-      useradd -m -s /bin/bash "$username"
-      # Set the user's password
-      echo "$username:$password" | chpasswd
-      # Save the user's email to a file in their home directory
-      echo "Email: $email" >> /home/$username/user_info.txt
-    fi
-  done < /etc/users.txt
+  - |
+    # Read the file /etc/users.txt line by line
+    # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
+    # read -r reads each line and assigns the fields to the variables username, password, and email
+    while IFS=: read -r username password email; do
+      # Check if the user does not already exist
+      if ! id "$username" &>/dev/null; then
+        # Create a new user with the specified username and default shell /bin/bash
+        useradd -m -s /bin/bash "$username"
+        # Set the user's password
+        echo "$username:$password" | chpasswd
+        # Save the user's email to a file in their home directory
+        echo "Email: $email" >> /home/$username/user_info.txt
+      fi
+    done < /etc/users.txt
         </code></pre>
             <button onclick="copyToClipboard('user-creation-script')">Copy Script</button>
         </div>
@@ -225,17 +225,17 @@ runcmd:
             <pre>
                 <code id="software-installation-script">
 runcmd:
-- |
-  # Read the software version from the attributes file
-  # The attributes file is located at /etc/attributes.txt and contains the version information
-  SOFTWARE_VERSION=$(cat /etc/attributes.txt)
+  - |
+    # Read the software version from the attributes file
+    # The attributes file is located at /etc/attributes.txt and contains the version information
+    SOFTWARE_VERSION=$(cat /etc/attributes.txt)
 
-  # Update the package list to ensure the latest versions are available
-  apt-get update
+    # Update the package list to ensure the latest versions are available
+    apt-get update
 
-  # Install the specified version of the software (e.g., Python)
-  # The version is dynamically read from the attributes file
-  apt-get install -y python$SOFTWARE_VERSION
+    # Install the specified version of the software (e.g., Python)
+    # The version is dynamically read from the attributes file
+    apt-get install -y python$SOFTWARE_VERSION
                 </code>
             </pre>
             <button onclick="copyToClipboard('software-installation-script')">Copy Script</button>
