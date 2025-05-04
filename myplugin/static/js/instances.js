@@ -224,7 +224,7 @@ function generateAccountAttributesSection(instanceIndex) {
                 title="Specify how many additional users should be created. 0 disables account creation.">
                 <i class="fa fa-question-circle"></i>
             </span> </label>
-            <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="0" value="0">
+            <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="0" value="0" max="30">
         </div>
     `;
 
@@ -752,6 +752,9 @@ function renumberAccounts(instanceIndex) {
 
 function generateInstantiationFields(instanceIndex) {
     let fieldsHtmlInstance = ``;
+    if (!instantiationAttribute || instantiationAttribute.length === 0) {
+        return fieldsHtmlInstance;
+    }
     instantiationAttribute.forEach(attr => {
         fieldsHtmlInstance += `
                     <div class="form-group md-5">
