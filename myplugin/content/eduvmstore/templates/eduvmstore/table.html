@@ -99,7 +99,7 @@
     </div>
               </td>
                   <td>
-                      <form method="post" action="{% if is_favorites %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_favorite_template' %}{% else %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}{% endif %}" class="favorite-form">
+                      <form method="post" action="{% if app_template.id in favorite_template_ids %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_favorite_template' %}{% else %}{% url 'horizon:eduvmstore_dashboard:eduvmstore:favorite_template' %}{% endif %}" class="favorite-form">
                           {% csrf_token %}
                           <input type="hidden" name="template_id" value="{{ app_template.id }}">
                           <input type="hidden" name="template_name" value="{{ app_template.name }}">
