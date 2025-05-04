@@ -17,7 +17,7 @@ from myplugin.content.eduvmstore.utils import get_token_id
 
 
 # in this file all views are handled that do not represent content
-# but are only post functions that are called via forms.
+# here are only post functions that are called via forms.
 # furthermore, the function to validate the apptemplate name is in this file
 # the other views are in the folder myplugin.content.eduvmstore.view
 
