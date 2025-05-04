@@ -653,6 +653,17 @@ function attachAccountButtonListeners() {
         input.addEventListener("input", function () {
             let instanceIndex = this.id.split("_").pop();
             let userCount = parseInt(this.value) || 0;
+            if (isNaN(userCount)) {
+                this.value = '';
+                return;
+            }
+            if (userCount > 30) {
+                userCount = 30;
+                this.value = 30;
+            } else if (userCount < 0) {
+                userCount = 0;
+                this.value = 0;
+            }
             generateMultipleAccountFields(instanceIndex, userCount);
         });
     });
