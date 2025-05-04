@@ -165,8 +165,7 @@ function generateVolumeSection(instanceIndex) {
 
                 <div class="form-group create-volume-size-group" id="volume_size_input_${instanceIndex}" style="display: none;">
                     <label for="${VOLUME_SIZE}${instanceIndex}">${labelVolumeSizePrefix} <span data-toggle="tooltip"
-                    title="Specify the size in GB if a new volume is to be created. Must be equal
-                    to or greater than the minimum volume size.">
+                    title="Specify the size in GB if a new volume is to be created. Must be equal to or greater than the minimum volume size.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
                     <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="data.volumeSize" min="data.volumeSize">
