@@ -11,7 +11,6 @@ urlpatterns = [
     path('approve_template/', views.ApproveTemplateView.as_view(), name='approve_template'),
     path('delete_template/', views.DeleteTemplateView.as_view(), name='delete_template'),
     path('delete_user/', views.DeleteUserView.as_view(), name='delete_user'),
-    path('create_role/', views.CreateRoleView.as_view(), name='create_role'),
     path('reject_template/', views.RejectTemplateView.as_view(), name='reject_template'),
 
 
