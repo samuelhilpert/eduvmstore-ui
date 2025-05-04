@@ -156,14 +156,14 @@ $(document).ready(function() {
     $('.dropdown-toggle').dropdown();
 });
 
-const data = window.templateContext || {};
+const dataCreate = window.templateContext || {};
 
-if (data.accountAttributes) {
-    const formattedAccountAttributes = data.accountAttributes.map(acc => acc.name).join(":");
+if (dataCreate.accountAttributes) {
+    const formattedAccountAttributes = dataCreate.accountAttributes.map(acc => acc.name).join(":");
     document.getElementById("account_attributes").value = formattedAccountAttributes;
 }
 
-if (data.instantiationAttributes) {
-    const formattedInstantiationAttributes = data.instantiationAttributes.map(acc => acc.name).join(":");
+if (dataCreate.instantiationAttributes) {
+    const formattedInstantiationAttributes = dataCreate.instantiationAttributes.map(acc => acc.name).join(":");
     document.getElementById("instantiation_attributes").value = formattedInstantiationAttributes;
 }
