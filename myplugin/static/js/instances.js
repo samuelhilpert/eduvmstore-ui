@@ -12,7 +12,7 @@ const FLAVOR_ID = 'flavor_id_';
 const NETWORK_ID = 'network_id_';
 const VOLUME_SIZE = 'volume_size_';
 const INSTANTIATION_POSTFIX = '_instantiation'
-const data = window.templateContext || {};
+const DATAINSTANCES = window.templateContext || {};
 
 let volumeSelections = {};
 
@@ -22,7 +22,7 @@ let allInstanceChangedFieldInfo = {
 };
 
 //Volumes
-const attachableVolumes = data.attachableVolumes || [];
+const attachableVolumes = DATAINSTANCES.attachableVolumes || [];
 
 
 document.getElementById("instance_count").addEventListener("input", function () {
@@ -34,8 +34,8 @@ document.getElementById("instance_count").addEventListener("input", function () 
     }
 });
 
-let accountAttributes = data.expectedAccountAttributes;
-let instantiationAttribute = data.expectedInstantiationAttributes;
+let accountAttributes = DATAINSTANCES.expectedAccountAttributes;
+let instantiationAttribute = DATAINSTANCES.expectedInstantiationAttributes;
 
 function generateFlavorSection(instanceIndex) {
     const flavors = window.templateContext.flavors.suitable_flavors;
@@ -127,7 +127,7 @@ function generateNetworkSection(instanceIndex) {
 function generateVolumeSection(instanceIndex) {
     const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Choose Volume Size (GB) for all Instances" : "Choose Volume Size GB";
     let volumeOptions = '';
-    let requiredVolumeSize = data.volumeSize;
+    let requiredVolumeSize = DATAINSTANCES.volumeSize;
 
     // Option of attaching no volume
     if (requiredVolumeSize === 0){
@@ -168,7 +168,7 @@ function generateVolumeSection(instanceIndex) {
                     title="Specify the size in GB if a new volume is to be created. Must be equal to or greater than the minimum volume size.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
-                    <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="data.volumeSize" min="data.volumeSize">
+                    <input type="number" class="form-control" id="${VOLUME_SIZE}${instanceIndex}" name="${VOLUME_SIZE}${instanceIndex}"  value="DATAINSTANCES.volumeSize" min="DATAINSTANCES.volumeSize">
                 </div>
             `;
 }
@@ -208,15 +208,6 @@ function generateRessourceSection(instanceIndex){
             `;
 }
 
-document.querySelectorAll(".user-count-input").forEach(input => {
-    input.addEventListener("input", function () {
-        if (this.value > 30) {
-            this.value = 30;
-        } else if (this.value < 0) {
-            this.value = 0;
-        }
-    });
-});
 
 function generateAccountAttributesSection(instanceIndex) {
 
@@ -597,7 +588,7 @@ function updateVolumeSelectionOptions() {
 
                 const originalVolume = attachableVolumes.find(v => v.id === volumeId);
                 if (originalVolume) {
-                    const isTooSmall = originalVolume.size < parseFloat(data.volumeSize);
+                    const isTooSmall = originalVolume.size < parseFloat(DATAINSTANCES.volumeSize);
 
                     option.disabled = isTooSmall;
                     option.textContent = `${originalVolume.name} (${originalVolume.size} GB)${isTooSmall ? ' (Too small)' : ''}`;
@@ -672,6 +663,17 @@ document.querySelectorAll(".user-count-input").forEach(input => {
     input.addEventListener("input", function () {
         let instanceIndex = this.id.split("_").pop();
         let userCount = parseInt(this.value) || 1;
+        if (isNaN(userCount)) {
+            this.value = '';
+            return;
+        }
+        if (userCount > 30) {
+            userCount = 30;
+            this.value = 30;
+        } else if (userCount < 0) {
+            userCount = 0;
+            this.value = 0;
+        }
         generateMultipleAccountFields(instanceIndex, userCount);
     });
 });
@@ -789,9 +791,9 @@ function selectAutomaticFlavor(instanceIndex) {
     const flavorDropdown = document.getElementById(`${FLAVOR_ID}${instanceIndex}`);
     if (!flavorDropdown) return;
 
-    const requiredRAM = data.requiredRAM;
-    const requiredDisk = data.requiredDisk;
-    const requiredCores = data.requiredCores;
+    const requiredRAM = DATAINSTANCES.requiredRAM;
+    const requiredDisk = DATAINSTANCES.requiredDisk;
+    const requiredCores = DATAINSTANCES.requiredCores;
 
     document.getElementById(`total_ram_${instanceIndex}`).textContent = requiredRAM.toFixed(2);
     document.getElementById(`total_disk_${instanceIndex}`).textContent = requiredDisk.toFixed(2);
@@ -874,11 +876,11 @@ window.onload = function () {
 };
 
 
-let instantiationAttributes = data.instanceAttribute;
+let instantiationAttributes = DATAINSTANCES.instanceAttribute;
 let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
 document.getElementById("structured-instantiation").textContent = formattedInstantiation;
 
-let accountAttribute = data.accountAttribute;
+let accountAttribute = DATAINSTANCES.accountAttribute;
 let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
 document.getElementById("structured-accounts").textContent = formattedAccounts;
 
