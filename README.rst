@@ -4,10 +4,10 @@ EduVMStore
 This repo contains the UI for the EduVMStore, which can be found under the following link:
 https://github.com/samuelhilpert/eduvmstore.git
 
-Installation Guide
-------------------
+Installation Guide for DevStack
+--------------------------------
 
-1. Install DevStack.
+1. Install DevStack: https://docs.openstack.org/devstack/latest/ .
 
 2. Go to the ``Devstack`` folder.
 
@@ -16,17 +16,20 @@ Installation Guide
 4. Add the following line as the first line:
    
    ``ENABLE_PLUGIN eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui main``
+
+5. Install ReportLab.
+   ``pip install reportlab``
    
-5. Run the command in the ``Devstack`` folder:
+6. Run the command in the ``Devstack`` folder:
 
    ``./stack.sh``
 
-6. After successful execution, the EduVMStore is visible in DevStack as a new dashboard after registration.
+7. After successful execution, the EduVMStore is visible in DevStack as a new dashboard after registration.
 
-7. To also run the backend, please follow the steps from the readme of https://github.com/samuelhilpert/eduvmstore.git
+8. To also run the backend, please follow the steps from the readme of https://github.com/samuelhilpert/eduvmstore.git
 
-Quick Installation using Cloud-Init-Script
-==========================================
+Quick Installation using Cloud-Init-Script for Devstack
+--------------------------------------------------------
 
 1. Go to `https://stack.dhbw.cloud/ <https://stack.dhbw.cloud/>` and create a new instance.
 
@@ -68,3 +71,9 @@ Quick Installation using Cloud-Init-Script
     .. code-block:: bash
 
        ./stack.sh
+
+Installation Guide for Kolla-Ansible
+------------------------------------
+1. Install OpenStack with Kolla-Ansible.
+
+2. Enter the Horizon-Container
