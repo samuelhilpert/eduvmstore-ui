@@ -7,7 +7,9 @@ from openstack_dashboard.api import keystone
 from myplugin.content.admin.utils import get_token_id
 
 
-
+# in this file all views are handled that do not represent content
+# here are only post functions that are called via forms.
+# the other views are in the folder myplugin.content.admin.view
 
 class UpdateRolesView(generic.View):
 
