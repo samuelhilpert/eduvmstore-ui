@@ -166,7 +166,7 @@
                            value="{{ app_template.fixed_cores }}">
                 </div>
                 <div class="form-group">
-                    <label for="volume_size">Volume Size (GB)
+                    <label for="volume_size">Minimum Volume Size (GB)
                         <span data-toggle="tooltip" title="Enter the amount of Volume Size in gigabytes.
                         You will get a extra volume additional to your selected flavor if you start these AppTemplate. Only numbers and one decimal point are allowed.
                         Enter 0 or leave empty if not needed. ">
@@ -300,8 +300,10 @@ The values will be written to the file /etc/users.txt.">
                         The pre-configured scripts creates SSH keys for the users on the instance and stores them in /home/ubuntu/user_keys.
 For this setup, the Account Attributes username and password are required.">
                             <i class="fa fa-question-circle"></i> </span></label>
-                    <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration</label>
-                    <label><input type="checkbox" class="script-option" data-key="user_add"> User Add</label>
+                    <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration<span data-toggle="tooltip" title="Here a basic configuration for the Cloud-Init script is created. This includes a package update, packages, runcmd, and final_message.">
+                            <i class="fa fa-question-circle"></i> </span></label>
+                    <label><input type="checkbox" class="script-option" data-key="user_add"> User Add<span data-toggle="tooltip" title="Here the users from the account attributes, which are defined during creation and can be specified during launch, are created for an Ubuntu instance.">
+                            <i class="fa fa-question-circle"></i> </span></label>
                 </div>
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
     <pre class="p-2 border rounded bg-light" style="flex: 1;">

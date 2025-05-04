@@ -758,7 +758,8 @@ function generateInstantiationFields(instanceIndex) {
     instantiationAttribute.forEach(attr => {
         fieldsHtmlInstance += `
                     <div class="form-group md-5">
-                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr} </label>
+                        <label for="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}">${attr} <span data-toggle="tooltip" title="These instantiation attribute was defined in the appTemplate. Look at the appTemplate details for more information.">
+                            <i class="fa fa-question-circle"></i> </span></label>
                         <input type="text"
                                class="form-control"
                                id="${attr}_${instanceIndex}${INSTANTIATION_POSTFIX}"
@@ -1053,7 +1054,8 @@ document.addEventListener("change", function(event) {
                 accountAttributes.forEach(attr => {
                     fieldsHtml += `
                         <div class="form-group md-5">
-                            <label for="${attr}_${csvInstanceIndex}_${index + 1}">${attr}</label>
+                            <label for="${attr}_${csvInstanceIndex}_${index + 1}">${attr} <span data-toggle="tooltip" title="These account attribute was defined in the appTemplate. Look at the appTemplate details for more information.">
+                            <i class="fa fa-question-circle"></i> </span></label>
                             <input type="text" class="form-control"
                                    id="${attr}_${csvInstanceIndex}_${index + 1}"
                                    name="${attr}_${csvInstanceIndex}"

@@ -34,9 +34,8 @@
                             <th>Name</th>
                             <th>Short Description</th>
                             <th>AppTemplate ID</th>
+                            <th>Updated At</th>
                             <th>Creator Name</th>
-                            <th>Image ID</th>
-                            <th>Created At</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -49,9 +48,8 @@
                              </a></td>
                             <td>{{ template.short_description }}</td>
                             <td>{{ template.id }}</td>
+                            <td>{{ template.updated_at }}</td>
                             <td>{{ template.creator_name }}</td>
-                            <td>{{ template.image_id }}</td>
-                            <td>{{ template.created_at }}</td>
                             <td>
                                 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}">
                                     {% csrf_token %}
@@ -121,7 +119,6 @@
                             <th>Current Role</th>
                             <th>User ID</th>
                             <th>User Name</th>
-                            <th>Created At</th>
                             <th>Updated At</th>
                             <th>New Role</th>
 
@@ -133,7 +130,6 @@
                                 <td>{{ user.role.name }}</td>
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.username }}</td>
-                                <td>{{ user.created_at }}</td>
                                 <td>{{ user.updated_at }}</td>
                                 <td>
                                     <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}" style="display: flex; gap: 10px; align-items: center;">
@@ -164,7 +160,6 @@
                         <th>Current Role</th>
                         <th>User ID</th>
                         <th>User Name</th>
-                        <th>Created At</th>
                         <th>Updated At</th>
                         <th>Delete</th>
                     </tr>
@@ -175,7 +170,6 @@
                             <td>{{ user.role.name }}</td>
                             <td>{{ user.id }}</td>
                             <td>{{ user.username }}</td>
-                            <td>{{ user.created_at }}</td>
                             <td>{{ user.updated_at }}</td>
                             <td>
                                 <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_user' %}">
