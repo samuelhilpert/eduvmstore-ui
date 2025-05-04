@@ -77,3 +77,45 @@ Installation Guide for Kolla-Ansible
 1. Install OpenStack with Kolla-Ansible.
 
 2. Enter the Horizon-Container
+
+    ``sudo docker exec -it horizon bash``
+
+3. Go to the folder ``/var/lib/kolla/venv/lib/python3.12/site-packages/``
+
+4. Clone the EduVMStore-UI repository:
+
+    ``git clone https://github.com/samuelhilpert/eduvmstore-ui.git``
+
+5. Move the folder `myplugin``to the correct location
+
+    ``mv eduvmstore-ui/myplugin .``
+    ``rm -rf eduvmstore-ui``
+
+6. Go to the folder ``/var/lib/kolla/venv/lib/python3.12/site-packages/openstack_dashboard/enabled/``
+
+7. Create a link from the enable files in myplugin to the enabled folder:
+
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31000_my_plugin.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31100_my_second_plugin.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31150_tutorial_group.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31200_tutorial_panel.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31210_instructions_panel.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31220_script_panel.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31230_example_panel.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31240_admin_instructions_panel.py .``
+    ``ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_32000_my_new_dashboard.py .`
+
+8. Install reportlab:
+
+    ``pip install reportlab``
+
+9. Load all static files:
+
+    ``/var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py collectstatic --noinput``
+    ``/var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py compress --force``
+
+10. Restart the Horizon container:
+
+    ``exit``
+    ``sudo docker restart horizon``
+
