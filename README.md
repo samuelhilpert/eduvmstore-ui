@@ -39,51 +39,6 @@ https://github.com/samuelhilpert/eduvmstore.git
 
 ---
 
-## Quick Installation using Cloud-Init Script for DevStack
-
-1. Go to [https://stack.dhbw.cloud/](https://stack.dhbw.cloud/) and create a new instance.
-
-2. Under **Source**:
-   - Choose **Image as Boot Source**
-   - Select **Ubuntu 22.04**
-   - Do **not** create a new volume
-
-3. Select the **Flavor** of your choice.
-
-4. Under **Network**, select **provider_912**.
-
-5. Under **Security Group**, ensure the following ports are open:
-   - TCP port **8000**
-   - TCP port **22**
-
-6. Choose the **SSH keypair** you want to use.
-
-7. Under **Configuration**, upload the Cloud-Init script `frontendscript.yaml`.
-
-8. Launch the instance.
-
-9. Once the instance is running, SSH into it:
-
-   ```bash
-   ssh ubuntu@<instance-ip> -i <path-to-keyfile>
-   ```
-
-10. Run the initialization script:
-
-    ```bash
-    /initilization_script
-    ```
-
-11. If needed, adjust the plugin branch in `devstack/local.conf`.
-
-12. Start the installation:
-
-    ```bash
-    ./stack.sh
-    ```
-
----
-
 ## Installation Guide for Kolla-Ansible
 
 1. Install OpenStack with Kolla-Ansible.
@@ -152,3 +107,8 @@ https://github.com/samuelhilpert/eduvmstore.git
    exit
    sudo docker restart horizon
    ```
+   
+11. Open the Horizon dashboard in your browser and log in.
+
+12. To also run the backend, follow the README at:  
+   https://github.com/samuelhilpert/eduvmstore.git
