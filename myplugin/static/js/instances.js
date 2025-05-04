@@ -176,6 +176,10 @@ function generateVolumeSection(instanceIndex) {
 function generateInstantiationAttributesSection(instanceIndex) {
     const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Instantiation Attributes for all Instances" : "Instantiation Attributes";
 
+    if (!Array.isArray(instantiationAttribute) || instantiationAttribute.length === 0) {
+        return '';
+    }
+
     return `
                 <div class="section-container">
                     <h5>${sectionTitle}</h5>
@@ -203,6 +207,16 @@ function generateRessourceSection(instanceIndex){
                 </div>
             `;
 }
+
+document.querySelectorAll(".user-count-input").forEach(input => {
+    input.addEventListener("input", function () {
+        if (this.value > 30) {
+            this.value = 30;
+        } else if (this.value < 0) {
+            this.value = 0;
+        }
+    });
+});
 
 function generateAccountAttributesSection(instanceIndex) {
 
@@ -709,7 +723,8 @@ function generateMultipleAccountFields(instanceIndex, userCount) {
 
             fieldsHtml += `
                 <div class="form-group md-5">
-                    <label for="${fieldId}">${attr}</label>
+                    <label for="${fieldId}">${attr} <span data-toggle="tooltip" title="These account attribute was defined in the appTemplate. Look at the appTemplate details for more information.">
+                            <i class="fa fa-question-circle"></i> </span></label>
                     <input type="text" class="form-control"
                         id="${fieldId}"
                         name="${attr}_${instanceIndex}"
@@ -752,9 +767,7 @@ function renumberAccounts(instanceIndex) {
 
 function generateInstantiationFields(instanceIndex) {
     let fieldsHtmlInstance = ``;
-    if (!instantiationAttribute || instantiationAttribute.length === 0) {
-        return fieldsHtmlInstance;
-    }
+
     instantiationAttribute.forEach(attr => {
         fieldsHtmlInstance += `
                     <div class="form-group md-5">
