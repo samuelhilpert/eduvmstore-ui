@@ -145,7 +145,6 @@ def request_with_user():
     return request
 
 
-# --- get_available_volume_types ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.cinder.volume_type_list", return_value=[])
 def test_get_available_volume_types_empty(mock_list, request_with_user):
@@ -165,7 +164,6 @@ def test_get_available_volume_types_success(mock_list, request_with_user):
     assert result == 'fast-ssd'
 
 
-# --- wait_for_volume_available ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.cinder.volume_get")
 def test_wait_for_volume_available_ready(mock_get, request_with_user):
@@ -196,7 +194,6 @@ def test_wait_for_volume_available_timeout(mock_get, request_with_user):
         view.wait_for_volume_available(request_with_user, 'vol-id', timeout=1)
 
 
-# --- wait_for_server ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.nova.server_get")
 def test_wait_for_server_success(mock_get, request_with_user):
@@ -214,8 +211,6 @@ def test_wait_for_server_timeout(mock_get, request_with_user):
     with pytest.raises(Exception, match="Instance srv-id could not be found after 1 seconds."):
         view.wait_for_server(request_with_user, 'srv-id', timeout=1)
 
-
-# --- wait_for_ip_in_network ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.nova.server_get")
 def test_wait_for_ip_success(mock_get, request_with_user):
@@ -246,7 +241,6 @@ def view_instance():
     return view
 
 
-# --- get_flavors ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.nova.flavor_list", return_value=[])
 def test_get_flavors_empty(mock_list, view_instance):
@@ -278,7 +272,6 @@ def test_get_flavors_success(mock_list, view_instance):
     assert result['suitable_flavors']['1']['ram'] == 2048
 
 
-# --- get_networks ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.neutron.network_list_for_tenant")
 def test_get_networks_success(mock_list, view_instance):
@@ -302,7 +295,6 @@ def test_get_networks_exception(mock_list, view_instance):
     assert result == {}
 
 
-# --- format_description ---
 
 def test_format_description():
     view = InstancesView()
@@ -312,34 +304,30 @@ def test_format_description():
     assert len(result) <= 255
 
 
-# --- extract_accounts_from_form_new ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.get_app_template")
 def test_extract_accounts_from_form_new(mock_template):
-    # Setup View + Mock Template
     view = InstancesView()
     mock_template.return_value = {
         'account_attributes': [{'name': 'username'}, {'name': 'password'}]
     }
     view.kwargs = {'image_id': 'img-001'}
 
-    # Setup Request + QueryDict
     factory = RequestFactory()
     request = factory.post('/')
     post_data = QueryDict('', mutable=True)
     post_data.setlist('username_1', ['user1', 'user2'])
     post_data.setlist('password_1', ['pass1', 'pass2'])
     request.POST = post_data
-    view.request = request  # Setze jetzt erst die Request
+    view.request = request
 
-    # Call and assert
+
     result = view.extract_accounts_from_form_new(view.request, 1)
     assert len(result) == 2
     assert result[0] == {'username': 'user1', 'password': 'pass1'}
     assert result[1] == {'username': 'user2', 'password': 'pass2'}
 
 
-# --- extract_accounts_from_form_instantiation ---
 
 @mock.patch("myplugin.content.eduvmstore.view.instances.get_app_template")
 def test_extract_accounts_from_form_instantiation(mock_template):
@@ -349,7 +337,6 @@ def test_extract_accounts_from_form_instantiation(mock_template):
     }
     view.kwargs = {'image_id': 'img-001'}
 
-    # Setze POST korrekt mit QueryDict
     factory = RequestFactory()
     request = factory.post('/')
     post_data = QueryDict('', mutable=True)

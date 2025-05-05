@@ -76,7 +76,6 @@ def test_post_without_accounts_or_ssh(mock_ssh_pdf, mock_account_pdf):
         "app_template": "UbuntuTemplate",
         "created": "2024-12-01",
         "base_name": "demo"
-        # Kein accounts_1, kein instantiations_1
     }
 
     view = InstanceSuccessView()
@@ -86,6 +85,5 @@ def test_post_without_accounts_or_ssh(mock_ssh_pdf, mock_account_pdf):
     assert response.status_code == 200
     assert response["Content-Type"] == "application/zip"
 
-    # Sicherstellen, dass KEINE PDFs generiert wurden
     mock_account_pdf.assert_not_called()
     mock_ssh_pdf.assert_not_called()

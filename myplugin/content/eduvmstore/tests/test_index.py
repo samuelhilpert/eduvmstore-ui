@@ -19,16 +19,15 @@ def mock_request():
 @mock.patch("myplugin.content.eduvmstore.view.index.fetch_favorite_app_templates")
 @mock.patch("myplugin.content.eduvmstore.view.index.search_app_templates")
 def test_get_context_data_with_images(mock_search, mock_favorites, mock_images, mock_request):
-    # Setup mock data
     mock_search.return_value = [{'id': '1', 'image_id': 'img-1'}, {'id': '2', 'image_id': 'img-2'}]
     mock_favorites.return_value = [{'id': '1', 'image_id': 'img-1'}]
 
     image_1 = mock.Mock()
-    image_1.size = 104857600  # 100 MB
+    image_1.size = 104857600
     image_1.visibility = 'public'
 
     image_2 = mock.Mock()
-    image_2.size = 52428800  # 50 MB
+    image_2.size = 52428800
     image_2.visibility = 'private'
 
     mock_images.return_value = {
@@ -81,7 +80,6 @@ def test_get_standard_request_calls_super(mock_get_context, mock_request):
     view = IndexView()
     view.request = mock_request
 
-    # Wir patchen `super().get` mit einem Mock
     with mock.patch.object(generic.TemplateView, "get", return_value=HttpResponse("FULL OK")) as super_get:
         response = view.get(mock_request)
 

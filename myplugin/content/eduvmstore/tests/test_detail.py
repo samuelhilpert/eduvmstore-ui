@@ -51,7 +51,6 @@ def test_context_data_user_get_fails(mock_get_template, mock_get_image, mock_use
 
     context = view.get_context_data()
 
-    # Expect fallback to ID without dashes
     assert context['app_template_creator'] == '123456'
     assert context['image_visibility'] == 'N/A'
     assert context['image_owner'] == 'N/A'
@@ -67,7 +66,6 @@ def test_context_data_creator_id_missing(mock_get_template, mock_get_image, mock
         'name': 'Nameless Template',
         'image_id': 'img-000',
         'created_at': '2025-05-05T09:00:00'
-        # no creator_id
     }
 
 
@@ -89,7 +87,6 @@ def test_context_data_created_at_missing(mock_get_template, mock_get_image, mock
         'name': 'Old Template',
         'image_id': 'img-456',
         'creator_id': 'creator-id-abc'
-        # no created_at
     }
 
     creator_mock = mock.Mock()

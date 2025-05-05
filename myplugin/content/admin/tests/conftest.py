@@ -3,7 +3,6 @@ from unittest import mock
 import django
 from django.conf import settings
 
-# Mock OpenStack/Horizon modules
 sys.modules['horizon'] = mock.MagicMock()
 sys.modules['horizon.tabs'] = mock.MagicMock()
 sys.modules['horizon.exceptions'] = mock.MagicMock()
@@ -15,7 +14,6 @@ sys.modules['openstack_dashboard.api.neutron'] = mock.MagicMock()
 sys.modules['openstack_dashboard.api.cinder'] = mock.MagicMock()
 sys.modules['openstack_dashboard.api.keystone'] = mock.MagicMock()
 
-# Minimal Django settings konfigurieren
 if not settings.configured:
     settings.configure(
         DEBUG=True,

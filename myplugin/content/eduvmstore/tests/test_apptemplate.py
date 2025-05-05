@@ -93,7 +93,6 @@ def test_context_data_created_at_missing(mock_get_template, mock_get_image, mock
         'name': 'Old Template',
         'image_id': 'img-456',
         'creator_id': 'creator-id-abc'
-        # 'created_at' fehlt absichtlich
     }
 
     mock_user = mock.Mock()
