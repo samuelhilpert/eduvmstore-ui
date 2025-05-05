@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     let isDirty = false;
     const forms = document.querySelectorAll("form");
+
+    // Track form changes
     forms.forEach(form => {
         form.addEventListener("input", () => {
             isDirty = true;
@@ -10,19 +12,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // browser close/refresh
+    // Suppress `beforeunload` if internal navigation is detected
+    let internalNavigation = false;
+
+    // Browser close/refresh warning
     window.addEventListener("beforeunload", function (e) {
-        if (!isDirty) return;
+        if (!isDirty || internalNavigation) return;
         e.preventDefault();
-        e.returnValue = "";
+        e.returnValue = ""; // Required for some browsers
     });
 
-    // internal navigation
-    document.querySelectorAll("a, button[type=button], input[type=submit]").forEach(el => {
+    // Internal navigation warning
+    document.querySelectorAll("a:not(.no-warning), button:not(.no-warning), input[type=submit]").forEach(el => {
         el.addEventListener("click", function (e) {
             if (!isDirty) return;
+
+            // Mark as internal navigation to suppress `beforeunload`
+            internalNavigation = true;
+
             const leave = confirm("You have unsaved changes.\nDiscard and leave or Continue editing?");
-            if (!leave) e.preventDefault();
+            if (!leave) {
+                e.preventDefault();
+                internalNavigation = false; // Reset if user cancels
+            }
         });
     });
 });

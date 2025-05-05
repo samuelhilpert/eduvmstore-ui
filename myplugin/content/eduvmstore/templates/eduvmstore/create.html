@@ -193,7 +193,7 @@
             </label>
             <div class="dropdown" style="margin-bottom: 15px; margin-top: 5px;">
 
-                <button class="dropdown-toggle form-control text-left" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="dropdown-toggle form-control text-left no-warning" type="button" id="securityGroupsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span id="selectedGroupsDisplay">
                     {% if is_edit and selected_groups %}
                         {% for group in selected_groups %}
@@ -228,7 +228,7 @@
     <p>
     Enter instantiation and account attributes to be used in the configuration script.
     You can find more information
-    <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}#instantiation-and-account-attributes" target="_blank">here</a>.
+    <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}#instantiation-and-account-attributes" class="no-warning" target="_blank">here</a>.
 </p>
 
     <div class="form-group row">
@@ -268,7 +268,7 @@ The values will be written to the file /etc/users.txt.">
                     <i class="fa fa-question-circle"></i>
                 </span>
             </label>
-            <button type="button" class="btn btn-primary w-100" id="writeScriptButton" onclick="openModal()">
+            <button type="button" class="btn btn-primary w-100 no-warning" id="writeScriptButton" onclick="openModal()">
                 {{ _("Write Script") }}
             </button>
         </div>
@@ -326,17 +326,17 @@ write_files:
                     <strong>Cloud Init Support</strong>
                         <p>This script will run immediately after the start of the virtual machine. It can be used for configuration of instances. For more information look at the tutorial of cloud init documentation.</p>
                         <p>You will find a sample (runcmd) script for user creation in the "Account Attributes" section of the tutorial page "Script".<br>
-                        Look at <a href="https://cloudinit.readthedocs.io/en/latest/" target="_blank">cloud-init Doku</a>.<br>
-                        Look at <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}" target="_blank">Tutorial</a>. <br>
-                        Look at <a href="https://yaml.org" target="_blank">YAML Doku</a>.</p>
+                        Look at <a href="https://cloudinit.readthedocs.io/en/latest/" class="no-warning" target="_blank">cloud-init Doku</a>.<br>
+                        Look at <a href="{% url 'horizon:eduvmstore_dashboard:script:index' %}" class="no-warning" target="_blank">Tutorial</a>. <br>
+                        Look at <a href="https://yaml.org" class="no-warning" target="_blank">YAML Doku</a>.</p>
 
                     </div>
                 </div>
 
                 <textarea id="scriptText" class="form-control " rows="10">{{ app_template.script }}</textarea>
-                <button type="button" class="btn btn-primary mt-5" style="margin-top: 20px;" onclick="saveScript()">
+                <button type="button" class="btn btn-primary mt-5 no-warning" style="margin-top: 20px;" onclick="saveScript()">
                     {{ _("Save Script") }}</button>
-                <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
+                <button type="button" class="btn btn-default mt-5 no-warning" style="margin-top: 20px;" onclick="closeModal()">{{ _("Cancel") }}</button>
 
             </div>
         </div>
@@ -344,7 +344,7 @@ write_files:
         <!-- Hidden input to store the script text -->
         <input type="hidden" id="hiddenScriptField" name="hiddenScriptField" />
         <div class="custom-bottommargin">
-            <button type="submit" class="btn btn-primary" id="submit-button" disabled>
+            <button type="submit" class="btn btn-primary no-warning" id="submit-button" disabled>
                 {% if is_edit %}{{ _("Update") }}{% else %}{{ _("Create") }}{% endif %}
             </button>
 
@@ -360,7 +360,7 @@ write_files:
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="responseModalLabel">{{ _("AppTemplate Creation Status") }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close no-warning" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -369,9 +369,9 @@ write_files:
             </div>
             <div class="modal-footer">
                 {% if modal_message == "AppTemplate created successfully." %}
-                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary">{{ _("Show Overview") }}</a>
+                    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" class="btn btn-primary no-warning">{{ _("Show Overview") }}</a>
                 {% endif %}
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                <button type="button" class="btn btn-secondary no-warning" data-dismiss="modal">{{ _("Close") }}</button>
             </div>
         </div>
     </div>
