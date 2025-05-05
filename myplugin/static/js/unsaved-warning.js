@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener("change", () => {
             isDirty = true;
         });
+
+        // Prevent beforeunload during form submission
+        form.addEventListener("submit", () => {
+            isDirty = false;
+        });
     });
 
     // Suppress `beforeunload` if internal navigation is detected
