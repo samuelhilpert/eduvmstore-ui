@@ -1,4 +1,3 @@
-from django.utils.translation import gettext_lazy as _
 import horizon
 
 
@@ -10,5 +9,5 @@ class TutorialPanel(horizon.Panel):
             - name: The display name for the panel, set to "Tutorial".
             - slug: A unique identifier for the panel, set to "tutorial".
     """
-    name = _("About EduVMStore")
+    name = "About EduVMStore"
     slug = "tutorial"

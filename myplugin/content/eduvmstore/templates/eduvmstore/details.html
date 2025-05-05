@@ -14,67 +14,7 @@
 {% endblock %}
 
 {% block main %}
-<style>
-    .detail-group {
-        margin-bottom: 20px;
-    }
-    .detail-group strong {
-        color: #495057;
-    }
-    .detail-group p {
-        margin-bottom: 0;
-        color: #6c757d;
-    }
-    h2, h3 {
-        margin-top: 30px;
-        margin-bottom: 20px;
-        color: #343a40;
-
-    }
-    h5 {
-        font-size: medium;
-        font-weight: bold;
-        margin-bottom: 20px;
-        color: #343a40;
-    }
-    .system-requirements, .image-info, .script-details, .security_groups, .app_template_details {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-    }
-    .row {
-        margin-bottom: 20px;
-    }
-
-    .btn {
-        padding: 6px 12px;
-        font-size: 15px;
-        border: none;
-        cursor: pointer;
-        margin-left: 10px;
-        border-radius: 4px;
-        color: black;
-    }
-
-    .btn-launch {
-        background-color: #E8E8E8;
-        color: black;
-    }
-    .btn:hover {
-        opacity: 0.9;
-    }
-     .dropdown-toggle {
-         background-color: #E8E8E8;
-   }
-
-   .top-btn {
-    padding: 6px 14px;
-    font-size: 13px;
-}
-
-
-</style>
+    <link rel="stylesheet" href="{% static 'css/details.css' %}">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 20px;">
     <h3>AppTemplate Details</h3>
 
@@ -305,26 +245,10 @@ write_files:
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
-    let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
-
-    document.getElementById("structured-accounts").textContent =
-        accountAttributes.length ? accountAttributes.map(acc => acc.name).join(": ") : "No account attributes available.";
-
-    document.getElementById("structured-instantiation").textContent =
-        instantiationAttributes.length ? instantiationAttributes.map(attr => attr.name).join(": ") : "No instantiation attributes available.";
-});
-
-        let accountAttributes = {{ app_template.account_attributes|safe }};
-        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-        document.getElementById("formatted-accounts").textContent = formattedAccounts;
-        document.getElementById("structured-accounts").textContent = formattedAccounts;
-
-        let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-        let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
-        document.getElementById("structured-instantiation").textContent = formattedInstatiation;
-        document.getElementById("instantiationContent").textContent = formattedInstatiation;
+        window.templateContext = {
+            accountAttributes: {{ app_template.account_attributes|default:"[]"|safe }},
+            instantiationAttributes: {{ app_template.instantiation_attributes|default:"[]"|safe }},
+        };
 
         document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".delete-btn").forEach(button => {
@@ -382,6 +306,7 @@ write_files:
     }
 });
     </script>
+        <script src="{% static 'js/details.js' %}"></script>
 
 
 {% endblock %}

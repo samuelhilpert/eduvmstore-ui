@@ -21,225 +21,8 @@
 {% endblock %}
 
 {% block main %}
-    <script src="{% static 'js/cloudinit_builder.js' %}"></script>
 
-    <style>
-    .form-container {
-        margin: auto;
-    }
-    .form-group {
-        margin-bottom: 20px;
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #495057;
-        font-size: small;
-    }
-    .form-control, .select-box {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 13px;
-        color: #333;
-    }
-.select-box {
-        appearance: none;
-        background-color: #fff;
-        background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        background-size: 16px 16px;
-        height: 35px;
-        line-height: 1.5;
-        padding-right: 25px;
-        text-align: start;
-        -ms-text-justify: auto;
-    }
-    .select-box:focus, .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
-        padding-top: 60px;
-    }
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-    }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
-    .close:hover, .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .form-check {
-        display: flex;
-        align-items: center;
-    }
-    .form-check-input {
-        margin-left: 10px;
-    }
-
-    .is-valid {
-        border: 2px solid green !important;
-    }
-
-    .is-invalid {
-        border: 2px solid red !important;
-    }
-
-
-.select-box, .form-control {
-    height: auto;
-    line-height: 1.5;
-    padding: 10px 14px;
-    font-size: 14px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    background-color: #fff;
-    box-sizing: border-box;
-}
-
-.select-box:focus, .form-control:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-    outline: none;
-}
-
-
-.dropdown {
-    position: relative;
-    width: 100%;
-}
-
-
-.dropdown-toggle {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    padding: 10px 12px;
-    width: 100%;
-    font-size: 14px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s ease-in-out;
-}
-
-.dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-    border-color: #007bff;
-}
-
-
-#selectedGroupsDisplay span{
-    margin-right: 6px;
-    padding: 5px 8px;
-    border-radius: 12px;
-    font-size: 14px;
-}
-
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    margin-top: 5px;
-    padding: 10px 12px;
-    width: 100%;
-    max-height: 250px;
-    overflow-y: auto;
-    z-index: 1000;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-
-.dropdown.show .dropdown-menu {
-    display: block;
-}
-
-
-.dropdown-menu .form-check {
-    margin-bottom: 8px;
-}
-
-.dropdown-menu .form-check-input {
-    margin-top: 2px;
-}
-
-.dropdown-menu label {
-    margin-left: 8px;
-    font-weight: 400;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.form-check-input {
-    margin-right: 10px;
-}
-
-   .system-requirements, .script-details, .security_groups, .app_template_details {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-    }
-       .row {
-        margin-bottom: 20px;
-    }
-
-.script-details {
-     margin-bottom: 30px;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.script-details p {
-    margin-bottom: 20px;
-
-}
-
-.or-divider {
-    font-weight: bold;
-    font-size: 16px;
-    padding-top: 30px;
-    color: #888;
-}
-
-.script-paragraph {
-    margin-left: 15px;
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-#selectedGroupsDisplay .text-muted {
-    color: #6c757d;
-    font-style: italic;
-}
-</style>
+    <link rel="stylesheet" href="{% static 'css/create.css' %}">
 
 <div class="form-container">
     <form method="post" action="">
@@ -312,8 +95,7 @@
         </div>
         <div class="form-group">
             <label for="instantiation_notice">Instantiation Notice
-                <span data-toggle="tooltip" title="Enter any special instructions or
-                notices for instantiation.">
+                <span data-toggle="tooltip" title="Enter any special instructions or notices for instantiation.">
             <i class="fa fa-question-circle"></i>
         </span>
             </label>
@@ -326,8 +108,7 @@
 
 
             <label for="public">Available in EduVMStore for <span style="color: rgb(85,137,197);">*</span>
-                <span data-toggle="tooltip" title="Select whether the AppTemplate is available
-                for all lecturers or only the creator.">
+                <span data-toggle="tooltip" title="Select whether the AppTemplate is available for all lecturers or only the creator.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
             <select name="public" id="public" class="form-control select-box" required>
@@ -385,10 +166,9 @@
                            value="{{ app_template.fixed_cores }}">
                 </div>
                 <div class="form-group">
-                    <label for="volume_size">Volume Size (GB)
+                    <label for="volume_size">Minimum Volume Size (GB)
                         <span data-toggle="tooltip" title="Enter the amount of Volume Size in gigabytes.
-                        You will get a extra volume additional to your selected flavor if you start
-                        these AppTemplate. Only numbers and one decimal point are allowed.
+                        You will get a extra volume additional to your selected flavor if you start these AppTemplate. Only numbers and one decimal point are allowed.
                         Enter 0 or leave empty if not needed. ">
                             <i class="fa fa-question-circle"></i>
                       </span>
@@ -484,8 +264,7 @@ The values will be written to the file /etc/users.txt.">
 
            <div class="col-md-5">
             <label for="writeScriptButton" class="form-label">Write Configuration Script
-                <span data-toggle="tooltip" data-html="true" title="Here you can write your own
-                cloud init configuration script. Link to YAML Documentation: https://yaml.org">
+                <span data-toggle="tooltip" data-html="true" title="Here you can write your own cloud init configuration script. Link to YAML Documentation: https://yaml.org">
                     <i class="fa fa-question-circle"></i>
                 </span>
             </label>
@@ -518,12 +297,13 @@ The values will be written to the file /etc/users.txt.">
                 <h5>Write Script</h5>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <label><input type="checkbox" class="script-option" data-key="ssh_script" id="ssh_user_requested" name="ssh_user_requested"> Generate SSH setup for users <span data-toggle="tooltip" title="Generates an pre-configured script.
-                        The pre-configured scripts creates SSH keys for the users on the instance
-                         and stores them in /home/ubuntu/user_keys.
+                        The pre-configured scripts creates SSH keys for the users on the instance and stores them in /home/ubuntu/user_keys.
 For this setup, the Account Attributes username and password are required.">
                             <i class="fa fa-question-circle"></i> </span></label>
-                    <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration</label>
-                    <label><input type="checkbox" class="script-option" data-key="user_add"> User Add</label>
+                    <label><input type="checkbox" class="script-option" data-key="base_configuration"> Base Configuration<span data-toggle="tooltip" title="Here a basic configuration for the Cloud-Init script is created. This includes a package update, packages, runcmd, and final_message.">
+                            <i class="fa fa-question-circle"></i> </span></label>
+                    <label><input type="checkbox" class="script-option" data-key="user_add"> User Add<span data-toggle="tooltip" title="Here the users from the account attributes, which are defined during creation and can be specified during launch, are created for an Ubuntu instance.">
+                            <i class="fa fa-question-circle"></i> </span></label>
                 </div>
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
     <pre class="p-2 border rounded bg-light" style="flex: 1;">
@@ -597,263 +377,111 @@ write_files:
     </div>
 </div>
 
-<script>
+    <script src="{% static 'js/cloudinit_snippets.js' %}"></script>
+    <script>
+        window.templateContext = {
+            accountAttributes: {{ app_template.account_attributes|default:"[]"|safe }},
+            instantiationAttributes: {{ app_template.instantiation_attributes|default:"[]"|safe }},
+        };
 
 
-    document.addEventListener("DOMContentLoaded", function () {
-        {% if not is_edit %}
-        checkName();
-        {% endif %}
-        {% if is_edit %}
-            document.getElementById("name-feedback").textContent = "";
-            document.getElementById("submit-button").disabled = false;
-        {% endif %}
-        var scriptText = document.getElementById('scriptText').value;
-        document.getElementById('hiddenScriptField').value = scriptText;
-        document.querySelectorAll("input[type='text']").forEach(function(input) {
-            input.value = input.value.replace(",", ".");
+        document.addEventListener("DOMContentLoaded", function () {
+            {% if not is_edit %}
+                checkName();
+            {% endif %}
+            {% if is_edit %}
+                document.getElementById("name-feedback").textContent = "";
+                document.getElementById("submit-button").disabled = false;
+            {% endif %}
+
         });
-    });
-
-    let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
-    let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-    document.getElementById("account_attributes").value = formattedAccounts;
-
-    let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
-    let formattedInstantiation = instantiationAttributes.map(acc => acc.name).join(":");
-    document.getElementById("instantiation_attributes").value = formattedInstantiation;
-
-    $(document).ready(function() {
-        $('[data-toggle="tooltip"]').tooltip();
-
-    });
-    document.getElementById('script_file').addEventListener('change', function(event) {
-        var file = event.target.files[0];
-        if (file) {
-            var reader = new FileReader();
-
-            reader.onload = function(e) {
-                var fileContent = e.target.result;
-
-                document.getElementById('hiddenScriptField').value = fileContent;
-
-                document.getElementById('scriptText').value = fileContent;
-            };
-
-            reader.readAsText(file);
-        }
-    });
 
 
-    function openModal() {
-        let accountStructure = document.getElementById("account_attributes").value;
-        let instantiationStructure = document.getElementById("instantiation_attributes").value;
-        document.getElementById("accountContent").innerText = accountStructure;
-        document.getElementById("instantiationContent").innerText = instantiationStructure;
-        document.getElementById('scriptModal').style.display = 'block';
 
-        setTimeout(function () {
-            const preElement = document.querySelector("#scriptModal pre");
-            const infoBox = document.querySelector("#scriptModal .cloudinit-info");
-            if (preElement && infoBox) {
-                infoBox.style.height = preElement.offsetHeight + "px";
-            }
-        }, 0);
-    }
 
-    function closeModal() {
-        document.getElementById('scriptModal').style.display = 'none';
-    }
+        {% if modal_message %}
+            $(document).ready(function() {
+                $('#responseModal').modal('show');
+            });
+        {% endif %}
 
-    function saveScript() {
-        var scriptText = document.getElementById('scriptText').value;
-        document.getElementById('hiddenScriptField').value = scriptText;
-        closeModal();
-    }
-
-    {% if modal_message %}
-    $(document).ready(function() {
-        $('#responseModal').modal('show');
-    });
-    {% endif %}
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-            const cookies = document.cookie.split("; ");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i];
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                    break;
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split("; ");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i];
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                        break;
+                    }
                 }
             }
-        }
-        return cookieValue;
-    }
-
-    const csrftoken = getCookie("csrftoken");
-
-
-    async function checkName() {
-        const inputField = document.getElementById("name");
-        const name = inputField.value;
-        const url = inputField.dataset.url;
-        const feedback = document.getElementById("name-feedback");
-        const submitButton = document.getElementById("submit-button");
-
-        const validPattern = /^[a-zA-Z0-9_\- ]+$/;
-
-        if (!validPattern.test(name)) {
-            inputField.classList.remove("is-valid");
-            inputField.classList.add("is-invalid");
-            feedback.textContent = "`Invalid input: Only letters (a-z, A-Z), numbers (0-9)," +
-                " underscores (_), hyphens (-), and spaces are allowed.`";
-            feedback.style.color = "red";
-            submitButton.disabled = true;
-            return;
+            return cookieValue;
         }
 
+        const csrftoken = getCookie("csrftoken");
 
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": csrftoken
-                },
-                body: JSON.stringify({ name: name })
-            });
 
-            if (!response.ok) {
-                throw new Error(`HTTP-Fehler: ${response.status}`);
-            }
+        async function checkName() {
+            const inputField = document.getElementById("name");
+            const name = inputField.value;
+            const url = inputField.dataset.url;
+            const feedback = document.getElementById("name-feedback");
+            const submitButton = document.getElementById("submit-button");
 
-            const result = await response.json();
+            const validPattern = /^[a-zA-Z0-9_\- ]+$/;
 
-            if (result.valid) {
-                inputField.classList.remove("is-invalid");
-                inputField.classList.add("is-valid");
-                feedback.textContent = "Name available";
-                feedback.style.color = "green";
-                submitButton.disabled = false;
-            } else {
+            if (!validPattern.test(name)) {
                 inputField.classList.remove("is-valid");
                 inputField.classList.add("is-invalid");
-                feedback.textContent = result.reason || "Name already taken";
+                feedback.textContent = "`Invalid input: Only letters (a-z, A-Z), numbers (0-9)," +
+                    " underscores (_), hyphens (-), and spaces are allowed.`";
                 feedback.style.color = "red";
                 submitButton.disabled = true;
-            }
-        } catch (error) {
-            console.error("Fehler bei der Validierung:", error);
-        }
-    }
-
-
-    function updateSelectedGroups() {
-        const selectedGroups = [];
-       const checkboxes = document.querySelectorAll('.dropdown-menu input[type="checkbox"]:checked');
-        checkboxes.forEach(function(checkbox) {
-            selectedGroups.push(checkbox.value);
-        });
-
-        if (selectedGroups.length === 0) {
-            selectedGroups.push('default');
-        }
-
-        const selectedGroupsDisplay = document.querySelector('.selected-group');
-        selectedGroupsDisplay.textContent = selectedGroups.join(", ");
-    }
-
-   document.querySelectorAll('.dropdown-menu input[type="checkbox"]').forEach(function(checkbox) {
-        checkbox.addEventListener('change', updateSelectedGroups);
-    });
-
-    document.addEventListener('DOMContentLoaded', updateSelectedGroups);
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const textarea = document.getElementById("scriptText");
-        const hiddenField = document.getElementById("hiddenScriptField");
-
-        function updateScriptBasedOnSelection() {
-            const selected = Array.from(document.querySelectorAll(".script-option"))
-                .filter(cb => cb.checked)
-                .map(cb => cb.dataset.key)
-                .sort();
-
-            const keyCombo = selected.join("+");
-            let selectedKey = "";
-
-            switch (keyCombo) {
-                case "base_configuration":
-                    selectedKey = "base_configuration";
-                    break;
-                case "ssh_script":
-                    selectedKey = "ssh_script";
-                    break;
-                case "user_add":
-                    selectedKey = "user_add";
-                    break;
-                case "base_configuration+ssh_script":
-                    selectedKey = "sshscript_base_configuration";
-                    break;
-                case "ssh_script+user_add":
-                    selectedKey = "ssh_script";
-                    break;
-                case "base_configuration+user_add":
-                    selectedKey = "base_user";
-                    break;
-                case "base_configuration+ssh_script+user_add":
-                    selectedKey = "sshscript_base_configuration";
-                    break;
-                default:
-                    selectedKey = "";
+                return;
             }
 
-            if (selectedKey && scriptSnippets[selectedKey]) {
-                const decoded = scriptSnippets[selectedKey]
-                    .replace(/\\r\\n/g, '\n')
-                    .replace(/\\"/g, '"');
-                textarea.value = decoded;
-                hiddenField.value = decoded;
-            } else {
-                textarea.value = "";
-                hiddenField.value = "";
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    },
+                    body: JSON.stringify({ name: name })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP-Fehler: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.valid) {
+                    inputField.classList.remove("is-invalid");
+                    inputField.classList.add("is-valid");
+                    feedback.textContent = "Name available";
+                    feedback.style.color = "green";
+                    submitButton.disabled = false;
+                } else {
+                    inputField.classList.remove("is-valid");
+                    inputField.classList.add("is-invalid");
+                    feedback.textContent = result.reason || "Name already taken";
+                    feedback.style.color = "red";
+                    submitButton.disabled = true;
+                }
+            } catch (error) {
+                console.error("Fehler bei der Validierung:", error);
             }
         }
 
-        document.querySelectorAll(".script-option").forEach((checkbox) => {
-            checkbox.addEventListener("change", updateScriptBasedOnSelection);
-        });
-    });
 
-    function updateSelectedGroupsDisplay() {
-        const selected = [];
-        $('input[name="security_groups"]:checked').each(function() {
-            selected.push($(this).val());
-        });
 
-        const display = $('#selectedGroupsDisplay');
-        display.empty();
 
-        if (selected.length === 0) {
-            display.append('<span class="text-muted">No group selected</span>');
-        } else {
-            selected.forEach(function(group) {
-                display.append('<span>' + group + '</span>');
-            });
-        }
-    }
-    updateSelectedGroupsDisplay();
+    </script>
+    <script src="{% static 'js/create.js' %}"></script>
 
-     // Handle checkbox changes
-    $('input[name="security_groups"]').change(function() {
-        updateSelectedGroupsDisplay();
-    });
 
-    $(document).ready(function() {
-    $('.dropdown-toggle').dropdown();
-});
-
-</script>
 {% endblock %}

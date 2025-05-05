@@ -18,66 +18,8 @@
 
 {% block main %}
 
-    <style>
-
-        .accordion {
-            background: linear-gradient(135deg, #333, #777);
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            width: 100%;
-            text-align: left;
-            border: none;
-            outline: none;
-            transition: background-color 0.3s ease;
-            font-size: 16px;
-            border-radius: 5px;
-            margin-top: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .accordion:hover {
-            background-color: #555;
-        }
-
-        .accordion .text {
-            flex-shrink: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .accordion .icon {
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-
-        .accordion.active .icon {
-            transform: rotate(90deg);
-        }
-
-        .panel {
-            display: none;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 5px;
-            margin-top: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .contact-container {
-            width: 100%;
-            margin: auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-    </style>
+    <script src="{% static 'js/accordion.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
     <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
         version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.</p>
 
@@ -94,9 +36,9 @@
     <div class="panel">
         <p> EduVMStore is a platform designed for managing and provisioning virtual machines in an educational
             context. It integrates with OpenStack to simplify the creation, configuration, and management of
-            VMs, enabling users, such as students and educators, to deploy customized learning environments
-            quickly. The platform supports various VM configurations and resource allocations, making it
-            suitable for classroom and research purposes.</p>
+            VMs, enabling lecturers to deploy customized learning environments quickly.
+            The platform supports various VM configurations and resource allocations, making it suitable for
+            different educational needs.</p>
     </div>
 
     <button class="accordion">
@@ -105,8 +47,9 @@
     </button>
     <div class="panel">
         <p>The EduVMStore was developed by students of the DHBW Mannheim, Germany. The project was part of the
-            Bachelor's degree program in Business Informatics. The names of the students are Valentin
-            Czekalla, Jared Heinrich, Marian Rickert, Emese Racz, Monika Bircic and Samuel Hilpert.</p>
+            Bachelor's degree program in Business Informatics and was supervised by Prof. Dr. Michael
+            Eichberg. The names of the students are Valentin Czekalla, Jared Heinrich, Marian Rickert, Emese
+            Racz, Monika Bircic and Samuel Hilpert.</p>
     </div>
 
     <button class="accordion">
@@ -128,7 +71,7 @@
             resource requirements, network configurations, and optional scripts to create and deploy virtual
             machines.</p>
         <p>It simplifies the process of provisioning virtual environments tailored for specific use cases,
-            such as educational labs, research projects, or software development environments.</p>
+            such as educational labs or software development environments.</p>
         <p>Check out <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}" target="_blank">these
             examples</a> for some inspiration on how to use AppTemplates.</p>
     </div>
@@ -148,8 +91,8 @@
         <span class="icon">▶</span>
     </button>
     <div class="panel">
-        <p>Yes, you can share your AppTemplates with other users by selecting the "Available for everyone"
-            option during the creation process. Check
+        <p>Yes, you can share your AppTemplates with other users by selecting the "Available for All
+            Lecturers" option during the creation process. Check
             <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" target="_blank">
                 Publish a private AppTemplate</a> in the documentation for more details.</p>
     </div>
@@ -162,28 +105,10 @@
 
         <p>If you have further questions, contact the Administrator of the EduVMStore.</p>
         <p>For technical support, please reach out to the IT department at DHBW Mannheim.</p>
-        <p>For general inquiries, please contact the project leaders.</p>
 
     </div>
 
-    <p style="text-align: center; color: #666; font-size: 12px; margin-top: 10px;">EduVMStore Version: 1.8 Release: 05/2025</p>
-
-
-    <script>
-
-        var acc = document.getElementsByClassName("accordion");
-        for (var i = 0; i < acc.length; i++) {
-            acc[i].addEventListener("click", function () {
-                this.classList.toggle("active");
-                var panel = this.nextElementSibling;
-                if (panel.style.display === "block") {
-                    panel.style.display = "none";
-                } else {
-                    panel.style.display = "block";
-                }
-            });
-        }
-
-    </script>
+    <p style="text-align: center; color: #666; font-size: 12px; margin-top: 10px;">EduVMStore Version: 1.8
+        Release: 05/2025</p>
 
 {% endblock %}

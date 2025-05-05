@@ -15,81 +15,8 @@
 {% endblock page_header %}
 
 {% block main %}
-
-    <style>
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section h2 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        .section p {
-            color: #666;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-
-        .section ul {
-            padding-left: 20px;
-            color: #666;
-            font-size: 16px;
-        }
-
-        .section ul li {
-            margin-bottom: 10px;
-        }
-
-        pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-size: 14px;
-            color: #333;
-        }
-
-        code {
-            font-family: monospace;
-            color: #d63384;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
-        .modal-content img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <script src="{% static 'js/script.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/script.css' %}">
     <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
         version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.</p>
 
@@ -118,6 +45,9 @@
         <p>Cloud-init scripts are written in YAML, a human-readable data serialization format. To understand
             how to structure and write YAML files, refer to the
             <a href="https://yaml.org/" target="_blank">official YAML documentation</a>.</p>
+        <p>Beware that YAML is <strong>sensitive to indentation</strong>. The standard practice is two spaces
+            per
+            indentation.</p>
     </div>
 
     <div class="section" id="step-by-step-guide">
@@ -136,7 +66,7 @@
                 <strong>Write Files:</strong>
                 <p>Use the <code>write_files</code> section to create or modify files:</p>
                 <pre><code>write_files:
-      - path: /etc/motd
+      - path: /etc/welcome.txt
         content: |
           Welcome to your new instance!
           Managed by EduVMStore.</code></pre>
@@ -146,7 +76,7 @@
                     pre-filled content we provide.</p>
                 <p>With the provided beginning of the script, start additional <code>write_files</code>
                     parts like this:</p>
-                <pre><code>
+                <pre><code>[...]
       - path: /etc/motd
         content: |
           Welcome to your new instance!
@@ -218,19 +148,39 @@
             (e.g., <code>username:password:email</code>) and are saved in a file within the pre-filled
             <code>write_files</code> section. You can use these attributes in the rest of your script,
             for example, in the <code>runcmd</code> section:</p>
-        <pre><code>while IFS=: read -r username password email; do
-        # Create users
-        if ! id "$username" &>/dev/null; then
-            useradd -m -s /bin/bash "$username"
-            echo "$username:$password" | chpasswd
-            echo "Email: $email" >> /home/$username/user_info.txt
-        fi
-    done < /etc/users.txt</code></pre>
+        <p><strong>Note:</strong> The following code is prefilled by us in the <code>write_files</code>
+            section, including the account attributes used in the sample script:</p>
+        <pre><code>write_files:
+          - path: /etc/users.txt
+            content: |
+              username:password:email
+            permissions: '0644'
+            owner: root:root
+        </code></pre>
+        <p>You can use this prefilled file in your script, for example, in the <code>runcmd</code> section:
+        </p>
+        <pre><code>runcmd:
+          - |
+            # Read the file /etc/users.txt line by line
+            # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
+            # read -r reads each line and assigns the fields to the variables username, password, and email
+            while IFS=: read -r username password email; do
+              # Check if the user does not already exist
+              if ! id "$username" &>/dev/null; then
+                # Create a new user with the specified username and default shell /bin/bash
+                useradd -m -s /bin/bash "$username"
+                # Set the user's password
+                echo "$username:$password" | chpasswd
+                # Save the user's email to a file in their home directory
+                echo "Email: $email" >> /home/$username/user_info.txt
+              fi
+            done < /etc/users.txt
+        </code></pre>
         <p>Make sure to adjust the file path to match the location where the attributes are saved in the
             <code>write_files</code> section.</p>
         <p>For an example of the correct usage of Instantiation and Account Attributes, click
-        <a href="javascript:void(0);" id="writeScriptLink" onclick="openModal()" style=" color: #007bff;">
-           here</a>.</p>
+            <a href="javascript:void(0);" id="writeScriptLink" onclick="openModal()" style=" color: #007bff;">
+                here</a>.</p>
     </div>
 
     <div class="section" id="easy-to-use-script-examples">
@@ -244,18 +194,24 @@
                 be set in the format <code>username:password</code>.</p>
             <p>This script creates users from the user file generated based on the fields defined in the
                 <code>account_attributes</code>.</p>
-            <pre>
-                <code id="user-creation-script">
-    runcmd:
-      - |
-        while IFS=':' read -r username password; do
-          if ! id "$username" &>/dev/null; then
-            useradd -m -s "/bin/bash" "$username"
-            echo "$username:$password" | chpasswd
-          fi
-        done < /etc/users.txt
-                </code>
-            </pre>
+            <pre><code id="user-creation-script">
+runcmd:
+  - |
+    # Read the file /etc/users.txt line by line
+    # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
+    # read -r reads each line and assigns the fields to the variables username, password, and email
+    while IFS=: read -r username password email; do
+      # Check if the user does not already exist
+      if ! id "$username" &>/dev/null; then
+        # Create a new user with the specified username and default shell /bin/bash
+        useradd -m -s /bin/bash "$username"
+        # Set the user's password
+        echo "$username:$password" | chpasswd
+        # Save the user's email to a file in their home directory
+        echo "Email: $email" >> /home/$username/user_info.txt
+      fi
+    done < /etc/users.txt
+        </code></pre>
             <button onclick="copyToClipboard('user-creation-script')">Copy Script</button>
         </div>
 
@@ -268,11 +224,18 @@
                 <code>instantiation_attributes</code>.</p>
             <pre>
                 <code id="software-installation-script">
-    runcmd:
-      - |
-        SOFTWARE_VERSION=$(cat /etc/attributes.txt)
-        apt-get update
-        apt-get install -y python$SOFTWARE_VERSION
+runcmd:
+  - |
+    # Read the software version from the attributes file
+    # The attributes file is located at /etc/attributes.txt and contains the version information
+    SOFTWARE_VERSION=$(cat /etc/attributes.txt)
+
+    # Update the package list to ensure the latest versions are available
+    apt-get update
+
+    # Install the specified version of the software (e.g., Python)
+    # The version is dynamically read from the attributes file
+    apt-get install -y python$SOFTWARE_VERSION
                 </code>
             </pre>
             <button onclick="copyToClipboard('software-installation-script')">Copy Script</button>
@@ -283,7 +246,7 @@
         <h2>Best Practices</h2>
         <ul>
             <li>Always test your cloud-init scripts in a development environment before using them in
-                production.
+                production by starting an instance with the script.
             </li>
             <li>Use meaningful comments in your scripts to explain each section.</li>
             <li>Minimize the number of packages installed to reduce initialization time and potential
@@ -337,16 +300,24 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
             <h5>Account and Instantiation Attributes Example</h5>
-            <p>For a better understanding of Account and Instantiation Attributes, a concrete example is provided here. This includes the following example input in Create AppTemplate:</p>
+            <p>For a better understanding of Account and Instantiation Attributes, a concrete example is
+                provided here. This includes the following example input in Create AppTemplate:</p>
             <img src="{% static 'images/create.png' %}" alt="create" class="logo-img">
-            <p>It shows that the user selected "packages" as the Instantiation Attribute and "name:password" as the Account Attributes. The separation of the individual attributes is always done using a colon :</p>
-            <p>By entering these attributes, the fixed `write_script` part of the script changes as follows:</p>
+            <p>It shows that the user selected "packages" as the Instantiation Attribute and "name:password"
+                as the Account Attributes. The separation of the individual attributes is always done using a
+                colon :</p>
+            <p>By entering these attributes, the fixed `write_script` part of the script changes as
+                follows:</p>
             <img src="{% static 'images/writescript.png' %}" alt="writescript" class="logo-img">
-            <p>It can be seen that placeholders for both Instantiation and Account Attributes are included in the file.
-            Furthermore, it can be seen that the Instantiation Attributes are saved in the file `/etc/attributes.txt` and the Account Attributes in the file `/etc/users.txt`.
-            In the script, the user can now access these attributes and, for example, create users or install packages with them.
-           The selectable options "Generate SSH setup for users" and "User Add" use the data from `/etc/users.txt`, for example.
-            During the actual launch process, the placeholders are then replaced with the user inputs</p>
+            <p>It can be seen that placeholders for both Instantiation and Account Attributes are included in
+                the file.
+                Furthermore, it can be seen that the Instantiation Attributes are saved in the file
+                `/etc/attributes.txt` and the Account Attributes in the file `/etc/users.txt`.
+                In the script, the user can now access these attributes and, for example, create users or
+                install packages with them.
+                The selectable options "Generate SSH setup for users" and "User Add" use the data from
+                `/etc/users.txt`, for example.
+                During the actual launch process, the placeholders are then replaced with the user inputs</p>
             <p>The launch page then requires the following information:</p>
             <img src="{% static 'images/launch.png' %}" alt="launch" class="logo-img">
             <p>Here, the user can then define specific values for the placeholders.</p>
@@ -355,47 +326,14 @@
             <img src="{% static 'images/attributestxt.png' %}" alt="attributestxt" class="logo-img">
             <p>/etc/users.txt</p>
             <img src="{% static 'images/userstxt.png' %}" alt="userstxt" class="logo-img">
-            <p>If the script needs these values, it accesses them and, for example, creates the users "mustermann" and "musterfrau" or installs the package "git".</p>
-            <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;" onclick="closeModal()">{{ _("Close") }}</button>
+            <p>If the script needs these values, it accesses them and, for example, creates the users
+                "mustermann" and "musterfrau" or installs the package "git".</p>
+            <button type="button" class="btn btn-default mt-5" style="margin-top: 20px;"
+                    onclick="closeModal()">{{ _("Close") }}</button>
 
         </div>
     </div>
 
-    <script>
 
-        function openModal() {
-            document.getElementById('scriptModal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('scriptModal').style.display = 'none';
-        }
-
-        function copyToClipboard(elementId) {
-            const codeElement = document.getElementById(elementId);
-            const tempInput = document.createElement("textarea");
-            tempInput.value = codeElement.textContent;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            try {
-                document.execCommand("copy");
-            } catch (err) {
-                console.error("Copy failed:", err);
-            }
-            document.body.removeChild(tempInput);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const tocLinks = document.querySelectorAll(".toc a");
-            tocLinks.forEach(link => {
-                link.addEventListener("click", (event) => {
-                    const targetId = link.getAttribute("href").replace("#!", "");
-                    window.location.hash = targetId;
-                    event.preventDefault();
-                });
-            });
-        });
-
-    </script>
 
 {% endblock %}
