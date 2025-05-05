@@ -16,10 +16,14 @@ from django.views import View
 from myplugin.content.eduvmstore.utils import get_token_id
 
 
-# in this file all views are handled that do not represent content
-# here are only post functions that are called via forms.
-# furthermore, the function to validate the apptemplate name is in this file
-# the other views are in the folder myplugin.content.eduvmstore.view
+#This module contains helper views that do not directly render content for the EduVMStore dashboard.
+
+#It includes:
+# - POST handlers triggered via forms (e.g., favoriting or deleting AppTemplates)
+# - Utility functions such as AppTemplate name validation
+# - No content-related views — those are located in `myplugin.content.eduvmstore.view`
+
+
 
 def validate_name(request):
     """

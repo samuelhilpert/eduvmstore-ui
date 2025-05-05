@@ -59,7 +59,8 @@
                                 </form>
                             </td>
                             <td>
-                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:reject_template' %}">
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:reject_template' %}"
+                                      onsubmit="return confirm('Are you sure you want to reject this appTemplate {{ template.name }}?');">
                                     {% csrf_token %}
                                     <input type="hidden" name="template_id" value="{{ template.id }}">
                                     <button class="btn btn-danger" type="submit">Reject</button>
