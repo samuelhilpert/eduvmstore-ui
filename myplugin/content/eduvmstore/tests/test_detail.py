@@ -4,16 +4,9 @@ from django.test import RequestFactory
 from myplugin.content.eduvmstore.view.detail import DetailsPageView
 
 
-@pytest.fixture
-def request():
-    req = RequestFactory().get('/dummy-url')
-    req.user = mock.Mock()
-    return req
-
-
-@mock.patch("myplugin.content.eduvmstore.view.details.keystone.user_get")
-@mock.patch("myplugin.content.eduvmstore.view.details.get_image_data")
-@mock.patch("myplugin.content.eduvmstore.view.details.get_app_template")
+@mock.patch("myplugin.content.eduvmstore.view.detail.keystone.user_get")
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_image_data")
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_app_template")
 def test_context_data_success(mock_get_template, mock_get_image, mock_user_get, request):
     mock_get_template.return_value = {
         'name': 'Test Template',
@@ -42,9 +35,9 @@ def test_context_data_success(mock_get_template, mock_get_image, mock_user_get, 
     assert context['page_title'] == 'Test Template'
 
 
-@mock.patch("myplugin.content.eduvmstore.view.details.keystone.user_get", side_effect=Exception("not found"))
-@mock.patch("myplugin.content.eduvmstore.view.details.get_image_data", return_value={})
-@mock.patch("myplugin.content.eduvmstore.view.details.get_app_template")
+@mock.patch("myplugin.content.eduvmstore.view.detail.keystone.user_get", side_effect=Exception("not found"))
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_image_data", return_value={})
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_app_template")
 def test_context_data_user_get_fails(mock_get_template, mock_get_image, mock_user_get, request):
     mock_get_template.return_value = {
         'name': 'Broken Template',
@@ -66,9 +59,9 @@ def test_context_data_user_get_fails(mock_get_template, mock_get_image, mock_use
     assert context['page_title'] == 'Broken Template'
 
 
-@mock.patch("myplugin.content.eduvmstore.view.details.keystone.user_get")
-@mock.patch("myplugin.content.eduvmstore.view.details.get_image_data", return_value={})
-@mock.patch("myplugin.content.eduvmstore.view.details.get_app_template")
+@mock.patch("myplugin.content.eduvmstore.view.detail.keystone.user_get")
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_image_data", return_value={})
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_app_template")
 def test_context_data_creator_id_missing(mock_get_template, mock_get_image, mock_user_get, request):
     mock_get_template.return_value = {
         'name': 'Nameless Template',
@@ -76,6 +69,7 @@ def test_context_data_creator_id_missing(mock_get_template, mock_get_image, mock
         'created_at': '2025-05-05T09:00:00'
         # no creator_id
     }
+
 
     view = DetailsPageView()
     view.setup(request, template_id='no_creator')
@@ -87,9 +81,9 @@ def test_context_data_creator_id_missing(mock_get_template, mock_get_image, mock
     assert context['page_title'] == 'Nameless Template'
 
 
-@mock.patch("myplugin.content.eduvmstore.view.details.keystone.user_get")
-@mock.patch("myplugin.content.eduvmstore.view.details.get_image_data", return_value={})
-@mock.patch("myplugin.content.eduvmstore.view.details.get_app_template")
+@mock.patch("myplugin.content.eduvmstore.view.detail.keystone.user_get")
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_image_data", return_value={})
+@mock.patch("myplugin.content.eduvmstore.view.detail.get_app_template")
 def test_context_data_created_at_missing(mock_get_template, mock_get_image, mock_user_get, request):
     mock_get_template.return_value = {
         'name': 'Old Template',
@@ -98,7 +92,9 @@ def test_context_data_created_at_missing(mock_get_template, mock_get_image, mock
         # no created_at
     }
 
-    mock_user_get.return_value = mock.Mock(name='creator_user')
+    creator_mock = mock.Mock()
+    creator_mock.name = 'creator_user'
+    mock_user_get.return_value = creator_mock
 
     view = DetailsPageView()
     view.setup(request, template_id='no_date')
@@ -110,7 +106,7 @@ def test_context_data_created_at_missing(mock_get_template, mock_get_image, mock
     assert context['page_title'] == 'Old Template'
 
 
-@mock.patch("myplugin.content.eduvmstore.view.details.keystone.user_get")
+@mock.patch("myplugin.content.eduvmstore.view.detail.keystone.user_get")
 def test_get_username_from_id_success(mock_user_get, request):
     mock_user = mock.Mock()
     mock_user.name = 'alice'
@@ -123,7 +119,7 @@ def test_get_username_from_id_success(mock_user_get, request):
     assert result == 'alice'
 
 
-@mock.patch("myplugin.content.eduvmstore.view.details.keystone.user_get", side_effect=Exception("not found"))
+@mock.patch("myplugin.content.eduvmstore.view.detail.keystone.user_get", side_effect=Exception("not found"))
 def test_get_username_from_id_fallback(mock_user_get, request):
     view = DetailsPageView()
     view.request = request
