@@ -11,7 +11,8 @@ from myplugin.content.admin.utils import get_token_id
 #This module contains administrative helper views for the EduVMStore dashboard.
 
 #These views:
-# - Handle POST requests triggered via admin forms (e.g., approving, rejecting, or deleting templates, updating roles, deleting users)
+# - Handle POST requests triggered via admin forms (e.g., approving, rejecting,
+#             or deleting templates, updating roles, deleting users)
 # - Do not render content or templates
 # - Are not part of the content views, which are located in `myplugin.content.admin.view`
 
