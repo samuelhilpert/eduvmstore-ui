@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Internal navigation warning
-    document.querySelectorAll("a:not(.no-warning), button:not(.no-warning), input[type=submit]").forEach(el => {
+    document.querySelectorAll("a:not(.no-warning), button:not(.no-warning):not([type=submit]), input[type=submit]:not(.no-warning)").forEach(el => {
         el.addEventListener("click", function (e) {
             if (!isDirty) return;
 
