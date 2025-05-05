@@ -30,4 +30,5 @@ jobs:
           pip install bandit
 
       - name: Run Bandit
-        run: bandit -r . 
+        run: bandit -r . --exclude myplugin/content/admin/tests,myplugin/content/eduvmstore/tests
+
