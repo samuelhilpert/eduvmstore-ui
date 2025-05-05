@@ -74,7 +74,7 @@
 
         <!-- Launch and Cancel Buttons -->
         <div class="button-container">
-            <button type="submit" class="btn btn-primary">{{ _("Launch") }}</button>
+            <button type="submit" class="btn btn-primary no-warning">{{ _("Launch") }}</button>
             <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-default">{{ _("Cancel") }}</a>
         </div>
     </form>
@@ -85,7 +85,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="responseModalLabel">{{ _("Instance Creation Status") }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close no-warning" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -94,9 +94,9 @@
                 </div>
                 <div class="modal-footer">
                     {% if modal_message == "Instance created successfully." %}
-                        <a href="/dashboard/project/instances/" class="btn btn-primary">{{ _("Show Instance") }}</a>
+                        <a href="/dashboard/project/instances/" class="btn btn-primary no-warning">{{ _("Show Instance") }}</a>
                     {% endif %}
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                    <button type="button" class="btn btn-secondary no-warning" data-dismiss="modal">{{ _("Close") }}</button>
                 </div>
             </div>
         </div>
@@ -108,7 +108,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="allInstancesWarningModalLabel">{{ _("Warning") }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close no-warning" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -116,8 +116,8 @@
                     <p><strong>{{ _("Warning:") }}</strong> {{ _("Changes made here will override settings for all individual instances.") }}</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning confirm-apply-modal">{{ _("Apply to All Instances") }}</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+                    <button type="button" class="btn btn-warning confirm-apply-modal no-warning">{{ _("Apply to All Instances") }}</button>
+                    <button type="button" class="btn btn-secondary no-warning" data-dismiss="modal">{{ _("Cancel") }}</button>
                 </div>
             </div>
         </div>
@@ -129,7 +129,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("AppTemplate Details") }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close no-warning" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -212,7 +212,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Close") }}</button>
+                    <button type="button" class="btn btn-secondary no-warning" data-dismiss="modal">{{ _("Close") }}</button>
                 </div>
             </div>
         </div>
@@ -271,7 +271,7 @@
 
     </script>
     <script src="{% static 'js/instances.js' %}"></script>
-
+    <script src="{% static 'js/unsaved-warning.js' %}"></script>
 
 
 

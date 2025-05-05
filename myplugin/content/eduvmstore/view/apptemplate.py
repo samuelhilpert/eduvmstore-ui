@@ -131,7 +131,7 @@ class AppTemplateView(generic.TemplateView):
                     timeout=10
                 )
                 if response.status_code == 200:
-                    messages.success(request, "App Template updated successfully.")
+                    messages.success(request, "AppTemplate updated successfully.")
                 else:
                     messages.error(request, f"Failed to update App-Template. {response.text}")
             else:
@@ -142,7 +142,7 @@ class AppTemplateView(generic.TemplateView):
                     timeout=10
                 )
                 if response.status_code == 201:
-                    messages.success(request, "App Template created successfully.")
+                    messages.success(request, "AppTemplate created successfully.")
                 else:
                     messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
