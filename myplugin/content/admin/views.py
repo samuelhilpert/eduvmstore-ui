@@ -43,7 +43,8 @@ class UpdateRolesView(generic.View):
             response = requests.patch(api_url, json=payload, headers=headers,timeout=10)
 
             if response.status_code == 200:
-                messages.success(request, f"Role for user {user_id} updated successfully to {new_role_id}.")
+                messages.success(request, f"Role for user {user_id} updated "
+                                          f"successfully to {new_role_id}.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
                 messages.error(request, f"Failed to update role: {error_message}")
