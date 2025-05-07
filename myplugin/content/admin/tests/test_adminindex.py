@@ -47,3 +47,15 @@ def test_get_context_data(
     assert "app_templates" in context
     assert "roles" in context
     assert "users" in context
+
+@mock.patch("myplugin.content.admin.view.index.get_user_details", return_value={"role": {"access_level": 10}})
+@mock.patch("myplugin.content.admin.view.index.get_users", return_value=[{"id": "user-123"}])
+@mock.patch("myplugin.content.admin.view.index.get_roles", return_value=[{"name": "SomeOtherRole", "access_level": 5}])
+@mock.patch("myplugin.content.admin.view.index.get_app_templates_to_approve", return_value=[])
+@mock.patch("myplugin.content.admin.view.index.get_username_from_id", return_value="admin_user")
+@mock.patch("myplugin.content.admin.view.index.get_app_templates", return_value=[])
+def test_get_context_data_no_admin_access(
+        mock_templates, mock_username, mock_approve, mock_roles, mock_users, mock_user_details, view_instance
+):
+    context = view_instance.get_context_data()
+    assert context["show_content"] is False
