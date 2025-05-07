@@ -462,7 +462,11 @@ class InstancesView(generic.TemplateView):
 
         account_attributes = app_template.get('account_attributes') or []
 
-        account_attribute = [attr['name'] for attr in account_attributes if isinstance(attr, dict) and 'name' in attr]
+        account_attribute = [
+            attr['name']
+            for attr in account_attributes
+            if isinstance(attr, dict) and 'name' in attr
+        ]
         return account_attribute
 
     def extract_accounts_from_form_new(self, request, instance_id):
@@ -515,7 +519,11 @@ class InstancesView(generic.TemplateView):
 
         instantiation_attributes = app_template.get('instantiation_attributes') or []
 
-        instantiation_attribute = [attr['name'] for attr in instantiation_attributes if isinstance(attr, dict) and 'name' in attr]
+        instantiation_attribute = [
+            attr['name']
+            for attr in instantiation_attributes
+            if isinstance(attr, dict) and 'name' in attr
+        ]
         return instantiation_attribute
 
     def extract_accounts_from_form_instantiation(self, request, instance_id):

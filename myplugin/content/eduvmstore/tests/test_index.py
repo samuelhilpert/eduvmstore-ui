@@ -95,6 +95,10 @@ def test_context_data_search_exception(mock_images, mock_fav, mock_search, mock_
     view = IndexView()
     view.request = mock_request
 
-    with pytest.raises(Exception):
-        view.get_context_data()
+    context = view.get_context_data()
+
+    assert context["app_templates"] == []
+    assert context["favorite_app_templates"] == []
+    assert context["favorite_template_ids"] == []
+
 
