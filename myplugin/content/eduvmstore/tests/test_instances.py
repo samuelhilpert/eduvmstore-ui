@@ -348,3 +348,78 @@ def test_extract_accounts_from_form_instantiation(mock_template):
     result = view.extract_accounts_from_form_instantiation(view.request, 1)
     assert len(result) == 1
     assert result[0] == {'hostname': 'host1', 'domain': 'example.com'}
+
+@mock.patch("myplugin.content.eduvmstore.view.instances.nova.flavor_list")
+def test_get_flavors_malformed_flavor(mock_list, view_instance):
+    bad_flavor = mock.Mock()
+    del bad_flavor.id  # Attribut nicht vorhanden
+    mock_list.return_value = [bad_flavor]
+
+    result = view_instance.get_flavors({})
+    assert result == {}
+
+
+@mock.patch("myplugin.content.eduvmstore.view.instances.get_app_template", return_value={'account_attributes': None})
+def test_get_expected_fields_none(mock_template, view_instance):
+    view_instance.kwargs = {'image_id': 'img-001'}
+    result = view_instance.get_expected_fields()
+    assert result == []
+
+
+@mock.patch("myplugin.content.eduvmstore.view.instances.get_app_template", return_value={
+    'account_attributes': [{'name': 'username'}, {'name': 'password'}]
+})
+def test_extract_accounts_from_form_new_inconsistent_fields(mock_template, view_instance):
+    factory = RequestFactory()
+    request = factory.post('/')
+    post_data = QueryDict('', mutable=True)
+    post_data.setlist('username_1', ['user1', 'user2'])
+    post_data.setlist('password_1', ['pass1'])  # fehlt zweiter Eintrag
+    request.POST = post_data
+    view_instance.request = request
+
+    with pytest.raises(ValueError, match="Inconsistent account field lengths in form data."):
+        view_instance.extract_accounts_from_form_new(request, 1)
+
+
+
+@mock.patch("myplugin.content.eduvmstore.view.instances.render", return_value=HttpResponse("ErrorPage"))
+@mock.patch("myplugin.content.eduvmstore.view.instances.get_app_template", return_value={
+    'name': 'test',
+    'description': '',
+    'image_id': 'img-123',
+    'volume_size_gb': 5,
+    'ssh_user_requested': False,
+    'security_groups': [],
+    'account_attributes': [],
+    'instantiation_attributes': []
+})
+def test_post_missing_instance_name(mock_template, mock_render, mock_post_request):
+    del mock_post_request.POST["instances_name"]  # Name fehlt
+    view = InstancesView()
+    view.setup(mock_post_request, image_id="img-123")
+
+    response = view.post(mock_post_request)
+    assert response.status_code == 200
+    assert b"ErrorPage" in response.content
+
+
+
+
+@mock.patch("myplugin.content.eduvmstore.view.instances.render", return_value=HttpResponse("ErrorPage"))
+@mock.patch("myplugin.content.eduvmstore.view.instances.cinder.volume_create", side_effect=Exception("Cinder error"))
+@mock.patch("myplugin.content.eduvmstore.view.instances.get_app_template", return_value={
+    'name': 'test',
+    'description': '',
+    'image_id': 'img-123',
+    'volume_size_gb': 5,
+    'ssh_user_requested': False,
+    'security_groups': [],
+    'account_attributes': [],
+    'instantiation_attributes': []
+})
+def test_post_volume_creation_error(mock_template, mock_volume_create, mock_render, mock_post_request):
+    view = InstancesView()
+    view.setup(mock_post_request, image_id="img-123")
+    response = view.post(mock_post_request)
+    assert b"ErrorPage" in response.content
