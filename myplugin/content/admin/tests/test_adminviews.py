@@ -61,7 +61,7 @@ class AdminActionViewsTest(unittest.TestCase):
 @patch("myplugin.content.admin.views.redirect")
 @patch("myplugin.content.admin.views.messages")
 def test_update_roles_missing_fields(mock_messages, mock_redirect):
-    request = RequestFactory().post("/", {})  # keine Daten
+    request = RequestFactory().post("/", {})
     request.user = Mock()
 
     UpdateRolesView.as_view()(request)
@@ -88,7 +88,7 @@ def test_update_roles_api_error(mock_messages, mock_token, mock_patch, mock_redi
 @patch("myplugin.content.admin.views.redirect")
 @patch("myplugin.content.admin.views.messages")
 def test_approve_template_missing_id(mock_messages, mock_redirect):
-    request = RequestFactory().post("/", {})  # fehlt template_id
+    request = RequestFactory().post("/", {})
     request.user = Mock()
 
     ApproveTemplateView.as_view()(request)

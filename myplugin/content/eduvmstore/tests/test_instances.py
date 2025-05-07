@@ -352,7 +352,7 @@ def test_extract_accounts_from_form_instantiation(mock_template):
 @mock.patch("myplugin.content.eduvmstore.view.instances.nova.flavor_list")
 def test_get_flavors_malformed_flavor(mock_list, view_instance):
     bad_flavor = mock.Mock()
-    del bad_flavor.id  # Attribut nicht vorhanden
+    del bad_flavor.id
     mock_list.return_value = [bad_flavor]
 
     result = view_instance.get_flavors({})
@@ -374,7 +374,7 @@ def test_extract_accounts_from_form_new_inconsistent_fields(mock_template, view_
     request = factory.post('/')
     post_data = QueryDict('', mutable=True)
     post_data.setlist('username_1', ['user1', 'user2'])
-    post_data.setlist('password_1', ['pass1'])  # fehlt zweiter Eintrag
+    post_data.setlist('password_1', ['pass1'])
     request.POST = post_data
     view_instance.request = request
 
