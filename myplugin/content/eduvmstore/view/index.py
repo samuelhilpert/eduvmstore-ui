@@ -26,10 +26,20 @@ class IndexView(generic.TemplateView):
         """
         context = super().get_context_data(**kwargs)
 
-        app_templates = search_app_templates(self.request)
-        favorite_app_templates = fetch_favorite_app_templates(self.request)
+        try:
+            app_templates = search_app_templates(self.request)
+        except Exception as e:
+            app_templates = []
 
-        glance_images = get_images_data(self.request)
+        try:
+            favorite_app_templates = fetch_favorite_app_templates(self.request)
+        except Exception as e:
+            favorite_app_templates = []
+
+        try:
+            glance_images = get_images_data(self.request)
+        except Exception as e:
+            glance_images = {}
 
         for app_template in app_templates:
             image_id = app_template.get('image_id')
