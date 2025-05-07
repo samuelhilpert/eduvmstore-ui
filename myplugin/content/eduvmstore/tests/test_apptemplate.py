@@ -136,3 +136,41 @@ def test_get_context_data_security_group_exception(mock_sec, *_):
     context = view.get_context_data()
 
     assert context['security_groups'] == []
+
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="token123")
+@mock.patch("requests.put")
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.reverse", return_value="/dummy-redirect/")
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.redirect", side_effect=lambda url: url)
+def test_post_edit_failure(mock_redirect, mock_reverse, mock_put, mock_get_token, request_factory, post_data):
+    mock_put.return_value.status_code = 500
+    mock_put.return_value.text = "Internal Server Error"
+
+    request = request_factory.post('/edit/123', data=post_data)
+    request.resolver_match = mock.Mock(url_name='edit')
+    request.user = mock.Mock()
+    request._messages = mock.Mock()
+
+    view = AppTemplateView()
+    view.setup(request, template_id='123')
+    view.mode = "edit"
+
+    response = view.post(request)
+
+    assert response == "/dummy-redirect/"
+    mock_put.assert_called_once()
+
+
+def test_get_context_data_invalid_template_name(request_factory):
+    request = request_factory.get('/create', data={'template': 'unknown'})
+    request.GET = {'template': 'unknown'}
+    request.user = mock.Mock()
+    request.resolver_match = mock.Mock(url_name='create')
+
+    view = AppTemplateView()
+    view.setup(request)
+    view.mode = "create"
+
+    context = view.get_context_data()
+
+    assert context['app_template'] == {}
+    assert context['security_groups'] == []

@@ -86,3 +86,15 @@ def test_get_standard_request_calls_super(mock_get_context, mock_request):
     super_get.assert_called_once_with(mock_request)
     assert response.status_code == 200
     assert response.content == b"FULL OK"
+
+
+@mock.patch("myplugin.content.eduvmstore.view.index.search_app_templates", side_effect=Exception("search error"))
+@mock.patch("myplugin.content.eduvmstore.view.index.fetch_favorite_app_templates", return_value=[])
+@mock.patch("myplugin.content.eduvmstore.view.index.get_images_data", return_value={})
+def test_context_data_search_exception(mock_images, mock_fav, mock_search, mock_request):
+    view = IndexView()
+    view.request = mock_request
+
+    with pytest.raises(Exception):
+        view.get_context_data()
+

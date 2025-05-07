@@ -87,3 +87,56 @@ def test_post_without_accounts_or_ssh(mock_ssh_pdf, mock_account_pdf):
 
     mock_account_pdf.assert_not_called()
     mock_ssh_pdf.assert_not_called()
+
+def test_post_shared_key_missing_private_key():
+    request = RequestFactory().post('/')
+    request.session = {
+        "num_instances": 1,
+        "separate_keys": False,
+        "ssh_user_requested": False,
+        "names_1": "demo",
+        "ip_addresses_1": "192.0.2.1",
+        "base_name": "demo"
+    }
+
+    view = InstanceSuccessView()
+    view.request = request
+    response = view.post(request)
+
+    assert response.status_code == 200
+    assert response["Content-Type"] == "application/zip"
+
+def test_get_context_data_missing_fields():
+    request = RequestFactory().get('/')
+    request.session = {
+        "num_instances": 1,
+        "separate_keys": True,
+        "ssh_user_requested": True,
+        "keypair_name_1": "key1",
+    }
+
+    view = InstanceSuccessView()
+    view.request = request
+    context = view.get_context_data()
+
+    assert context['instances'][0]['name'] == 'unknown'
+    assert context['instances'][0]['ip'] == 'unknown'
+
+def test_post_creates_empty_zip():
+    request = RequestFactory().post('/')
+    request.session = {
+        "num_instances": 1,
+        "separate_keys": False,
+        "ssh_user_requested": False,
+        "names_1": "demo",
+        "ip_addresses_1": "1.2.3.4",
+        "base_name": "empty"
+    }
+
+    view = InstanceSuccessView()
+    view.request = request
+    response = view.post(request)
+
+    assert response.status_code == 200
+    assert response["Content-Type"] == "application/zip"
+    assert b"PK" in response.content

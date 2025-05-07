@@ -1,6 +1,7 @@
 
 import pytest
 from unittest import mock
+import requests
 from django.test import RequestFactory
 from myplugin.content.eduvmstore import utils
 
@@ -95,3 +96,39 @@ def test_generate_ssh_instructions_pdf():
     )
     assert isinstance(result, bytes)
     assert result.startswith(b"%PDF")
+
+@mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("error"))
+def test_search_app_templates_exception(mock_get):
+    request = mock.MagicMock()
+    request.user.token.id = "token123"
+    request.GET.get.return_value = "abc"
+    result = utils.search_app_templates(request)
+    assert result == []
+
+@mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("fail"))
+def test_fetch_favorite_app_templates_exception(mock_get):
+    request = mock.MagicMock()
+    request.user.token.id = "token123"
+    result = utils.fetch_favorite_app_templates(request)
+    assert result == []
+
+@mock.patch("myplugin.content.eduvmstore.utils.glance.image_get", side_effect=Exception("not found"))
+def test_get_image_data_exception(mock_get):
+    request = mock.MagicMock()
+    result = utils.get_image_data(request, "img1")
+    assert result == {}
+
+
+@mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("API down"))
+def test_get_app_template_exception(mock_get):
+    request = mock.MagicMock()
+    request.user.token.id = "token123"
+    result = utils.get_app_template(request, "template1")
+    assert result == {}
+
+
+def test_generate_cloud_config_script_only():
+    script = "#!/bin/bash\necho hello"
+    result = utils.generate_cloud_config([], script, [])
+    assert result.startswith("#cloud-config")
+    assert script in result
