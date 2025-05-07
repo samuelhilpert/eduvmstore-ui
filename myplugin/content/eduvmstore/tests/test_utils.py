@@ -8,14 +8,14 @@ from myplugin.content.eduvmstore import utils
 
 def test_get_token_id():
     request = mock.MagicMock()
-    request.user.token.id = "fake-token"
-    assert utils.get_token_id(request) == "fake-token"
+    request.user.token.id = "test-token"
+    assert utils.get_token_id(request) == "test-token"
 
 
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get")
 def test_search_app_templates_success(mock_get):
     request = mock.MagicMock()
-    request.user.token.id = "token123"
+    request.user.token.id = "test-token"
     request.GET.get.return_value = "test"
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = [{"id": 1}]
@@ -26,7 +26,7 @@ def test_search_app_templates_success(mock_get):
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get")
 def test_fetch_favorite_app_templates_success(mock_get):
     request = mock.MagicMock()
-    request.user.token.id = "token123"
+    request.user.token.id = "test-token"
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = [{"id": "fav1"}]
     result = utils.fetch_favorite_app_templates(request)
@@ -54,7 +54,7 @@ def test_get_image_data_success(mock_get):
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get")
 def test_get_app_template_success(mock_get):
     request = mock.MagicMock()
-    request.user.token.id = "token123"
+    request.user.token.id = "test-token"
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = {"id": "template1"}
     result = utils.get_app_template(request, "template1")
@@ -100,7 +100,7 @@ def test_generate_ssh_instructions_pdf():
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("error"))
 def test_search_app_templates_exception(mock_get):
     request = mock.MagicMock()
-    request.user.token.id = "token123"
+    request.user.token.id = "test-token"
     request.GET.get.return_value = "abc"
     result = utils.search_app_templates(request)
     assert result == []
@@ -108,7 +108,7 @@ def test_search_app_templates_exception(mock_get):
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("fail"))
 def test_fetch_favorite_app_templates_exception(mock_get):
     request = mock.MagicMock()
-    request.user.token.id = "token123"
+    request.user.token.id = "test-token"
     result = utils.fetch_favorite_app_templates(request)
     assert result == []
 
@@ -122,7 +122,7 @@ def test_get_image_data_exception(mock_get):
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("API down"))
 def test_get_app_template_exception(mock_get):
     request = mock.MagicMock()
-    request.user.token.id = "token123"
+    request.user.token.id = "test-token"
     result = utils.get_app_template(request, "template1")
     assert result == {}
 

@@ -16,7 +16,7 @@ class AdminActionViewsTest(unittest.TestCase):
 
     @patch("myplugin.content.admin.views.redirect")
     @patch("myplugin.content.admin.views.requests.patch")
-    @patch("myplugin.content.admin.views.get_token_id", return_value="test_token")
+    @patch("myplugin.content.admin.views.get_token_id", return_value="test-token")
     @patch("myplugin.content.admin.views.messages")
     def test_update_roles_success(self, mock_messages, mock_token, mock_patch, mock_redirect):
         request = self.factory.post("/", {"user_id": "123", "new_role_id": "456"})
@@ -31,7 +31,7 @@ class AdminActionViewsTest(unittest.TestCase):
 
     @patch("myplugin.content.admin.views.redirect")
     @patch("myplugin.content.admin.views.requests.patch")
-    @patch("myplugin.content.admin.views.get_token_id", return_value="test_token")
+    @patch("myplugin.content.admin.views.get_token_id", return_value="test-token")
     @patch("myplugin.content.admin.views.messages")
     def test_reject_template_success(self, mock_messages, mock_token, mock_patch, mock_redirect):
         request = self.factory.post("/", {"template_id": "42"})
@@ -45,7 +45,7 @@ class AdminActionViewsTest(unittest.TestCase):
 
     @patch("myplugin.content.admin.views.redirect")
     @patch("myplugin.content.admin.views.requests.delete")
-    @patch("myplugin.content.admin.views.get_token_id", return_value="test_token")
+    @patch("myplugin.content.admin.views.get_token_id", return_value="test-token")
     @patch("myplugin.content.admin.views.messages")
     def test_delete_template_success(self, mock_messages, mock_token, mock_delete, mock_redirect):
         request = self.factory.post("/", {"template_id": "template123"})
@@ -72,7 +72,7 @@ def test_update_roles_missing_fields(mock_messages, mock_redirect):
 
 @patch("myplugin.content.admin.views.redirect")
 @patch("myplugin.content.admin.views.requests.patch")
-@patch("myplugin.content.admin.views.get_token_id", return_value="test_token")
+@patch("myplugin.content.admin.views.get_token_id", return_value="test-token")
 @patch("myplugin.content.admin.views.messages")
 def test_update_roles_api_error(mock_messages, mock_token, mock_patch, mock_redirect):
     request = RequestFactory().post("/", {"user_id": "123", "new_role_id": "456"})
@@ -98,7 +98,7 @@ def test_approve_template_missing_id(mock_messages, mock_redirect):
 
 @patch("myplugin.content.admin.views.redirect")
 @patch("myplugin.content.admin.views.requests.patch")
-@patch("myplugin.content.admin.views.get_token_id", return_value="token")
+@patch("myplugin.content.admin.views.get_token_id", return_value="test-token")
 @patch("myplugin.content.admin.views.messages")
 def test_reject_template_api_error(mock_messages, mock_token, mock_patch, mock_redirect):
     request = RequestFactory().post("/", {"template_id": "42"})
@@ -113,7 +113,7 @@ def test_reject_template_api_error(mock_messages, mock_token, mock_patch, mock_r
 
 @patch("myplugin.content.admin.views.redirect")
 @patch("myplugin.content.admin.views.requests.delete")
-@patch("myplugin.content.admin.views.get_token_id", return_value="token")
+@patch("myplugin.content.admin.views.get_token_id", return_value="test-token")
 @patch("myplugin.content.admin.views.messages")
 def test_delete_template_api_error(mock_messages, mock_token, mock_delete, mock_redirect):
     request = RequestFactory().post("/", {"template_id": "fail42"})
@@ -139,7 +139,7 @@ def test_delete_user_missing_id(mock_messages, mock_redirect):
 
 @patch("myplugin.content.admin.views.redirect")
 @patch("myplugin.content.admin.views.requests.delete")
-@patch("myplugin.content.admin.views.get_token_id", return_value="token")
+@patch("myplugin.content.admin.views.get_token_id", return_value="test-token")
 @patch("myplugin.content.admin.views.messages")
 def test_delete_user_api_error(mock_messages, mock_token, mock_delete, mock_redirect):
     request = RequestFactory().post("/", {"user_id": "broken"})

@@ -12,7 +12,7 @@ def request_factory():
 @pytest.fixture
 def fake_user():
     user = mock.MagicMock()
-    user.token.id = 'fake-token'
+    user.token.id = 'test-token'
     user.id = 'user-123'
     user.username = 'admin'
     user.is_superuser = True
@@ -39,7 +39,7 @@ def test_get_context_data(
 ):
     context = view_instance.get_context_data()
     assert context["username"] == "admin"
-    assert context["auth_token"] == "fake-token"
+    assert context["auth_token"] == "test-token"
     assert context["admin"] is True
     assert context["show_content"] is True
     assert context["detailed_users"][0]["username"] == "admin_user"

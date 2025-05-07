@@ -34,7 +34,7 @@ def post_data():
 
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.reverse", return_value="/dummy-redirect/")
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.redirect", side_effect=lambda url: url)
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="token123")
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="test-token")
 @mock.patch("requests.post")
 def test_post_create_success(mock_requests_post, mock_get_token, mock_redirect, mock_reverse, post_data):
     mock_requests_post.return_value.status_code = 201
@@ -56,7 +56,7 @@ def test_post_create_success(mock_requests_post, mock_get_token, mock_redirect, 
 
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.redirect", side_effect=lambda url: url)
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.reverse", return_value="/dummy-redirect/")
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="token123")
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="test-token")
 @mock.patch("requests.post")
 def test_post_create_failure(mock_post, mock_get_token, mock_reverse, mock_redirect, request_factory, post_data):
     mock_post.return_value.status_code = 400
@@ -80,7 +80,7 @@ def test_post_create_failure(mock_post, mock_get_token, mock_reverse, mock_redir
 
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.redirect", side_effect=lambda url: url)
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.reverse", return_value="/dummy-redirect/")
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="token123")
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="test-token")
 @mock.patch("requests.post", side_effect=requests.exceptions.RequestException("Timeout"))
 def test_post_create_exception(mock_post, mock_get_token, mock_reverse, mock_redirect, request_factory, post_data):
     request = request_factory.post('/create', data=post_data)
@@ -137,7 +137,7 @@ def test_get_context_data_security_group_exception(mock_sec, *_):
 
     assert context['security_groups'] == []
 
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="token123")
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="test-token")
 @mock.patch("requests.put")
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.reverse", return_value="/dummy-redirect/")
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.redirect", side_effect=lambda url: url)
