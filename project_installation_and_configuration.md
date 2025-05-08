@@ -20,8 +20,17 @@ To set up the EduVMStore on a DevStack environment, a DevStack environment is re
   - Choose Network: provider_912
   - Choose a Security Group that inhabits the following: Allows inbound (ingress) on ports 22 and 8000 from the IP address of the Backend VM.
   - Choose your SSH Keypair of your choice: Used to access the VM through ssh 
-  - At Configuration choose the Cloud-Init-Script [frontendscript.yaml](/frontendscript.yaml). This automatically sets up the DevStack environment (see [OpenStack Devstack installation](https://docs.openstack.org/devstack/latest/)) with the local.conf file and adds the EduVMStore UI Plugin in there.
+  - At Configuration choose the Cloud-Init-Script [devstack_frontendscript.yaml](/devstack_frontendscript.yaml). This automatically sets up the DevStack environment (see [OpenStack Devstack installation](https://docs.openstack.org/devstack/latest/)) with the local.conf file and adds the EduVMStore UI Plugin in there.
   - Launch the Instance
+
+- After the instance is launched, use SSH to connect to the instance.
+
+- Execute the following command to start the script:
+```bash
+/tmp/init.sh
+```
+
+- After the script is finished, the DevStack environment is set up. The script automatically creates a local.conf file in the devstack folder. This file contains the configuration for the DevStack environment and the EduVMStore UI Plugin.
 
 - To switch the branch navigate to `devstack/local.conf`. Change this line (if not existing add it in the beginning):
 ```ini
@@ -73,45 +82,55 @@ After the Setup of Openstack, EduVMStore can be added.
 ```bash
 sudo docker exec -it horizon bash
 ``` 
-- Clone the EduVMStore-UI repository in the site-packages folder:
-```bash
-cd /var/lib/kolla/venv/lib/python3.12/site-packages/
-git clone https://github.com/samuelhilpert/eduvmstore-ui.git
-```
-- Move the folder with the plugin `myplugin` to the correct location in the horizon container:
-```bash
-mv eduvmstore-ui/myplugin .
-rm -rf eduvmstore-ui
-```
-- Now horizon needs to know about the new plugin. Therefore the enable files must be on the correct folder. First, navigate to the enabled folder:
-```bash
-cd /var/lib/kolla/venv/lib/python3.12/site-packages/openstack_dashboard/enabled/
-```
-- Now create symlinks to the enable files from the plugin:
-```bash
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31000_my_plugin.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31100_my_second_plugin.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31150_tutorial_group.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31200_tutorial_panel.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31210_instructions_panel.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31220_script_panel.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31230_example_panel.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31240_admin_instructions_panel.py .
-ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_32000_my_new_dashboard.py .
-```
-- For the plugin to work, the library `reportlab` must be installed and the static files must be loaded. This can be done with the following command:
-```bash
-pip install reportlab
-/var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py collectstatic --noinput
-/var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py compress --force
-```
-- Now the horizon container and the plugin is ready to be used. Restart the horizon container to load the new plugin:
-```bash
-exit
-sudo docker restart horizon
-```
+- For launching the EduVMStore UI Plugin, you can use a script or do it manually. 
+- The script is located in [kolla_frontendscript.yaml](/kolla_frontendscript.yaml):
+  - Open the horizon container `sudo docker exec -it horizon`
+  - Copy the script to the horizon container
+  - Execute the script with the following command 
+  - Leave the container with `exit`
+  - Restarts the horizon container
+  - Open the Horizon dashboard via the IP-Address of the docker in your browser and log in.
 
-- Open the Horizon dashboard via the IP-Address of the docker in your browser and log in.
+- Alternatively, you can do it manually:
+    - Clone the EduVMStore-UI repository in the site-packages folder:
+  ```bash
+  cd /var/lib/kolla/venv/lib/python3.12/site-packages/
+  git clone https://github.com/samuelhilpert/eduvmstore-ui.git
+  ```
+  - Move the folder with the plugin `myplugin` to the correct location in the horizon container:
+  ```bash
+  mv eduvmstore-ui/myplugin .
+  rm -rf eduvmstore-ui
+  ```
+  - Now horizon needs to know about the new plugin. Therefore the enable files must be on the correct folder. First, navigate to the enabled folder:
+  ```bash
+  cd /var/lib/kolla/venv/lib/python3.12/site-packages/openstack_dashboard/enabled/
+  ```
+  - Now create symlinks to the enable files from the plugin:
+  ```bash
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31000_my_plugin.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31100_my_second_plugin.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31150_tutorial_group.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31200_tutorial_panel.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31210_instructions_panel.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31220_script_panel.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31230_example_panel.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31240_admin_instructions_panel.py .
+  ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_32000_my_new_dashboard.py .
+  ```
+  - For the plugin to work, the library `reportlab` must be installed and the static files must be loaded. This can be done with the following command:
+  ```bash
+  pip install reportlab
+  /var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py collectstatic --noinput
+  /var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py compress --force
+  ```
+  - Now the horizon container and the plugin is ready to be used. Restart the horizon container to load the new plugin:
+  ```bash
+  exit
+  sudo docker restart horizon
+  ```
+  
+  - Open the Horizon dashboard via the IP-Address of the docker in your browser and log in.
 
 #Stopped HERE
 TODO:
