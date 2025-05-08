@@ -690,7 +690,7 @@ runcmd:
             <li>Click "Create New AppTemplate".</li>
             <li><strong>General Configuration:</strong>
                 <ul>
-                    <li><strong>Step 1:</strong> Choose an Ubuntu image (e.g., 22.04).</li>
+                    <li><strong>Step 1:</strong> Choose an Ubuntu 22.04 image.</li>
                     <li><strong>Step 2:</strong> Name: <em>OpenStack DevStack</em>. Add a short description and a longer one if desired.</li>
                     <li><strong>Step 3:</strong> Choose visibility: public or private.</li>
                 </ul>
@@ -700,17 +700,17 @@ runcmd:
                     <li>RAM: 2 GB</li>
                     <li>Disk Space: 10 GB</li>
                     <li>CPU Cores: 2</li>
-                    <li>Volume Size: 20 GB (optional, depending on flavor/disk)</li>
+                    <li>Volume Size: 0 GB or leave empty (not needed)</li>
                 </ul>
             </li>
             <li><strong>Configure Security Groups:</strong>
                 <ul>
-                    <li>Ensure that port 80 (HTTP) and 6080 (Horizon Dashboard) are open for access.</li>
+                    <li>Ensure that port 80 (HTTP) and 6080 (Horizon Dashboard) are open for inbound access.</li>
                 </ul>
             </li>
             <li><strong>Write Configuration Script:</strong>
                 <ul>
-                    <li>Use the script below. It installs DevStack under the `ubuntu` user:</li>
+                    <li>Leave Account Attributes and Instantiation Attributes empty. Use the script below. It installs DevStack under the `ubuntu` user:</li>
                     {% verbatim %}
                         <pre><code>packages:
   - git
@@ -738,9 +738,8 @@ runcmd:
         <ol>
             <li>Find the <em>OpenStack DevStack</em> AppTemplate and click "Launch".</li>
             <li><strong>General Settings:</strong> Optionally adjust name or instance count.</li>
-            <li><strong>Resources:</strong> Select a flavor with at least 8 GB RAM and 4 vCPUs.</li>
-            <li><strong>Volume:</strong> Add a 20+ GB volume if needed.</li>
-            <li><strong>Network:</strong> Assign a floating IP to access the DevStack Horizon UI.</li>
+            <li><strong>Resources:</strong> Select a flavor with at least 4 GB RAM and 2 vCPUs.</li>
+            <li><strong>Volume:</strong> You do not need to add a Volume.</li>
             <li><strong>User Data:</strong> No user input needed – script runs automatically on first boot.</li>
             <li>Click <strong>Launch</strong>.</li>
         </ol>

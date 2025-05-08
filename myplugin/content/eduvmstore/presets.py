@@ -163,7 +163,6 @@ preset_examples = {
         "fixed_ram_gb": "2",
         "fixed_disk_gb": "10",
         "fixed_cores": "2",
-        "volume_size_gb": "20",
         "public": False,
         "instantiation_attributes": [],
         "account_attributes": [],
