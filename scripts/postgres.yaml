@@ -1,10 +1,14 @@
 #cloud-config
+
+# Install PostgreSQL and useful extensions
 packages:
   - postgresql
   - postgresql-contrib
 
+# Write PostgreSQL configuration files to temporary paths.
+# These will be copied into place *after* cluster is initialized.
 write_files:
-  - path: /etc/postgresql/14/main/pg_hba.conf
+  - path: /tmp/pg_hba.conf
     permissions: '0644'
     content: |
       # TYPE  DATABASE        USER            ADDRESS                 METHOD
@@ -12,31 +16,31 @@ write_files:
       host    all             all             0.0.0.0/0               md5
       host    all             all             ::/0                    md5
 
-  - path: /etc/postgresql/14/main/postgresql.conf
-    permissions: '0644'
-    content: |
-      listen_addresses = '*'
-      max_connections = 100
-      shared_buffers = 128MB
-      dynamic_shared_memory_type = posix
-      log_timezone = 'UTC'
-      datestyle = 'iso, mdy'
-      timezone = 'UTC'
-      lc_messages = 'C'
-      lc_monetary = 'C'
-      lc_numeric = 'C'
-      lc_time = 'C'
-      default_text_search_config = 'pg_catalog.english'
-
 runcmd:
-  # Set password for postgres user
+  # Explicitly initialize PostgreSQL cluster (not always done automatically)
+  #- pg_createcluster 14 main --start
+
+  # Stop PostgreSQL to apply changes
+  - systemctl stop postgresql
+
+  # Overwrite default configuration files with custom versions
+  - cp /tmp/pg_hba.conf /etc/postgresql/14/main/pg_hba.conf
+  - sed -i "/^#listen_addresses =/c\listen_addresses = '*'" /etc/postgresql/14/main/postgresql.conf
+  - sed -i "/^#max_connections =/c\max_connections = 100" /etc/postgresql/14/main/postgresql.conf
+  - chown postgres:postgres /etc/postgresql/14/main/*.conf
+
+  # Restart PostgreSQL to apply new configuration
+  - systemctl restart postgresql
+
+  # Set password for default 'postgres' user
   - sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'adminpass';"
 
-  # Create a sample student user and DB
+  # Create demo user & database
   - sudo -u postgres psql -c "CREATE ROLE student01 WITH LOGIN PASSWORD 'studentpass';"
   - sudo -u postgres psql -c "CREATE DATABASE student01_db OWNER student01;"
 
-  # Restart PostgreSQL to apply config changes
+  # Restart again --> ensure all changes are active (optional)
   - systemctl restart postgresql
 
+# Final confirmation message in cloud-init log
 final_message: "PostgreSQL teaching server is ready."

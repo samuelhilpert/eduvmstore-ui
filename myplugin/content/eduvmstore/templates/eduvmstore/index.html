@@ -18,37 +18,9 @@
 
 
 {% block main %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let items = document.querySelectorAll(".template-row");
-            let itemsPerPage = 10;
-            let currentItems = 0;
 
-            function showNextItems() {
-                console.log("Load More clicked!"); // Debugging log
-                for (let i = currentItems; i < currentItems + itemsPerPage && i < items.length; i++) {
-                    items[i].style.display = "table-row";
-                }
-                currentItems += itemsPerPage;
-
-                console.log(`Showing up to index: ${currentItems}, Total items: ${items.length}`);
-            }
-
-            showNextItems();
-        });
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll(".favorite-form").forEach(form => {
-                form.addEventListener("submit", function () {
-                    let star = this.querySelector(".favorite-btn i");
-                    star.classList.add("temporary-favorite");
-
-                    setTimeout(() => {
-                        star.classList.remove("temporary-favorite");
-                    }, 1000);
-
-                });
-            });
-        });
         document.addEventListener("DOMContentLoaded", function () {
             document.querySelectorAll(".delete-btn").forEach(button => {
                 button.addEventListener("click", function (event) {
@@ -123,97 +95,23 @@
         });
 
     </script>
-    <style>
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .table th {
-            background: #333;
-            color: white;
-        }
-
-        .table tr:hover {
-            background: #f1f1f1;
-        }
-
-    #create-button {
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-
-     .button-container {
-        display: flex;
-        justify-content: flex-end;
-        margin: 10px;
-    }
-
-    .btn-launch {
-        background-color: #E8E8E8;
-        padding: 10px 20px;
-        font-size: 15px;
-        border: none;
-        cursor: pointer;
-        margin-left: 10px;
-        border-radius: 4px;
-        color: black;
-    }
-    .btn:hover {
-        opacity: 0.9;
-    }
-
-   .dropdown-toggle {
-         background-color: #E8E8E8;
-   }
-
-    .favorite-btn {
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .favorite-btn i {
-        font-size: 20px;
-        color: gray;
-        transition: color 0.3s ease-in-out;
-    }
-
-
-    .favorite-btn i.temporary-favorite {
-        color: gold;
-    }
-
-
-    .favorite-app-template .favorite-btn i {
-        color: gold !important;
-    }
-
-    .favorite-btn i.temporary-favorite {
-    color: gold;
-}
-
-
-
-</style>
+    <script src="{% static 'js/index.js' %}"></script>
 
 <div class="button-container">
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-primary" id="create-button">
-        Create AppTemplate
-    </a>
+    <div class="left-buttons">
+        <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" class="btn btn-primary">
+            Tutorial EduVMStore
+        </a>
+        <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}" class="btn btn-primary">
+            Creation Example
+        </a>
+    </div>
+    <div class="spacer"></div>
+    <div class="right-button">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-primary" id="create-button">
+            Create AppTemplate
+        </a>
+    </div>
 </div>
 {% if favorite_app_templates %}
     <h2>Favorite AppTemplates</h2>
@@ -226,7 +124,6 @@
            placeholder="Search AppTemplates" value="{{ request.GET.search }}">
 </form>
 
-<div id="table-container">
     {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=app_templates is_favorites=False%}
-</div>
+
   {% endblock %}

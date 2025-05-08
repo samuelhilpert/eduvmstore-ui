@@ -6,3 +6,5 @@ myplugin/.idea/
 # venv
 venv/
 .venv/
+
+*.DS_Store

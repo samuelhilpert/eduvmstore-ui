@@ -1,0 +1,62 @@
+@startuml
+skinparam linetype ortho
+title EduVMStore Frontend
+
+package "Horizon System" {
+    [Horizon Loader]
+    [Dashboard : project]
+}
+
+package "myplugin.enabled" {
+    [enabled/_31000_my_plugin.py]
+}
+
+package "myplugin.content.eduvmstore" {
+    [utils.py]
+    
+    [panel.py]
+    [urls.py]
+    [views.py]
+    [apptemplate.py]
+    [detail.py]
+    [index.py]
+    [instances.py]
+    [success.py]
+
+    [index.html]
+    [create.html]
+    [details.html]
+    [instances.html]
+    [success.html]
+    [table.html]
+}
+
+
+[Horizon Loader] --> [enabled/_31000_my_plugin.py] : loads
+[enabled/_31000_my_plugin.py] -> [panel.py] : imports
+[panel.py] --> [Dashboard : project] : registers
+[Dashboard : project] --> [urls.py] : dispatch
+[urls.py] --> [views.py] : maps
+[urls.py] --> [apptemplate.py] : maps
+[urls.py] --> [detail.py] : maps
+[urls.py] --> [index.py] : maps
+[urls.py] --> [instances.py] : maps
+[urls.py] --> [success.py] : maps
+[index.py] <--down--> [index.html] : interact
+[apptemplate.py] <--> [create.html] : interact
+[detail.py] <--down--> [details.html] : interact
+[instances.py] <--down--> [instances.html] : interact
+[success.py] <--down--> [success.html] : interact
+[views.py] <--down--> [create.html] : interact
+[views.py] <--> [index.html] : interact
+[index.html] <--> [table.html] : includes
+[views.py] <--> [EduVMStore Backend] : fetch
+[apptemplate.py] <--> [EduVMStore Backend] : fetch
+[apptemplate.py] --> [utils.py] : uses
+[views.py] --> [utils.py] : uses
+[detail.py] --> [utils.py] : uses
+[instances.py] --> [utils.py] : uses
+[success.py] --> [utils.py] : uses
+
+
+@enduml

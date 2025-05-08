@@ -15,100 +15,10 @@
 {% endblock page_header %}
 
 {% block main %}
-
-    <style>
-        .tile-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 40px;
-            justify-content: center;
-        }
-
-        .tile {
-            background: linear-gradient(135deg, #333, #777);
-            color: white;
-            border-radius: 12px;
-            width: 400px;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.6s, box-shadow 0.3s ease;
-            position: relative;
-            perspective: 1200px;
-        }
-
-        .tile:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .tile-inner {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-        }
-
-        .tile.flip .tile-inner {
-            transform: rotateY(180deg);
-        }
-
-        .tile-front, .tile-back {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .tile-back {
-            transform: rotateY(180deg);
-            background: #f8f9fa;
-            color: #333;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-            font-size: 14px;
-            display: flex;
-            justify-content: flex-start;
-            text-align: left;
-            padding: 10px;
-            overflow-y: auto;
-        }
-
-        .tile-back h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
-            text-align: center;
-            width: 100%;
-        }
-
-        .tile-back ul {
-            padding: 0;
-            list-style: none;
-            margin: 0;
-            width: 100%;
-        }
-
-        .tile-back ul li {
-            padding: 3px 0;
-            border-bottom: 1px solid #bbb;
-            font-size: 14px;
-        }
-
-        .tile-back ul li:last-child {
-            border-bottom: none;
-        }
-    </style>
+    <script src="{% static 'js/tile.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/instructions.css' %}">
+    <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
+        version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.</p>
 
     <h2 style="text-align: center; color: #333;">Instructions</h2>
     <p style="text-align: center; color: #666; font-size: 16px;">Here you find numerous instructions.</p>
@@ -119,6 +29,8 @@
             <div class="tile-inner">
                 <div class="tile-front">
                     <h3>Create AppTemplate</h3>
+                    <p>Before proceeding to create an AppTemplate, you can search for existing
+                        AppTemplates to use or clone.</p>
                 </div>
                 <div class="tile-back">
                     <h3>Create AppTemplate</h3>
@@ -129,12 +41,12 @@
                         <li><strong>Step 4:</strong> Enter a name for the template.</li>
                         <li><strong>Step 5:</strong> Provide a short and detailed description.</li>
                         <li><strong>Step 6:</strong> Add an instantiation notice (optional).</li>
-                        <li><strong>Step 7:</strong> Set available for Everyone or Creator only.</li>
-                        <li><strong>Step 8:</strong> Select one or more fitting security groups.</li>
+                        <li><strong>Step 7:</strong> Set available for All Lecturers or Creator only.</li>
                         <li><strong>Step 8:</strong> Define minimal system requirements for the template.</li>
-                        <li><strong>Step 9:</strong> Set instantiation and account attributes.</li>
-                        <li><strong>Step 10:</strong> Upload or write the cloud-init script.</li>
-                        <li><strong>Step 11:</strong> Click ‘Create’ to finalize.</li>
+                        <li><strong>Step 9:</strong> Select one or more fitting security groups.</li>
+                        <li><strong>Step 10:</strong> Set instantiation and account attributes.</li>
+                        <li><strong>Step 11:</strong> Write or upload a cloud-init script.</li>
+                        <li><strong>Step 12:</strong> Click ‘Create’ to finalize.</li>
                     </ul>
                 </div>
             </div>
@@ -154,11 +66,11 @@
                         <li><strong>Step 4:</strong> Enter a custom name for the instance if needed.</li>
                         <li><strong>Step 5:</strong> Select the number of instances.</li>
                         <li><strong>Step 6:</strong> Choose one or separate keys for the templates.</li>
-                        <li><strong>Step 7:</strong> Decide if instances should be identical.</li>
-                        <li><strong>Step 8:</strong> Modify template properties if not identical.</li>
-                        <li><strong>Step 9:</strong> Enter instantiation attributes.</li>
-                        <li><strong>Step 10:</strong> Add users via attribute fields or CSV upload.</li>
-                        <li><strong>Step 11:</strong> Click on the 'Launch Instance' button.</li>
+                        <li><strong>Step 7:</strong> Modify Flavor, Network, Volume and instantiation
+                            attributes for all or individual instances.
+                        </li>
+                        <li><strong>Step 8:</strong> Add users via attribute fields or CSV upload.</li>
+                        <li><strong>Step 9:</strong> Click on the 'Launch Instance' button.</li>
                     </ul>
                 </div>
             </div>
@@ -173,16 +85,16 @@
                     <h3>Publish a private AppTemplate</h3>
                     <ul>
                         <li><strong>Step 1:</strong> Open the EduVMStore dashboard.</li>
-                        <li><strong>Step 2:</strong> Search for your private AppTemplate
-                            you want to publish.
+                        <li><strong>Step 2:</strong> Search for your private AppTemplate you want to publish.
                         </li>
                         <li><strong>Step 3:</strong> Click on the dropdown menu next to the launch button
                             and click on "Edit AppTemplate".
                         </li>
-                        <li><strong>Step 4:</strong> Change "Available for" to "Everyone".</li>
-                        <li><strong>Step 5:</strong> Click on the "Create" button.</li>
-                        <li><strong>Step 6:</strong> Your AppTemplate is now in "waiting for approval" state
-                            and will be published after the approval of the admin.
+                        <li><strong>Step 4:</strong> Change "Available in EduVMStore for" to "All Lecturers".
+                        </li>
+                        <li><strong>Step 5:</strong> Click on the "Update" button.</li>
+                        <li><strong>Step 6:</strong> Your AppTemplate is now in the "Waiting for approval"
+                            state and will be published after the approval of the admin.
                         </li>
                     </ul>
                 </div>
@@ -211,10 +123,5 @@
         </div>
     </div>
 
-    <script>
-        function flipTile(tile) {
-            tile.classList.toggle('flip');
-        }
-    </script>
 
 {% endblock %}
