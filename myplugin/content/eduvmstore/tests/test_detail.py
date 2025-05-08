@@ -68,7 +68,6 @@ def test_context_data_creator_id_missing(mock_get_template, mock_get_image, mock
         'created_at': '2025-05-05T09:00:00'
     }
 
-
     view = DetailsPageView()
     view.setup(request, template_id='no_creator')
 

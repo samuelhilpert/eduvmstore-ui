@@ -9,6 +9,7 @@ def get_token_id(request):
     """
     return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
 
+
 def get_user_details(request, user_id):
     """
     Fetches detailed user information for a given user_id using the external API.
@@ -24,6 +25,7 @@ def get_user_details(request, user_id):
     except requests.RequestException as e:
         logging.error("Failed to fetch user details for user_id %s: %s", user_id, e)
         return {}
+
 
 def get_roles(request):
     """

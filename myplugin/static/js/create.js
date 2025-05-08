@@ -1,13 +1,13 @@
-$(document).ready(function() {
+$(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
 
 });
-document.getElementById('script_file').addEventListener('change', function(event) {
+document.getElementById('script_file').addEventListener('change', function (event) {
     var file = event.target.files[0];
     if (file) {
         var reader = new FileReader();
 
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             var fileContent = e.target.result;
 
             document.getElementById('hiddenScriptField').value = fileContent;
@@ -49,7 +49,7 @@ function saveScript() {
 function updateSelectedGroups() {
     const selectedGroups = [];
     const checkboxes = document.querySelectorAll('.dropdown-menu input[type="checkbox"]:checked');
-    checkboxes.forEach(function(checkbox) {
+    checkboxes.forEach(function (checkbox) {
         selectedGroups.push(checkbox.value);
     });
 
@@ -61,7 +61,7 @@ function updateSelectedGroups() {
     selectedGroupsDisplay.textContent = selectedGroups.join(", ");
 }
 
-document.querySelectorAll('.dropdown-menu input[type="checkbox"]').forEach(function(checkbox) {
+document.querySelectorAll('.dropdown-menu input[type="checkbox"]').forEach(function (checkbox) {
     checkbox.addEventListener('change', updateSelectedGroups);
 });
 
@@ -124,14 +124,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var scriptText = textarea.value;
     hiddenField.value = scriptText;
-    document.querySelectorAll("input[type='text']").forEach(function(input) {
+    document.querySelectorAll("input[type='text']").forEach(function (input) {
         input.value = input.value.replace(",", ".");
     });
 });
 
 function updateSelectedGroupsDisplay() {
     const selected = [];
-    $('input[name="security_groups"]:checked').each(function() {
+    $('input[name="security_groups"]:checked').each(function () {
         selected.push($(this).val());
     });
 
@@ -141,18 +141,19 @@ function updateSelectedGroupsDisplay() {
     if (selected.length === 0) {
         display.append('<span class="text-muted">No group selected</span>');
     } else {
-        selected.forEach(function(group) {
+        selected.forEach(function (group) {
             display.append('<span>' + group + '</span>');
         });
     }
 }
+
 updateSelectedGroupsDisplay();
 
-$('input[name="security_groups"]').change(function() {
+$('input[name="security_groups"]').change(function () {
     updateSelectedGroupsDisplay();
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     $('.dropdown-toggle').dropdown();
 });
 

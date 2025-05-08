@@ -2,12 +2,12 @@ from django.views import generic
 from myplugin.content.eduvmstore.utils import get_app_template, get_image_data
 from openstack_dashboard.api import keystone
 
+
 class DetailsPageView(generic.TemplateView):
     """
     Display detailed information for a specific AppTemplate, including associated image data.
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/details.html'
-
 
     def get_context_data(self, **kwargs):
         """
@@ -45,7 +45,6 @@ class DetailsPageView(generic.TemplateView):
 
         page_title = app_template.get('name', 'Details')
         context['page_title'] = page_title
-
 
         return context
 

@@ -32,9 +32,6 @@ class EduVMStoreNonContentViewTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content), {"valid": True, "reason": "Name already taken"})
 
-
-
-
     @patch("myplugin.content.eduvmstore.views.redirect")
     @patch("myplugin.content.eduvmstore.views.requests.post")
     @patch("myplugin.content.eduvmstore.views.get_token_id", return_value="test-token")
@@ -53,7 +50,8 @@ class EduVMStoreNonContentViewTests(unittest.TestCase):
     @patch("myplugin.content.eduvmstore.views.requests.delete")
     @patch("myplugin.content.eduvmstore.views.get_token_id", return_value="test-token")
     @patch("myplugin.content.eduvmstore.views.messages")
-    def test_delete_favorite_app_template_success(self, mock_messages, mock_token, mock_delete, mock_redirect):
+    def test_delete_favorite_app_template_success(self, mock_messages, mock_token, mock_delete,
+                                                  mock_redirect):
         request = self.factory.post("/", {"template_id": "123", "template_name": "Ubuntu"})
         request.user = Mock()
         mock_delete.return_value.status_code = 204
@@ -80,6 +78,7 @@ class EduVMStoreNonContentViewTests(unittest.TestCase):
 
         mock_messages.success.assert_called_once()
         mock_redirect.assert_called()
+
 
 @patch("myplugin.content.eduvmstore.views.requests.get", side_effect=requests.RequestException("API down"))
 @patch("myplugin.content.eduvmstore.views.get_token_id", return_value="test-token")

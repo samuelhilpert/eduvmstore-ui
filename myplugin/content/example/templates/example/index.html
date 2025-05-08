@@ -661,11 +661,15 @@ runcmd:
     </button>
     <div class="panel">
         <p><strong>Use Case for Advanced Users and Lecturers:</strong></p>
-        <p>This example demonstrates how to launch a full OpenStack (DevStack) environment inside a virtual machine.
-            It is ideal for experimentation, teaching advanced cloud computing, or developing against OpenStack APIs.</p>
+        <p>This example demonstrates how to launch a full OpenStack (DevStack) environment inside a virtual
+            machine.
+            It is ideal for experimentation, teaching advanced cloud computing, or developing against
+            OpenStack APIs.</p>
 
-        <p><strong>Overview:</strong> The AppTemplate includes a cloud-init script that installs DevStack inside a VM.
-            The instance becomes a self-contained OpenStack environment, suitable for isolated testing and development.</p>
+        <p><strong>Overview:</strong> The AppTemplate includes a cloud-init script that installs DevStack
+            inside a VM.
+            The instance becomes a self-contained OpenStack environment, suitable for isolated testing and
+            development.</p>
 
         <p><strong>Steps:</strong> By following this example, users will learn how to:</p>
         <ul>
@@ -675,13 +679,16 @@ runcmd:
         </ul>
         <br/>
         <p><strong>Note:</strong> Find the
-            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" target="_blank">instruction</a>
+            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
+               target="_blank">instruction</a>
             section for a general guide.</p>
         <p>For more information on DevStack and OpenStack, visit the official
-            <a href="https://docs.openstack.org/devstack/latest/" target="_blank">DevStack documentation</a>.</p>
+            <a href="https://docs.openstack.org/devstack/latest/" target="_blank">DevStack documentation</a>.
+        </p>
 
-        <p><strong>Notice:</strong> DevStack requires sufficient RAM and CPU. Use a large enough flavor to ensure a
-            successful installation. Also, DevStack setup takes several minutes during the first boot.</p>
+        <p><strong>Notice:</strong> DevStack requires sufficient RAM and CPU. Use a large enough flavor to
+            ensure a successful installation. Also, DevStack setup takes several minutes during the first
+            boot.</p>
 
         <h3>1. Create an AppTemplate</h3>
         <p>To create an AppTemplate for a DevStack instance:</p>
@@ -691,7 +698,9 @@ runcmd:
             <li><strong>General Configuration:</strong>
                 <ul>
                     <li><strong>Step 1:</strong> Choose an Ubuntu 22.04 image.</li>
-                    <li><strong>Step 2:</strong> Name: <em>OpenStack DevStack</em>. Add a short description and a longer one if desired.</li>
+                    <li><strong>Step 2:</strong> Name: <em>OpenStack DevStack</em>. Add a short description
+                        and a longer one if desired.
+                    </li>
                     <li><strong>Step 3:</strong> Choose visibility: public or private.</li>
                 </ul>
             </li>
@@ -705,12 +714,15 @@ runcmd:
             </li>
             <li><strong>Configure Security Groups:</strong>
                 <ul>
-                    <li>Ensure that port 80 (HTTP) and 6080 (Horizon Dashboard) are open for inbound access.</li>
+                    <li>Ensure that port 80 (HTTP) and 6080 (Horizon Dashboard) are open for inbound access.
+                    </li>
                 </ul>
             </li>
             <li><strong>Write Configuration Script:</strong>
                 <ul>
-                    <li>Leave Account Attributes and Instantiation Attributes empty. Use the script below. It installs DevStack under the `ubuntu` user:</li>
+                    <li>Leave Account Attributes and Instantiation Attributes empty. Use the script below. It
+                        installs DevStack under the `ubuntu` user:
+                    </li>
                     {% verbatim %}
                         <pre><code>packages:
   - git
@@ -740,7 +752,8 @@ runcmd:
             <li><strong>General Settings:</strong> Optionally adjust name or instance count.</li>
             <li><strong>Resources:</strong> Select a flavor with at least 4 GB RAM and 2 vCPUs.</li>
             <li><strong>Volume:</strong> You do not need to add a Volume.</li>
-            <li><strong>User Data:</strong> No user input needed – script runs automatically on first boot.</li>
+            <li><strong>User Data:</strong> No user input needed – script runs automatically on first boot.
+            </li>
             <li>Click <strong>Launch</strong>.</li>
         </ol>
 

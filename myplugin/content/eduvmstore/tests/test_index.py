@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from django.views import generic
 
 
-
 @pytest.fixture
 def mock_request():
     request = RequestFactory().get('/dummy-url')
@@ -62,7 +61,8 @@ def test_get_context_data_empty(mock_search, mock_favorites, mock_images, mock_r
 
 
 @mock.patch("myplugin.content.eduvmstore.view.index.render", return_value=HttpResponse("AJAX OK"))
-@mock.patch("myplugin.content.eduvmstore.view.index.IndexView.get_context_data", return_value={'data': 'context'})
+@mock.patch("myplugin.content.eduvmstore.view.index.IndexView.get_context_data",
+            return_value={'data': 'context'})
 def test_get_ajax_returns_partial(mock_get_context, mock_render, mock_request):
     mock_request.headers['X-Requested-With'] = 'XMLHttpRequest'
 
@@ -70,12 +70,14 @@ def test_get_ajax_returns_partial(mock_get_context, mock_render, mock_request):
     view.request = mock_request
     response = view.get(mock_request)
 
-    mock_render.assert_called_once_with(mock_request, "eduvmstore_dashboard/eduvmstore/table.html", {'data': 'context'})
+    mock_render.assert_called_once_with(mock_request, "eduvmstore_dashboard/eduvmstore/table.html",
+                                        {'data': 'context'})
     assert response.status_code == 200
     assert response.content == b"AJAX OK"
 
 
-@mock.patch("myplugin.content.eduvmstore.view.index.IndexView.get_context_data", return_value={'page_title': 'Test'})
+@mock.patch("myplugin.content.eduvmstore.view.index.IndexView.get_context_data",
+            return_value={'page_title': 'Test'})
 def test_get_standard_request_calls_super(mock_get_context, mock_request):
     view = IndexView()
     view.request = mock_request
@@ -88,7 +90,8 @@ def test_get_standard_request_calls_super(mock_get_context, mock_request):
     assert response.content == b"FULL OK"
 
 
-@mock.patch("myplugin.content.eduvmstore.view.index.search_app_templates", side_effect=Exception("search error"))
+@mock.patch("myplugin.content.eduvmstore.view.index.search_app_templates",
+            side_effect=Exception("search error"))
 @mock.patch("myplugin.content.eduvmstore.view.index.fetch_favorite_app_templates", return_value=[])
 @mock.patch("myplugin.content.eduvmstore.view.index.get_images_data", return_value={})
 def test_context_data_search_exception(mock_images, mock_fav, mock_search, mock_request):
@@ -100,5 +103,3 @@ def test_context_data_search_exception(mock_images, mock_fav, mock_search, mock_
     assert context["app_templates"] == []
     assert context["favorite_app_templates"] == []
     assert context["favorite_template_ids"] == []
-
-

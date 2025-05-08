@@ -8,6 +8,7 @@ from myplugin.content.eduvmstore.utils import get_app_template, generate_cloud_c
 import re
 import time
 
+
 class InstancesView(generic.TemplateView):
     """
         View for displaying instances, including form input for instance creation.
@@ -19,14 +20,13 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
-
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create multiple instances.
 
         This method processes the form data submitted via POST request to create multiple instances
         based on the provided AppTemplate. It handles the creation of key pairs, user data,
-        and metadata for each instance, and initiates the instance creation process using the Nova API.
+        and metadata for each instance and initiates the instance creation process using the Nova API.
 
         :param request: The incoming HTTP request.
         :type request: HttpRequest
@@ -34,7 +34,7 @@ class InstancesView(generic.TemplateView):
         :type args: tuple
         :param kwargs: Additional keyword arguments.
         :type kwargs: dict
-        :return:HTTP response redirecting to the success page or rendering the form with error message.
+        :return:HTTP response redirecting to the success page or rendering the form with an error message.
         :rtype: HttpResponse
         """
         try:
@@ -58,7 +58,6 @@ class InstancesView(generic.TemplateView):
             request.session.pop("private_key", None)
             request.session.pop("image_id", None)
             request.session.pop("ssh_user_requested", None)
-
 
             request.session["app_template"] = app_template_name
             request.session["created"] = created
@@ -102,8 +101,6 @@ class InstancesView(generic.TemplateView):
                 except ValueError:
                     volume_size = 1
 
-
-
                 if int(user_count) > 0:
                     try:
                         accounts = self.extract_accounts_from_form_new(request, i)
@@ -113,7 +110,6 @@ class InstancesView(generic.TemplateView):
                 request.session[f"accounts_{i}"] = accounts
                 request.session[f"names_{i}"] = instance_name
 
-
                 try:
                     instantiations = self.extract_accounts_from_form_instantiation(request, i)
                 except Exception:
@@ -122,7 +118,6 @@ class InstancesView(generic.TemplateView):
                 request.session[f"instantiations_{i}"] = instantiations
 
                 description = self.format_description(app_template_description)
-
 
                 if not script and not accounts:
                     user_data = None
@@ -167,7 +162,7 @@ class InstancesView(generic.TemplateView):
                         parts.append(current_part.rstrip(", "))
 
                     for part_index, part_content in enumerate(parts):
-                        key = f"Instantiation_{index+1}_Part{part_index+1}"
+                        key = f"Instantiation_{index + 1}_Part{part_index + 1}"
                         metadata[key] = part_content
 
                 block_device_mapping_v2 = []
@@ -257,7 +252,7 @@ class InstancesView(generic.TemplateView):
 
         This function repeatedly checks the status of a volume until it becomes available
         or an error occurs. If the volume does not become available within the timeout period,
-        a TimeoutError is raised.
+        an TimeoutError is raised.
 
         :param request: The incoming HTTP request.
         :type request: HttpRequest
@@ -289,7 +284,6 @@ class InstancesView(generic.TemplateView):
             logging.error(f"Failed to resolve network name: {e}")
         return None
 
-
     def wait_for_ip_in_network(self, request, server_id, network_name, timeout=30):
         """
         Wait for an IP address from a specific network.
@@ -318,11 +312,10 @@ class InstancesView(generic.TemplateView):
                     if ip_list:
                         return ip_list[0] if ip_list else f"No IP found in network '{network_name}'"
             except Exception as e:
-                logging.debug(f"IP attempt {i+1}/{timeout} for network '{network_name}': {e}")
+                logging.debug(f"IP attempt {i + 1}/{timeout} for network '{network_name}': {e}")
             time.sleep(1)
 
         return [f"No IP found in the network '{network_name}'"]
-
 
     def wait_for_server(self, request, instance_id, timeout=30):
         """
@@ -352,11 +345,6 @@ class InstancesView(generic.TemplateView):
             time.sleep(1)
         raise Exception(f"Instance {instance_id} could not be found after {timeout} seconds.")
 
-
-
-
-
-
     def get_context_data(self, **kwargs):
         """
             Add form and optional image ID to the context for rendering the template.
@@ -368,7 +356,6 @@ class InstancesView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         app_template_id = self.kwargs['image_id']
         app_template = get_app_template(self.request, self.kwargs['image_id'])
-
 
         # Fetch available flavors from Nova
         context['flavors'] = self.get_flavors(app_template)
@@ -386,7 +373,7 @@ class InstancesView(generic.TemplateView):
 
         context['expected_instantiation_fields'] = self.get_expected_fields_instantiation()
 
-        context['volume_size'] =  int(app_template.get('volume_size_gb') or 0)
+        context['volume_size'] = int(app_template.get('volume_size_gb') or 0)
 
         volumes = cinder.volume_list(self.request)
         attachable_volumes = [volume for volume in volumes if volume.status == "available"]
@@ -398,7 +385,6 @@ class InstancesView(generic.TemplateView):
         context['page_title'] = self.page_title
 
         return context
-
 
     def get_flavors(self, app_template):
         """
@@ -432,7 +418,6 @@ class InstancesView(generic.TemplateView):
             if not suitable_flavors:
                 logging.warning("No suitable flavors found for the given requirements.")
 
-
             result = {
                 'flavors': {flavor_id: flavor.name for flavor_id, flavor in flavor_dict.items()},
                 'suitable_flavors': suitable_flavors
@@ -445,8 +430,6 @@ class InstancesView(generic.TemplateView):
             logging.error(f"An error occurred while fetching flavors: {e}")
             return {}
 
-
-
     def get_expected_fields(self):
         """
         Retrieve the expected fields for account creation from the AppTemplate.
@@ -458,7 +441,6 @@ class InstancesView(generic.TemplateView):
         :rtype: list
         """
         app_template = get_app_template(self.request, self.kwargs['image_id'])
-
 
         account_attributes = app_template.get('account_attributes') or []
 
@@ -582,8 +564,6 @@ class InstancesView(generic.TemplateView):
         except Exception as e:
             logging.error(f"Unable to fetch networks: {e}")
             return {}
-
-
 
     def format_description(self, description):
         """

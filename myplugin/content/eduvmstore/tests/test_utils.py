@@ -1,4 +1,3 @@
-
 import pytest
 from unittest import mock
 import requests
@@ -97,6 +96,7 @@ def test_generate_ssh_instructions_pdf():
     assert isinstance(result, bytes)
     assert result.startswith(b"%PDF")
 
+
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("error"))
 def test_search_app_templates_exception(mock_get):
     request = mock.MagicMock()
@@ -105,12 +105,14 @@ def test_search_app_templates_exception(mock_get):
     result = utils.search_app_templates(request)
     assert result == []
 
+
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("fail"))
 def test_fetch_favorite_app_templates_exception(mock_get):
     request = mock.MagicMock()
     request.user.token.id = "test-token"
     result = utils.fetch_favorite_app_templates(request)
     assert result == []
+
 
 @mock.patch("myplugin.content.eduvmstore.utils.glance.image_get", side_effect=Exception("not found"))
 def test_get_image_data_exception(mock_get):
@@ -119,7 +121,8 @@ def test_get_image_data_exception(mock_get):
     assert result == {}
 
 
-@mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("API down"))
+@mock.patch("myplugin.content.eduvmstore.utils.requests.get",
+            side_effect=requests.RequestException("API down"))
 def test_get_app_template_exception(mock_get):
     request = mock.MagicMock()
     request.user.token.id = "test-token"

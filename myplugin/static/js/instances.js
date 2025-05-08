@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
 
 });
@@ -125,12 +125,12 @@ function generateNetworkSection(instanceIndex) {
 
 
 function generateVolumeSection(instanceIndex) {
-    const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Choose Volume Size (GB) for all Instances" : "Choose Volume Size GB";
+    const labelVolumeSizePrefix = (instanceIndex === ALL_INSTANCES_INDEX) ? "Choose Volume Size (GB) for all Instances" : "Choose Volume Size GB";
     let volumeOptions = '';
     let requiredVolumeSize = DATAINSTANCES.volumeSize;
 
     // Option of attaching no volume
-    if (requiredVolumeSize === 0){
+    if (requiredVolumeSize === 0) {
         volumeOptions += `<option value="none">No additional volumes</option>`
     }
 
@@ -174,7 +174,7 @@ function generateVolumeSection(instanceIndex) {
 }
 
 function generateInstantiationAttributesSection(instanceIndex) {
-    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Instantiation Attributes for all Instances" : "Instantiation Attributes";
+    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX) ? "Instantiation Attributes for all Instances" : "Instantiation Attributes";
 
     if (!Array.isArray(instantiationAttribute) || instantiationAttribute.length === 0) {
         return '';
@@ -192,7 +192,7 @@ function generateInstantiationAttributesSection(instanceIndex) {
             `;
 }
 
-function generateRessourceSection(instanceIndex){
+function generateRessourceSection(instanceIndex) {
     return `
                 <h5>Resource Configuration</h5>
 
@@ -214,14 +214,14 @@ function generateAccountAttributesSection(instanceIndex) {
     if (!Array.isArray(accountAttributes) || accountAttributes.length === 0) {
         return '';
     }
-    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX ) ? "User Configuration for all Instances" : "User Configuration";
-    const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX ) ? "Upload CSV for Accounts in all instances" : "Upload CSV";
-    const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX ) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
+    const sectionTitle = (instanceIndex === ALL_INSTANCES_INDEX) ? "User Configuration for all Instances" : "User Configuration";
+    const uploadCSVText = (instanceIndex === ALL_INSTANCES_INDEX) ? "Upload CSV for Accounts in all instances" : "Upload CSV";
+    const uploadCSVHeaders = (instanceIndex === ALL_INSTANCES_INDEX) ? `${accountAttributes.join(", ")}, instance index` : `${accountAttributes.join(", ")}`;
     const uploadCSVTextTooltip = `Upload Account Attributes for all instances in the following structure: ${uploadCSVHeaders}`;
 
     let noAdditionalUsersHtml = '';
     let accountsHTML = '';
-    if (instanceIndex !== ALL_INSTANCES_INDEX){
+    if (instanceIndex !== ALL_INSTANCES_INDEX) {
         noAdditionalUsersHtml += `
                 <p style="margin-bottom: 20px;">Enter the number of users to be added to the instance. Upload a CSV file with the user data or enter the user data directly by filling the form fields.</p>
         <div class="form-group mt-3" id="user_count_section_${instanceIndex}">
@@ -280,7 +280,7 @@ function generateAccountAttributesSection(instanceIndex) {
             `;
 }
 
-function singleInstanceTab(instanceName, instanceIndex){
+function singleInstanceTab(instanceName, instanceIndex) {
     return `
                 <li class="nav-item">
                     <a class="nav-link" id="${TAB_PREFIX}${instanceIndex}" data-toggle="tab" href="#${CONTENT_PREFIX}${instanceIndex}" role="tab">
@@ -290,8 +290,8 @@ function singleInstanceTab(instanceName, instanceIndex){
             `;
 }
 
-function singleInstanceContainer(instanceName, instanceIndex){
-    return`
+function singleInstanceContainer(instanceName, instanceIndex) {
+    return `
                 <div class="tab-pane" id="${CONTENT_PREFIX}${instanceIndex}" role="tabpanel">
                     <h4 id="instanceTitle_${instanceIndex}">${instanceName}</h4>
                     <input type="hidden" name="generated_instance_name_${instanceIndex}" value="${instanceName}">
@@ -372,7 +372,7 @@ function generateInstanceFields() {
 
 function attachAllInstancesEventListeners() {
     // Handle "Apply to All Instances" button from the modal
-    document.querySelector('.confirm-apply-modal').addEventListener('click', function() {
+    document.querySelector('.confirm-apply-modal').addEventListener('click', function () {
         applyAllInstancesSettings();
         hideWarningModal();
     });
@@ -439,16 +439,20 @@ function showWarningModal() {
 // Helper function to get a display name for the field type
 function getFieldTypeDisplayName(fieldType) {
     switch (fieldType) {
-        case 'flavor': return 'flavor';
-        case 'network': return 'network';
-        case 'volume_selection': return 'volume selection';
+        case 'flavor':
+            return 'flavor';
+        case 'network':
+            return 'network';
+        case 'volume_selection':
+            return 'volume selection';
         case 'instantiation':
             return `instantiation attribute "${allInstanceChangedFieldInfo.attrName}"`;
-        default: return 'setting';
+        default:
+            return 'setting';
     }
 }
 
-function hideWarningModal(){
+function hideWarningModal() {
     $('#allInstancesWarningModal').modal('hide');
 }
 
@@ -522,7 +526,7 @@ function applyAllInstancesSettings() {
             break;
     }
 
-    allInstanceChangedFieldInfo = { element: null, fieldType: '', attrName: null };
+    allInstanceChangedFieldInfo = {element: null, fieldType: '', attrName: null};
 }
 
 function attachVolumeOptionListeners() {
@@ -624,7 +628,9 @@ function attachInstanceEventListeners() {
 }
 
 function switchToInstance(instanceIndex) {
-    if (instanceIndex < 0 ){ console.error(`Can't have a negative InstanceIndex: ${instanceIndex}`)}
+    if (instanceIndex < 0) {
+        console.error(`Can't have a negative InstanceIndex: ${instanceIndex}`)
+    }
     document.querySelectorAll(".tab-pane").forEach(el => {
         el.classList.remove("show", "active");
         el.style.display = "none";
@@ -769,7 +775,7 @@ function renumberAccounts(instanceIndex) {
         if (title) title.textContent = `Account ${newNumber}`;
 
         accountAttributes.forEach(attr => {
-            const input = section.querySelector(`input[id$="${attr}_${instanceIndex}_${index+1}"]`);
+            const input = section.querySelector(`input[id$="${attr}_${instanceIndex}_${index + 1}"]`);
             if (input) {
                 input.id = `${attr}_${instanceIndex}_${newNumber}`;
                 input.name = `${attr}_${instanceIndex}`;
@@ -826,8 +832,7 @@ function selectAutomaticFlavor(instanceIndex) {
                 if (!selectedFlavor ||
                     (flavorRAM <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).ram / 1024 &&
                         flavorDisk <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).disk &&
-                        flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus))
-                {
+                        flavorCores <= JSON.parse(selectedFlavor.getAttribute('data-flavor-details')).vcpus)) {
                     selectedFlavor = option;
                 }
                 option.disabled = false;
@@ -847,7 +852,6 @@ function selectAutomaticFlavor(instanceIndex) {
         alert("No suitable flavor found. Please add a flavor manually or change the settings of the appTemplate.");
     }
 }
-
 
 
 function attachFlavorCalculationListeners() {
@@ -896,10 +900,7 @@ let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
 document.getElementById("structured-accounts").textContent = formattedAccounts;
 
 
-
-
-
-document.addEventListener("change", function(event) {
+document.addEventListener("change", function (event) {
     if (!event.target.classList.contains("csv-upload")) return;
 
     const file = event.target.files[0];
@@ -925,7 +926,7 @@ document.addEventListener("change", function(event) {
     if (isNaN(instanceIndex) || instanceIndex < 0) return;
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         const text = e.target.result;
         //const lines = text.trim().split("\n");
         const lines = text.split(/\r\n|\r|\n/).filter(line => line.trim() !== "");
@@ -1174,7 +1175,7 @@ function attachVolumeChangeHandlers() {
     });
 }
 
-document.querySelector("form").addEventListener("submit", function(event) {
+document.querySelector("form").addEventListener("submit", function (event) {
 
     document.getElementById('loadingModal').style.display = 'flex';
 });
@@ -1208,7 +1209,7 @@ function exportAccountsToCSV(instanceIndex) {
     });
 
     const csvContent = rows.join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([csvContent], {type: "text/csv;charset=utf-8;"});
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
