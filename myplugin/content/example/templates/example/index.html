@@ -126,55 +126,51 @@
 
                     {% verbatim %}
                         <pre>
-    <code>
-    runcmd:
-      - |
-        # Create directory for private keys
-        mkdir -p /home/ubuntu/user_keys
-        chmod 700 /home/ubuntu/user_keys
-        chown ubuntu:ubuntu /home/ubuntu/user_keys
+                            <code>
+runcmd:
+  - |
+    # Create a directory to store private keys securely
+    mkdir -p /home/ubuntu/user_keys
+    chmod 700 /home/ubuntu/user_keys
+    chown ubuntu:ubuntu /home/ubuntu/user_keys
 
-        # Set first user account as admin
-        FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
+    # Extract the first user from the user list to assign admin privileges
+    FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
 
-        # Create users
-        while IFS=: read -r username password; do
-          # Create users
-          if ! id "$username" &>/dev/null; then
-            useradd -m -s /bin/bash "$username"
-            echo "$username:$password" | chpasswd
-          fi
+    # Loop through the user list and create accounts
+    while IFS=: read -r username password; do
+      # Check if the user already exists, if not, create the user
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s /bin/bash "$username"
+        echo "$username:$password" | chpasswd
+      fi
 
-          # Create SSH directory and key
-          sudo -u "$username" mkdir -p /home/"$username"/.ssh
-          chmod 700 /home/"$username"/.ssh
+      # Set up SSH for the user
+      sudo -u "$username" mkdir -p /home/"$username"/.ssh
+      chmod 700 /home/"$username"/.ssh
+      sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
+      cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
+      chmod 600 /home/"$username"/.ssh/authorized_keys
+      chown -R "$username:$username" /home/"$username"/.ssh
 
-          # Generate SSH key
-          sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
+      # Copy private keys to the admin directory for secure access
+      cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
+      chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
+      chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
+    done < /etc/users.txt
 
-          # Set Public Key as authorized_key
-          cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
-          chmod 600 /home/"$username"/.ssh/authorized_keys
-          chown -R "$username:$username" /home/"$username"/.ssh
+    # Grant admin privileges to the first user
+    if [ -n "$FIRST_USER" ]; then
+      echo "$FIRST_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$FIRST_USER
+      chmod 440 /etc/sudoers.d/$FIRST_USER
+    fi
 
-          # Secure private keys for the admin & Ubuntu user
-          cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
-          chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
-          chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
-        done < /etc/users.txt
-
-        # Set first user as admin
-        if [ -n "$FIRST_USER" ]; then
-          echo "$FIRST_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$FIRST_USER
-          chmod 440 /etc/sudoers.d/$FIRST_USER
-        fi
-
-        # SSH configuration: Disable password login
-        sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
-        sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-        systemctl restart ssh
-    </code>
-    </pre>
+    # Disable password-based SSH login for security
+    sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+    sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+    systemctl restart ssh
+                            </code>
+                        </pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
                         AppTemplate.
@@ -334,7 +330,7 @@
                     </li>
                     {% verbatim %}
                         <pre>
-<code>
+                            <code>
 packages:
   - curl
   - openssh-server
@@ -346,7 +342,10 @@ packages:
 runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
+    # Extract the first user to assign admin privileges
     FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
+
+    # Loop through the user list and create accounts
     while IFS=':' read -r username password firstname lastname email; do
       if ! id "$username" &>/dev/null; then
         useradd -m -s "/bin/bash" "$username"
@@ -357,7 +356,7 @@ runcmd:
       fi
     done < /etc/users.txt
 
-  # Install GitLab
+  # Install GitLab and its dependencies
   - apt-get update
   - DEBIAN_FRONTEND=noninteractive apt-get install -y curl openssh-server ca-certificates tzdata postfix jq
   - curl -fsSL https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
@@ -365,32 +364,32 @@ runcmd:
   - gitlab-ctl reconfigure
   - gitlab-ctl restart
 
-  # Wait until GitLab starts
+  # Wait for GitLab to start
   - sleep 60
 
-  # Generate Root-Token for API
+  # Generate a root token for GitLab API access
   - |
     export GITLAB_ROOT_TOKEN=$(openssl rand -hex 20)
     gitlab-rails runner "token = User.find_by(username: 'root').personal_access_tokens.create(scopes: ['api'], name: 'root-token', expires_at: 1.year.from_now); token.set_token('$GITLAB_ROOT_TOKEN'); token.save!"
     echo "$GITLAB_ROOT_TOKEN" > /root/gitlab_token.txt
 
-  # Create user in GitLab
+  # Add users to GitLab using the API
   - |
     export GITLAB_ROOT_TOKEN=$(cat /root/gitlab_token.txt)
     while IFS=':' read -r username password firstname lastname email; do
-    response=$(curl --silent --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" "http://localhost/api/v4/users?username=$username")
-    user_exists=$(echo "$response" | jq -r 'if . == [] then 0 else 1 end')
+      response=$(curl --silent --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" "http://localhost/api/v4/users?username=$username")
+      user_exists=$(echo "$response" | jq -r 'if . == [] then 0 else 1 end')
 
-    if [ "$user_exists" -eq 0 ]; then
-      curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" \
-        --data "username=$username&name=$firstname $lastname&email=$email&password=$password&skip_confirmation=true" \
-        "http://localhost/api/v4/users"
-    fi
+      if [ "$user_exists" -eq 0 ]; then
+        curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" \
+          --data "username=$username&name=$firstname $lastname&email=$email&password=$password&skip_confirmation=true" \
+          "http://localhost/api/v4/users"
+      fi
     done < /etc/users.txt
 
 final_message: "GitLab installation and user creation completed."
-</code>
-</pre>
+                            </code>
+                        </pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
                         AppTemplate.
@@ -542,68 +541,74 @@ final_message: "GitLab installation and user creation completed."
                     </li>
                     {% verbatim %}
                         <pre>
-    <code>
-    packages:
-      - python3-pip
-      - python3-venv
-      - curl
+                            <code>
+packages:
+  - python3-pip
+  - python3-venv
+  - curl
 
-    runcmd:
-      - |
-        PORT=8888
-        while IFS=':' read -r username password; do
-          if ! id "$username" &>/dev/null; then
-            useradd -m -s "/bin/bash" "$username"
-            echo "$username:$password" | chpasswd
-            usermod -aG sudo "$username"
-          fi
+runcmd:
+  - |
+    # Initialize the port number for Jupyter Notebook instances
+    PORT=8888
 
-          # Setup Jupyter environment
-          su - "$username" -c "python3 -m venv jupyter_env"
-          su - "$username" -c "~/jupyter_env/bin/pip install --upgrade pip"
-          su - "$username" -c "~/jupyter_env/bin/pip install notebook"
+    # Loop through the user list and create accounts
+    while IFS=':' read -r username password; do
+      # Check if the user already exists, if not, create the user
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+        usermod -aG sudo "$username"
+      fi
 
-          # Generate Jupyter config
-          su - "$username" -c "~/jupyter_env/bin/jupyter notebook --generate-config"
-          CONFIG_PATH="/home/$username/.jupyter/jupyter_notebook_config.py"
-          echo "c = get_config()" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.ip = '0.0.0.0'" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.open_browser = False" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.port = $PORT" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.token = ''" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
-          chown "$username:$username" "$CONFIG_PATH"
+      # Set up a Python virtual environment for Jupyter
+      su - "$username" -c "python3 -m venv jupyter_env"
+      su - "$username" -c "~/jupyter_env/bin/pip install --upgrade pip"
+      su - "$username" -c "~/jupyter_env/bin/pip install notebook"
 
-          # Download sample notebook
-          NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
-          NOTEBOOK_PATH="/home/$username/test.ipynb"
-          su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
-          chown "$username:$username" "$NOTEBOOK_PATH"
+      # Generate Jupyter Notebook configuration
+      su - "$username" -c "~/jupyter_env/bin/jupyter notebook --generate-config"
+      CONFIG_PATH="/home/$username/.jupyter/jupyter_notebook_config.py"
+      echo "c = get_config()" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.ip = '0.0.0.0'" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.open_browser = False" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.port = $PORT" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.token = ''" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
+      chown "$username:$username" "$CONFIG_PATH"
 
-          # Create systemd service
-          echo "[Unit]
-          Description=Jupyter Notebook for $username
-          After=network.target
+      # Download a sample notebook for the user
+      NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
+      NOTEBOOK_PATH="/home/$username/test.ipynb"
+      su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
+      chown "$username:$username" "$NOTEBOOK_PATH"
 
-          [Service]
-          Type=simple
-          User=$username
-          WorkingDirectory=/home/$username
-          ExecStart=/home/$username/jupyter_env/bin/jupyter-notebook
-          Restart=always
+      # Create a systemd service for the Jupyter Notebook instance
+      echo "[Unit]
+      Description=Jupyter Notebook for $username
+      After=network.target
 
-          [Install]
-          WantedBy=multi-user.target" > "/etc/systemd/system/jupyter-$username.service"
+      [Service]
+      Type=simple
+      User=$username
+      WorkingDirectory=/home/$username
+      ExecStart=/home/$username/jupyter_env/bin/jupyter-notebook
+      Restart=always
 
-          systemctl daemon-reload
-          systemctl enable "jupyter-$username"
-          systemctl start "jupyter-$username"
+      [Install]
+      WantedBy=multi-user.target" > "/etc/systemd/system/jupyter-$username.service"
 
-          PORT=$((PORT + 1))
+      # Enable and start the Jupyter Notebook service
+      systemctl daemon-reload
+      systemctl enable "jupyter-$username"
+      systemctl start "jupyter-$username"
 
-        done < /etc/users.txt
-    </code>
-    </pre>
+      # Increment the port number for the next user
+      PORT=$((PORT + 1))
+
+    done < /etc/users.txt
+                            </code>
+                        </pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
                         AppTemplate.
