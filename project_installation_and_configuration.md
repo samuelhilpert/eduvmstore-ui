@@ -52,7 +52,7 @@ If anythin looks weird also run:
 ```bash
 devstack/clean.sh
 ```
-If you want to test a new branch, don't forget to change it in the local.con
+If you want to test a new branch, don't forget to change it in the local.conf
 
 ## Installation Guide for Kolla-Ansible (recommended for production)
 [Kolla-Ansible](https://docs.openstack.org/kolla-ansible/latest/) is a production-ready OpenStack deployment tool
@@ -73,6 +73,45 @@ After the Setup of Openstack, EduVMStore can be added.
 ```bash
 sudo docker exec -it horizon bash
 ``` 
+- Clone the EduVMStore-UI repository in the site-packages folder:
+```bash
+cd /var/lib/kolla/venv/lib/python3.12/site-packages/
+git clone https://github.com/samuelhilpert/eduvmstore-ui.git
+```
+- Move the folder with the plugin `myplugin` to the correct location in the horizon container:
+```bash
+mv eduvmstore-ui/myplugin .
+rm -rf eduvmstore-ui
+```
+- Now horizon needs to know about the new plugin. Therefore the enable files must be on the correct folder. First, navigate to the enabled folder:
+```bash
+cd /var/lib/kolla/venv/lib/python3.12/site-packages/openstack_dashboard/enabled/
+```
+- Now create symlinks to the enable files from the plugin:
+```bash
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31000_my_plugin.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31100_my_second_plugin.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31150_tutorial_group.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31200_tutorial_panel.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31210_instructions_panel.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31220_script_panel.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31230_example_panel.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_31240_admin_instructions_panel.py .
+ln -s /var/lib/kolla/venv/lib/python3.12/site-packages/myplugin/enabled/_32000_my_new_dashboard.py .
+```
+- For the plugin to work, the library `reportlab` must be installed and the static files must be loaded. This can be done with the following command:
+```bash
+pip install reportlab
+/var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py collectstatic --noinput
+/var/lib/kolla/venv/bin/python3 /var/lib/kolla/venv/bin/manage.py compress --force
+```
+- Now the horizon container and the plugin is ready to be used. Restart the horizon container to load the new plugin:
+```bash
+exit
+sudo docker restart horizon
+```
+
+- Open the Horizon dashboard via the IP-Address of the docker in your browser and log in.
 
 #Stopped HERE
 TODO:
