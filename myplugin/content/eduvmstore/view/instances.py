@@ -460,9 +460,13 @@ class InstancesView(generic.TemplateView):
         app_template = get_app_template(self.request, self.kwargs['image_id'])
 
 
-        account_attributes = app_template.get('account_attributes')
+        account_attributes = app_template.get('account_attributes') or []
 
-        account_attribute = [attr['name'] for attr in account_attributes]
+        account_attribute = [
+            attr['name']
+            for attr in account_attributes
+            if isinstance(attr, dict) and 'name' in attr
+        ]
         return account_attribute
 
     def extract_accounts_from_form_new(self, request, instance_id):
@@ -483,6 +487,9 @@ class InstancesView(generic.TemplateView):
         accounts = []
         expected_fields = self.get_expected_fields()
 
+        if not expected_fields:
+            return accounts
+
         extracted_data = {
             field: request.POST.getlist(f"{field}_{instance_id}")
             for field in expected_fields
@@ -491,9 +498,11 @@ class InstancesView(generic.TemplateView):
         num_entries = len(next(iter(extracted_data.values()), []))
 
         for i in range(num_entries):
-            account = {field: extracted_data[field][i] for field in expected_fields}
-            accounts.append(account)
-
+            try:
+                account = {field: extracted_data[field][i] for field in expected_fields}
+                accounts.append(account)
+            except IndexError:
+                raise ValueError("Inconsistent account field lengths in form data.")
         return accounts
 
     def get_expected_fields_instantiation(self):
@@ -508,9 +517,13 @@ class InstancesView(generic.TemplateView):
         """
         app_template = get_app_template(self.request, self.kwargs['image_id'])
 
-        instantiation_attributes = app_template.get('instantiation_attributes')
+        instantiation_attributes = app_template.get('instantiation_attributes') or []
 
-        instantiation_attribute = [attr['name'] for attr in instantiation_attributes]
+        instantiation_attribute = [
+            attr['name']
+            for attr in instantiation_attributes
+            if isinstance(attr, dict) and 'name' in attr
+        ]
         return instantiation_attribute
 
     def extract_accounts_from_form_instantiation(self, request, instance_id):
@@ -531,6 +544,9 @@ class InstancesView(generic.TemplateView):
         instantiations = []
         expected_fields_instantiation = self.get_expected_fields_instantiation()
 
+        if not expected_fields_instantiation:
+            return instantiations
+
         extracted_data_instantiations = {
             field: request.POST.getlist(f"{field}_{instance_id}_instantiation")
             for field in expected_fields_instantiation
@@ -539,9 +555,12 @@ class InstancesView(generic.TemplateView):
         num_entries = len(next(iter(extracted_data_instantiations.values()), []))
 
         for i in range(num_entries):
-            instantiation = {field: extracted_data_instantiations[field][i]
-                             for field in expected_fields_instantiation}
-            instantiations.append(instantiation)
+            try:
+                instantiation = {field: extracted_data_instantiations[field][i]
+                                 for field in expected_fields_instantiation}
+                instantiations.append(instantiation)
+            except IndexError:
+                raise ValueError("Inconsistent instantiation field lengths in form data.")
 
         return instantiations
 

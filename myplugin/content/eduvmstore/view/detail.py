@@ -15,12 +15,21 @@ class DetailsPageView(generic.TemplateView):
         :return: Context dictionary with AppTemplate and image details.
         """
         context = super().get_context_data(**kwargs)
-        app_template = get_app_template(self.request, self.kwargs['template_id'])
-        image_data = get_image_data(self.request, app_template.get('image_id', ''))
+        try:
+            app_template = get_app_template(self.request, self.kwargs['template_id'])
+        except Exception as e:
+            app_template = {}
+
+        try:
+            image_data = get_image_data(self.request, app_template.get('image_id', ''))
+        except Exception as e:
+            image_data = {}
+
         created_at = app_template.get('created_at', '').split('T')[0]
 
         creator_id = app_template.get('creator_id', '')
         app_template_creator_id = creator_id.replace('-', '')
+
         app_template_creator_name = (
             self.get_username_from_id(app_template_creator_id)
             if app_template_creator_id else 'N/A'

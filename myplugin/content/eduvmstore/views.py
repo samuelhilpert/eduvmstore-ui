@@ -41,6 +41,7 @@ def validate_name(request):
     :rtype: JsonResponse
     """
     if request.method == "POST":
+        data = {}
         try:
             # Read JSON-Body
             body = json.loads(request.body)

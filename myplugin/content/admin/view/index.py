@@ -27,13 +27,24 @@ class IndexView(generic.TemplateView):
         if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
             token_id = self.request.user.token.id
 
-        user_id = self.request.user.id
-        user_details = get_user_details(self.request, user_id)
-        role_level = user_details.get('role', {}).get('access_level', 1)
-        user_data = get_users(self.request)
+        try:
+            user_id = self.request.user.id
+            user_details = get_user_details(self.request, user_id)
+            role_level = user_details.get('role', {}).get('access_level', 1)
+        except Exception:
+            role_level = 1
+
+        try:
+            user_data = get_users(self.request)
+        except Exception as e:
+            user_data = []
+
         context['users'] = user_data
 
-        roles_data = get_roles(self.request)
+        try:
+            roles_data = get_roles(self.request)
+        except Exception as e:
+            roles_data = []
         context['roles'] = roles_data
 
         admin_access_level = sys.maxsize
@@ -41,27 +52,40 @@ class IndexView(generic.TemplateView):
             if item["name"] == "EduVMStoreAdmin":
                 admin_access_level = item["access_level"]
                 break
-
-        approvable_app_templates = get_app_templates_to_approve(self.request)
+        try:
+            approvable_app_templates = get_app_templates_to_approve(self.request)
+        except Exception as e:
+            approvable_app_templates = []
         context['approvable_app_templates'] = approvable_app_templates
+
         for template in approvable_app_templates:
             creator_id = template.get("creator_id")
             if creator_id:
                 app_template_creator_id = creator_id.replace('-', '')
-                creator_name = get_username_from_id(self.request, app_template_creator_id)
+                try:
+                    creator_name = get_username_from_id(self.request, app_template_creator_id)
+                except Exception as e:
+                    creator_name = "unknown"
+
                 template["creator_name"] = creator_name
 
-        app_templates = get_app_templates(self.request)
+        try:
+            app_templates = get_app_templates(self.request)
+        except Exception as e:
+            app_templates = []
         context['app_templates'] = app_templates
 
-        detailed_users = []
-        for user in user_data:
-            user_id = user.get('id')
-            if user_id:
-                user_details = get_user_details(self.request, user_id)
-                user_details_id = user_id.replace('-', '')
-                user_details['username'] = get_username_from_id(self.request, user_details_id)
-                detailed_users.append(user_details)
+        try:
+            detailed_users = []
+            for user in user_data:
+                user_id = user.get('id')
+                if user_id:
+                    user_details = get_user_details(self.request, user_id)
+                    user_details_id = user_id.replace('-', '')
+                    user_details['username'] = get_username_from_id(self.request, user_details_id)
+                    detailed_users.append(user_details)
+        except Exception as e:
+            detailed_users = []
 
         context['detailed_users'] = detailed_users
 

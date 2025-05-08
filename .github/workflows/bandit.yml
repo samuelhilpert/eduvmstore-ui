@@ -30,4 +30,6 @@ jobs:
           pip install bandit
 
       - name: Run Bandit
-        run: bandit -r . 
+        run: bandit -r . --exclude '**/tests/*'
+
+

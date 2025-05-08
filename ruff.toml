@@ -1,5 +1,10 @@
 line-length = 110
-exclude = ["migrations", "tests/"]
+exclude = [
+    "migrations/",
+    "myplugin/content/admin/tests/",
+    "myplugin/content/eduvmstore/tests/",
+]
+
 
 # Enable specific rule categories
 # E: Pyflakes (syntax errors, undefined names, etc.)
