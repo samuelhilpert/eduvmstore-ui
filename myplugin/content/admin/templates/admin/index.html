@@ -138,7 +138,7 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="user_id" value="{{ user.id }}">
 
-                                        <select name="new_role_id">
+                                        <select name="new_role_id" style="min-width: 150px;">
                                             {% for role in roles %}
                                                 <option value="{{ role.id }}" {% if role.id == user.role.id %}
                                                         selected
