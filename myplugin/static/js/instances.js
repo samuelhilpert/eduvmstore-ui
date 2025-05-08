@@ -229,7 +229,7 @@ function generateAccountAttributesSection(instanceIndex) {
                 title="Specify how many additional users should be created. 0 disables account creation.">
                 <i class="fa fa-question-circle"></i>
             </span> </label>
-            <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="0" value="0" max="30">
+            <input type="number" class="form-control user-count-input" id="user_count_${instanceIndex}" name="user_count_${instanceIndex}" min="0" value="0" max="100">
         </div>
     `;
 
@@ -657,9 +657,9 @@ function attachAccountButtonListeners() {
                 this.value = '';
                 return;
             }
-            if (userCount > 30) {
-                userCount = 30;
-                this.value = 30;
+            if (userCount > 100) {
+                userCount = 100;
+                this.value = 100;
             } else if (userCount < 0) {
                 userCount = 0;
                 this.value = 0;
@@ -678,9 +678,9 @@ document.querySelectorAll(".user-count-input").forEach(input => {
             this.value = '';
             return;
         }
-        if (userCount > 30) {
-            userCount = 30;
-            this.value = 30;
+        if (userCount > 100) {
+            userCount = 100;
+            this.value = 100;
         } else if (userCount < 0) {
             userCount = 0;
             this.value = 0;

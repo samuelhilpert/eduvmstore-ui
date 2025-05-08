@@ -1,6 +1,7 @@
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 import sys
+from datetime import datetime
 
 from myplugin.content.admin.utils import get_user_details, get_users, get_roles, get_app_templates_to_approve, get_username_from_id, get_app_templates
 
@@ -84,6 +85,10 @@ class IndexView(generic.TemplateView):
                     user_details_id = user_id.replace('-', '')
                     user_details['username'] = get_username_from_id(self.request, user_details_id)
                     detailed_users.append(user_details)
+                updated_at_raw = user_details.get('updated_at')
+                if updated_at_raw:
+                    dt = datetime.strptime(updated_at_raw, "%Y-%m-%dT%H:%M:%S.%fZ")
+                    user_details['updated_at'] = dt.strftime("%d.%m.%Y %H:%M")
         except Exception as e:
             detailed_users = []
 
