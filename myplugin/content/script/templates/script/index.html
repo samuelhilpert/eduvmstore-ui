@@ -65,22 +65,27 @@
             <li>
                 <strong>Write Files:</strong>
                 <p>Use the <code>write_files</code> section to create or modify files:</p>
-                <pre><code>write_files:
-      - path: /etc/welcome.txt
-        content: |
-          Welcome to your new instance!
-          Managed by EduVMStore.</code></pre>
+                <pre>
+                    <code id="write-files-welcome-example">write_files:
+  - path: /etc/welcome.txt
+    content: |
+      Welcome to your new instance!
+      Managed by EduVMStore.</code>
+                </pre>
+                <button onclick="copyToClipboard('write-files-welcome-example')">Copy Script</button>
                 <p><strong>Important Note:</strong> The <code>write_files</code> section should only be used
                     once in a script. If declared multiple times, only the last declaration will be executed.
                     To add more files, write them directly at the top of the script to continue from the
                     pre-filled content we provide.</p>
                 <p>With the provided beginning of the script, start additional <code>write_files</code>
                     parts like this:</p>
-                <pre><code>[...]
-      - path: /etc/motd
-        content: |
-          Welcome to your new instance!
-          Managed by EduVMStore.</code></pre>
+                <pre>
+                    <code id="write-files-motd-example">  - path: /etc/motd
+    content: |
+      Welcome to your new instance!
+      Managed by EduVMStore.</code>
+                </pre>
+                <button onclick="copyToClipboard('write-files-motd-example')">Copy Script</button>
                 <p>Learn more about <strong>write_files</strong> in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#writing-out-arbitrary-files"
                         target="_blank">official cloud-init documentation</a>.</p>
@@ -89,10 +94,13 @@
                 <strong>Define Packages to Install:</strong>
                 <p>Use the <code>packages</code> section to list the software packages you want to install:
                 </p>
-                <pre><code>packages:
-      - curl
-      - git
-      - python3</code></pre>
+                <pre>
+                    <code id="packages-example">packages:
+  - curl
+  - git
+  - python3</code>
+                </pre>
+                <button onclick="copyToClipboard('packages-example')">Copy Script</button>
                 <p>Learn more about <strong>packages</strong> in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#install-arbitrary-packages"
                         target="_blank">official cloud-init documentation</a>.</p>
@@ -101,9 +109,12 @@
                 <strong>Run Commands:</strong>
                 <p>Use the <code>runcmd</code> section to specify shell commands to execute during
                     initialization:</p>
-                <pre><code>runcmd:
-      - apt-get update
-      - apt-get install -y nginx</code></pre>
+                <pre>
+                    <code id="runcmd-example">runcmd:
+  - apt-get update
+  - apt-get install -y nginx</code>
+                </pre>
+                <button onclick="copyToClipboard('runcmd-example')">Copy Script</button>
                 <p><strong>Important Note:</strong> The <code>runcmd</code> section should only be used once
                     in a script. If declared multiple times, only the last declaration will be executed.</p>
                 <p>If the "Generate SSH setup for users" checkbox is selected, an SSH setup script will
@@ -116,13 +127,16 @@
             <li>
                 <strong>Create Users:</strong>
                 <p>Use the <code>users</code> section to define user accounts:</p>
-                <pre><code>users:
-      - name: student
-        groups: sudo
-        shell: /bin/bash
-        sudo: ['ALL=(ALL) NOPASSWD:ALL']
-        lock_passwd: false
-        passwd: $6$rounds=4096$randomsalt$hashedpassword</code></pre>
+                <pre>
+                    <code id="users-example">users:
+  - name: student
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    lock_passwd: false
+    passwd: $6$rounds=4096$randomsalt$hashedpassword</code>
+                </pre>
+                <button onclick="copyToClipboard('users-example')">Copy Script</button>
                 <p>Learn more about <strong>users</strong> in the <a
                         href="https://cloudinit.readthedocs.io/en/latest/reference/examples.html#including-users-and-groups"
                         target="_blank">official cloud-init documentation</a>.</p>
@@ -150,32 +164,36 @@
             for example, in the <code>runcmd</code> section:</p>
         <p><strong>Note:</strong> The following code is prefilled by us in the <code>write_files</code>
             section, including the account attributes used in the sample script:</p>
-        <pre><code>write_files:
-          - path: /etc/users.txt
-            content: |
-              username:password:email
-            permissions: '0644'
-            owner: root:root
-        </code></pre>
+        <pre>
+            <code id="write-files-account-attributes-example">write_files:
+  - path: /etc/users.txt
+    content: |
+      username:password:email
+    permissions: '0644'
+    owner: root:root</code>
+        </pre>
+        <button onclick="copyToClipboard('write-files-account-attributes-example')">Copy Script</button>
         <p>You can use this prefilled file in your script, for example, in the <code>runcmd</code> section:
         </p>
-        <pre><code>runcmd:
-          - |
-            # Read the file /etc/users.txt line by line
-            # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
-            # read -r reads each line and assigns the fields to the variables username, password, and email
-            while IFS=: read -r username password email; do
-              # Check if the user does not already exist
-              if ! id "$username" &>/dev/null; then
-                # Create a new user with the specified username and default shell /bin/bash
-                useradd -m -s /bin/bash "$username"
-                # Set the user's password
-                echo "$username:$password" | chpasswd
-                # Save the user's email to a file in their home directory
-                echo "Email: $email" >> /home/$username/user_info.txt
-              fi
-            done < /etc/users.txt
-        </code></pre>
+        <pre>
+            <code id="runcmd-user-creation-example">runcmd:
+  - |
+    # Read the file /etc/users.txt line by line
+    # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
+    # read -r reads each line and assigns the fields to the variables username, password, and email
+    while IFS=: read -r username password email; do
+      # Check if the user does not already exist
+      if ! id "$username" &>/dev/null; then
+        # Create a new user with the specified username and default shell /bin/bash
+        useradd -m -s /bin/bash "$username"
+        # Set the user's password
+        echo "$username:$password" | chpasswd
+        # Save the user's email to a file in their home directory
+        echo "Email: $email" >> /home/$username/user_info.txt
+      fi
+    done < /etc/users.txt</code>
+        </pre>
+        <button onclick="copyToClipboard('runcmd-user-creation-example')">Copy Script</button>
         <p>Make sure to adjust the file path to match the location where the attributes are saved in the
             <code>write_files</code> section.</p>
         <p>For an example of the correct usage of Instantiation and Account Attributes, click
@@ -194,8 +212,8 @@
                 be set in the format <code>username:password</code>.</p>
             <p>This script creates users from the user file generated based on the fields defined in the
                 <code>account_attributes</code>.</p>
-            <pre><code id="user-creation-script">
-runcmd:
+            <pre>
+                <code id="user-creation-script">runcmd:
   - |
     # Read the file /etc/users.txt line by line
     # IFS=: sets the Internal Field Separator to ':' so that each line is split into fields based on colons
@@ -210,8 +228,8 @@ runcmd:
         # Save the user's email to a file in their home directory
         echo "Email: $email" >> /home/$username/user_info.txt
       fi
-    done < /etc/users.txt
-        </code></pre>
+    done < /etc/users.txt</code>
+            </pre>
             <button onclick="copyToClipboard('user-creation-script')">Copy Script</button>
         </div>
 
@@ -223,8 +241,7 @@ runcmd:
             <p>This script installs a specific version of a software (e.g., Python) based on the
                 <code>instantiation_attributes</code>.</p>
             <pre>
-                <code id="software-installation-script">
-runcmd:
+                <code id="software-installation-script">runcmd:
   - |
     # Read the software version from the attributes file
     # The attributes file is located at /etc/attributes.txt and contains the version information
@@ -235,8 +252,7 @@ runcmd:
 
     # Install the specified version of the software (e.g., Python)
     # The version is dynamically read from the attributes file
-    apt-get install -y python$SOFTWARE_VERSION
-                </code>
+    apt-get install -y python$SOFTWARE_VERSION</code>
             </pre>
             <button onclick="copyToClipboard('software-installation-script')">Copy Script</button>
         </div>
