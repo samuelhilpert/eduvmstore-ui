@@ -156,7 +156,8 @@ preset_examples = {
     "openstack_devstack": {
         "name": "OpenStack DevStack",
         "short_description": "Self-hosted OpenStack environment",
-        "description": "This template installs DevStack on an Ubuntu instance for individual OpenStack experiments.",
+        "description": "This template installs DevStack on an Ubuntu instance for individual "
+                       "OpenStack experiments.",
         "instantiation_notice": "The initialization takes several minutes",
         "fixed_ram_gb": "2",
         "fixed_disk_gb": "10",
@@ -166,13 +167,16 @@ preset_examples = {
         "instantiation_attributes": [],
         "account_attributes": [],
         "script": "packages:\r\n  - git\r\n  - sudo\r\n  - python3-pip\r\n\r\n"
-                  "runcmd:\r\n  - cd /home/ubuntu\r\n  - git clone https://opendev.org/openstack/devstack.git\r\n"
-                  "  - chown -R ubuntu:ubuntu devstack\r\n  - echo '[[local|localrc]]' > /home/ubuntu/devstack/local.conf\r\n"
+                  "runcmd:\r\n  - cd /home/ubuntu\r\n  "
+                  "- git clone https://opendev.org/openstack/devstack.git\r\n"
+                  "  - chown -R ubuntu:ubuntu devstack\r\n  - echo '[[local|localrc]]' >"
+                  " /home/ubuntu/devstack/local.conf\r\n"
                   "  - echo 'ADMIN_PASSWORD=secret' >> /home/ubuntu/devstack/local.conf\r\n"
                   "  - echo 'DATABASE_PASSWORD=$ADMIN_PASSWORD' >> /home/ubuntu/devstack/local.conf\r\n"
                   "  - echo 'RABBIT_PASSWORD=$ADMIN_PASSWORD' >> /home/ubuntu/devstack/local.conf\r\n"
                   "  - echo 'SERVICE_PASSWORD=$ADMIN_PASSWORD' >> /home/ubuntu/devstack/local.conf\r\n"
-                  "  - echo \"HOST_IP=$(hostname -I | awk '{print \\$1}')\" >> /home/ubuntu/devstack/local.conf\r\n"
+                  "  - echo \"HOST_IP=$(hostname -I | awk '{print \\$1}')\" >> "
+                  "/home/ubuntu/devstack/local.conf\r\n"
                   "  - su - ubuntu -c \"/home/ubuntu/devstack/stack.sh\"\r\n\r\n"
                   "final_message: \"DevStack-Installation completed.\""
     }
