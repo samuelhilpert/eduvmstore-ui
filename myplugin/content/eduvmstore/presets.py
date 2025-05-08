@@ -158,7 +158,8 @@ preset_examples = {
         "short_description": "Self-hosted OpenStack environment",
         "description": "This template installs DevStack on an Ubuntu instance for individual "
                        "OpenStack experiments.",
-        "instantiation_notice": "The initialization takes several minutes",
+        "instantiation_notice": "The initialization takes several minutes, "
+                                "the pre-configured users are 'admin' and 'demo' with the password 'secret'.",
         "fixed_ram_gb": "2",
         "fixed_disk_gb": "10",
         "fixed_cores": "2",
