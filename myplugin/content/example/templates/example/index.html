@@ -126,8 +126,7 @@
 
                     {% verbatim %}
                         <pre>
-                            <code>
-runcmd:
+                            <code>runcmd:
   - |
     # Create a directory to store private keys securely
     mkdir -p /home/ubuntu/user_keys
@@ -168,8 +167,7 @@ runcmd:
     # Disable password-based SSH login for security
     sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
     sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-    systemctl restart ssh
-                            </code>
+    systemctl restart ssh</code>
                         </pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
@@ -330,8 +328,7 @@ runcmd:
                     </li>
                     {% verbatim %}
                         <pre>
-                            <code>
-packages:
+                            <code>packages:
   - curl
   - openssh-server
   - ca-certificates
@@ -387,8 +384,7 @@ runcmd:
       fi
     done < /etc/users.txt
 
-final_message: "GitLab installation and user creation completed."
-                            </code>
+final_message: "GitLab installation and user creation completed."</code>
                         </pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
@@ -541,8 +537,7 @@ final_message: "GitLab installation and user creation completed."
                     </li>
                     {% verbatim %}
                         <pre>
-                            <code>
-packages:
+                            <code>packages:
   - python3-pip
   - python3-venv
   - curl
@@ -606,8 +601,7 @@ runcmd:
       # Increment the port number for the next user
       PORT=$((PORT + 1))
 
-    done < /etc/users.txt
-                            </code>
+    done < /etc/users.txt</code>
                         </pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
