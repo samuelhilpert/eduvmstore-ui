@@ -52,13 +52,12 @@ def test_post_create_success(mock_requests_post, mock_get_token, mock_redirect, 
     assert response == "/dummy-redirect/"
 
 
-
-
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.redirect", side_effect=lambda url: url)
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.reverse", return_value="/dummy-redirect/")
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="test-token")
 @mock.patch("requests.post")
-def test_post_create_failure(mock_post, mock_get_token, mock_reverse, mock_redirect, request_factory, post_data):
+def test_post_create_failure(mock_post, mock_get_token, mock_reverse, mock_redirect, request_factory,
+                             post_data):
     mock_post.return_value.status_code = 400
     mock_post.return_value.text = "Bad Request"
     request = request_factory.post('/create', data=post_data)
@@ -76,13 +75,12 @@ def test_post_create_failure(mock_post, mock_get_token, mock_reverse, mock_redir
     mock_post.assert_called_once()
 
 
-
-
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.redirect", side_effect=lambda url: url)
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.reverse", return_value="/dummy-redirect/")
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="test-token")
 @mock.patch("requests.post", side_effect=requests.exceptions.RequestException("Timeout"))
-def test_post_create_exception(mock_post, mock_get_token, mock_reverse, mock_redirect, request_factory, post_data):
+def test_post_create_exception(mock_post, mock_get_token, mock_reverse, mock_redirect, request_factory,
+                               post_data):
     request = request_factory.post('/create', data=post_data)
     request.resolver_match = mock.Mock(url_name='create')
     request.user = mock.Mock()
@@ -97,12 +95,14 @@ def test_post_create_exception(mock_post, mock_get_token, mock_reverse, mock_red
     assert response == "/dummy-redirect/"
 
 
-
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_images_data", return_value={})
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_image_data", return_value={"visibility": "public", "owner": "admin"})
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_app_template", return_value={"image_id": "img-123", "security_groups": [{"name": "default"}]})
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_image_data",
+            return_value={"visibility": "public", "owner": "admin"})
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_app_template",
+            return_value={"image_id": "img-123", "security_groups": [{"name": "default"}]})
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.neutron.security_group_list", return_value=[])
-def test_get_context_data_with_template_id(mock_sec, mock_get_template, mock_image_data, mock_images, request_factory):
+def test_get_context_data_with_template_id(mock_sec, mock_get_template, mock_image_data, mock_images,
+                                           request_factory):
     request = request_factory.get('/create')
     request.GET = {}
     request.user = mock.Mock()
@@ -120,10 +120,12 @@ def test_get_context_data_with_template_id(mock_sec, mock_get_template, mock_ima
     assert context['is_edit'] is True
 
 
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_app_template", return_value={"image_id": "img-123", "security_groups": []})
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_app_template",
+            return_value={"image_id": "img-123", "security_groups": []})
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_image_data", return_value={})
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_images_data", return_value={})
-@mock.patch("myplugin.content.eduvmstore.view.apptemplate.neutron.security_group_list", side_effect=Exception("Neutron error"))
+@mock.patch("myplugin.content.eduvmstore.view.apptemplate.neutron.security_group_list",
+            side_effect=Exception("Neutron error"))
 def test_get_context_data_security_group_exception(mock_sec, *_):
     request = RequestFactory().get('/create')
     request.GET = {}
@@ -136,6 +138,7 @@ def test_get_context_data_security_group_exception(mock_sec, *_):
     context = view.get_context_data()
 
     assert context['security_groups'] == []
+
 
 @mock.patch("myplugin.content.eduvmstore.view.apptemplate.get_token_id", return_value="test-token")
 @mock.patch("requests.put")

@@ -1,7 +1,8 @@
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import render
-from myplugin.content.eduvmstore.utils import search_app_templates, fetch_favorite_app_templates, get_images_data
+from myplugin.content.eduvmstore.utils import search_app_templates, fetch_favorite_app_templates, \
+    get_images_data
 
 
 class IndexView(generic.TemplateView):
@@ -10,7 +11,6 @@ class IndexView(generic.TemplateView):
     """
     template_name = 'eduvmstore_dashboard/eduvmstore/index.html'
     page_title = _("EduVMStore Dashboard")
-
 
     def get_context_data(self, **kwargs):
         """

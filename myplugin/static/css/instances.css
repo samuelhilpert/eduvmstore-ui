@@ -1,80 +1,90 @@
-    .clickable {
-        cursor: pointer;
-        color: #007bff;
-        text-decoration: underline;
-    }
-    .clickable:hover {
-        text-decoration: none;
-    }
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    .form-control {
-        border-radius: 5px;
-        border: 1px solid #ced4da;
-        padding: 0.5rem 0.75rem;
-        transition: border-color 0.3s ease;
-    }
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
+.clickable {
+    cursor: pointer;
+    color: #007bff;
+    text-decoration: underline;
+}
 
-    .modal-content {
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    .modal-header {
-        color: #fff;
-        border-radius: 8px 8px 0 0;
-    }
-    .modal-title {
-        font-weight: bold;
-    }
-    .modal-footer {
-        border-top: 1px solid #e0e0e0;
-    }
-    .table {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .table th, .table td {
-        padding: 0.75rem;
-        color: #333333;
-    }
-    h5 {
-       color: #333333;
-    }
+.clickable:hover {
+    text-decoration: none;
+}
 
-    .button-container {
-        display: flex;
-        justify-content: flex-start;
-        gap: 10px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
+.form-group {
+    margin-bottom: 1.5rem;
+}
 
-    /* Section Styling */
-    .section-container {
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        background-color: #f9f9f9;
-    }
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.3s ease;
+}
 
-    /* Account Fields Grid Layout */
-    .account-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
 
-    .account-card {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px;
-        background-color: #ffffff;
-    }
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    color: #fff;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.modal-footer {
+    border-top: 1px solid #e0e0e0;
+}
+
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table th, .table td {
+    padding: 0.75rem;
+    color: #333333;
+}
+
+h5 {
+    color: #333333;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Section Styling */
+.section-container {
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+/* Account Fields Grid Layout */
+.account-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.account-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #ffffff;
+}
 
 .section-container h5 {
     color: #333333;
@@ -88,54 +98,58 @@
     font-size: 16px;
 }
 
-    .account-card h5 {
-        margin-bottom: 15px;
-        font-size: 16px;
-    }
+.account-card h5 {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
 
-    .account-card .form-group {
-        margin-bottom: 10px;
-    }
+.account-card .form-group {
+    margin-bottom: 10px;
+}
 
-    .account-card .remove-account {
-        margin-top: 10px;
-    }
+.account-card .remove-account {
+    margin-top: 10px;
+}
 
-    .loading-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
+.loading-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
 
-    .loading-modal-content {
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
+.loading-modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
-    .loader {
-        border: 8px solid #f3f3f3;
-        border-top: 8px solid #3498db;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 2s linear infinite;
-    }
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
 
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
+    100% {
+        transform: rotate(360deg);
+    }
+}

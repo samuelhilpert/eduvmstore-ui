@@ -3,7 +3,9 @@ from django.utils.translation import gettext_lazy as _
 import sys
 from datetime import datetime
 
-from myplugin.content.admin.utils import get_user_details, get_users, get_roles, get_app_templates_to_approve, get_username_from_id, get_app_templates
+from myplugin.content.admin.utils import get_user_details, get_users, get_roles, get_app_templates_to_approve, \
+    get_username_from_id, get_app_templates
+
 
 class IndexView(generic.TemplateView):
     """
@@ -94,7 +96,6 @@ class IndexView(generic.TemplateView):
 
         context['detailed_users'] = detailed_users
 
-
         # Add user details and admin status to the context
         context['username'] = userdev.username
         context['auth_token'] = token_id
@@ -110,4 +111,3 @@ class IndexView(generic.TemplateView):
         context['page_title'] = self.page_title
 
         return context
-

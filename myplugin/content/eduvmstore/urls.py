@@ -3,7 +3,6 @@ from django.urls import path
 from myplugin.content.eduvmstore import views
 from myplugin.content.eduvmstore.view import index, apptemplate, detail, instances, success
 
-
 urlpatterns = [
 
     path('', index.IndexView.as_view(), name='index'),

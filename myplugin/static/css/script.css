@@ -59,6 +59,7 @@ a:hover {
     background-color: rgba(0, 0, 0, 0.4);
     padding-top: 60px;
 }
+
 .modal-content {
     background-color: #fefefe;
     margin: 5% auto;
@@ -66,6 +67,7 @@ a:hover {
     border: 1px solid #888;
     width: 80%;
 }
+
 .modal-content img {
     max-width: 100%;
     height: auto;

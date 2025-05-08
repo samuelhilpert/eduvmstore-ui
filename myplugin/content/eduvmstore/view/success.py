@@ -6,6 +6,7 @@ import zipfile
 from django.http import HttpResponse
 from myplugin.content.eduvmstore.utils import generate_pdf, generate_ssh_instructions_pdf
 
+
 class InstanceSuccessView(generic.TemplateView):
     template_name = "eduvmstore_dashboard/eduvmstore/success.html"
     page_title = _("Success")
@@ -50,8 +51,6 @@ class InstanceSuccessView(generic.TemplateView):
             })
 
         return context
-
-
 
     def post(self, request, *args, **kwargs):
         """

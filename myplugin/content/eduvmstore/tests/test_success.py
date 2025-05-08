@@ -34,7 +34,8 @@ def test_get_context_data(view_with_session):
 
 
 @mock.patch("myplugin.content.eduvmstore.view.success.generate_pdf", return_value=b"%PDF-1.4 dummy")
-@mock.patch("myplugin.content.eduvmstore.view.success.generate_ssh_instructions_pdf", return_value=b"%PDF-1.4 ssh")
+@mock.patch("myplugin.content.eduvmstore.view.success.generate_ssh_instructions_pdf",
+            return_value=b"%PDF-1.4 ssh")
 def test_post_creates_zip(mock_ssh_pdf, mock_account_pdf):
     request = RequestFactory().post('/')
     request.session = {
@@ -60,6 +61,7 @@ def test_post_creates_zip(mock_ssh_pdf, mock_account_pdf):
     assert response.status_code == 200
     assert response["Content-Type"] == "application/zip"
     assert "attachment" in response["Content-Disposition"]
+
 
 @mock.patch("myplugin.content.eduvmstore.view.success.generate_pdf")
 @mock.patch("myplugin.content.eduvmstore.view.success.generate_ssh_instructions_pdf")
@@ -88,6 +90,7 @@ def test_post_without_accounts_or_ssh(mock_ssh_pdf, mock_account_pdf):
     mock_account_pdf.assert_not_called()
     mock_ssh_pdf.assert_not_called()
 
+
 def test_post_shared_key_missing_private_key():
     request = RequestFactory().post('/')
     request.session = {
@@ -106,6 +109,7 @@ def test_post_shared_key_missing_private_key():
     assert response.status_code == 200
     assert response["Content-Type"] == "application/zip"
 
+
 def test_get_context_data_missing_fields():
     request = RequestFactory().get('/')
     request.session = {
@@ -121,6 +125,7 @@ def test_get_context_data_missing_fields():
 
     assert context['instances'][0]['name'] == 'unknown'
     assert context['instances'][0]['ip'] == 'unknown'
+
 
 def test_post_creates_empty_zip():
     request = RequestFactory().post('/')

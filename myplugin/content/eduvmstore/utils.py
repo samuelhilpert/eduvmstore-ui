@@ -28,6 +28,7 @@ def get_token_id(request):
 
     return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
 
+
 def search_app_templates(request) -> list:
     """
     Search for AppTemplates via the backend API using a provided token ID.
@@ -56,6 +57,7 @@ def search_app_templates(request) -> list:
     except requests.RequestException as e:
         logging.error("Failed to search app templates: %s", e)
         return []
+
 
 def fetch_favorite_app_templates(request):
     """
@@ -94,7 +96,7 @@ def get_images_data(request):
     try:
         filters = {}
         images, has_more_data, has_prev_data = glance.image_list_detailed(
-            request, filters=filters,  paginate=True
+            request, filters=filters, paginate=True
         )
 
         return {image.id: image for image in images}
@@ -118,6 +120,7 @@ def get_image_data(request, image_id):
         exceptions.handle(request, _('Unable to retrieve image details: %s') % str(e))
         return {}
 
+
 def get_app_template(request, template_id):
     """
     Fetch a specific AppTemplate from the external database using token authentication.
@@ -139,6 +142,7 @@ def get_app_template(request, template_id):
     except requests.RequestException as e:
         logging.error("Unable to retrieve app template details: %s", e)
         return {}
+
 
 def generate_pdf(accounts, name, app_template, created, instantiations, ip_address):
     """
@@ -193,7 +197,6 @@ def generate_pdf(accounts, name, app_template, created, instantiations, ip_addre
         elements.append(table)
         elements.append(Spacer(1, 0.2 * inch))
 
-
     if instantiations:
         elements.append(Paragraph("<b>Instantiation Attributes</b>", styles['Heading2']))
         elements.append(Spacer(1, 0.1 * inch))
@@ -222,11 +225,11 @@ def generate_pdf(accounts, name, app_template, created, instantiations, ip_addre
         ]))
         elements.append(table_instantiation)
 
-
     doc.build(elements)
     buffer.seek(0)
 
     return buffer.getvalue()
+
 
 def generate_ssh_instructions_pdf(instances):
     """
@@ -269,7 +272,6 @@ def generate_ssh_instructions_pdf(instances):
     buffer.seek(0)
 
     return buffer.getvalue()
-
 
 
 def generate_cloud_config(accounts, backend_script, instantiations):
@@ -326,7 +328,6 @@ def generate_cloud_config(accounts, backend_script, instantiations):
         cloud_config += f"\n\n{backend_script}"
 
     return cloud_config
-
 
 
 def generate_indented_content(content, indent_level=6):

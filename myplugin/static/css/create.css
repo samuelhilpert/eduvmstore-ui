@@ -1,9 +1,11 @@
 .form-container {
     margin: auto;
 }
+
 .form-group {
     margin-bottom: 20px;
 }
+
 .form-group label {
     display: block;
     margin-bottom: 5px;
@@ -11,6 +13,7 @@
     color: #495057;
     font-size: small;
 }
+
 .form-control, .select-box {
     width: 100%;
     padding: 10px;
@@ -19,6 +22,7 @@
     font-size: 13px;
     color: #333;
 }
+
 .select-box {
     appearance: none;
     background-color: #fff;
@@ -32,6 +36,7 @@
     text-align: start;
     -ms-text-justify: auto;
 }
+
 .select-box:focus, .form-control:focus {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
@@ -49,6 +54,7 @@
     background-color: rgba(0, 0, 0, 0.4);
     padding-top: 60px;
 }
+
 .modal-content {
     background-color: #fefefe;
     margin: 5% auto;
@@ -56,21 +62,25 @@
     border: 1px solid #888;
     width: 80%;
 }
+
 .close {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
+
 .close:hover, .close:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
 }
+
 .form-check {
     display: flex;
     align-items: center;
 }
+
 .form-check-input {
     margin-left: 10px;
 }
@@ -98,7 +108,7 @@
 
 .select-box:focus, .form-control:focus {
     border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
     outline: none;
 }
 
@@ -122,12 +132,12 @@
 }
 
 .dropdown-toggle:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
     border-color: #007bff;
 }
 
 
-#selectedGroupsDisplay span{
+#selectedGroupsDisplay span {
     margin-right: 6px;
     padding: 5px 8px;
     border-radius: 12px;
@@ -147,7 +157,7 @@
     max-height: 250px;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -181,6 +191,7 @@
     border-radius: 8px;
     margin-bottom: 30px;
 }
+
 .row {
     margin-bottom: 20px;
 }

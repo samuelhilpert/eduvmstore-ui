@@ -10,6 +10,7 @@ from myplugin.content.admin.views import (
     DeleteUserView,
 )
 
+
 class AdminActionViewsTest(unittest.TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -27,7 +28,6 @@ class AdminActionViewsTest(unittest.TestCase):
 
         mock_messages.success.assert_called_once()
         mock_redirect.assert_called_once()
-
 
     @patch("myplugin.content.admin.views.redirect")
     @patch("myplugin.content.admin.views.requests.patch")

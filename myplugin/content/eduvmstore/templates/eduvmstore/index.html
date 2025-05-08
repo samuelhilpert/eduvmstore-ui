@@ -11,7 +11,8 @@
             </h1>
         </div>
         <div>
-            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img"
+                 style="height: 95px;">
         </div>
     </div>
 {% endblock %}
@@ -67,16 +68,16 @@
 
                 fetch("{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}?search="
                     + encodeURIComponent(query), {
-                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                    headers: {"X-Requested-With": "XMLHttpRequest"}
                 })
-                .then(response => response.text())
-                .then(data => {
-                    tableContainer.innerHTML = data;
-                })
-                .catch(error => console.error("Error fetching search results:", error));
+                    .then(response => response.text())
+                    .then(data => {
+                        tableContainer.innerHTML = data;
+                    })
+                    .catch(error => console.error("Error fetching search results:", error));
             });
 
-          
+
             // Function to get CSRF token from cookies
             function getCookie(name) {
                 let cookieValue = null;
@@ -97,33 +98,35 @@
     </script>
     <script src="{% static 'js/index.js' %}"></script>
 
-<div class="button-container">
-    <div class="left-buttons">
-        <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" class="btn btn-primary">
-            Tutorial EduVMStore
-        </a>
-        <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}" class="btn btn-primary">
-            Creation Example
-        </a>
+    <div class="button-container">
+        <div class="left-buttons">
+            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" class="btn btn-primary">
+                Tutorial EduVMStore
+            </a>
+            <a href="{% url 'horizon:eduvmstore_dashboard:example:index' %}" class="btn btn-primary">
+                Creation Example
+            </a>
+        </div>
+        <div class="spacer"></div>
+        <div class="right-button">
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-primary"
+               id="create-button">
+                Create AppTemplate
+            </a>
+        </div>
     </div>
-    <div class="spacer"></div>
-    <div class="right-button">
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}" class="btn btn-primary" id="create-button">
-            Create AppTemplate
-        </a>
-    </div>
-</div>
-{% if favorite_app_templates %}
-    <h2>Favorite AppTemplates</h2>
-    {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=favorite_app_templates is_favorites=True %}
-{% endif %}
+    {% if favorite_app_templates %}
+        <h2>Favorite AppTemplates</h2>
+        {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=favorite_app_templates is_favorites=True %}
+    {% endif %}
     <h2>All AppTemplates</h2>
 
-<form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}" style="margin-bottom: 20px;">
-    <input type="text" id="search" name="search" class="form-control"
-           placeholder="Search AppTemplates" value="{{ request.GET.search }}">
-</form>
+    <form id="search-form" method="get" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:index' %}"
+          style="margin-bottom: 20px;">
+        <input type="text" id="search" name="search" class="form-control"
+               placeholder="Search AppTemplates" value="{{ request.GET.search }}">
+    </form>
 
-    {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=app_templates is_favorites=False%}
+    {% include "eduvmstore_dashboard/eduvmstore/table.html" with app_templates=app_templates is_favorites=False %}
 
-  {% endblock %}
+{% endblock %}
