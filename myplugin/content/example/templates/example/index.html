@@ -125,8 +125,7 @@
                     </li>
 
                     {% verbatim %}
-                        <pre>
-                            <code>runcmd:
+                        <pre><code>runcmd:
   - |
     # Create a directory to store private keys securely
     mkdir -p /home/ubuntu/user_keys
@@ -167,8 +166,7 @@
     # Disable password-based SSH login for security
     sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
     sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-    systemctl restart ssh</code>
-                        </pre>
+    systemctl restart ssh</code></pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
                         AppTemplate.
@@ -327,8 +325,7 @@
                         the GitLab server:
                     </li>
                     {% verbatim %}
-                        <pre>
-                            <code>packages:
+                        <pre><code>packages:
   - curl
   - openssh-server
   - ca-certificates
@@ -384,8 +381,7 @@ runcmd:
       fi
     done < /etc/users.txt
 
-final_message: "GitLab installation and user creation completed."</code>
-                        </pre>
+final_message: "GitLab installation and user creation completed."</code></pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
                         AppTemplate.
@@ -536,8 +532,7 @@ final_message: "GitLab installation and user creation completed."</code>
                         Jupyter Notebook instance:
                     </li>
                     {% verbatim %}
-                        <pre>
-                            <code>packages:
+                        <pre><code>packages:
   - python3-pip
   - python3-venv
   - curl
@@ -601,8 +596,7 @@ runcmd:
       # Increment the port number for the next user
       PORT=$((PORT + 1))
 
-    done < /etc/users.txt</code>
-                        </pre>
+    done < /etc/users.txt</code></pre>
                     {% endverbatim %}
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
                         AppTemplate.
