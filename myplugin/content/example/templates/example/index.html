@@ -17,57 +17,13 @@
 {% endblock page_header %}
 
 {% block main %}
+    <script src="{% static 'js/accordion.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/example.css' %}">
 
-    <style>
+    <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
+        version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.
+        The ubuntu version used is 22.04 LTS.</p>
 
-        .accordion {
-            background: linear-gradient(135deg, #333, #777);
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            width: 100%;
-            text-align: left;
-            border: none;
-            outline: none;
-            transition: background-color 0.3s ease;
-            font-size: 16px;
-            border-radius: 5px;
-            margin-top: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .accordion:hover {
-            background-color: #555;
-        }
-
-        .accordion .text {
-            flex-shrink: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .accordion .icon {
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-
-        .accordion.active .icon {
-            transform: rotate(90deg);
-        }
-
-        .panel {
-            display: none;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 5px;
-            margin-top: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-    </style>
 
 
     <hr>
@@ -137,7 +93,7 @@
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                    <li>Step 1: Enter the appropriate minimum resources for the AppTemplate:
                         <ul>
                             <li>RAM: 2 GB</li>
                             <li>Disk Space: 20 GB</li>
@@ -162,50 +118,60 @@
                     <li>Step 2: Enter instantiation and account attributes to be used in the configuration
                         script. For example <code>username:password</code> as account attributes.
                     </li>
-                    <li>Step 3: The following cloud-init script will be automatically generated:</li>
+                    <li>Step 2: Click the "Write Script" button to open the script editor.</li>
+                    <li>Step 3: Select the checkbox "Generate SSH setup for users" to automatically generate
+                        the SSH setup for users. This will create a script that sets up SSH access for
+                        the students. The generated script will look like this:
+                    </li>
+
                     {% verbatim %}
                         <pre>
-    <code>
-    runcmd:
-      - |
-        # Create directory for private keys
-        mkdir -p /home/ubuntu/user_keys
-        chmod 700 /home/ubuntu/user_keys
-        chown ubuntu:ubuntu /home/ubuntu/user_keys
+                            <code>runcmd:
+  - |
+    # Create a directory to store private keys securely
+    mkdir -p /home/ubuntu/user_keys
+    chmod 700 /home/ubuntu/user_keys
+    chown ubuntu:ubuntu /home/ubuntu/user_keys
 
-        while IFS=: read -r username password; do
-          # Create users
-          if ! id "$username" &>/dev/null; then
-            useradd -m -s /bin/bash "$username"
-            echo "$username:$password" | chpasswd
-          fi
+    # Extract the first user from the user list to assign admin privileges
+    FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
 
-          # Create SSH directory and key
-          sudo -u "$username" mkdir -p /home/"$username"/.ssh
-          chmod 700 /home/"$username"/.ssh
+    # Loop through the user list and create accounts
+    while IFS=: read -r username password; do
+      # Check if the user already exists, if not, create the user
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s /bin/bash "$username"
+        echo "$username:$password" | chpasswd
+      fi
 
-          # Generate SSH key
-          sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
+      # Set up SSH for the user
+      sudo -u "$username" mkdir -p /home/"$username"/.ssh
+      chmod 700 /home/"$username"/.ssh
+      sudo -u "$username" ssh-keygen -t rsa -b 2048 -f /home/"$username"/.ssh/id_rsa -N ""
+      cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
+      chmod 600 /home/"$username"/.ssh/authorized_keys
+      chown -R "$username:$username" /home/"$username"/.ssh
 
-          # Set Public Key as authorized_key
-          cat /home/"$username"/.ssh/id_rsa.pub >> /home/"$username"/.ssh/authorized_keys
-          chmod 600 /home/"$username"/.ssh/authorized_keys
-          chown -R "$username:$username" /home/"$username"/.ssh
+      # Copy private keys to the admin directory for secure access
+      cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
+      chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
+      chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
+    done < /etc/users.txt
 
-          # Secure private keys for the admin & Ubuntu user
-          cp /home/"$username"/.ssh/id_rsa /home/ubuntu/user_keys/"$username"_id_rsa
-          chmod 600 /home/ubuntu/user_keys/"$username"_id_rsa
-          chown ubuntu:ubuntu /home/ubuntu/user_keys/"$username"_id_rsa
-        done < /etc/users.txt
+    # Grant admin privileges to the first user
+    if [ -n "$FIRST_USER" ]; then
+      echo "$FIRST_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$FIRST_USER
+      chmod 440 /etc/sudoers.d/$FIRST_USER
+    fi
 
-        # SSH configuration: Disable password login
-        sed -i 's/^#\\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
-        sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
-        systemctl restart ssh
-    </code>
-    </pre>
+    # Disable password-based SSH login for security
+    sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+    sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+    systemctl restart ssh</code>
+                        </pre>
                     {% endverbatim %}
-                    <li>Step 4: Click the "Save" button and the "Create" button to create the AppTemplate.
+                    <li>Step 4: Click the "Save Script" button and the "Create" button to create the
+                        AppTemplate.
                     </li>
                 </ul>
             </li>
@@ -229,8 +195,8 @@
             </li>
             <li><strong>Configure Instance Details:</strong>
                 <ul>
-                    <li>Switch to the <strong>"All Instances" tab</strong> to configure shared settings for
-                        all instances at once.
+                    <li>The standard <strong>"All Instances" tab</strong> is displayed to configure shared
+                        settings for all instances at once.
                     </li>
                     <li>Step 1: Select a fitting <strong>Flavor</strong> for the instances. The flavor should
                         meet the minimum resource requirements specified in the AppTemplate.
@@ -248,21 +214,22 @@
                     </li>
                     <li>For each instance:
                         <ul>
-                            <li>Uncheck the <strong>"No additional users"</strong> checkbox to add users to
-                                the instance.
-                            </li>
                             <li>Enter the number of users to be added to the instance.</li>
                             <li>Upload a CSV file with the user data or enter the user data directly by
                                 filling in the form fields for each user. The CSV file should contain the user
-                                data in the format <code>username:password</code>.
+                                data in the format <code>username,password</code>.
+                            </li>
+                            <li>After entering the user data manually, you can optionally click the
+                                "Export CSV" button to download the CSV file with the user data.
                             </li>
                         </ul>
                     </li>
                 </ul>
             </li>
-            <li>Click the <strong>"Launch Instances"</strong> button to start the instances.</li>
+            <li>Click the <strong>"Launch"</strong> button to start the instances.</li>
         </ol>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template=ubuntu_linux" class="btn btn-primary mt-3">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template=ubuntu_linux"
+           class="btn btn-primary mt-3">
             Use This Example
         </a>
 
@@ -315,22 +282,14 @@
                         For this example, use "GitLab Server" as the name and provide a short and a more
                         detailed description, and optionally an instantiation notice.
                     </li>
-                    <li>Step 3: Select whether the AppTemplate should be available for everyone
-                        (e.g. other lecturers) or only for you (the creator).
-                    </li>
-                </ul>
-            </li>
-            <li><strong>Configure Security Groups</strong>
-                <ul>
-                    <li>Select one or more existing security groups to be used for the
-                        AppTemplate. These security groups define the network access rules for the
-                        instances launched from this AppTemplate.
+                    <li>Step 3: Select whether the AppTemplate should be available for all lecturers or
+                        only for you (the creator).
                     </li>
                 </ul>
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                    <li>Step 1: Enter the appropriate minimum resources for the AppTemplate:
                         <ul>
                             <li>RAM: 4 GB</li>
                             <li>Disk Space: 50 GB</li>
@@ -349,24 +308,27 @@
                     </li>
                 </ul>
             </li>
+            <li><strong>Configure Security Groups</strong>
+                <ul>
+                    <li>Select one or more existing security groups to be used for the
+                        AppTemplate. These security groups define the network access rules for the
+                        instances launched from this AppTemplate.
+                    </li>
+                </ul>
+            </li>
             <li><strong>Write Configuration Script:</strong>
                 <ul>
-                    <li>Step 1: Optionally select the checkbox to automatically generate the SSH setup for
-                        users.
-                        This will create a script that sets up SSH access for the students.
-                    </li>
-                    <li>Step 2: Enter instantiation and account attributes to be used in the configuration
+                    <li>Step 1: Enter instantiation and account attributes to be used in the configuration
                         script. For example <code>username:password:firstname:lastname:email</code>
                         as account attributes.
                     </li>
-                    <li>Step 3: Upload a configuration script (cloud-init script) or write it directly after
-                        clicking the "Write Script" button. Below is an example script for setting up a GitLab
-                        server:
+                    <li>Step 2: Click the "Write Script" button to open the script editor.</li>
+                    <li>Step 3: Write the following cloud-init configuration script to automate the setup of
+                        the GitLab server:
                     </li>
                     {% verbatim %}
                         <pre>
-<code>
-packages:
+                            <code>packages:
   - curl
   - openssh-server
   - ca-certificates
@@ -377,7 +339,10 @@ packages:
 runcmd:
   - cat /etc/users.txt > /etc/testtesttest
   - |
+    # Extract the first user to assign admin privileges
     FIRST_USER=$(head -n 1 /etc/users.txt | cut -d':' -f1)
+
+    # Loop through the user list and create accounts
     while IFS=':' read -r username password firstname lastname email; do
       if ! id "$username" &>/dev/null; then
         useradd -m -s "/bin/bash" "$username"
@@ -388,7 +353,7 @@ runcmd:
       fi
     done < /etc/users.txt
 
-  # Install GitLab
+  # Install GitLab and its dependencies
   - apt-get update
   - DEBIAN_FRONTEND=noninteractive apt-get install -y curl openssh-server ca-certificates tzdata postfix jq
   - curl -fsSL https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
@@ -396,34 +361,34 @@ runcmd:
   - gitlab-ctl reconfigure
   - gitlab-ctl restart
 
-  # Wait until GitLab starts
+  # Wait for GitLab to start
   - sleep 60
 
-  # Generate Root-Token for API
+  # Generate a root token for GitLab API access
   - |
     export GITLAB_ROOT_TOKEN=$(openssl rand -hex 20)
     gitlab-rails runner "token = User.find_by(username: 'root').personal_access_tokens.create(scopes: ['api'], name: 'root-token', expires_at: 1.year.from_now); token.set_token('$GITLAB_ROOT_TOKEN'); token.save!"
     echo "$GITLAB_ROOT_TOKEN" > /root/gitlab_token.txt
 
-  # Create user in GitLab
+  # Add users to GitLab using the API
   - |
     export GITLAB_ROOT_TOKEN=$(cat /root/gitlab_token.txt)
     while IFS=':' read -r username password firstname lastname email; do
-    response=$(curl --silent --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" "http://localhost/api/v4/users?username=$username")
-    user_exists=$(echo "$response" | jq -r 'if . == [] then 0 else 1 end')
+      response=$(curl --silent --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" "http://localhost/api/v4/users?username=$username")
+      user_exists=$(echo "$response" | jq -r 'if . == [] then 0 else 1 end')
 
-    if [ "$user_exists" -eq 0 ]; then
-      curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" \
-        --data "username=$username&name=$firstname $lastname&email=$email&password=$password&skip_confirmation=true" \
-        "http://localhost/api/v4/users"
-    fi
+      if [ "$user_exists" -eq 0 ]; then
+        curl --request POST --header "PRIVATE-TOKEN: $GITLAB_ROOT_TOKEN" \
+          --data "username=$username&name=$firstname $lastname&email=$email&password=$password&skip_confirmation=true" \
+          "http://localhost/api/v4/users"
+      fi
     done < /etc/users.txt
 
-final_message: "GitLab installation and user creation completed."
-</code>
-</pre>
+final_message: "GitLab installation and user creation completed."</code>
+                        </pre>
                     {% endverbatim %}
-                    <li>Step 4: Click the "Save" button and the "Create" button to create the AppTemplate.
+                    <li>Step 4: Click the "Save Script" button and the "Create" button to create the
+                        AppTemplate.
                     </li>
                 </ul>
             </li>
@@ -456,20 +421,25 @@ final_message: "GitLab installation and user creation completed."
                     <li>Step 4: Enter Instantiation Attributes like versions, if required by the
                         AppTemplate. In this case there are no instantiation attributes to be entered.
                     </li>
-                    <li>Step 5: Uncheck the "No additional users" checkbox to add users to the instance.
+                    <li>Step 5: Add users to the instance.
                         <ul>
                             <li>Enter the number of users to be added to the instance.</li>
                             <li>Upload a CSV file with the user data or enter the user data directly by
                                 filling in the form fields for each user.
                                 The CSV file should contain the user data in the format
-                                <code>username:password:firstname:lastname:email</code>.
+                                <code>username,password,firstname,lastname,email</code>.
+                            </li>
+                            <li>After entering the user data manually, you can optionally click the
+                                "Export CSV" button to download the CSV file with the user data.
+                            </li>
                         </ul>
                     </li>
-                    <li>Step 6: Click the "Launch Instance" button to start the instance.</li>
+                    <li>Step 6: Click the "Launch" button to start the instance.</li>
                 </ul>
             </li>
         </ol>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template=gitlab_server" class="btn btn-primary mt-3">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template=gitlab_server"
+           class="btn btn-primary mt-3">
             Use This Example
         </a>
     </div>
@@ -521,22 +491,14 @@ final_message: "GitLab installation and user creation completed."
                         example, use "Jupyter Notebook" as the name and provide a short and a more detailed
                         description, and optionally an instantiation notice.
                     </li>
-                    <li>Step 3: Select whether the AppTemplate should be available for everyone (e.g., other
-                        lecturers) or only for you (the creator).
-                    </li>
-                </ul>
-            </li>
-            <li><strong>Configure Security Groups</strong>
-                <ul>
-                    <li>Select one or more existing security groups to be used for the AppTemplate. These
-                        security groups define the network access rules for the instances launched from this
-                        AppTemplate.
+                    <li>Step 3: Select whether the AppTemplate should be available for all lecturers or
+                        only for you (the creator).
                     </li>
                 </ul>
             </li>
             <li><strong>Configure minimum resources requirements:</strong>
                 <ul>
-                    <li>Step 1: Enter the appropriate fixed minimum resources for the AppTemplate:
+                    <li>Step 1: Enter the appropriate minimum resources for the AppTemplate:
                         <ul>
                             <li>RAM: 8 GB</li>
                             <li>Disk Space: 80 GB</li>
@@ -555,84 +517,95 @@ final_message: "GitLab installation and user creation completed."
                     </li>
                 </ul>
             </li>
+            <li><strong>Configure Security Groups</strong>
+                <ul>
+                    <li>Select one or more existing security groups to be used for the AppTemplate. These
+                        security groups define the network access rules for the instances launched from this
+                        AppTemplate.
+                    </li>
+                </ul>
+            </li>
             <li><strong>Write Configuration Script:</strong>
                 <ul>
-                    <li>Step 1: Optionally select the checkbox to automatically generate the SSH setup for
-                        users. This will create a script that sets up SSH access for the students.
-                    </li>
-                    <li>Step 2: Enter instantiation and account attributes to be used in the configuration
+                    <li>Step 1: Enter instantiation and account attributes to be used in the configuration
                         script. For example <code>username:password</code> as account attributes.
                     </li>
+                    <li>Step 2: Click the "Write Script" button to open the script editor.</li>
                     <li>Step 3: Upload a configuration script (cloud-init script) or write it directly after
                         clicking the "Write Script" button. Below is an example script for setting up a
                         Jupyter Notebook instance:
                     </li>
                     {% verbatim %}
                         <pre>
-    <code>
-    packages:
-      - python3-pip
-      - python3-venv
-      - curl
+                            <code>packages:
+  - python3-pip
+  - python3-venv
+  - curl
 
-    runcmd:
-      - |
-        PORT=8888
-        while IFS=':' read -r username password; do
-          if ! id "$username" &>/dev/null; then
-            useradd -m -s "/bin/bash" "$username"
-            echo "$username:$password" | chpasswd
-            usermod -aG sudo "$username"
-          fi
+runcmd:
+  - |
+    # Initialize the port number for Jupyter Notebook instances
+    PORT=8888
 
-          # Setup Jupyter environment
-          su - "$username" -c "python3 -m venv jupyter_env"
-          su - "$username" -c "~/jupyter_env/bin/pip install --upgrade pip"
-          su - "$username" -c "~/jupyter_env/bin/pip install notebook"
+    # Loop through the user list and create accounts
+    while IFS=':' read -r username password; do
+      # Check if the user already exists, if not, create the user
+      if ! id "$username" &>/dev/null; then
+        useradd -m -s "/bin/bash" "$username"
+        echo "$username:$password" | chpasswd
+        usermod -aG sudo "$username"
+      fi
 
-          # Generate Jupyter config
-          su - "$username" -c "~/jupyter_env/bin/jupyter notebook --generate-config"
-          CONFIG_PATH="/home/$username/.jupyter/jupyter_notebook_config.py"
-          echo "c = get_config()" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.ip = '0.0.0.0'" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.open_browser = False" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.port = $PORT" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.token = ''" >> "$CONFIG_PATH"
-          echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
-          chown "$username:$username" "$CONFIG_PATH"
+      # Set up a Python virtual environment for Jupyter
+      su - "$username" -c "python3 -m venv jupyter_env"
+      su - "$username" -c "~/jupyter_env/bin/pip install --upgrade pip"
+      su - "$username" -c "~/jupyter_env/bin/pip install notebook"
 
-          # Download sample notebook
-          NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
-          NOTEBOOK_PATH="/home/$username/test.ipynb"
-          su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
-          chown "$username:$username" "$NOTEBOOK_PATH"
+      # Generate Jupyter Notebook configuration
+      su - "$username" -c "~/jupyter_env/bin/jupyter notebook --generate-config"
+      CONFIG_PATH="/home/$username/.jupyter/jupyter_notebook_config.py"
+      echo "c = get_config()" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.ip = '0.0.0.0'" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.open_browser = False" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.port = $PORT" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.token = ''" >> "$CONFIG_PATH"
+      echo "c.NotebookApp.password = ''" >> "$CONFIG_PATH"
+      chown "$username:$username" "$CONFIG_PATH"
 
-          # Create systemd service
-          echo "[Unit]
-          Description=Jupyter Notebook for $username
-          After=network.target
+      # Download a sample notebook for the user
+      NOTEBOOK_URL="https://raw.githubusercontent.com/codebasics/py/master/Basics/test.ipynb"
+      NOTEBOOK_PATH="/home/$username/test.ipynb"
+      su - "$username" -c "curl -o \"$NOTEBOOK_PATH\" \"$NOTEBOOK_URL\""
+      chown "$username:$username" "$NOTEBOOK_PATH"
 
-          [Service]
-          Type=simple
-          User=$username
-          WorkingDirectory=/home/$username
-          ExecStart=/home/$username/jupyter_env/bin/jupyter-notebook
-          Restart=always
+      # Create a systemd service for the Jupyter Notebook instance
+      echo "[Unit]
+      Description=Jupyter Notebook for $username
+      After=network.target
 
-          [Install]
-          WantedBy=multi-user.target" > "/etc/systemd/system/jupyter-$username.service"
+      [Service]
+      Type=simple
+      User=$username
+      WorkingDirectory=/home/$username
+      ExecStart=/home/$username/jupyter_env/bin/jupyter-notebook
+      Restart=always
 
-          systemctl daemon-reload
-          systemctl enable "jupyter-$username"
-          systemctl start "jupyter-$username"
+      [Install]
+      WantedBy=multi-user.target" > "/etc/systemd/system/jupyter-$username.service"
 
-          PORT=$((PORT + 1))
+      # Enable and start the Jupyter Notebook service
+      systemctl daemon-reload
+      systemctl enable "jupyter-$username"
+      systemctl start "jupyter-$username"
 
-        done < /etc/users.txt
-    </code>
-    </pre>
+      # Increment the port number for the next user
+      PORT=$((PORT + 1))
+
+    done < /etc/users.txt</code>
+                        </pre>
                     {% endverbatim %}
-                    <li>Step 4: Click the "Save" button and the "Create" button to create the AppTemplate.
+                    <li>Step 4: Click the "Save Script" button and the "Create" button to create the
+                        AppTemplate.
                     </li>
                 </ul>
             </li>
@@ -665,40 +638,27 @@ final_message: "GitLab installation and user creation completed."
                     <li>Step 4: Enter Instantiation Attributes like versions, if required by the AppTemplate.
                         In this case, there are no instantiation attributes to be entered.
                     </li>
-                    <li>Step 5: Uncheck the "No additional users" checkbox to add users to the instance.
+                    <li>Step 5: Add users to the instance.
                         <ul>
                             <li>Enter the number of users to be added to the instance.</li>
                             <li>Upload a CSV file with the user data or enter the user data directly by
                                 filling in the form fields for each user. The CSV file should contain the user
-                                data in the format <code>username:password</code>.
+                                data in the format <code>username,password</code>.
+                            </li>
+                            <li>After entering the user data manually, you can optionally click the
+                                "Export CSV" button to download the CSV file with the user data.
                             </li>
                         </ul>
                     </li>
-                    <li>Step 6: Click the "Launch Instance" button to start the instance.</li>
+                    <li>Step 6: Click the "Launch" button to start the instance.</li>
                 </ul>
             </li>
         </ol>
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template=jupyter_notebook" class="btn btn-primary mt-3">
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template=jupyter_notebook"
+           class="btn btn-primary mt-3">
             Use This Example
         </a>
     </div>
 
-
-    <script>
-
-        var acc = document.getElementsByClassName("accordion");
-        for (var i = 0; i < acc.length; i++) {
-            acc[i].addEventListener("click", function () {
-                this.classList.toggle("active");
-                var panel = this.nextElementSibling;
-                if (panel.style.display === "block") {
-                    panel.style.display = "none";
-                } else {
-                    panel.style.display = "block";
-                }
-            });
-        }
-
-    </script>
 
 {% endblock %}

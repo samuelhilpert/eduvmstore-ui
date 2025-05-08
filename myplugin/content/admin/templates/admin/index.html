@@ -16,111 +16,8 @@
 {% endblock page_header %}
 
 {% block main %}
-
-    <style>
-        .accordion {
-            background: linear-gradient(135deg, #333, #777);
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            width: 100%;
-            text-align: left;
-            border: none;
-            outline: none;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            font-size: 16px;
-            border-radius: 5px;
-            margin-top: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .accordion:after {
-            content: '\25BC';
-            font-size: 14px;
-            transition: transform 0.3s ease;
-        }
-
-        .accordion.active:after {
-            transform: rotate(180deg);
-        }
-
-        .accordion:hover {
-            background-color: #555;
-        }
-
-        .panel {
-            display: none;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 5px;
-            margin-top: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        .table th {
-            background: #333;
-            color: white;
-        }
-        .table tr:hover {
-            background: #f1f1f1;
-        }
-
-
-        select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            background: #f8f9fa;
-            font-size: 14px;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-
-        select:focus {
-            border-color: #333;
-            outline: none;
-        }
-
-                .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-            border-color: #333;
-            outline: none;
-        }
-    </style>
+    <script src="{% static 'js/accordion.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
 
     {% if show_content %}
         <h3 style="text-align: center; color: #333;">Welcome, {{ username }}!</h3>
@@ -129,7 +26,7 @@
         <button class="accordion">AppTemplate Management</button>
         <div class="panel">
             <h2>Confirm new AppTemplates</h2>
-             <p><i style="color: gray;">Here you can confirm new AppTemplates that have been uploaded by users.</i></p>
+             <p><i style="color: gray;">Here you can confirm new AppTemplates that have been created by users.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
                 <table class="table">
                     <thead>
@@ -137,9 +34,8 @@
                             <th>Name</th>
                             <th>Short Description</th>
                             <th>AppTemplate ID</th>
+                            <th>Updated At</th>
                             <th>Creator Name</th>
-                            <th>Image ID</th>
-                            <th>Created At</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -152,18 +48,19 @@
                              </a></td>
                             <td>{{ template.short_description }}</td>
                             <td>{{ template.id }}</td>
+                            <td>{{ template.updated_at }}</td>
                             <td>{{ template.creator_name }}</td>
-                            <td>{{ template.image_id }}</td>
-                            <td>{{ template.created_at }}</td>
                             <td>
-                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}">
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}"
+                                      onsubmit="return confirm('Are you sure you want to approve this appTemplate {{ template.name }}?');">
                                     {% csrf_token %}
                                     <input type="hidden" name="template_id" value="{{ template.id }}">
                                     <button class="btn btn-primary" type="submit">Approve</button>
                                 </form>
                             </td>
                             <td>
-                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:reject_template' %}">
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:reject_template' %}"
+                                      onsubmit="return confirm('Are you sure you want to reject this appTemplate {{ template.name }}?');">
                                     {% csrf_token %}
                                     <input type="hidden" name="template_id" value="{{ template.id }}">
                                     <button class="btn btn-danger" type="submit">Reject</button>
@@ -199,7 +96,8 @@
                             <td>{{ temp.updated_at }}</td>
                             <td>{{ temp.public }}</td>
                             <td>
-                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}">
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_template' %}"
+                                      onsubmit="return confirm('Are you sure you want to delete this appTemplate {{ temp.name }}?');">
                                     {% csrf_token %}
                                     <input type="hidden" name="template_id" value="{{ temp.id }}">
                                     <button class="btn btn-danger" type="submit">Delete</button>
@@ -224,7 +122,6 @@
                             <th>Current Role</th>
                             <th>User ID</th>
                             <th>User Name</th>
-                            <th>Created At</th>
                             <th>Updated At</th>
                             <th>New Role</th>
 
@@ -236,10 +133,10 @@
                                 <td>{{ user.role.name }}</td>
                                 <td>{{ user.id }}</td>
                                 <td>{{ user.username }}</td>
-                                <td>{{ user.created_at }}</td>
                                 <td>{{ user.updated_at }}</td>
                                 <td>
-                                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}" style="display: flex; gap: 10px; align-items: center;">
+                                    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:update_roles' %}" style="display: flex; gap: 10px; align-items: center;"
+                                          onsubmit="return confirm('Are you sure you want to update this user role?');">
                                         {% csrf_token %}
                                         <input type="hidden" name="user_id" value="{{ user.id }}">
 
@@ -257,8 +154,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            <h2>Delete User</h2>
-            <p><i style="color: gray;">Here you can delete User.</i></p>
+            <h2>Delete Users</h2>
+            <p><i style="color: gray;">Here you can delete Users.</i></p>
             <hr style="border: 1px solid lightgray; margin: 5px 0;">
 
                 <table class="table table-striped">
@@ -267,7 +164,6 @@
                         <th>Current Role</th>
                         <th>User ID</th>
                         <th>User Name</th>
-                        <th>Created At</th>
                         <th>Updated At</th>
                         <th>Delete</th>
                     </tr>
@@ -278,10 +174,10 @@
                             <td>{{ user.role.name }}</td>
                             <td>{{ user.id }}</td>
                             <td>{{ user.username }}</td>
-                            <td>{{ user.created_at }}</td>
                             <td>{{ user.updated_at }}</td>
                             <td>
-                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_user' %}">
+                                <form method="post" action="{% url 'horizon:eduvmstore_dashboard:admin:delete_user' %}"
+                                      onsubmit="return confirm('Are you sure you want to delete this user {{ user.username }}?');">
                                     {% csrf_token %}
                                     <input type="hidden" name="user_id" value="{{ user.id }}">
                                     <button class="btn btn-danger" type="submit">Delete</button>
@@ -302,22 +198,5 @@
         </div>
     {% endif %}
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const accordions = document.querySelectorAll(".accordion");
-
-            accordions.forEach((accordion) => {
-                accordion.addEventListener("click", function () {
-                    this.classList.toggle("active");
-                    const panel = this.nextElementSibling;
-                    if (panel.style.display === "block") {
-                        panel.style.display = "none";
-                    } else {
-                        panel.style.display = "block";
-                    }
-                });
-            });
-        });
-    </script>
 
 {% endblock %}
