@@ -660,5 +660,104 @@ runcmd:
         </a>
     </div>
 
+    <button class="accordion">
+    <span class="text">Use Case <strong>OpenStack DevStack</strong>:
+        How to launch a self-contained OpenStack environment on a virtual machine?</span>
+        <span class="icon">▶</span>
+    </button>
+    <div class="panel">
+        <p><strong>Use Case for Advanced Users and Lecturers:</strong></p>
+        <p>This example demonstrates how to launch a full OpenStack (DevStack) environment inside a virtual machine.
+            It is ideal for experimentation, teaching advanced cloud computing, or developing against OpenStack APIs.</p>
+
+        <p><strong>Overview:</strong> The AppTemplate includes a cloud-init script that installs DevStack inside a VM.
+            The instance becomes a self-contained OpenStack environment, suitable for isolated testing and development.</p>
+
+        <p><strong>Steps:</strong> By following this example, users will learn how to:</p>
+        <ul>
+            <li>Create an AppTemplate that provisions an OpenStack (DevStack) installation.</li>
+            <li>Customize resources and credentials if needed.</li>
+            <li>Launch and access the DevStack dashboard (Horizon) via the VM's floating IP.</li>
+        </ul>
+        <br/>
+        <p><strong>Note:</strong> Find the
+            <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}" target="_blank">instruction</a>
+            section for a general guide.</p>
+        <p>For more information on DevStack and OpenStack, visit the official
+            <a href="https://docs.openstack.org/devstack/latest/" target="_blank">DevStack documentation</a>.</p>
+
+        <p><strong>Notice:</strong> DevStack requires sufficient RAM and CPU. Use a large enough flavor to ensure a
+            successful installation. Also, DevStack setup takes several minutes during the first boot.</p>
+
+        <h3>1. Create an AppTemplate</h3>
+        <p>To create an AppTemplate for a DevStack instance:</p>
+        <ol>
+            <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
+            <li>Click "Create New AppTemplate".</li>
+            <li><strong>General Configuration:</strong>
+                <ul>
+                    <li><strong>Step 1:</strong> Choose an Ubuntu image (e.g., 22.04).</li>
+                    <li><strong>Step 2:</strong> Name: <em>OpenStack DevStack</em>. Add a short description and a longer one if desired.</li>
+                    <li><strong>Step 3:</strong> Choose visibility: public or private.</li>
+                </ul>
+            </li>
+            <li><strong>Configure minimum resource requirements:</strong>
+                <ul>
+                    <li>RAM: 2 GB</li>
+                    <li>Disk Space: 10 GB</li>
+                    <li>CPU Cores: 2</li>
+                    <li>Volume Size: 20 GB (optional, depending on flavor/disk)</li>
+                </ul>
+            </li>
+            <li><strong>Configure Security Groups:</strong>
+                <ul>
+                    <li>Ensure that port 80 (HTTP) and 6080 (Horizon Dashboard) are open for access.</li>
+                </ul>
+            </li>
+            <li><strong>Write Configuration Script:</strong>
+                <ul>
+                    <li>Use the script below. It installs DevStack under the `ubuntu` user:</li>
+                    {% verbatim %}
+                        <pre><code>packages:
+  - git
+  - sudo
+  - python3-pip
+
+runcmd:
+  - cd /home/ubuntu
+  - git clone https://opendev.org/openstack/devstack.git
+  - chown -R ubuntu:ubuntu devstack
+  - echo '[[local|localrc]]' > /home/ubuntu/devstack/local.conf
+  - echo 'ADMIN_PASSWORD=secret' >> /home/ubuntu/devstack/local.conf
+  - echo 'DATABASE_PASSWORD=$ADMIN_PASSWORD' >> /home/ubuntu/devstack/local.conf
+  - echo 'RABBIT_PASSWORD=$ADMIN_PASSWORD' >> /home/ubuntu/devstack/local.conf
+  - echo 'SERVICE_PASSWORD=$ADMIN_PASSWORD' >> /home/ubuntu/devstack/local.conf
+  - echo "HOST_IP=$(hostname -I | awk '{print \$1}')" >> /home/ubuntu/devstack/local.conf
+  - su - ubuntu -c "/home/ubuntu/devstack/stack.sh"</code></pre>
+                    {% endverbatim %}
+                    <li>Save the script and complete the AppTemplate creation.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h3>2. Launch an Instance</h3>
+        <ol>
+            <li>Find the <em>OpenStack DevStack</em> AppTemplate and click "Launch".</li>
+            <li><strong>General Settings:</strong> Optionally adjust name or instance count.</li>
+            <li><strong>Resources:</strong> Select a flavor with at least 8 GB RAM and 4 vCPUs.</li>
+            <li><strong>Volume:</strong> Add a 20+ GB volume if needed.</li>
+            <li><strong>Network:</strong> Assign a floating IP to access the DevStack Horizon UI.</li>
+            <li><strong>User Data:</strong> No user input needed – script runs automatically on first boot.</li>
+            <li>Click <strong>Launch</strong>.</li>
+        </ol>
+
+        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template=openstack_devstack"
+           class="btn btn-primary mt-3">
+            Use This Example
+        </a>
+    </div>
+
+
+
 
 {% endblock %}
