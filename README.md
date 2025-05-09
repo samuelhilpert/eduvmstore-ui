@@ -21,4 +21,4 @@ from August 2024 to May 2025.
 ### Installation and Configuration
 For installation and configuration instructions, please refer to
 - Frontend Setup/Whole Project Setup : [Frontend Setup Guide](project_installation_and_configuration.md).
-- Backend: [Backend](https://github.com/samuelhilpert/eduvmstore/blob/dev/README.md).
+- Backend: [Backend Setup Guide](https://github.com/samuelhilpert/eduvmstore/blob/dev/backend_setup.md).

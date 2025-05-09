@@ -16,7 +16,7 @@ To set up the EduVMStore on a DevStack environment, a DevStack environment is re
 - On `https://stack.dhbw.cloud/` create a new instance (Virtual Machine)
   - At Source choose Image Ubuntu 22.04 
   - Select no new Volume
-  - Choose a large Flavor of choice (Recommendation: m1_extra_large for develpment)
+  - Choose a large Flavor of choice (Recommendation: m1_extra_large)
   - Choose Network: provider_912
   - Choose a Security Group that inhabits the following: Allows inbound (ingress) on ports 22 and 8000 from the IP address of the Backend VM.
   - Choose your SSH Keypair of your choice: Used to access the VM through ssh 
@@ -42,7 +42,7 @@ ENABLE_PLUGIN eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui <your
 ```
 
 
-- Start the DevStack environment by executing the following command (also known as stacking, this takes a while) This loads the github repository if there is no folder named `eduvmstore-ui` in the `devstack` folder. If there is a folder named `eduvmstore-ui`:
+- Start the DevStack environment by executing the following command (also known as stacking, this takes a while) This loads the github repository if there is no folder named `eduvmstore-ui` in the `devstack` folder. If there is a folder named `eduvmstore-ui`, delete it before preceding.
 ```bash
 devstack/stack.sh
 ```
