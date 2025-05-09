@@ -3,6 +3,7 @@ import logging
 from myplugin.content.api_endpoints import API_ENDPOINTS
 
 
+# Todo: dublicate function ../admin/utils.py
 def get_token_id(request):
     """
     Retrieves the token ID from the request object.
@@ -10,6 +11,7 @@ def get_token_id(request):
     return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
 
 
+# Todo: dublicate function ../admin/utils.py
 def get_user_details(request, user_id):
     """
     Fetches detailed user information for a given user_id using the external API.
@@ -27,6 +29,8 @@ def get_user_details(request, user_id):
         return {}
 
 
+# Todo: wrong comment
+# Todo: dublicate function ../admin/utils.py
 def get_roles(request):
     """
     Fetches app templates from the external API using a provided token ID.
