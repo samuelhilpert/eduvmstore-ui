@@ -20,7 +20,7 @@
 <p><strong>Note:</strong> Find the
     <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
        target="_blank">instruction</a> section for a general guide.</p>
-    {% if (product_name) %}
+    {% if product_name %}
         <p>For detailed information about {{ product_name }}, visit the official
         <a href="{{ product_url }}" target="_blank">{{ product_name }} documentation</a>.</p>
     {%  endif %}
@@ -47,7 +47,7 @@
                         This is for quickly recognizing the purpose of the AppTemplate.
                         For "Description" write "{{ preset.description }}". This gives a detailed overview of the
                         Purpose of the AppTemplate.
-                        {% if (preset.instantiation_notice == "") %}
+                        {% if preset.instantiation_notice == "" %}
                             Leave the "Instantiation Notice" field empty.
                         {% else %}
                             In the "Instantiation Notice" write "{{ preset.instantiation_notice }}".
@@ -91,13 +91,13 @@
                         during the instantiation of the AppTemplate. Account Attributes can be used for user
                         related data where each user has different data (e.g. username). Instantiation
                         attributes are only filled once per Instance (e.g. java-version).
-                        {% if (preset.instantiation_attributes) %}
+                        {% if preset.instantiation_attributes %}
                             In this case use {{ preset.instantiation_attributes }} as instantiation attributes.
                         {% else %}
                             In this AppTemplate Example you do not need instantiation attributes.
                         {% endif %}
 
-                        {% if (preset.account_attributes) %}
+                        {% if preset.account_attributes %}
                             In this case use {{ preset.account_attributes }} as account attributes.
                         {% else %}
                             In this AppTemplate Example you do not need account attributes.
@@ -125,7 +125,7 @@
             <li><strong>Configure General Launch Details:</strong>
                 <ul>
                     <li>
-                        {% if (instance_count == 1) %}
+                        {% if instance_count == 1 %}
                             Keep the default settings for the instance. In this case,
                             separate keys are not required as only one instance is needed.
                         {% else %}
@@ -142,7 +142,7 @@
                     </li>
                     <li>Step 2: Select the network "provider_912" for the instance.</li>
                     <li>Step 3:
-                        {% if (volume_size == 0) %}
+                        {% if volume_size == 0 %}
                             Choose No additional volume.
                         {% else %}
                             Create a volume of the size {{ volume_size }}.
@@ -157,7 +157,7 @@
                         </ul>
 
                     </li>
-                    {% if (preset.account_attributes) %}
+                    {% if preset.account_attributes %}
                         <li>Step 5: Add users to the instance. The variables come from
                             the account attributes field.
                             <ul>
