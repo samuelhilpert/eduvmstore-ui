@@ -88,7 +88,8 @@ sudo docker exec -it horizon bash
   - Copy the script to the horizon container
   - Execute the script with the following command 
   - Leave the container with `exit`
-  - Restarts the horizon container
+  - Restarts the horizon container with `sudo docker restart horizon`
+  ```bash
   - Open the Horizon dashboard via the IP-Address of the docker in your browser and log in.
 
 - Alternatively, you can do it manually:
