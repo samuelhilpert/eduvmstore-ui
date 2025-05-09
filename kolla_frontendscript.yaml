@@ -1,0 +1,42 @@
+#!/bin/bash
+
+  set -e
+    
+    VENV_PATH="/var/lib/kolla/venv"
+    SITE_PACKAGES="$VENV_PATH/lib/python3.12/site-packages"
+    PLUGIN_REPO="https://github.com/samuelhilpert/eduvmstore-ui.git"
+    PLUGIN_NAME="myplugin"
+    ENABLED_PATH="$SITE_PACKAGES/openstack_dashboard/enabled"
+    
+    echo "1. Cloning plugin repository..."
+    cd "$SITE_PACKAGES"
+    git clone "$PLUGIN_REPO"
+    
+    echo "2. Moving plugin folder to site-packages root..."
+    mv eduvmstore-ui/$PLUGIN_NAME .
+    rm -rf eduvmstore-ui
+    
+    echo "3. Creating symlinks to enabled files..."
+    cd "$ENABLED_PATH"
+    for file in \
+    _31000_my_plugin.py \
+    _31100_my_second_plugin.py \
+    _31150_tutorial_group.py \
+    _31200_tutorial_panel.py \
+    _31210_instructions_panel.py \
+    _31220_script_panel.py \
+    _31230_example_panel.py \
+    _31240_admin_instructions_panel.py \
+    _32000_my_new_dashboard.py
+    do
+    ln -sf "$SITE_PACKAGES/$PLUGIN_NAME/enabled/$file" .
+    done
+    
+    echo "4. Installing required Python packages..."
+    "$VENV_PATH/bin/pip" install reportlab
+    
+    echo "5. Collecting static files and compressing assets..."
+    "$VENV_PATH/bin/python3" "$VENV_PATH/bin/manage.py" collectstatic --noinput
+    "$VENV_PATH/bin/python3" "$VENV_PATH/bin/manage.py" compress --force
+    
+    echo "Done. The plugin should now be available in Horizon."
