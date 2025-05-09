@@ -2,6 +2,7 @@ from django.utils.translation import gettext_lazy as _
 import horizon
 
 
+# Todo: Bad name
 class MyPanel(horizon.Panel):
     """
         Custom Horizon panel for the EduVMStore Dashboard.

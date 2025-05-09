@@ -11,6 +11,7 @@ urlpatterns = [
     path('create/<str:template_id>/', apptemplate.AppTemplateView.as_view(), name='create_with_template'),
     path('edit/<str:template_id>/', apptemplate.AppTemplateView.as_view(), name='edit'),
     path('instances/<str:image_id>/', instances.InstancesView.as_view(), name='instances'),
+    # Todo: why validate-name instead of validate_name?
     path('validate-name/', views.validate_name, name='validate_name'),
     path('success/', success.InstanceSuccessView.as_view(), name='success'),
     path('favorite_template/', views.GetFavoriteAppTemplateView.as_view(), name='favorite_template'),

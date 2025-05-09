@@ -1,5 +1,7 @@
 import requests
 import logging
+# Todo: maybe unused imports?
+# horizon::tabs openstack_dashboard::api::{glance, nova, cinder, keystone, neutron}
 from horizon import tabs, exceptions
 from openstack_dashboard import api
 from openstack_dashboard.api import glance, nova, cinder, keystone, neutron
@@ -13,6 +15,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 import io
 
 
+# Todo: get / fetch inconsistent naming
 def get_token_id(request):
     """
     Retrieve the token ID from the request object.
