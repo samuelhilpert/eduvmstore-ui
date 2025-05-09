@@ -1,4 +1,10 @@
-#cloud-config
+  - path: /tmp/pg_hba.conf
+    permissions: '0644'
+    content: |
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+      local   all             all                                     peer
+      host    all             all             0.0.0.0/0               md5
+      host    all             all             ::/0                    md5
 
 # Install PostgreSQL and useful extensions
 packages:
@@ -7,14 +13,6 @@ packages:
 
 # Write PostgreSQL configuration files to temporary paths.
 # These will be copied into place *after* cluster is initialized.
-write_files:
-  - path: /tmp/pg_hba.conf
-    permissions: '0644'
-    content: |
-      # TYPE  DATABASE        USER            ADDRESS                 METHOD
-      local   all             all                                     peer
-      host    all             all             0.0.0.0/0               md5
-      host    all             all             ::/0                    md5
 
 runcmd:
   # Explicitly initialize PostgreSQL cluster (not always done automatically)
@@ -35,9 +33,12 @@ runcmd:
   # Set password for default 'postgres' user
   - sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'adminpass';"
 
-  # Create demo user & database
-  - sudo -u postgres psql -c "CREATE ROLE student01 WITH LOGIN PASSWORD 'studentpass';"
-  - sudo -u postgres psql -c "CREATE DATABASE student01_db OWNER student01;"
+    # Loop through user:db_name entries to create roles and databases
+  - |
+    while IFS=':' read -r username db_name password; do
+      sudo -u postgres psql -c "CREATE ROLE $username WITH LOGIN PASSWORD '$password';"
+      sudo -u postgres psql -c "CREATE DATABASE $db_name OWNER $username;"
+    done < /etc/users.txt
 
   # Restart again --> ensure all changes are active (optional)
   - systemctl restart postgresql
