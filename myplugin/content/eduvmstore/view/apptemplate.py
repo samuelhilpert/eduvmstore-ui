@@ -1,4 +1,3 @@
-# Todo: filename apptemplate -> app_template?
 from django.views import generic
 from django.shortcuts import render, redirect
 from myplugin.content.eduvmstore.utils import get_images_data, get_token_id, get_app_template, get_image_data
@@ -146,8 +145,7 @@ class AppTemplateView(generic.TemplateView):
                     messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            # Todo: does this need to be an f string?
-            messages.error(request, f"Failed to create App-Template. Please try again.")
+            messages.error(request, "Failed to create App-Template. Please try again.")
 
         return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 

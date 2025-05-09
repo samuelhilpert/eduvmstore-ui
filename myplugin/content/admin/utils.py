@@ -13,11 +13,11 @@ def get_username_from_id(request, user_id):
     and returns the user's name. If an exception occurs during the process,
     it returns the provided user ID as a fallback.
 
-    Args:
+    :arg
         request: The HTTP request object containing user authentication details.
         user_id (str): The ID of the user whose name is to be retrieved.
 
-    Returns:
+    :return
         str: The username if successfully retrieved, otherwise the user ID.
     """
     try:
@@ -35,10 +35,10 @@ def get_token_id(request):
     retrieves the token ID if it exists. If the `user` or `token` attribute
     is not present, it returns `None`.
 
-    Args:
+    :arg
         request: The HTTP request object containing user authentication details.
 
-    Returns:
+    :return
         str or None: The token ID if available, otherwise `None`.
     """
     return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
@@ -53,10 +53,10 @@ def get_users(request):
     is successful, it returns the JSON response containing the list of users.
     In case of an error, it logs the error and returns an empty list.
 
-    Args:
+    :arg
         request: The HTTP request object containing user authentication details.
 
-    Returns:
+    :return
         list: A list of users retrieved from the external API, or an empty list
         if the request fails.
     """
@@ -82,10 +82,10 @@ def get_roles(request):
     is successful, it returns the JSON response containing the list of roles.
     In case of an error, it logs the error and returns an empty list.
 
-    Args:
+    :arg
         request: The HTTP request object containing user authentication details.
 
-    Returns:
+    :return
         list: A list of roles retrieved from the external API, or an empty list
         if the request fails.
     """
@@ -112,11 +112,11 @@ def get_user_details(request, user_id):
     user's details. In case of an error, it logs the error and returns an empty
     dictionary.
 
-    Args:
+    :arg
         request: The HTTP request object containing user authentication details.
         user_id (str): The ID of the user whose details are to be retrieved.
 
-    Returns:
+    :return
         dict: A dictionary containing the user's details if the request is
         successful, or an empty dictionary if the request fails.
     """
@@ -143,10 +143,10 @@ def get_app_templates_to_approve(request):
     of app templates. In case of an error, it logs the error and returns an
     empty list.
 
-    Args:
+    :arg
         request: The HTTP request object containing user authentication details.
 
-    Returns:
+    :return
         list: A list of app templates pending approval, or an empty list if
         the request fails.
     """
@@ -173,10 +173,10 @@ def get_app_templates(request):
     of app templates. In case of an error, it logs the error and returns an
     empty list.
 
-    Args:
+    :arg
         request: The HTTP request object containing user authentication details.
 
-    Returns:
+    :return
         list: A list of app templates retrieved from the external API, or an
         empty list if the request fails.
     """

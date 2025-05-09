@@ -20,7 +20,6 @@ class InstancesView(generic.TemplateView):
         context = self.get_context_data()
         return render(request, self.template_name, context)
 
-    # Todo: probably to deeply nested and to big function but "juckt" i guess
     def post(self, request, *args, **kwargs):
         """
         Handle POST requests to create multiple instances.
