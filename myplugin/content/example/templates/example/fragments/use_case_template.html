@@ -145,14 +145,14 @@
                         {% if volume_size == 0 %}
                             Choose No additional volume.
                         {% else %}
-                            Create a volume of the size {{ volume_size }}.
+                            Create a volume of the size {{ preset.volume_size }}.
                         {% endif %}
                     </li>
                     <li>Step 4: Enter Instantiation Attributes like versions, if required by the
                         AppTemplate.
                         <ul>
                         {% for instantiation_attribute in preset.instantiation_attributes %}
-                            <li> For {{ instantiation_attribute.name }} enter {{ instantiation_attribute_recommendation_values[i] }}</li>
+                            <li> For {{ instantiation_attribute.name }} enter {{ instantiation_attribute_recommendation_values[0] }}</li>
                         {% endfor %}
                         </ul>
 

@@ -32,7 +32,7 @@
 
     {% include "example/fragments/use_case_template.html" with
         preset=presets.ubuntu_linux
-        use_case_title="GitLab Server"
+        use_case_title="Ubuntu Linux"
         use_case_problem_question="How to set up simple Ubuntu Linux instances with SSH setup for users?"
         use_case_description="This example demonstrates how lecturers can set up simple Ubuntu Linux instances with SSH setup for multiple users. Each user will have their own SSH key generated and securely stored."
         overview="Lecturers will create an AppTemplate that includes a cloud-init script to configure the Ubuntu Linux environment and automatically set up SSH access for users. This ensures a streamlined process for deploying and managing the instances."
@@ -46,7 +46,9 @@
         security_group_instructions="For this example, select a security group that allows SSH access (port 22)."
         instance_count="1"
         flavour="mb1.small"
+        instantiation_attribute_recommendation_values = []
         link_id="ubuntu_linux" %}
+
 
     <button class="accordion">
         <span class="text">Use Case <strong>Ubuntu Linux</strong>:
