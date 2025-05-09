@@ -26,6 +26,7 @@
 
         <button class="accordion">AppTemplate Management</button>
         <div class="panel">
+        <!-- Todo: is explained, what confirm means? That this is for publishing an AppTemplate? -->
             <h2>Confirm new AppTemplates</h2>
             <p><i style="color: gray;">Here you can confirm new AppTemplates that have been created by
                 users.</i></p>
@@ -58,6 +59,7 @@
                                   action="{% url 'horizon:eduvmstore_dashboard:admin:approve_template' %}"
                                   onsubmit="return confirm('Are you sure you want to approve this appTemplate {{ template.name }}?');">
                                 {% csrf_token %}
+                            <!-- Todo: inconsistent naming confirm / approve -->
                                 <input type="hidden" name="template_id" value="{{ template.id }}">
                                 <button class="btn btn-primary" type="submit">Approve</button>
                             </form>

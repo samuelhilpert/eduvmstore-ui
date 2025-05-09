@@ -1,3 +1,4 @@
+# Todo: are these util function specific for the admin page? Why are they here?
 from openstack_dashboard.api import keystone
 import requests
 import logging
@@ -20,6 +21,7 @@ def get_token_id(request):
 
 
 def get_users(request):
+    # Todo: wrong comment? "Fetches Users"?
     """
     Fetches app templates from the external API using a provided token ID.
     """
@@ -37,6 +39,7 @@ def get_users(request):
 
 
 def get_roles(request):
+    # Todo: wrong comment? "Fetches Roles"?
     """
     Fetches app templates from the external API using a provided token ID.
     """
