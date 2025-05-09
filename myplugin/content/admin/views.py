@@ -3,8 +3,6 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
-# Todo: is this still used? (keystone)
-from openstack_dashboard.api import keystone
 from myplugin.content.admin.utils import get_token_id
 
 
@@ -32,19 +30,14 @@ class UpdateRolesView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Todo: meaningless comment
-            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
 
             payload = {"role_id": new_role_id}
             headers = {"X-Auth-Token": token_id}
 
-            # Todo: meaningless comment
-            # API-PATCH-Call
             response = requests.patch(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 200:
-                # Todo: what is the difference between messages and logging
                 messages.success(request, f"Role for user {user_id} updated successfully to {new_role_id}.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
@@ -52,7 +45,6 @@ class UpdateRolesView(generic.View):
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 
-        # Todo: should the result of the redirect be returned? (same question for all following)
         return redirect('horizon:eduvmstore_dashboard:admin:index')
 
 
@@ -70,14 +62,10 @@ class ApproveTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Todo: meaningless comment
-            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/approve/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # Todo: meaningless comment
-            # API-PATCH-Call
             response = requests.patch(api_url, headers=headers, timeout=10)
 
             if response.status_code == 200:
@@ -106,14 +94,10 @@ class RejectTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Todo: meaningless comment
-            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/reject/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # Todo: meaningless comment
-            # API-PATCH-Call
             response = requests.patch(api_url, headers=headers, timeout=10)
 
             if response.status_code == 200:
@@ -141,14 +125,10 @@ class DeleteTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Todo: meaningless comment
-            # Prepare API call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # Todo: meaningless comment
-            # API DELETE call
             response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
@@ -176,14 +156,10 @@ class DeleteUserView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Todo: meaningless comment
-            # Prepare API call
             api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # Todo: meaningless comment
-            # API DELETE call
             response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:

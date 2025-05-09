@@ -41,16 +41,14 @@ class IndexView(generic.TemplateView):
 
         try:
             user_data = get_users(self.request)
-        except Exception as e:
-            # Todo: e not used
+        except Exception:
             user_data = []
 
         context['users'] = user_data
 
         try:
             roles_data = get_roles(self.request)
-        except Exception as e:
-            # Todo: e not used
+        except Exception:
             roles_data = []
         context['roles'] = roles_data
 
@@ -61,8 +59,7 @@ class IndexView(generic.TemplateView):
                 break
         try:
             approvable_app_templates = get_app_templates_to_approve(self.request)
-        except Exception as e:
-            # Todo: e not used
+        except Exception:
             approvable_app_templates = []
         context['approvable_app_templates'] = approvable_app_templates
 
@@ -72,16 +69,14 @@ class IndexView(generic.TemplateView):
                 app_template_creator_id = creator_id.replace('-', '')
                 try:
                     creator_name = get_username_from_id(self.request, app_template_creator_id)
-                except Exception as e:
-                # Todo: e not used
+                except Exception:
                     creator_name = "unknown"
 
                 template["creator_name"] = creator_name
 
         try:
             app_templates = get_app_templates(self.request)
-        except Exception as e:
-            # Todo: e not used
+        except Exception:
             app_templates = []
         context['app_templates'] = app_templates
 
@@ -98,8 +93,7 @@ class IndexView(generic.TemplateView):
                 if updated_at_raw:
                     dt = datetime.strptime(updated_at_raw, "%Y-%m-%dT%H:%M:%S.%fZ")
                     user_details['updated_at'] = dt.strftime("%d.%m.%Y %H:%M")
-        except Exception as e:
-            # Todo: e not used
+        except Exception:
             detailed_users = []
 
         context['detailed_users'] = detailed_users
