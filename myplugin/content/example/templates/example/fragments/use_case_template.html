@@ -92,13 +92,21 @@
                         related data where each user has different data (e.g. username). Instantiation
                         attributes are only filled once per Instance (e.g. java-version).
                         {% if example_info.preset.instantiation_attributes %}
-                            In this case use {{ example_info.preset.instantiation_attributes }} as instantiation attributes.
+                            In this case use
+                            {% for attr in example_info.preset.instantiation_attributes %}
+                                {% if not forloop.first %}:{% endif %}{{ attr.name }}
+                            {% endfor %}
+                            as instantiation attributes.
                         {% else %}
                             In this AppTemplate Example you do not need instantiation attributes.
                         {% endif %}
 
                         {% if example_info.preset.account_attributes %}
-                            In this case use {{ example_info.preset.account_attributes }} as account attributes.
+                            In this case use
+                             {% for attr in example_info.preset.account_attributes %}
+                                {% if not forloop.first %}:{% endif %}{{ attr.name }}
+                            {% endfor %}
+                            as account attributes.
                         {% else %}
                             In this AppTemplate Example you do not need account attributes.
                         {% endif %}
