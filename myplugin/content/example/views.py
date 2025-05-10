@@ -94,6 +94,26 @@ class IndexView(generic.TemplateView):
                 "instantiation_attribute_recommendation_values": [],
                 "link_id": "postgres",
             },
+            {
+                "preset": preset_examples["openstack_devstack"],
+                "use_case_title": "OpenStack DevStack",
+                "use_case_problem_question": "How to launch a self-contained OpenStack environment on a virtual machine?",
+                "use_case_description": "This example demonstrates how to launch a full OpenStack (DevStack) environment inside a virtual machine. It is ideal for experimentation, teaching advanced cloud computing, or developing against OpenStack APIs.",
+                "overview": "The AppTemplate includes a cloud-init script that installs DevStack inside a VM. The instance becomes a self-contained OpenStack environment, suitable for isolated testing and development.",
+                "learning_objectives": [
+                    "Create an AppTemplate that provisions an OpenStack (DevStack) installation.",
+                    "Customize resources and credentials if needed.",
+                    "Launch and access the DevStack dashboard (Horizon) via the VM's floating IP."
+                ],
+                "product_name": "OpenStack DevStack",
+                "product_url": "https://docs.openstack.org/devstack/latest/",
+                "image_name": "Ubuntu 22.04",
+                "security_group_instructions": "For this example, select a security group that allows HTTP access (port 80) and Horizon Dashboard (port 6080).",
+                "instance_count": "1",
+                "flavour": "mb1.large",
+                "instantiation_attribute_recommendation_values": [],
+                "link_id": "openstack_devstack",
+            }
         ]
 
         return context
