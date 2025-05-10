@@ -2,18 +2,18 @@
 
 <!--Accordion is used as the surrounding structure for a single use case-->
 <button class="accordion">
-    <span class="text">Use Case <strong>{{ use_case_title }}</strong>: {{ use_case_problem_question }}</span>
+    <span class="text">Use Case <strong>{{ example_info.use_case_title }}</strong>: {{ example_info.use_case_problem_question }}</span>
     <span class="icon">▶</span>
 </button>
 
 <div class="panel">
     <p><strong>Use Case for Lecturers:</strong></p>
-<p>{{ use_case_description|safe }}</p>
-<p><strong>Overview:</strong> {{ overview|safe }}</p>
+<p>{{ example_info.use_case_description|safe }}</p>
+<p><strong>Overview:</strong> {{ example_info.overview|safe }}</p>
 <p><strong>Learning objectives:</strong> By following this example, lecturers will learn how to:</p>
 <ul>
     {% for learning_objective in learning_objectives %}
-        <li>{{ learning_objective }}</li>
+        <li>{{ example_info.learning_objective }}</li>
     {% endfor %}
 </ul>
 <br/>
@@ -21,8 +21,8 @@
     <a href="{% url 'horizon:eduvmstore_dashboard:instructions:index' %}"
        target="_blank">instruction</a> section for a general guide.</p>
     {% if product_name %}
-        <p>For detailed information about {{ product_name }}, visit the official
-        <a href="{{ product_url }}" target="_blank">{{ product_name }} documentation</a>.</p>
+        <p>For detailed information about {{ example_info.product_name }}, visit the official
+        <a href="{{ example_info.product_url }}" target="_blank">{{ example_info.product_name }} documentation</a>.</p>
     {%  endif %}
 
 <p><strong>Notice:</strong> Before proceeding with this use case, you can also search for a fitting
@@ -31,26 +31,26 @@
     <strong>1. Create an AppTemplate</strong>.</p>
 
 <h3>1. Create an AppTemplate</h3>
-        <p>To create an AppTemplate for the {{ use_case_title }}, follow these steps:</p>
+        <p>To create an AppTemplate for the {{ example_info.use_case_title }}, follow these steps:</p>
         <ol>
             <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
             <li>Click on the "Create New AppTemplate" button.</li>
             <li><strong>General Configuration:</strong>
                 <ul>
                     <li>Step 1: Select the base image for the AppTemplate. For this Example choose
-                        {{ image_name }}. On the basis of this image the AppTemplate will be created.
+                        {{ example_info.image_name }}. On the basis of this image the AppTemplate will be created.
                     </li>
                     <li>Step 2: Fill in the general information for the AppTemplate.
-                        As AppTemplate Name choose "{{ preset.name }}"
+                        As AppTemplate Name choose "{{ example_info.preset.name }}"
                         or a similar name if not available.
-                        In the "Short Description" write "{{ preset.short_description }}".
+                        In the "Short Description" write "{{ example_info.preset.short_description }}".
                         This is for quickly recognizing the purpose of the AppTemplate.
-                        For "Description" write "{{ preset.description }}". This gives a detailed overview of the
+                        For "Description" write "{{ example_info.preset.description }}". This gives a detailed overview of the
                         Purpose of the AppTemplate.
                         {% if preset.instantiation_notice == "" %}
                             Leave the "Instantiation Notice" field empty.
                         {% else %}
-                            In the "Instantiation Notice" write "{{ preset.instantiation_notice }}".
+                            In the "Instantiation Notice" write "{{ example_info.preset.instantiation_notice }}".
                         {% endif %}
                         This field is used
                         to inform the user about additional steps needed to perform during the instantiation
@@ -65,13 +65,13 @@
                 <ul>
                     <li>Step 1: Enter the appropriate minimum resources for the AppTemplate:
                         <ul>
-                            <li>RAM: {{ preset.fixed_ram_gb }} GB</li>
-                            <li>Disk Space: {{ preset.fixed_disk_gb }} GB</li>
-                            <li>CPU Cores: {{ preset.fixed_cores }}</li>
+                            <li>RAM: {{ example_info.preset.fixed_ram_gb }} GB</li>
+                            <li>Disk Space: {{ example_info.preset.fixed_disk_gb }} GB</li>
+                            <li>CPU Cores: {{ example_info.preset.fixed_cores }}</li>
                         </ul>
                     </li>
                     <li>Step 2: Optionally enter a minimum volume size. This is for extra storage in the vm.
-                        For this example, set the volume size to {{ preset.volume_size }} GB.
+                        For this example, set the volume size to {{ example_info.preset.volume_size }} GB.
                     </li>
                 </ul>
             </li>
@@ -80,7 +80,7 @@
                     <li>Select one or more existing security groups to be used for the
                         AppTemplate. These security groups define the network access rules for the
                         instances launched from this AppTemplate.
-                        {{ security_group_instructions }}
+                        {{ example_info.security_group_instructions }}
                     </li>
                 </ul>
             </li>
@@ -92,23 +92,23 @@
                         related data where each user has different data (e.g. username). Instantiation
                         attributes are only filled once per Instance (e.g. java-version).
                         {% if preset.instantiation_attributes %}
-                            In this case use {{ preset.instantiation_attributes }} as instantiation attributes.
+                            In this case use {{ example_info.preset.instantiation_attributes }} as instantiation attributes.
                         {% else %}
                             In this AppTemplate Example you do not need instantiation attributes.
                         {% endif %}
 
                         {% if preset.account_attributes %}
-                            In this case use {{ preset.account_attributes }} as account attributes.
+                            In this case use {{ example_info.preset.account_attributes }} as account attributes.
                         {% else %}
                             In this AppTemplate Example you do not need account attributes.
                         {% endif %}
                     </li>
                     <li>Step 2: Click the "Write Script" button to open the script editor.</li>
                     <li>Step 3: Write the following cloud-init configuration script to automate the setup of
-                        the {{ use_case_title }}:
+                        the {{ example_info.use_case_title }}:
                     </li>
                     <pre><code>
-                        {{ preset.script|safe }}
+                        {{ example_info.preset.script|safe }}
                     </code></pre>
                     <li>Step 4: Click the "Save Script" button and the "Create" button to create the
                         AppTemplate.
@@ -121,7 +121,7 @@
         <p>To launch an instance using the created AppTemplate, follow these steps:</p>
         <ol>
             <li>Navigate to the AppTemplates section in the EduVMStore Dashboard.</li>
-            <li>Click the "Launch" button next to the {{ use_case_title }} AppTemplate.</li>
+            <li>Click the "Launch" button next to the {{ example_info.use_case_title }} AppTemplate.</li>
             <li><strong>Configure General Launch Details:</strong>
                 <ul>
                     <li>
@@ -129,7 +129,7 @@
                             Keep the default settings for the instance. In this case,
                             separate keys are not required as only one instance is needed.
                         {% else %}
-                            Change the number of instances to {{ instance_count }}. Select Separate keys to
+                            Change the number of instances to {{ example_info.instance_count }}. Select Separate keys to
                             have a unique ssh key for each instance.
                         {% endif %}
                     </li>
@@ -137,7 +137,7 @@
             </li>
             <li><strong>Configure Instance Details:</strong>
                 <ul>
-                    <li>Step 1: Select the Flavor {{ flavour }} for the instance. If not available, choose
+                    <li>Step 1: Select the Flavor {{ example_info.flavour }} for the instance. If not available, choose
                         one that meets the minimum resource requirements specified in the AppTemplate.
                     </li>
                     <li>Step 2: Select the network "provider_912" for the instance.</li>
@@ -145,7 +145,7 @@
                         {% if volume_size == 0 %}
                             Choose No additional volume.
                         {% else %}
-                            Create a volume of the size {{ preset.volume_size }}.
+                            Create a volume of the size {{ example_info.preset.volume_size }}.
                         {% endif %}
                     </li>
                     <li>Step 4: Enter Instantiation Attributes like versions, if required by the
@@ -177,7 +177,7 @@
                 </ul>
             </li>
         </ol>
-    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template={{ link_id }}"
+    <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_empty' %}?template={{ example_info.link_id }}"
        class="btn btn-primary mt-3">
         Use This Example
     </a>
