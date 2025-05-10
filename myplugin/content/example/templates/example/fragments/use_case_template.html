@@ -148,8 +148,11 @@
                             Create a volume of the size {{ example_info.preset.volume_size_gb }}.
                         {% endif %}
                     </li>
-                    <li>Step 4: Enter Instantiation Attributes like versions, if required by the
-                        AppTemplate.
+                    <li>Step 4: Fill in the instantiation attributes.
+                        {% if example_infor.preset.instantiation_attributes == [] %}
+                            This AppTemplate does not have instantiation attributes.
+                            So you can skip this step.
+                        {% endif %}
                         <ul>
                         {% for instantiation_attribute in example_info.preset.instantiation_attributes %}
                                 {% with index=forloop.counter0 %}
@@ -159,7 +162,6 @@
                                 {% endwith %}
                         {% endfor %}
                         </ul>
-
                     </li>
                     {% if example_info.preset.account_attributes %}
                         <li>Step 5: Add users to the instance. The variables come from
