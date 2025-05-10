@@ -142,7 +142,7 @@
                     </li>
                     <li>Step 2: Select the network "provider_912" for the instance.</li>
                     <li>Step 3:
-                        {% if example_info.volume_size_gb == 0 %}
+                        {% if example_info.volume_size_gb == "0" %}
                             Choose No additional volume.
                         {% else %}
                             Create a volume of the size {{ example_info.preset.volume_size_gb }}.
