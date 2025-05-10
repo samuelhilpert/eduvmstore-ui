@@ -35,6 +35,7 @@ class IndexView(generic.TemplateView):
                 "link_id": "ubuntu_linux",
             },
             {
+            "preset": preset_examples["gitlab_server"],
             "use_case_title": "GitLab Server",
             "use_case_problem_question": "How to set up a GitLab server for a software engineering course?",
             "use_case_description": "This example demonstrates how lecturers can set up a GitLab server for a software engineering course using the EduVMStore. The setup enables students to collaborate on projects and manage their code repositories effectively, providing a practical learning environment.",
