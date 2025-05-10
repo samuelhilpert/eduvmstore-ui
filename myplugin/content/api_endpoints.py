@@ -3,7 +3,7 @@
 
 # Samuel Dev
 
-BASE_URL = "http://141.72.12.173:8000/api/"
+# BASE_URL = "http://141.72.12.173:8000/api/"
 # BASE_URL = "http://localhost:8000/api/"
 
 
@@ -11,7 +11,7 @@ BASE_URL = "http://141.72.12.173:8000/api/"
 # BASE_URL = "http://141.72.13.194:8000/api/"
 
 # Production
-# BASE_URL = "http://141.72.12.209:8000/api/"
+BASE_URL = "http://141.72.12.209:8000/api/"
 
 # Define your API endpoints in a dictionary or as constants
 API_ENDPOINTS = {
