@@ -23,13 +23,15 @@
     <p style="font-style: italic; color: #666; margin-top: 10px;">This tutorial is suitable for
         version 1.8 (Release: 05/2025) of EduVMStore and the OpenStack Release 2025.1.
         The ubuntu version used is 22.04 LTS.</p>
-    {% include "./fragments/test.html" %}
+    {% include "./fragments/test.html" with name="'Alex" %}
     <hr>
     <h2 style="text-align: center; color: #333;">Examples</h2>
     <p style="text-align: center; color: #666; font-size: 16px;">Here are some examples of use cases and how
         to use the EduVMStore.</p>
     <hr>
+    {% include "./fragments/test.html" with name="'Bob" %}
 
+    {% include "./fragments/use_case_template.html" %}
     {% include "./fragments/use_case_template.html" with
         preset=presets.ubuntu_linux
         use_case_title="Ubuntu Linux"
