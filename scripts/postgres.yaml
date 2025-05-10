@@ -1,0 +1,47 @@
+  - path: /tmp/pg_hba.conf
+    permissions: '0644'
+    content: |
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+      local   all             all                                     peer
+      host    all             all             0.0.0.0/0               md5
+      host    all             all             ::/0                    md5
+
+# Install PostgreSQL and useful extensions
+packages:
+  - postgresql
+  - postgresql-contrib
+
+# Write PostgreSQL configuration files to temporary paths.
+# These will be copied into place *after* cluster is initialized.
+
+runcmd:
+  # Explicitly initialize PostgreSQL cluster (not always done automatically)
+  #- pg_createcluster 14 main --start
+
+  # Stop PostgreSQL to apply changes
+  - systemctl stop postgresql
+
+  # Overwrite default configuration files with custom versions
+  - cp /tmp/pg_hba.conf /etc/postgresql/14/main/pg_hba.conf
+  - sed -i "/^#listen_addresses =/c\listen_addresses = '*'" /etc/postgresql/14/main/postgresql.conf
+  - sed -i "/^#max_connections =/c\max_connections = 100" /etc/postgresql/14/main/postgresql.conf
+  - chown postgres:postgres /etc/postgresql/14/main/*.conf
+
+  # Restart PostgreSQL to apply new configuration
+  - systemctl restart postgresql
+
+  # Set password for default 'postgres' user
+  - sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'adminpass';"
+
+    # Loop through user:db_name entries to create roles and databases
+  - |
+    while IFS=':' read -r username db_name password; do
+      sudo -u postgres psql -c "CREATE ROLE $username WITH LOGIN PASSWORD '$password';"
+      sudo -u postgres psql -c "CREATE DATABASE $db_name OWNER $username;"
+    done < /etc/users.txt
+
+  # Restart again --> ensure all changes are active (optional)
+  - systemctl restart postgresql
+
+# Final confirmation message in cloud-init log
+final_message: "PostgreSQL teaching server is ready."
