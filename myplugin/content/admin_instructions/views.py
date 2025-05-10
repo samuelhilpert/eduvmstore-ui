@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from myplugin.content.admin_instructions.utils import get_user_details, get_roles
 import sys
 
+
 class IndexView(generic.TemplateView):
     """
         View for displaying the tutorial index page and handling data retrieval from a backend API.

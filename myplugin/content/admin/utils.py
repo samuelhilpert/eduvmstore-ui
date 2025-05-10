@@ -3,6 +3,7 @@ import requests
 import logging
 from myplugin.content.api_endpoints import API_ENDPOINTS
 
+
 def get_username_from_id(request, user_id):
     try:
         user = keystone.user_get(request, user_id)
@@ -11,12 +12,12 @@ def get_username_from_id(request, user_id):
         return user_id
 
 
-
 def get_token_id(request):
     """
     Retrieves the token ID from the request object.
     """
     return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
+
 
 def get_users(request):
     """
@@ -34,6 +35,7 @@ def get_users(request):
         logging.error("Failed to fetch users: %s", e)
         return []
 
+
 def get_roles(request):
     """
     Fetches app templates from the external API using a provided token ID.
@@ -49,6 +51,7 @@ def get_roles(request):
     except requests.RequestException as e:
         logging.error("Failed to fetch roles: %s", e)
         return []
+
 
 def get_user_details(request, user_id):
     """
@@ -66,6 +69,7 @@ def get_user_details(request, user_id):
         logging.error("Failed to fetch user details for user_id %s: %s", user_id, e)
         return {}
 
+
 def get_app_templates_to_approve(request):
     """
     Fetches app templates to approve from the external API using a provided token ID.
@@ -81,6 +85,7 @@ def get_app_templates_to_approve(request):
     except requests.RequestException as e:
         logging.error("Failed to fetch app templates to approve: %s", e)
         return []
+
 
 def get_app_templates(request):
     """

@@ -11,7 +11,8 @@
             {% endif %}
         </div>
         <div>
-            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img"
+                 style="height: 95px;">
         </div>
     </div>
 {% endblock %}
@@ -19,7 +20,8 @@
 {% block main %}
     <link rel="stylesheet" href="{% static 'css/instances.css' %}">
 
-    <form method="post" action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
+    <form method="post"
+          action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template_id %}">
         {% csrf_token %}
 
         <!-- AppTemplate Name Display -->
@@ -56,7 +58,8 @@
 
             <div class="form-group">
                 <label for="separate_keys">{{ _("Generate separate keys for each instance?") }}
-                    <span data-toggle="tooltip" title="Choose whether each instance should use its own SSH key pair or all use the same one.">
+                    <span data-toggle="tooltip"
+                          title="Choose whether each instance should use its own SSH key pair or all use the same one.">
                             <i class="fa fa-question-circle"></i>
                       </span></label>
                 <select class="form-control" id="separate_keys" name="separate_keys">
@@ -75,12 +78,14 @@
         <!-- Launch and Cancel Buttons -->
         <div class="button-container">
             <button type="submit" class="btn btn-primary no-warning">{{ _("Launch") }}</button>
-            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}" class="btn btn-default">{{ _("Cancel") }}</a>
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:details' app_template_id %}"
+               class="btn btn-default">{{ _("Cancel") }}</a>
         </div>
     </form>
 
     <!-- Modal for Success or Failure -->
-    <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal fade" id="responseModal" tabindex="-1" role="dialog"
+         aria-labelledby="responseModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -94,16 +99,19 @@
                 </div>
                 <div class="modal-footer">
                     {% if modal_message == "Instance created successfully." %}
-                        <a href="/dashboard/project/instances/" class="btn btn-primary no-warning">{{ _("Show Instance") }}</a>
+                        <a href="/dashboard/project/instances/"
+                           class="btn btn-primary no-warning">{{ _("Show Instance") }}</a>
                     {% endif %}
-                    <button type="button" class="btn btn-secondary no-warning" data-dismiss="modal">{{ _("Close") }}</button>
+                    <button type="button" class="btn btn-secondary no-warning"
+                            data-dismiss="modal">{{ _("Close") }}</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modal for All Instances Changes Warning -->
-    <div class="modal fade" id="allInstancesWarningModal" tabindex="-1" role="dialog" aria-labelledby="allInstancesWarningModalLabel" aria-hidden="true">
+    <div class="modal fade" id="allInstancesWarningModal" tabindex="-1" role="dialog"
+         aria-labelledby="allInstancesWarningModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -113,22 +121,28 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>{{ _("Warning:") }}</strong> {{ _("Changes made here will override settings for all individual instances.") }}</p>
+                    <p>
+                        <strong>{{ _("Warning:") }}</strong> {{ _("Changes made here will override settings for all individual instances.") }}
+                    </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning confirm-apply-modal no-warning">{{ _("Apply to All Instances") }}</button>
-                    <button type="button" class="btn btn-secondary no-warning" data-dismiss="modal">{{ _("Cancel") }}</button>
+                    <button type="button"
+                            class="btn btn-warning confirm-apply-modal no-warning">{{ _("Apply to All Instances") }}</button>
+                    <button type="button" class="btn btn-secondary no-warning"
+                            data-dismiss="modal">{{ _("Cancel") }}</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- AppTemplate Details Modal -->
-    <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="appTemplateDetailsModal" tabindex="-1" role="dialog"
+         aria-labelledby="appTemplateDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="appTemplateDetailsModalLabel">{{ _("AppTemplate Details") }}</h5>
+                    <h5 class="modal-title"
+                        id="appTemplateDetailsModalLabel">{{ _("AppTemplate Details") }}</h5>
                     <button type="button" class="close no-warning" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -192,19 +206,24 @@
                             <tr>
                                 <th>Script</th>
                                 <td>
-                                    <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;">{{ app_template.script }}</pre>
+                                    <pre class="pre-scrollable p-2 bg-light border rounded"
+                                         style="max-height: 200px; white-space: pre-wrap;">{{ app_template.script }}</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <th>Instantiation Attributes</th>
                                 <td>
-                                    <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;" id="structured-instantiation"></pre>
+                                    <pre class="pre-scrollable p-2 bg-light border rounded"
+                                         style="max-height: 200px; white-space: pre-wrap;"
+                                         id="structured-instantiation"></pre>
                                 </td>
                             </tr>
                             <tr>
                                 <th>Account Attributes</th>
                                 <td>
-                                    <pre class="pre-scrollable p-2 bg-light border rounded" style="max-height: 200px; white-space: pre-wrap;" id="structured-accounts"></pre>
+                                    <pre class="pre-scrollable p-2 bg-light border rounded"
+                                         style="max-height: 200px; white-space: pre-wrap;"
+                                         id="structured-accounts"></pre>
                                 </td>
                             </tr>
                             </tbody>
@@ -212,7 +231,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary no-warning" data-dismiss="modal">{{ _("Close") }}</button>
+                    <button type="button" class="btn btn-secondary no-warning"
+                            data-dismiss="modal">{{ _("Close") }}</button>
                 </div>
             </div>
         </div>
@@ -232,11 +252,15 @@
     <script>
 
         window.templateContext = {
-          attachableVolumes: [
-              {% for volume in attachable_volumes %}
-                  { id: "{{ volume.id }}", name: "{{ volume.name }}", size: {{ volume.size }} }{% if not forloop.last %},{% endif %}
-              {% endfor %}
-          ],
+            attachableVolumes: [
+                {% for volume in attachable_volumes %}
+                    {
+                        id: "{{ volume.id }}",
+                        name: "{{ volume.name }}",
+                        size: {{ volume.size }}
+                    }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
             expectedAccountAttributes: {{ expected_account_fields|safe }},
             expectedInstantiationAttributes: {{ expected_instantiation_fields|safe }},
             volumeSize: {{ volume_size }},

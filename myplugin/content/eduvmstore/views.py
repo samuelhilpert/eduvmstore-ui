@@ -1,4 +1,3 @@
-
 import requests
 import json
 
@@ -16,13 +15,12 @@ from django.views import View
 from myplugin.content.eduvmstore.utils import get_token_id
 
 
-#This module contains helper views that do not directly render content for the EduVMStore dashboard.
+# This module contains helper views that do not directly render content for the EduVMStore dashboard.
 
-#It includes:
+# It includes:
 # - POST handlers triggered via forms (e.g., favoriting or deleting AppTemplates)
 # - Utility functions such as AppTemplate name validation
 # - No content-related views — those are located in `myplugin.content.eduvmstore.view`
-
 
 
 def validate_name(request):
@@ -41,6 +39,7 @@ def validate_name(request):
     :rtype: JsonResponse
     """
     if request.method == "POST":
+        data = {}
         try:
             # Read JSON-Body
             body = json.loads(request.body)
@@ -63,7 +62,6 @@ def validate_name(request):
             is_valid = False
 
         return JsonResponse({'valid': is_valid, 'reason': data.get('reason', 'Name already taken')})
-
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -116,6 +114,7 @@ class GetFavoriteAppTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
+
 
 class DeleteFavoriteAppTemplateView(generic.View):
 
@@ -206,7 +205,6 @@ class DeleteTemplateView(View):
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 
         if creator_id.replace('-', '') != user_id.replace('-', ''):
-
             messages.error(request, "You are not authorized to delete this template.")
             return redirect('horizon:eduvmstore_dashboard:eduvmstore:index')
 

@@ -7,15 +7,13 @@ from openstack_dashboard.api import keystone
 from myplugin.content.admin.utils import get_token_id
 
 
+# This module contains administrative helper views for the EduVMStore dashboard.
 
-#This module contains administrative helper views for the EduVMStore dashboard.
-
-#These views:
+# These views:
 # - Handle POST requests triggered via admin forms (e.g., approving, rejecting,
 #             or deleting templates, updating roles, deleting users)
 # - Do not render content or templates
 # - Are not part of the content views, which are located in `myplugin.content.admin.view`
-
 
 
 class UpdateRolesView(generic.View):
@@ -27,7 +25,6 @@ class UpdateRolesView(generic.View):
         user_id = request.POST.get("user_id")
         new_role_id = request.POST.get("new_role_id")
         token_id = get_token_id(request)
-
 
         if not user_id or not new_role_id:
             messages.error(request, "User ID and Role ID are required.")
@@ -41,7 +38,7 @@ class UpdateRolesView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API-PATCH-Call
-            response = requests.patch(api_url, json=payload, headers=headers,timeout=10)
+            response = requests.patch(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 messages.success(request, f"Role for user {user_id} updated successfully to {new_role_id}.")
@@ -63,7 +60,6 @@ class ApproveTemplateView(generic.View):
         template_id = request.POST.get("template_id")
         token_id = get_token_id(request)
 
-
         if not template_id:
             messages.error(request, "App Template ID is required.")
             return redirect('horizon:eduvmstore_dashboard:admin:index')
@@ -75,7 +71,7 @@ class ApproveTemplateView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API-PATCH-Call
-            response = requests.patch(api_url, headers=headers,timeout=10)
+            response = requests.patch(api_url, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 messages.success(request, f"{template_id} confirmed. This app template is now public.")
@@ -89,15 +85,14 @@ class ApproveTemplateView(generic.View):
 
 
 class RejectTemplateView(generic.View):
-
     """
     Handle POST requests to reject a template via the Backend.
     """
+
     def post(self, request, *args, **kwargs):
 
         template_id = request.POST.get("template_id")
         token_id = get_token_id(request)
-
 
         if not template_id:
             messages.error(request, "App Template ID is required.")
@@ -110,7 +105,7 @@ class RejectTemplateView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API-PATCH-Call
-            response = requests.patch(api_url, headers=headers,timeout=10)
+            response = requests.patch(api_url, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 messages.success(request, f"{template_id} rejected. This app template remains private.")
@@ -121,6 +116,7 @@ class RejectTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
+
 
 class DeleteTemplateView(generic.View):
 
@@ -142,7 +138,7 @@ class DeleteTemplateView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API DELETE call
-            response = requests.delete(api_url, headers=headers,timeout=10)
+            response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"Template {template_id} deleted successfully.")
@@ -153,6 +149,7 @@ class DeleteTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
+
 
 class DeleteUserView(generic.View):
 
@@ -174,7 +171,7 @@ class DeleteUserView(generic.View):
             headers = {"X-Auth-Token": token_id}
 
             # API DELETE call
-            response = requests.delete(api_url, headers=headers,timeout=10)
+            response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"User {user_id} deleted successfully.")

@@ -10,6 +10,7 @@ from django.urls import reverse
 from myplugin.content.eduvmstore.presets import preset_examples
 from openstack_dashboard.api import neutron
 
+
 class AppTemplateView(generic.TemplateView):
     """
     View for creating a new AppTemplate.
@@ -86,21 +87,18 @@ class AppTemplateView(generic.TemplateView):
         else:
             account_attributes = []
 
-
-        ssh_user_requested= request.POST.get(f'ssh_user_requested', None)
+        ssh_user_requested = request.POST.get(f'ssh_user_requested', None)
 
         if ssh_user_requested is None:
             ssh_user_requested = False
         else:
             ssh_user_requested = True
 
-
         volume_size = request.POST.get('volume_size', '').strip()
         volume_size_gb = float(volume_size) if volume_size else 0.0
 
         security_group_names = request.POST.getlist('security_groups')
         security_groups = [{"name": name} for name in security_group_names]
-
 
         data = {
             'image_id': request.POST.get('image_id'),
@@ -168,7 +166,7 @@ class AppTemplateView(generic.TemplateView):
         template_name = self.request.GET.get("template")
 
         if template_id:
-            app_template = get_app_template(self.request,template_id)
+            app_template = get_app_template(self.request, template_id)
             image_data = get_image_data(self.request, app_template.get('image_id', ''))
             db_security_groups = [sg['name'] for sg in app_template.get('security_groups', [])]
         elif template_name in preset_examples and self.mode != "edit":
@@ -206,8 +204,6 @@ class AppTemplateView(generic.TemplateView):
         context['page_title'] = self.page_title
 
         return context
-
-
 
     def get_security_groups(self):
         """

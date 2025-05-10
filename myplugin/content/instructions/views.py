@@ -1,6 +1,7 @@
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 
+
 class IndexView(generic.TemplateView):
     """
         View for displaying the tutorial index page and handling data retrieval from a backend API.
