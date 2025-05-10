@@ -149,7 +149,7 @@
                         {% endif %}
                     </li>
                     <li>Step 4: Fill in the instantiation attributes.
-                        {% if example_info.preset.instantiation_attributes == [] %}
+                        {% if not example_info.preset.instantiation_attributes %}
                             This AppTemplate does not have instantiation attributes.
                             So you can skip this step.
                         {% endif %}
