@@ -28,10 +28,9 @@
     <p style="text-align: center; color: #666; font-size: 16px;">Here are some examples of use cases and how
         to use the EduVMStore.</p>
     <hr>
-    {% include "./fragments/test.html" with object=object %}
-
-    {% include "./fragments/use_case_template.html" with example_info=example_info %}
-
+    {% for example_info in example_infos %}
+        {% include "./fragments/use_case_template.html" with example_info=example_info %}
+    {% endfor %}
 
     <button class="accordion">
         <span class="text">Use Case <strong>Ubuntu Linux</strong>:

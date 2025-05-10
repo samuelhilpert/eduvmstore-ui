@@ -13,7 +13,7 @@
 <p><strong>Learning objectives:</strong> By following this example, lecturers will learn how to:</p>
 <ul>
     {% for learning_objective in example_info.learning_objectives %}
-        <li>{{ example_info.learning_objective }}</li>
+        <li>{{ learning_objective }}</li>
     {% endfor %}
 </ul>
 <br/>
@@ -152,7 +152,9 @@
                         AppTemplate.
                         <ul>
                         {% for instantiation_attribute in example_info.preset.instantiation_attributes %}
-                           <!-- TODO List item for x enter y-->
+                            {% with recommendation=example_info.instantiation_attribute_recommendation_values|get_item:forloop.counter0 %}
+                                <li>For {{ instantiation_attribute.name }} enter {{ recommendation }}</li>
+                            {% endwith %}
                         {% endfor %}
                         </ul>
 
