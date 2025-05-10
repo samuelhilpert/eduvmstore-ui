@@ -197,7 +197,7 @@ preset_examples = {
             "SELECT b.title, a.name AS author\n"
             "FROM books b\n"
             "JOIN authors a ON b.author_id = a.id;",
-        "instantiation_notice": "",
+        "instantiation_notice": "Students can Access the server via 'psql -h <ip-address> -U <username> -d <db_name>'",
         "fixed_ram_gb": "1",
         "fixed_disk_gb": "10",
         "fixed_cores": "1",
