@@ -4,8 +4,6 @@ exclude = [
     "myplugin/content/admin/tests/",
     "myplugin/content/eduvmstore/tests/",
 ]
-# Todo: richtig, dass die tests excludet sind?
-
 
 # Enable specific rule categories
 # E: Pyflakes (syntax errors, undefined names, etc.)

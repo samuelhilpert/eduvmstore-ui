@@ -1,16 +1,3 @@
-# Todo: Should this be removed?
-# Monika Dev
-# BASE_URL = "http://141.72.12.222:8000/api/"
-
-# Samuel Dev
-
-# BASE_URL = "http://141.72.12.173:8000/api/"
-# BASE_URL = "http://localhost:8000/api/"
-
-
-# Valentin Dev
-# BASE_URL = "http://141.72.13.194:8000/api/"
-
 # Production
 BASE_URL = "http://141.72.12.209:8000/api/"
 
@@ -25,7 +12,7 @@ API_ENDPOINTS = {
     'roles_list': BASE_URL + 'roles',  # For roles list
     'get_to_approve': BASE_URL + 'app-templates/?public=True&approved=False',  # approving app templates
     'check_name': BASE_URL + 'app-templates/name/',  # For checking if a name is valid
-    'favorite': BASE_URL + 'app-templates/favorites',  # For favouring app templates
+    'favorite': BASE_URL + 'app-templates/favorites',  # For favoring app templates
     'to_be_favorite': BASE_URL + 'favorites/',  # For getting an app template favorited
     'delete_favorite': BASE_URL + 'favorites/delete_by_app_template/',  # deleting favorited app template
 }

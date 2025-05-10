@@ -1,5 +1,3 @@
-# Todo: Why does this file exist? What is the difference to ../views.py?
-# Todo: There are pages, where this file does not exist.
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 import sys
