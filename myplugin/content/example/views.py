@@ -20,7 +20,7 @@ class IndexView(generic.TemplateView):
         context["object"] = {"name": "Bob"}
 
         context["example_info"] = {
-            "preset": preset_examples.ubuntu_linux,
+            "preset": preset_examples["ubuntu_linux"],
             "use_case_title": "Ubuntu Linux",
             "use_case_problem_question" : "How to set up simple Ubuntu Linux instances with SSH setup for users?",
             "use_case_description" : "This example demonstrates how lecturers can set up simple Ubuntu Linux instances with SSH setup for multiple users. Each user will have their own SSH key generated and securely stored.",
