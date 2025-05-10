@@ -197,7 +197,8 @@ preset_examples = {
             "SELECT b.title, a.name AS author\n"
             "FROM books b\n"
             "JOIN authors a ON b.author_id = a.id;",
-        "instantiation_notice": "Students can Access the server via 'psql -h <ip-address> -U <username> -d <db_name>'",
+        "instantiation_notice": "Students can Access the server via "
+                                "'psql -h <ip-address> -U <username> -d <db_name>'",
         "fixed_ram_gb": "1",
         "fixed_disk_gb": "10",
         "fixed_cores": "1",
@@ -230,8 +231,10 @@ preset_examples = {
                     "\n"
                     "  # Overwrite default configuration files with custom versions\n"
                     "  - cp /tmp/pg_hba.conf /etc/postgresql/14/main/pg_hba.conf\n"
-                    "  - sed -i \"/^#listen_addresses =/c\listen_addresses = '*'\" /etc/postgresql/14/main/postgresql.conf\n"
-                    "  - sed -i \"/^#max_connections =/c\max_connections = 100\" /etc/postgresql/14/main/postgresql.conf\n"
+                    "  - sed -i \"/^#listen_addresses =/c\listen_addresses = '*'\" "
+                        "/etc/postgresql/14/main/postgresql.conf\n"
+                    "  - sed -i \"/^#max_connections =/c\max_connections = 100\" "
+                        "/etc/postgresql/14/main/postgresql.conf\n"
                     "  - chown postgres:postgres /etc/postgresql/14/main/*.conf\n"
                     "\n"
                     "  # Restart PostgreSQL to apply new configuration\n"
@@ -243,8 +246,10 @@ preset_examples = {
                     "    # Loop through user:db_name entries to create roles and databases\n"
                     "  - |\n"
                     "    while IFS=':' read -r username db_name password; do\n"
-                    "      sudo -u postgres psql -c \"CREATE ROLE $username WITH LOGIN PASSWORD '$password';\"\n"
-                    "      sudo -u postgres psql -c \"CREATE DATABASE $db_name OWNER $username;\"\n"
+                    "      sudo -u postgres psql -c "
+                        "\"CREATE ROLE $username WITH LOGIN PASSWORD '$password';\"\n"
+                    "      sudo -u postgres psql -c "
+                        "\"CREATE DATABASE $db_name OWNER $username;\"\n"
                     "    done < /etc/users.txt\n"
                     "\n"
                     "  # Restart again --> ensure all changes are active (optional)\n"
