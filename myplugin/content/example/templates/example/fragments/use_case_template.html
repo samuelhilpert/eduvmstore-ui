@@ -152,9 +152,11 @@
                         AppTemplate.
                         <ul>
                         {% for instantiation_attribute in example_info.preset.instantiation_attributes %}
-                                <li>For {{ instantiation_attribute.name }} enter
-                                    {{ instantiation_attributes_recommended_values[forloop.counter0] }}
-                                </li>
+                                {% with index=forloop.counter0 %}
+                                    <li>For {{ instantiation_attribute.name }} enter
+                                        {{ example_info.preset.instantiation_attributes_recommended_values|get_item:index }}
+                                    </li>
+                                {% endwith %}
                         {% endfor %}
                         </ul>
 
