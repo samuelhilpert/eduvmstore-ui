@@ -5,7 +5,6 @@ exclude = [
     "myplugin/content/eduvmstore/tests/",
 ]
 
-
 # Enable specific rule categories
 # E: Pyflakes (syntax errors, undefined names, etc.)
 # F: Flake8 (standard Python errors)

@@ -4,11 +4,8 @@ import json
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from horizon import tabs, exceptions
-from openstack_dashboard.api import glance, nova, cinder, keystone, neutron
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
-from django.http import HttpResponse
 
 from django.views import View
 
@@ -41,20 +38,16 @@ def validate_name(request):
     if request.method == "POST":
         data = {}
         try:
-            # Read JSON-Body
             body = json.loads(request.body)
             name = body.get('name', '').strip()
 
-            # Retrieve Token-ID
             token_id = get_token_id(request)
             headers = {"X-Auth-Token": token_id}
 
-            # API-Calls to Backend
             url = f"{API_ENDPOINTS['check_name']}{name}/collision"
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
 
-            # Process Response
             data = response.json()
             is_valid = not data.get('collision', True)
 

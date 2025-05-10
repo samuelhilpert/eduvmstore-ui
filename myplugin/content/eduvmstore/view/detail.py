@@ -17,12 +17,12 @@ class DetailsPageView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         try:
             app_template = get_app_template(self.request, self.kwargs['template_id'])
-        except Exception as e:
+        except Exception:
             app_template = {}
 
         try:
             image_data = get_image_data(self.request, app_template.get('image_id', ''))
-        except Exception as e:
+        except Exception:
             image_data = {}
 
         created_at = app_template.get('created_at', '').split('T')[0]
