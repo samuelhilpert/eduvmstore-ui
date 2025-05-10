@@ -206,7 +206,7 @@ preset_examples = {
         "public": False,
         "instantiation_attributes": [],
         "account_attributes": [{"name": "username"}, {"name": "db_name"}, {"name": "password"}],
-        "script":   "# Create a temporary config file\n"
+        "script":   "  # Create a temporary config file\n"
                     "  - path: /tmp/pg_hba.conf\n"
                     "    permissions: '0644'\n"
                     "    content: |\n"
