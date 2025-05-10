@@ -28,6 +28,7 @@
     <p style="text-align: center; color: #666; font-size: 16px;">Here are some examples of use cases and how
         to use the EduVMStore.</p>
     <hr>
+    <!-- Write the examples via the example_infos in the views.py -->
     {% for example_info in example_infos %}
         {% include "./fragments/use_case_template.html" with example_info=example_info %}
     {% endfor %}
