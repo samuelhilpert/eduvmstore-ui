@@ -45,7 +45,7 @@
                         or a similar name if not available.
                         In the "Short Description" write "{{ example_info.preset.short_description }}".
                         This is for quickly recognizing the purpose of the AppTemplate.
-                        For "Description" write "{{ example_info.preset.description }}". This gives a detailed overview of the
+                        For "Description" write "{{ example_info.preset.description|linebreaks }}". This gives a detailed overview of the
                         Purpose of the AppTemplate.
                         {% if example_info.preset.instantiation_notice == "" %}
                             Leave the "Instantiation Notice" field empty.
