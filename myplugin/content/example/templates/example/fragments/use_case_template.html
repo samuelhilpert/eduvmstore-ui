@@ -154,7 +154,7 @@
                         {% for instantiation_attribute in example_info.preset.instantiation_attributes %}
                                 {% with index=forloop.counter0 %}
                                     <li>For {{ instantiation_attribute.name }} enter
-                                        {{ example_info.preset.instantiation_attributes_recommended_values|get_item:index }}
+                                        {{ example_info.preset.instantiation_attributes_recommended_values|dictsort:index }}
                                     </li>
                                 {% endwith %}
                         {% endfor %}
