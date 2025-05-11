@@ -44,3 +44,13 @@
     margin-top: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+.app-template-description {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-left: 3px solid #ccc;
+    background-color: #f9f9f9;
+    line-height: 1.5;
+    max-height: 300px;
+    overflow-y: auto;
+}
