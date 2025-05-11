@@ -109,7 +109,6 @@ class InstanceSuccessView(generic.TemplateView):
                 if private_key:
                     zip_file.writestr(f"{keypair_name}.pem", private_key)
 
-
             else:
                 for i in range(1, num_instances + 1):
                     private_key = request.session.get(f"private_key_{i}")

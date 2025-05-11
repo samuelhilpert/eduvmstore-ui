@@ -1,6 +1,6 @@
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
-from myplugin.content.admin_instructions.utils import get_user_details, get_roles
+from myplugin.content.admin.utils import get_user_details, get_roles
 import sys
 
 

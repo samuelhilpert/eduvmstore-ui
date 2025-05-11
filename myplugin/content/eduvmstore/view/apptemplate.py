@@ -145,7 +145,7 @@ class AppTemplateView(generic.TemplateView):
                     messages.error(request, f"Failed to create App-Template. {response.text}")
         except requests.exceptions.RequestException as e:
             logging.error(f"Request error: {e}")
-            messages.error(request, f"Failed to create App-Template. Please try again.")
+            messages.error(request, "Failed to create App-Template. Please try again.")
 
         return redirect(reverse('horizon:eduvmstore_dashboard:eduvmstore:index'))
 
