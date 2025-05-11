@@ -8,115 +8,59 @@
             <h1 class="page-title mb-0">{{ app_template.name }}</h1>
         </div>
         <div>
-            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img" style="height: 95px;">
+            <img src="{% static 'images/EduVMStoreLogo.png' %}" alt="Logo" class="logo-img"
+                 style="height: 95px;">
         </div>
     </div>
 {% endblock %}
 
 {% block main %}
-<style>
-    .detail-group {
-        margin-bottom: 20px;
-    }
-    .detail-group strong {
-        color: #495057;
-    }
-    .detail-group p {
-        margin-bottom: 0;
-        color: #6c757d;
-    }
-    h2, h3 {
-        margin-top: 30px;
-        margin-bottom: 20px;
-        color: #343a40;
-
-    }
-    h5 {
-        font-size: medium;
-        font-weight: bold;
-        margin-bottom: 20px;
-        color: #343a40;
-    }
-    .system-requirements, .image-info, .script-details, .security_groups, .app_template_details {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-    }
-    .row {
-        margin-bottom: 20px;
-    }
-
-    .btn {
-        padding: 6px 12px;
-        font-size: 15px;
-        border: none;
-        cursor: pointer;
-        margin-left: 10px;
-        border-radius: 4px;
-        color: black;
-    }
-
-    .btn-launch {
-        background-color: #E8E8E8;
-        color: black;
-    }
-    .btn:hover {
-        opacity: 0.9;
-    }
-     .dropdown-toggle {
-         background-color: #E8E8E8;
-   }
-
-   .top-btn {
-    padding: 6px 14px;
-    font-size: 13px;
-}
+    <link rel="stylesheet" href="{% static 'css/details.css' %}">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 20px;">
+        <h3>AppTemplate Details</h3>
 
 
-</style>
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 20px;">
-    <h3>AppTemplate Details</h3>
-
-
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}" class="btn btn-launch">
-            Launch
-        </a>
-
-        <div class="btn-group">
-            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}" class="btn btn-launch">
-                Edit
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:instances' app_template.id %}"
+               class="btn btn-launch">
+                Launch
             </a>
 
-            <button type="button" class="btn btn-launch dropdown-toggle dropdown-toggle-split"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="caret"></span>
-            </button>
+            <div class="btn-group">
+                <a href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:edit' app_template.id %}"
+                   class="btn btn-launch">
+                    Edit
+                </a>
 
-            <ul class="dropdown-menu dropdown-menu-right">
-                <li>
-                    <a class="dropdown-item" href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
-                        Clone AppTemplate
-                    </a>
-                </li>
-                <li role="separator" class="divider"></li>
-                <li>
-                    <a class="dropdown-item text-danger" href="#"
-                       onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
-                        Delete AppTemplate
-                    </a>
-                    <form id="delete-form-{{ app_template.id }}" method="post"
-                          action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
-                          style="display: none;">
-                        {% csrf_token %}
-                        <input type="hidden" name="template_name" value="{{ app_template.name }}">
-                    </form>
-                </li>
-            </ul>
+                <button type="button" class="btn btn-launch dropdown-toggle dropdown-toggle-split"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a class="dropdown-item"
+                           href="{% url 'horizon:eduvmstore_dashboard:eduvmstore:create_with_template' app_template.id %}">
+                            Clone AppTemplate
+                        </a>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="#"
+                           onclick="event.preventDefault(); document.getElementById('delete-form-{{ app_template.id }}').submit();">
+                            Delete AppTemplate
+                        </a>
+                        <form id="delete-form-{{ app_template.id }}" method="post"
+                              action="{% url 'horizon:eduvmstore_dashboard:eduvmstore:delete_template' app_template.id %}"
+                              style="display: none;">
+                            {% csrf_token %}
+                            <input type="hidden" name="template_name" value="{{ app_template.name }}">
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 
 
 
@@ -124,151 +68,136 @@
 
     <div class="app_template_details">
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="detail-group">
-            <strong>AppTemplate Name</strong>
-            <p>{{ app_template.name }}</p>
-        </div>
-        <div class="detail-group">
-            <strong>AppTemplate ID</strong>
-            <p>{{ app_template.id }}</p>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="detail-group">
+                    <strong>AppTemplate Name</strong>
+                    <p>{{ app_template.name }}</p>
+                </div>
+                <div class="detail-group">
+                    <strong>AppTemplate ID</strong>
+                    <p>{{ app_template.id }}</p>
+                </div>
+
+                <div class="detail-group">
+                    <strong>Short Description</strong>
+                    <p>{{ app_template.short_description }}</p>
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="detail-group">
+                    <strong>Available in EduVMStore for</strong>
+                    <p>
+                        {% if app_template.public and app_template.approved %}
+                            All Lecturers
+                        {% elif app_template.public and not app_template.approved %}
+                            Waiting for approval
+                        {% elif not app_template.public and not app_template.approved %}
+                            Creator only
+                        {% endif %}
+                    </p>
+
+                </div>
+
+                <div class="detail-group">
+                    <strong>AppTemplate Creator</strong>
+                    <p>{{ app_template_creator }}</p>
+                </div>
+
+                <div class="detail-group">
+                    <strong>Created at</strong>
+                    <p>{{ created_at }}</p>
+                </div>
+
+
+            </div>
         </div>
 
         <div class="detail-group">
-            <strong>Short Description</strong>
-            <p>{{ app_template.short_description }}</p>
+            <strong>Description</strong>
+            <p>{{ app_template.description }}</p>
+        </div>
+
+        <div class="detail-group">
+            <strong>Instantiation Notice</strong>
+            <p>{{ app_template.instantiation_notice }}</p>
         </div>
 
     </div>
-    <div class="col-md-6">
-        <div class="detail-group">
-            <strong>Available in EduVMStore for</strong>
-            <p>
-                {% if app_template.public and app_template.approved %}
-                    All Lecturers
-                {% elif app_template.public and not app_template.approved %}
-                    Waiting for approval
-                {% elif not app_template.public and not app_template.approved %}
-                    Creator only
-                {% endif %}
-            </p>
 
-        </div>
-
-        <div class="detail-group">
-            <strong>AppTemplate Creator</strong>
-            <p>{{ app_template_creator }}</p>
-        </div>
-
-        <div class="detail-group">
-            <strong>Created at</strong>
-            <p>{{ created_at }}</p>
-        </div>
-
-
-
-    </div>
-</div>
-
-<div class="detail-group">
-    <strong>Description</strong>
-    <p>{{ app_template.description }}</p>
-</div>
-
-<div class="detail-group">
-    <strong>Instantiation Notice</strong>
-    <p>{{ app_template.instantiation_notice }}</p>
-</div>
-
-</div>
-
-<!-- System Requirements Section -->
-<h3>Minimum System Requirements</h3>
-<div class="system-requirements">
-    <div class="row">
-        <div class="col-md-6">
-            <h5>Fixed Minimum Resources</h5>
-            <div class="detail-group">
-                <strong>Fixed RAM (GB)</strong>
-                <p>{{ app_template.fixed_ram_gb }}</p>
-            </div>
-            <div class="detail-group">
-                <strong>Fixed Disk (GB)</strong>
-                <p>{{ app_template.fixed_disk_gb }}</p>
-            </div>
-            <div class="detail-group">
-                <strong>Fixed Cores</strong>
-                <p>{{ app_template.fixed_cores }}</p>
-            </div>
-            <div class="detail-group">
-                <strong>Volume Size</strong>
-                <p>{{ app_template.volume_size_gb }}</p>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <h5>Minimum Resources per User</h5>
-            <div class="detail-group">
-                <strong>Per User RAM (GB)</strong>
-                <p>{{ app_template.per_user_ram_gb }}</p>
-            </div>
-            <div class="detail-group">
-                <strong>Per User Disk (GB)</strong>
-                <p>{{ app_template.per_user_disk_gb }}</p>
-            </div>
-            <div class="detail-group">
-                <strong>Per User Cores</strong>
-                <p>{{ app_template.per_user_cores }}</p>
+    <!-- System Requirements Section -->
+    <h3>Minimum System Requirements</h3>
+    <div class="system-requirements">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Minimum Resources</h5>
+                <div class="detail-group">
+                    <strong>Minimum RAM (GB)</strong>
+                    <p>{{ app_template.fixed_ram_gb }}</p>
+                </div>
+                <div class="detail-group">
+                    <strong>Minimum Disk (GB)</strong>
+                    <p>{{ app_template.fixed_disk_gb }}</p>
+                </div>
+                <div class="detail-group">
+                    <strong>Minimum Cores</strong>
+                    <p>{{ app_template.fixed_cores }}</p>
+                </div>
+                <div class="detail-group">
+                    <strong>Volume Size</strong>
+                    <p>{{ app_template.volume_size_gb }}</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Image Information Section -->
-<h3>Image Information</h3>
-<div class="image-info">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Image ID</strong>
-                <p>
-                    <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/" class="template-link">
-                        {{ app_template.image_id }}
-                    </a>
-                </p>
+    <!-- Image Information Section -->
+    <h3>Image Information</h3>
+    <div class="image-info">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="detail-group">
+                    <strong>Image ID</strong>
+                    <p>
+                        <a href="/dashboard/ngdetails/OS::Glance::Image/{{ app_template.image_id }}/"
+                           class="template-link">
+                            {{ app_template.image_id }}
+                        </a>
+                    </p>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Owner</strong>
-                <p>{{ image_owner }}</p>
+            <div class="col-md-6">
+                <div class="detail-group">
+                    <strong>Owner</strong>
+                    <p>{{ image_owner }}</p>
+                </div>
             </div>
-        </div>
 
-    </div>
-</div>
-
-
-<!-- Security Information Section -->
-<h3>Security Information</h3>
-<div class="security_groups">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="detail-group">
-                <strong>Security Groups</strong>
-                {% if app_template.security_groups %}
-                    <ul class="list-unstyled">
-                        {% for group in app_template.security_groups %}
-                            <li>{{ group.name }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No security group selected.</p>
-                {% endif %}
-            </div>
         </div>
     </div>
-</div>
+
+
+    <!-- Security Information Section -->
+    <h3>Security Information</h3>
+    <div class="security_groups">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="detail-group">
+                    <strong>Security Groups</strong>
+                    {% if app_template.security_groups %}
+                        <ul class="list-unstyled">
+                            {% for group in app_template.security_groups %}
+                                <li>{{ group.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No security group selected.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <h3>Configuration Script</h3>
@@ -315,88 +244,73 @@ write_files:
                 <div class="detail-group">
                     <strong>SSH User Script</strong>
                     <p>{% if app_template.ssh_user_requested %} Yes {% else %} No {% endif %} </p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-    let accountAttributes = {{ app_template.account_attributes|default:"[]"|safe }};
-    let instantiationAttributes = {{ app_template.instantiation_attributes|default:"[]"|safe }};
+        <script>
+            window.templateContext = {
+                accountAttributes: {{ app_template.account_attributes|default:"[]"|safe }},
+                instantiationAttributes: {{ app_template.instantiation_attributes|default:"[]"|safe }},
+            };
 
-    document.getElementById("structured-accounts").textContent =
-        accountAttributes.length ? accountAttributes.map(acc => acc.name).join(": ") : "No account attributes available.";
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll(".delete-btn").forEach(button => {
+                    button.addEventListener("click", function (event) {
+                        event.preventDefault();
 
-    document.getElementById("structured-instantiation").textContent =
-        instantiationAttributes.length ? instantiationAttributes.map(attr => attr.name).join(": ") : "No instantiation attributes available.";
-});
+                        let templateId = this.getAttribute("data-template-id");
 
-        let accountAttributes = {{ app_template.account_attributes|safe }};
-        let formattedAccounts = accountAttributes.map(acc => acc.name).join(":");
-        document.getElementById("formatted-accounts").textContent = formattedAccounts;
-        document.getElementById("structured-accounts").textContent = formattedAccounts;
+                        let authToken = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
 
-        let instantiationAttributes = {{ app_template.instantiation_attributes|safe }};
-        let formattedInstatiation = instantiationAttributes.map(acc => acc.name).join(":");
-        document.getElementById("structured-instantiation").textContent = formattedInstatiation;
-        document.getElementById("instantiationContent").textContent = formattedInstatiation;
+                        if (!authToken) {
+                            alert("Authentication token not found. Please log in again.");
+                            return;
+                        }
 
-        document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".delete-btn").forEach(button => {
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
+                        let confirmDelete = confirm("Are you sure you want to delete this AppTemplate?");
+                        if (!confirmDelete) return;
 
-            let templateId = this.getAttribute("data-template-id");
-
-            let authToken = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-
-            if (!authToken) {
-                alert("Authentication token not found. Please log in again.");
-                return;
-            }
-
-            let confirmDelete = confirm("Are you sure you want to delete this AppTemplate?");
-            if (!confirmDelete) return;
-
-            fetch(`/delete_template/${templateId}/`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${authToken}`,
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie("csrftoken")
-                }
-            })
-            .then(response => {
-                if (response.status === 204) {
-                    alert("AppTemplate deleted successfully!");
-                    location.reload();
-                } else {
-                    return response.json().then(data => {
-                        alert("Failed to delete: " + (data.error || response.status));
+                        fetch(`/delete_template/${templateId}/`, {
+                            method: "DELETE",
+                            headers: {
+                                "Authorization": `Bearer ${authToken}`,
+                                "Content-Type": "application/json",
+                                "X-CSRFToken": getCookie("csrftoken")
+                            }
+                        })
+                            .then(response => {
+                                if (response.status === 204) {
+                                    alert("AppTemplate deleted successfully!");
+                                    location.reload();
+                                } else {
+                                    return response.json().then(data => {
+                                        alert("Failed to delete: " + (data.error || response.status));
+                                    });
+                                }
+                            })
+                            .catch(error => console.error("Error:", error));
                     });
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
-    });
+                });
 
-    // Function to get CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            let cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                let cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+                // Function to get CSRF token from cookies
+                function getCookie(name) {
+                    let cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        let cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            let cookie = cookies[i].trim();
+                            if (cookie.startsWith(name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
                 }
-            }
-        }
-        return cookieValue;
-    }
-});
-    </script>
+            });
+        </script>
+        <script src="{% static 'js/details.js' %}"></script>
 
 
 {% endblock %}

@@ -1,187 +1,18 @@
 import requests
-import socket
-import logging
-import sys
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.views import generic
 from myplugin.content.api_endpoints import API_ENDPOINTS
-from openstack_dashboard.api import keystone
-from django.utils.translation import gettext_lazy as _
-
-def get_username_from_id(request, user_id):
-    try:
-        user = keystone.user_get(request, user_id)
-        return user.name
-    except Exception:
-        return user_id
+from myplugin.content.admin.utils import get_token_id
 
 
+# This module contains administrative helper views for the EduVMStore dashboard.
 
-def get_token_id(request):
-    """
-    Retrieves the token ID from the request object.
-    """
-    return getattr(getattr(request, "user", None), "token", None) and request.user.token.id
-
-def get_users(request):
-    """
-    Fetches app templates from the external API using a provided token ID.
-    """
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-
-    try:
-        response = requests.get(API_ENDPOINTS['user_list'],
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to fetch users: %s", e)
-        return []
-
-def get_roles(request):
-    """
-    Fetches app templates from the external API using a provided token ID.
-    """
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-
-    try:
-        response = requests.get(API_ENDPOINTS['roles_list'],
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to fetch roles: %s", e)
-        return []
-
-def get_user_details(request, user_id):
-    """
-    Fetches detailed user information for a given user_id using the external API.
-    """
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-    url = f"{API_ENDPOINTS['user_list']}{user_id}"
-
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to fetch user details for user_id %s: %s", user_id, e)
-        return {}
-
-def get_app_templates_to_approve(request):
-    """
-    Fetches app templates to approve from the external API using a provided token ID.
-    """
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-
-    try:
-        response = requests.get(API_ENDPOINTS['get_to_approve'],
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to fetch app templates to approve: %s", e)
-        return []
-
-def get_app_templates(request):
-    """
-    Fetches app templates from the external API using a provided token ID.
-    """
-    token_id = get_token_id(request)
-    headers = {"X-Auth-Token": token_id}
-
-    try:
-        response = requests.get(API_ENDPOINTS['app_templates'],
-                                headers=headers, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        logging.error("Failed to fetch app templates: %s", e)
-        return []
-
-
-class IndexView(generic.TemplateView):
-    """
-        View for displaying the admin index page with user details and admin status.
-    """
-    template_name = 'eduvmstore_dashboard/admin/index.html'
-    page_title = _("EduVMStore Admin")
-
-    def get_context_data(self, **kwargs):
-        """
-            Add user details, authentication token, and admin status to the context.
-
-            :param kwargs: Additional context parameters.
-            :return: Context dictionary with user-specific details and content visibility.
-            :rtype: dict
-        """
-        context = super().get_context_data(**kwargs)
-        userdev = self.request.user
-        token_id = None
-
-        # Check if the user has a token attribute and retrieve its ID
-        if hasattr(self.request, "user") and hasattr(self.request.user, "token"):
-            token_id = self.request.user.token.id
-
-        user_id = self.request.user.id
-        user_details = get_user_details(self.request, user_id)
-        role_level = user_details.get('role', {}).get('access_level', 1)
-        user_data = get_users(self.request)
-        context['users'] = user_data
-
-        roles_data = get_roles(self.request)
-        context['roles'] = roles_data
-
-        admin_access_level = sys.maxsize
-        for item in roles_data:
-            if item["name"] == "EduVMStoreAdmin":
-                admin_access_level = item["access_level"]
-                break
-
-        approvable_app_templates = get_app_templates_to_approve(self.request)
-        context['approvable_app_templates'] = approvable_app_templates
-        for template in approvable_app_templates:
-            creator_id = template.get("creator_id")
-            if creator_id:
-                app_template_creator_id = creator_id.replace('-', '')
-                creator_name = get_username_from_id(self.request, app_template_creator_id)
-                template["creator_name"] = creator_name
-
-        app_templates = get_app_templates(self.request)
-        context['app_templates'] = app_templates
-
-        detailed_users = []
-        for user in user_data:
-            user_id = user.get('id')
-            if user_id:
-                user_details = get_user_details(self.request, user_id)
-                user_details_id = user_id.replace('-', '')
-                user_details['username'] = get_username_from_id(self.request, user_details_id)
-                detailed_users.append(user_details)
-
-        context['detailed_users'] = detailed_users
-
-
-        # Add user details and admin status to the context
-        context['username'] = userdev.username
-        context['auth_token'] = token_id
-        context['admin'] = userdev.is_superuser
-        context['show_content'] = False
-
-        # Check if the user is an admin
-        if role_level >= admin_access_level:
-            context['show_content'] = True
-        else:
-            context['show_content'] = False
-
-        context['page_title'] = self.page_title
-
-        return context
+# These views:
+# - Handle POST requests triggered via admin forms (e.g., approving, rejecting,
+#             or deleting templates, updating roles, deleting users)
+# - Do not render content or templates
+# - Are not part of the content views, which are located in `myplugin.content.admin.view`
 
 
 class UpdateRolesView(generic.View):
@@ -194,20 +25,17 @@ class UpdateRolesView(generic.View):
         new_role_id = request.POST.get("new_role_id")
         token_id = get_token_id(request)
 
-
         if not user_id or not new_role_id:
             messages.error(request, "User ID and Role ID are required.")
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
 
             payload = {"role_id": new_role_id}
             headers = {"X-Auth-Token": token_id}
 
-            # API-PATCH-Call
-            response = requests.patch(api_url, json=payload, headers=headers,timeout=10)
+            response = requests.patch(api_url, json=payload, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 messages.success(request, f"Role for user {user_id} updated successfully to {new_role_id}.")
@@ -229,19 +57,16 @@ class ApproveTemplateView(generic.View):
         template_id = request.POST.get("template_id")
         token_id = get_token_id(request)
 
-
         if not template_id:
             messages.error(request, "App Template ID is required.")
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/approve/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # API-PATCH-Call
-            response = requests.patch(api_url, headers=headers,timeout=10)
+            response = requests.patch(api_url, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 messages.success(request, f"{template_id} confirmed. This app template is now public.")
@@ -255,28 +80,25 @@ class ApproveTemplateView(generic.View):
 
 
 class RejectTemplateView(generic.View):
-
     """
     Handle POST requests to reject a template via the Backend.
     """
+
     def post(self, request, *args, **kwargs):
 
         template_id = request.POST.get("template_id")
         token_id = get_token_id(request)
-
 
         if not template_id:
             messages.error(request, "App Template ID is required.")
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Prepare API-Call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/reject/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # API-PATCH-Call
-            response = requests.patch(api_url, headers=headers,timeout=10)
+            response = requests.patch(api_url, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 messages.success(request, f"{template_id} rejected. This app template remains private.")
@@ -287,6 +109,7 @@ class RejectTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
+
 
 class DeleteTemplateView(generic.View):
 
@@ -302,13 +125,11 @@ class DeleteTemplateView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Prepare API call
             api_url = f"{API_ENDPOINTS['app_templates']}{template_id}/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # API DELETE call
-            response = requests.delete(api_url, headers=headers,timeout=10)
+            response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"Template {template_id} deleted successfully.")
@@ -319,6 +140,7 @@ class DeleteTemplateView(generic.View):
             messages.error(request, f"Error during API call: {str(e)}")
 
         return redirect('horizon:eduvmstore_dashboard:admin:index')
+
 
 class DeleteUserView(generic.View):
 
@@ -334,59 +156,17 @@ class DeleteUserView(generic.View):
             return redirect('horizon:eduvmstore_dashboard:admin:index')
 
         try:
-            # Prepare API call
             api_url = f"{API_ENDPOINTS['user_list']}{user_id}/"
 
             headers = {"X-Auth-Token": token_id}
 
-            # API DELETE call
-            response = requests.delete(api_url, headers=headers,timeout=10)
+            response = requests.delete(api_url, headers=headers, timeout=10)
 
             if response.status_code == 204:
                 messages.success(request, f"User {user_id} deleted successfully.")
             else:
                 error_message = response.json().get("error", "Unknown error occurred.")
                 messages.error(request, f"Failed to delete user: {error_message}")
-        except requests.RequestException as e:
-            messages.error(request, f"Error during API call: {str(e)}")
-
-        return redirect('horizon:eduvmstore_dashboard:admin:index')
-
-class CreateRoleView(generic.View):
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests to delete a template via the external API.
-        """
-        new_role_name = request.POST.get("new_role_name")
-        access_level = request.POST.get("access_level")
-        token_id = get_token_id(request)
-
-        if not new_role_name:
-            messages.error(request, "Role Name is required.")
-            return redirect('horizon:eduvmstore_dashboard:admin:index')
-
-        try:
-            # Prepare API call
-            api_url = f"{API_ENDPOINTS['roles_list']}/"
-
-            headers = {"X-Auth-Token": token_id}
-
-            payload = {
-                "name": new_role_name,
-                "access_level": access_level
-            }
-
-
-            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
-
-            if response.status_code == 201:
-                created_role = response.json()
-                role_id = created_role.get("id")
-                messages.success(request, f"Role '{new_role_name}' created successfully with ID {role_id}.")
-            else:
-                error_message = response.json().get("error", "Unknown error occurred.")
-                messages.error(request, f"Failed to create role: {error_message}")
         except requests.RequestException as e:
             messages.error(request, f"Error during API call: {str(e)}")
 

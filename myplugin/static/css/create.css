@@ -1,0 +1,226 @@
+.form-container {
+    margin: auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #495057;
+    font-size: small;
+}
+
+.form-control, .select-box {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+}
+
+.select-box {
+    appearance: none;
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+    height: 35px;
+    line-height: 1.5;
+    padding-right: 25px;
+    text-align: start;
+    -ms-text-justify: auto;
+}
+
+.select-box:focus, .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover, .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+}
+
+.form-check-input {
+    margin-left: 10px;
+}
+
+.is-valid {
+    border: 2px solid green !important;
+}
+
+.is-invalid {
+    border: 2px solid red !important;
+}
+
+
+.select-box, .form-control {
+    height: auto;
+    line-height: 1.5;
+    padding: 10px 14px;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.select-box:focus, .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+    outline: none;
+}
+
+
+.dropdown {
+    position: relative;
+    width: 100%;
+}
+
+
+.dropdown-toggle {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 12px;
+    width: 100%;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease-in-out;
+}
+
+.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+    border-color: #007bff;
+}
+
+
+#selectedGroupsDisplay span {
+    margin-right: 6px;
+    padding: 5px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 5px;
+    padding: 10px 12px;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.dropdown.show .dropdown-menu {
+    display: block;
+}
+
+
+.dropdown-menu .form-check {
+    margin-bottom: 8px;
+}
+
+.dropdown-menu .form-check-input {
+    margin-top: 2px;
+}
+
+.dropdown-menu label {
+    margin-left: 8px;
+    font-weight: 400;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-check-input {
+    margin-right: 10px;
+}
+
+.system-requirements, .script-details, .security_groups, .app_template_details {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.row {
+    margin-bottom: 20px;
+}
+
+.script-details {
+    margin-bottom: 30px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.script-details p {
+    margin-bottom: 20px;
+
+}
+
+.or-divider {
+    font-weight: bold;
+    font-size: 16px;
+    padding-top: 30px;
+    color: #888;
+}
+
+.script-paragraph {
+    margin-left: 15px;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+#selectedGroupsDisplay .text-muted {
+    color: #6c757d;
+    font-style: italic;
+}

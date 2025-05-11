@@ -1,14 +1,5 @@
-from http.client import responses
-
-from django.http import JsonResponse
-from django.utils.decorators import method_decorator
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
-
-import requests
-from django.views.decorators.csrf import csrf_exempt
-
-
 
 
 class IndexView(generic.TemplateView):
@@ -22,6 +13,3 @@ class IndexView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = self.page_title
         return context
-
-
-
