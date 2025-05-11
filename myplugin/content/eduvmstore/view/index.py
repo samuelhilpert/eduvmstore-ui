@@ -1,7 +1,7 @@
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import render
-from myplugin.content.eduvmstore.utils import search_app_templates, fetch_favorite_app_templates, \
+from myplugin.content.eduvmstore.utils import search_app_templates, get_favorite_app_templates, \
     get_images_data
 
 
@@ -32,7 +32,7 @@ class IndexView(generic.TemplateView):
             app_templates = []
 
         try:
-            favorite_app_templates = fetch_favorite_app_templates(self.request)
+            favorite_app_templates = get_favorite_app_templates(self.request)
         except Exception:
             favorite_app_templates = []
 

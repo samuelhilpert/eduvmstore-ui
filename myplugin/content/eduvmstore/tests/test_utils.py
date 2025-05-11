@@ -23,12 +23,12 @@ def test_search_app_templates_success(mock_get):
 
 
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get")
-def test_fetch_favorite_app_templates_success(mock_get):
+def test_get_favorite_app_templates_success(mock_get):
     request = mock.MagicMock()
     request.user.token.id = "test-token"
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = [{"id": "fav1"}]
-    result = utils.fetch_favorite_app_templates(request)
+    result = utils.get_favorite_app_templates(request)
     assert result == [{"id": "fav1"}]
 
 
@@ -107,10 +107,10 @@ def test_search_app_templates_exception(mock_get):
 
 
 @mock.patch("myplugin.content.eduvmstore.utils.requests.get", side_effect=requests.RequestException("fail"))
-def test_fetch_favorite_app_templates_exception(mock_get):
+def test_get_favorite_app_templates_exception(mock_get):
     request = mock.MagicMock()
     request.user.token.id = "test-token"
-    result = utils.fetch_favorite_app_templates(request)
+    result = utils.get_favorite_app_templates(request)
     assert result == []
 
 

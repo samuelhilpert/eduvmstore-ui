@@ -15,7 +15,7 @@ def mock_request():
 
 
 @mock.patch("myplugin.content.eduvmstore.view.index.get_images_data")
-@mock.patch("myplugin.content.eduvmstore.view.index.fetch_favorite_app_templates")
+@mock.patch("myplugin.content.eduvmstore.view.index.get_favorite_app_templates")
 @mock.patch("myplugin.content.eduvmstore.view.index.search_app_templates")
 def test_get_context_data_with_images(mock_search, mock_favorites, mock_images, mock_request):
     mock_search.return_value = [{'id': '1', 'image_id': 'img-1'}, {'id': '2', 'image_id': 'img-2'}]
@@ -47,7 +47,7 @@ def test_get_context_data_with_images(mock_search, mock_favorites, mock_images, 
 
 
 @mock.patch("myplugin.content.eduvmstore.view.index.get_images_data", return_value={})
-@mock.patch("myplugin.content.eduvmstore.view.index.fetch_favorite_app_templates", return_value=[])
+@mock.patch("myplugin.content.eduvmstore.view.index.get_favorite_app_templates", return_value=[])
 @mock.patch("myplugin.content.eduvmstore.view.index.search_app_templates", return_value=[])
 def test_get_context_data_empty(mock_search, mock_favorites, mock_images, mock_request):
     view = IndexView()
@@ -92,7 +92,7 @@ def test_get_standard_request_calls_super(mock_get_context, mock_request):
 
 @mock.patch("myplugin.content.eduvmstore.view.index.search_app_templates",
             side_effect=Exception("search error"))
-@mock.patch("myplugin.content.eduvmstore.view.index.fetch_favorite_app_templates", return_value=[])
+@mock.patch("myplugin.content.eduvmstore.view.index.get_favorite_app_templates", return_value=[])
 @mock.patch("myplugin.content.eduvmstore.view.index.get_images_data", return_value={})
 def test_context_data_search_exception(mock_images, mock_fav, mock_search, mock_request):
     view = IndexView()

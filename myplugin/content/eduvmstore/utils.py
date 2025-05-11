@@ -59,7 +59,7 @@ def search_app_templates(request) -> list:
         return []
 
 
-def fetch_favorite_app_templates(request):
+def get_favorite_app_templates(request):
     """
     Fetches favorite AppTemplates from the external API using a provided token ID.
 
