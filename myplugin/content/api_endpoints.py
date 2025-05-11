@@ -1,5 +1,5 @@
 # Production
-BASE_URL = "http://141.72.12.209:8000/api/"
+BASE_URL = "http://141.72.12.173:8000/api/"
 
 # Define your API endpoints in a dictionary or as constants
 API_ENDPOINTS = {
