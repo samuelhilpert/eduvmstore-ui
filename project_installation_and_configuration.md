@@ -34,11 +34,11 @@ To set up the EduVMStore on a DevStack environment, a DevStack environment is re
 
 - To switch the branch navigate to `devstack/local.conf`. Change this line (if not existing add it in the beginning):
 ```ini
-ENABLE_PLUGIN eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui main
+enable_plugin eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui main
 ```
 to the branch you want to use
 ```ini
-ENABLE_PLUGIN eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui <your-branch>
+enable_plugin eduvmstore-ui https://github.com/samuelhilpert/eduvmstore-ui <your-branch>
 ```
 
 
